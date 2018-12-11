@@ -18,9 +18,9 @@ $data = ["response" => 1, "error" => "", "data" => ""];
 
 if (!empty($file) && !empty($lib)) {
 
-    $include = PATH_HOME . ($lib ===  DOMINIO ? "" : VENDOR . $lib . "/") . "public/ajax/" . $file . ".php";
+    $include = PATH_HOME . ($lib ===  DOMINIO ? "" : VENDOR . $lib . "/") . "public/set/" . $file . ".php";
     if(!file_exists($include) && !empty($_SESSION['userlogin']))
-        $include = PATH_HOME . ($lib ===  DOMINIO ? "" : VENDOR . $lib . "/") . "public/ajax/" . $_SESSION['userlogin']['setor'] . "/" . $file . ".php";
+        $include = PATH_HOME . ($lib ===  DOMINIO ? "" : VENDOR . $lib . "/") . "public/set/" . $_SESSION['userlogin']['setor'] . "/" . $file . ".php";
 
     if (Check::ajax()) {
         ob_start();
