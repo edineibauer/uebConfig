@@ -1,0 +1,272 @@
+{
+  "1": {
+    "format": "title",
+    "type": "varchar",
+    "nome": "Nome do Site",
+    "column": "nome_do_site",
+    "size": "127",
+    "key": "title",
+    "unique": "true",
+    "default": "false",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "validate": ""
+    },
+    "form": {
+      "input": "text",
+      "cols": "12",
+      "colm": "",
+      "coll": "",
+      "class": "",
+      "style": "font-size:1.7em;font-weight:bold"
+    },
+    "value": "",
+    "indice": "1"
+  },
+  "2": {
+    "format": "text",
+    "type": "varchar",
+    "nome": "Subt\u00edtulo",
+    "column": "subtitulo",
+    "size": "false",
+    "key": "",
+    "unique": "false",
+    "default": "",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "validate": ""
+    },
+    "form": {
+      "input": "text",
+      "cols": "12",
+      "colm": "",
+      "coll": "",
+      "class": "",
+      "style": ""
+    },
+    "value": "",
+    "indice": "2"
+  },
+  "3": {
+    "format": "text",
+    "type": "varchar",
+    "nome": "Descri\u00e7\u00e3o",
+    "column": "descricao",
+    "size": "false",
+    "key": "",
+    "unique": "false",
+    "default": "",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "validate": ""
+    },
+    "form": {
+      "input": "text",
+      "cols": "12",
+      "colm": "",
+      "coll": "",
+      "class": "",
+      "style": ""
+    },
+    "value": "",
+    "indice": "3"
+  },
+  "4": {
+    "format": "boolean",
+    "type": "tinyint",
+    "nome": "https",
+    "column": "HTTPS",
+    "size": "1",
+    "key": "",
+    "unique": "false",
+    "default": "0",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "values": [
+        "0",
+        "1"
+      ],
+      "names": [
+        "n\u00e3o",
+        "sim"
+      ],
+      "validate": ""
+    },
+    "form": {
+      "input": "switch",
+      "cols": "12",
+      "colm": "6",
+      "coll": "3",
+      "class": "padding-tiny",
+      "style": ""
+    },
+    "value": "",
+    "indice": "4"
+  },
+  "5": {
+    "format": "boolean",
+    "type": "tinyint",
+    "nome": "WWW",
+    "column": "www",
+    "size": "1",
+    "key": "",
+    "unique": "false",
+    "default": "0",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "values": [
+        "0",
+        "1"
+      ],
+      "names": [
+        "n\u00e3o",
+        "sim"
+      ],
+      "validate": ""
+    },
+    "form": {
+      "input": "switch",
+      "cols": "12",
+      "colm": "6",
+      "coll": "9",
+      "class": "padding-tiny",
+      "style": ""
+    },
+    "value": "",
+    "indice": "5"
+  },
+  "6": {
+    "format": "source",
+    "type": "json",
+    "nome": "Logo",
+    "column": "logo",
+    "size": "false",
+    "key": "source",
+    "unique": "false",
+    "default": "",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "values": [
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "bmp",
+        "tif",
+        "tiff",
+        "psd",
+        "svg"
+      ],
+      "names": [
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "bmp",
+        "tif",
+        "tiff",
+        "psd",
+        "svg"
+      ],
+      "validate": ""
+    },
+    "form": {
+      "input": "file",
+      "cols": "12",
+      "colm": "6",
+      "coll": "",
+      "class": "padding-tiny",
+      "style": ""
+    },
+    "value": "",
+    "indice": "6"
+  },
+  "7": {
+    "format": "source",
+    "type": "json",
+    "nome": "Favicon",
+    "column": "favicon",
+    "size": "false",
+    "key": "source",
+    "unique": "false",
+    "default": "",
+    "update": "true",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "values": [
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "bmp",
+        "tif",
+        "tiff",
+        "psd",
+        "svg"
+      ],
+      "names": [
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "bmp",
+        "tif",
+        "tiff",
+        "psd",
+        "svg"
+      ],
+      "validate": ""
+    },
+    "form": {
+      "input": "file",
+      "cols": "12",
+      "colm": "6",
+      "coll": "",
+      "class": "padding-tiny",
+      "style": ""
+    },
+    "value": "",
+    "indice": "7"
+  },
+  "0": {
+    "format": "none",
+    "type": "int",
+    "nome": "id",
+    "column": "id",
+    "size": "",
+    "key": "identifier",
+    "unique": "true",
+    "default": "false",
+    "update": "false",
+    "relation": "",
+    "allow": {
+      "regex": "",
+      "values": "",
+      "names": "",
+      "validate": ""
+    },
+    "form": {
+      "input": "hidden",
+      "cols": "12",
+      "colm": "",
+      "coll": "",
+      "class": "",
+      "style": ""
+    },
+    "select": [],
+    "filter": []
+  }
+}

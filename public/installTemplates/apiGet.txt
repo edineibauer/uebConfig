@@ -1,0 +1,71 @@
+<?php
+require_once './_config/config.php';
+
+use LinkControl\Route;
+use LinkControl\Link;
+
+/** RESPONSES
+ * 1 -> rota encontrada e corretamente executada
+ * 2 -> rota encontrada e erro encontrado
+ * 3 -> redirecionamento
+ * 4 -> rota não encontrada
+ * outro -> não faz nada
+ * */
+
+$url = strip_tags(trim($_GET['data']));
+if (!empty($url)) {
+    $route = new Route($url);
+
+    if ($route->getRoute()) {
+
+        ob_start();
+
+        $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
+
+        try {
+            include_once $route->getRoute();
+
+            if (isset($data['error'])) {
+                $data["response"] = 2;
+                $data["data"] = "";
+            } elseif (!isset($data['data'])) {
+                $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+            } elseif (!isset($data['response'])) {
+                $data['response'] = 1;
+                $data['error'] = "";
+            }
+
+            if(preg_match('/^http/i', $data['data']))
+                $data = ["response" => 3, "error" => "", "data" => $data['data']];
+
+        } catch (Exception $e) {
+            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+        }
+
+        ob_end_clean();
+        if ($data['response'] === 1) {
+            $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
+            $data["data"] = [
+                "title" => $link->getParam()['title'],
+                "descricao" => $link->getParam()['descricao'],
+                "css" => $link->getParam()['css'],
+                "js" => $link->getParam()['js'],
+                "meta" => $link->getParam()['meta'],
+                "font" => $link->getParam()['font'],
+                "content" => $data['data']
+            ];
+
+        } elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^http/i", $data['data']))) {
+            $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+        }
+    } else {
+        $data["response"] = 4;
+    }
+
+    if ($data['response'] === 4 && preg_match('/^data\/\w+/i', $url))
+        $data["response"] = 5;
+} else {
+    $data["response"] = 4;
+}
+
+echo json_encode($data);

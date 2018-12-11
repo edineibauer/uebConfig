@@ -1,0 +1,10 @@
+{
+  "nome": "Cep Aberto",
+  "link": "http://cepaberto.com/",
+  "constantes": {
+    "Key CepAberto": {
+      "input": "text",
+      "column": "cepaberto"
+    }
+  }
+}

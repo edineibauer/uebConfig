@@ -1,0 +1,189 @@
+let cacheShell = 'shell-1.0.0';
+let cacheAssets = 'assets-1.0.0';
+let cacheData = 'data-1.0.0';
+
+let filesShell = [];
+let filesAssets = [];
+let filesData = [];
+
+self.addEventListener('install', function(e) {
+
+    //cache core
+    e.waitUntil(
+        caches.open(cacheShell).then(function(cache) {
+            return cache.addAll(filesShell);
+        })
+    );
+
+    caches.open(cacheAssets).then(function(cache) {
+        return cache.addAll(filesAssets);
+    });
+
+    caches.open(cacheData).then(function(cache) {
+        return cache.addAll(filesData);
+    });
+});
+
+self.addEventListener('activate', function (e) {
+    e.waitUntil(
+        caches.keys().then(function (keyList) {
+            return Promise.all(keyList.map(function (key) {
+                if (key !== cacheShell && key !== cacheData && key !== cacheAssets) {
+                    return caches.delete(key);
+                }
+            }));
+        })
+    );
+    return self.clients.claim();
+});
+
+self.addEventListener('fetch', function (e) {
+
+    let url = e.request.url;
+    let core = new RegExp("assetsPublic\/", "i");
+    let assets = new RegExp("\.(css|js)$", "i");
+    let tpl = new RegExp("\.mst$", "i");
+    let metadados = new RegExp("\.json$", "i");
+    let notCache = new RegExp("\/(dashboard|UI|set|api\/|app\/)", "i");
+    //let requests = new RegExp("\/set", "i");
+    let img = new RegExp("\.(png|jpg|ico|gif|jpeg|svg)$", "i");
+
+    if (notCache.test(url)) {
+        e.respondWith(fetch(e.request));
+    /*} else if (requests.test(url)) {
+        e.respondWith(
+            caches.open(cacheData).then(function (cache) {
+                return cache.match(e.request).then(function (response) {
+
+                    //update cache
+                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            return networkResponse;
+
+                        return cache.match("get/network").then(function (response) {
+                            return response;
+                        });
+
+                    }).catch(function (error) {
+
+                        //se online tiver errro e cache não existir
+                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
+
+                            //retorna erro de conexão ao fetch
+                            return cache.match("get/network").then(function (response) {
+                                return response;
+                            });
+                        }
+                    });
+
+                    return response || fetchPromise;
+                });
+            })
+        );
+    */
+    } else if (core.test(url)) {
+
+        //consulta o cache apenas
+
+        e.respondWith(
+            caches.open(cacheShell).then(function (cache) {
+                return cache.match(e.request).then(function (response) {
+                    if(response)
+                        return response;
+
+                    //não possui cache, request online
+                    return fetch(e.request).then(function (networkResponse) {
+
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            cache.put(e.request, networkResponse.clone());
+
+                        //retorna online asset para fetch
+                        return networkResponse;
+
+                    }).catch(function (error) {
+
+                        //se online tiver errro e cache não existir
+                        if (error.toString() === "TypeError: Failed to fetch") {
+
+                            //retorna erro de conexão ao fetch
+                            return cache.match("get/blank").then(function (response) {
+                                return response;
+                            });
+                        }
+                    });
+                });
+            })
+        );
+
+    } else if(tpl.test(url) || metadados.test(url) || assets.test(url) || img.test(url)) {
+
+        //Consulta cache, consulta online, update cache
+        e.respondWith(
+            caches.open(cacheAssets).then(function (cache) {
+                return cache.match(e.request).then(function (response) {
+
+                    //update cache
+                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            cache.put(e.request, networkResponse.clone());
+
+                        //retorna online asset para fetch
+                        return networkResponse;
+
+                    }).catch(function (error) {
+
+                        //se online tiver errro e cache não existir
+                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
+
+                            //retorna erro de conexão ao fetch
+                            return cache.match("get/blank").then(function (response) {
+                                return response;
+                            });
+                        }
+                    });
+
+                    return response || fetchPromise;
+                });
+            })
+        );
+
+    } else {
+
+        //Consulta cache, consulta online, update cache
+        e.respondWith(
+            caches.open(cacheData).then(function (cache) {
+                return cache.match(e.request).then(function (response) {
+
+                    //update cache
+                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            cache.put(e.request, networkResponse.clone());
+
+                        //retorna online asset para fetch
+                        return networkResponse;
+
+                    }).catch(function (error) {
+
+                        //se online tiver errro e cache não existir
+                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
+
+                            //retorna erro de conexão ao fetch
+                            return cache.match("get/network").then(function (response) {
+                                return response;
+                            });
+                        }
+                    });
+
+                    return response || fetchPromise;
+                });
+            })
+        );
+    }
+});

@@ -1,0 +1,14 @@
+{
+  "nome": "Spark Post",
+  "link": "https://www.sparkpost.com/",
+  "constantes": {
+    "Email": {
+      "input": "text",
+      "column": "email"
+    },
+    "Key": {
+      "input": "text",
+      "column": "emailkey"
+    }
+  }
+}

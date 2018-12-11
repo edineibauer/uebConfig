@@ -1,0 +1,14 @@
+{
+  "nome": "Recaptcha",
+  "link": "https://www.google.com/recaptcha/intro/v3.html",
+  "constantes": {
+    "Site Recaptcha": {
+      "input": "text",
+      "column": "recaptchasite"
+    },
+    "Key Recaptcha": {
+      "input": "text",
+      "column": "recaptcha"
+    }
+  }
+}

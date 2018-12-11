@@ -1,0 +1,11 @@
+{
+  "filesShell": [
+    "{$home}/assetsPublic/img/dino.png"
+  ],
+  "filesAssets": [
+    "{$home}/get/blank"
+  ],
+  "filesData": [
+    "{$home}"
+  ]
+}

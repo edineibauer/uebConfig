@@ -1,0 +1,22 @@
+{
+  "name": "ueb/config",
+  "description": "Configurações base para novo projeto",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Edinei J. Bauer",
+      "email": "edineibauer@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "conn/link-control": "*",
+    "conn/entity": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-0": {
+      "Config": "public/src/"
+    }
+  }
+}

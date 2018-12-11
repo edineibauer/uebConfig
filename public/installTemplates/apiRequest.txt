@@ -1,0 +1,61 @@
+<?php
+header('Access-Control-Allow-Origin: *');
+
+ob_start();
+require_once './_config/config.php';
+
+$data = ["response" => 1, "error" => "", "data" => ""];
+
+if (isset($_GET['data'])) {
+
+    $key = filter_input(INPUT_POST, 'key', FILTER_DEFAULT);
+
+    if (!empty($key)) {
+
+        $url = explode('/', strip_tags(trim($_GET['data'])));
+        $include = "";
+        $find = false;
+        $var = [];
+
+        foreach ($url as $i => $u) {
+            if (!$find) {
+                if (file_exists(PATH_HOME . "public/api" . $include . "/{$u}.php")) {
+                    $include = PATH_HOME . "public/api" . $include . "/{$u}.php";
+                    $find = true;
+                } else {
+                    foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                        if (file_exists(PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php")) {
+                            $include = PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php";
+                            $find = true;
+                            break;
+                        }
+                    }
+
+                    if (!$find)
+                        $include .= "/{$u}";
+                }
+            } elseif ($find) {
+                $var[] = $u;
+            }
+        }
+
+        if ($find) {
+            if ((!defined("KEY") && $include === PATH_HOME . VENDOR . "config/public/api/system/activation.php") || (defined("KEY") && $key === KEY)) {
+
+                include_once $include;
+
+                if (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
+                    $data = ["response" => 2, "error" => "data retornada não formatada corretamente", "data" => ""];
+                elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
+                    $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+            }
+        } else {
+            $data["response"] = 4;
+        }
+    } else {
+        $data = ["response" => 2, "error" => "Chave de Acesso não Corresponde", "data" => ""];
+    }
+}
+
+echo json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+ob_get_flush();

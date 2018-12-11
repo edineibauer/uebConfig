@@ -1,0 +1,25 @@
+{
+  "title": "{$sitename}",
+  "js": [
+    "jquery",
+    "hammer",
+    "toast",
+    "mustache",
+    "core",
+    "utilitarios",
+    "header"
+  ],
+  "css": [
+    "normalize",
+    "toast",
+    "cssIcon",
+    "core",
+    "header"
+  ],
+  "font": [
+    "roboto"
+  ],
+  "icon": [
+    "material"
+  ]
+}

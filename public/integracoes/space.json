@@ -1,0 +1,10 @@
+{
+  "nome": "Spaces DigitalOcean",
+  "link": "https://www.digitalocean.com/products/spaces/",
+  "constantes": {
+    "Key Space": {
+      "input": "text",
+      "column": "spacekey"
+    }
+  }
+}

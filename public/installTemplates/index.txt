@@ -1,0 +1,15 @@
+<?php
+ob_start();
+require_once './_config/config.php';
+
+use Helpers\Template;
+use LinkControl\Link;
+use LinkControl\Route;
+
+$route = new Route();
+$link = new Link($route->getLib(), $route->getFile(), $route->getVar());
+
+$view = new Template("config");
+$view->show("index", $link->getParam());
+
+ob_get_flush();

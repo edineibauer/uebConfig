@@ -1,0 +1,10 @@
+{
+  "nome": "Analytics",
+  "link": "https://analytics.google.com/analytics/web",
+  "constantes": {
+    "Código de Acompanhamento": {
+      "input": "textarea",
+      "column": "analytics"
+    }
+  }
+}
