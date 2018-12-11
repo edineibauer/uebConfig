@@ -9,9 +9,9 @@
     }
   ],
   "require": {
+    "ueb/route": "*",
+    "ueb/entity": "*",
     "php": "^7.1",
-    "conn/link-control": "*",
-    "conn/entity": "*",
     "ext-json": "*"
   },
   "autoload": {
