@@ -18,7 +18,7 @@ function getServerConstants(array $dados)
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
-    $dados['vendor'] = "vendor/conn/";
+    $dados['vendor'] = "vendor/ueb/";
     $dados['version'] = "1.00";
     $dados['repositorio'] = "http://uebster.com/";
 
