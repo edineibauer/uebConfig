@@ -14,7 +14,7 @@ use Route\Link;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    $route = new Route($url, 'get');
+    $route = new Route($url);
 
     if ($route->getRoute()) {
 

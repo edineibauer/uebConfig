@@ -3,9 +3,9 @@ RewriteEngine On
 
 RewriteRule ^image\/(.*)$ tim.php?src=$1 [L]
 RewriteRule ^get\/(.*)$ apiGet.php?data=$1 [L]
+RewriteRule ^view\/(.*)$ apiView.php?data=$1 [L]
 RewriteRule ^set\/?$ apiSet.php [L]
-RewriteRule ^api\/(.*)$ apiRequest.php?data=$1 [L]
-RewriteRule ^app\/(.*)$ apiGetPublic.php?data=$1 [L]
+RewriteRule ^api\/(.*)$ apiApi.php?data=$1 [L]
 RewriteRule ^{$vendor}{$dominio}\/public\/(.*)$ public/$1 [L]
 
 RewriteCond %{SCRIPT_FILENAME} !-f

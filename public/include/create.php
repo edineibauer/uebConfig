@@ -153,9 +153,9 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
         Config\Config::createDir("_cdn");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
-        Config\Config::createDir("public/ajax");
+        Config\Config::createDir("public/set");
+        Config\Config::createDir("public/get");
         Config\Config::createDir("public/api");
-        Config\Config::createDir("public/api/public");
         Config\Config::createDir("public/react");
         Config\Config::createDir("public/param");
         Config\Config::createDir("public/assets");
@@ -176,9 +176,9 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
         Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.txt"));
         Config\Config::writeFile("tim.php", file_get_contents("public/installTemplates/tim.txt"));
         Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.txt"));
-        Config\Config::writeFile("apiGetPublic.php", file_get_contents("public/installTemplates/apiGetPublic.txt"));
         Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.txt"));
-        Config\Config::writeFile("apiRequest.php", file_get_contents("public/installTemplates/apiRequest.txt"));
+        Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.txt"));
+        Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.txt"));
         Config\Config::writeFile("public/view/index.php", file_get_contents("public/installTemplates/viewIndex.txt"));
         Config\Config::writeFile("public/param/index.json", file_get_contents("public/installTemplates/viewIndexParam.txt"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
