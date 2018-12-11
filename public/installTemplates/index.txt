@@ -6,7 +6,7 @@ use Helpers\Template;
 use Route\Link;
 use Route\Route;
 
-$route = new Route("index");
+$route = new Route();
 $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
 
 $view = new Template("config");
