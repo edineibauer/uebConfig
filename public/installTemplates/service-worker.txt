@@ -1,189 +1,174 @@
-let cacheShell = 'shell-1.0.0';
-let cacheAssets = 'assets-1.0.0';
-let cacheData = 'data-1.0.0';
-
-let filesShell = [];
-let filesAssets = [];
-let filesData = [];
-
-self.addEventListener('install', function(e) {
-
-    //cache core
-    e.waitUntil(
-        caches.open(cacheShell).then(function(cache) {
-            return cache.addAll(filesShell);
-        })
-    );
-
-    caches.open(cacheAssets).then(function(cache) {
-        return cache.addAll(filesAssets);
-    });
-
-    caches.open(cacheData).then(function(cache) {
-        return cache.addAll(filesData);
-    });
-});
-
-self.addEventListener('activate', function (e) {
-    e.waitUntil(
-        caches.keys().then(function (keyList) {
-            return Promise.all(keyList.map(function (key) {
-                if (key !== cacheShell && key !== cacheData && key !== cacheAssets) {
-                    return caches.delete(key);
-                }
-            }));
-        })
-    );
-    return self.clients.claim();
-});
+const VERSION = '';
+const HOME = '';
 
 self.addEventListener('fetch', function (e) {
 
-    let url = e.request.url;
+    let url = e.request.url.replace(HOME, '');
     let core = new RegExp("assetsPublic\/", "i");
-    let assets = new RegExp("\.(css|js)$", "i");
-    let tpl = new RegExp("\.mst$", "i");
-    let metadados = new RegExp("\.json$", "i");
-    let notCache = new RegExp("\/(dashboard|UI|set|api\/|app\/)", "i");
-    //let requests = new RegExp("\/set", "i");
-    let img = new RegExp("\.(png|jpg|ico|gif|jpeg|svg)$", "i");
+    let view = new RegExp("view\/", "i");
+    let get = new RegExp("get\/", "i");
+    let set = new RegExp("set\/", "i");
 
-    if (notCache.test(url)) {
-        e.respondWith(fetch(e.request));
-    /*} else if (requests.test(url)) {
+    if(core.test(url)) {
+
+        //FIRST CACHE ELSE ONLINE AND CACHE
         e.respondWith(
-            caches.open(cacheData).then(function (cache) {
-                return cache.match(e.request).then(function (response) {
-
-                    //update cache
-                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
-
-                        //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            return networkResponse;
-
-                        return cache.match("get/network").then(function (response) {
-                            return response;
-                        });
-
-                    }).catch(function (error) {
-
-                        //se online tiver errro e cache não existir
-                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
-
-                            //retorna erro de conexão ao fetch
-                            return cache.match("get/network").then(function (response) {
-                                return response;
-                            });
-                        }
-                    });
-
-                    return response || fetchPromise;
-                });
-            })
-        );
-    */
-    } else if (core.test(url)) {
-
-        //consulta o cache apenas
-
-        e.respondWith(
-            caches.open(cacheShell).then(function (cache) {
-                return cache.match(e.request).then(function (response) {
-                    if(response)
+            caches.open('core-v' + VERSION).then(cache => {
+                return cache.match(e.request).then(response => {
+                    if (response)
                         return response;
 
                     //não possui cache, request online
-                    return fetch(e.request).then(function (networkResponse) {
+                    return fetch(e.request).then(networkResponse => {
 
                         //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                             cache.put(e.request, networkResponse.clone());
-
-                        //retorna online asset para fetch
-                        return networkResponse;
-
-                    }).catch(function (error) {
-
-                        //se online tiver errro e cache não existir
-                        if (error.toString() === "TypeError: Failed to fetch") {
-
-                            //retorna erro de conexão ao fetch
-                            return cache.match("get/blank").then(function (response) {
-                                return response;
-                            });
+                            return networkResponse;
+                        } else {
+                            return fetch("get/blank");
                         }
+
+                    }).catch(error => {
+                        return fetch("get/blank");
                     });
                 });
             })
         );
 
-    } else if(tpl.test(url) || metadados.test(url) || assets.test(url) || img.test(url)) {
+    } else if(view.test(url)) {
 
-        //Consulta cache, consulta online, update cache
+        //FIRST ONLINE, UPDATE CACHE
         e.respondWith(
-            caches.open(cacheAssets).then(function (cache) {
-                return cache.match(e.request).then(function (response) {
+            caches.open('view-v' + VERSION).then(cache => {
+                return cache.match(e.request).then(response => {
 
-                    //update cache
-                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+                    return fetch(e.request).then(networkResponse => {
 
                         //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                             cache.put(e.request, networkResponse.clone());
+                            return networkResponse;
 
-                        //retorna online asset para fetch
-                        return networkResponse;
-
-                    }).catch(function (error) {
-
-                        //se online tiver errro e cache não existir
-                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
-
-                            //retorna erro de conexão ao fetch
-                            return cache.match("get/blank").then(function (response) {
-                                return response;
-                            });
+                        } else {
+                            return response || fetch("get/blank");
                         }
-                    });
 
-                    return response || fetchPromise;
+                    }).catch(error => {
+                        return response || fetch("get/blank");
+                    });
                 });
+            })
+        );
+
+    } else if(get.test(url)) {
+
+        //FIRST ONLINE, UPDATE CACHE
+        e.respondWith(
+            caches.open('get-v' + VERSION).then(cache => {
+                return cache.match(e.request).then(response => {
+
+                    return fetch(e.request).then(networkResponse => {
+
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(e.request, networkResponse.clone());
+                            return networkResponse;
+
+                        } else {
+                            return response || fetch("get/blank");
+                        }
+
+                    }).catch(error => {
+                        return response || fetch("get/blank");
+                    });
+                });
+            })
+        );
+
+    } else if(set.test(url)) {
+
+        //NO CACHE, JUST ONLINE OR BLANK
+        e.respondWith(
+            fetch(e.request).then(networkResponse => {
+
+                //se o request online estiver ok, retorna ele, se não retorna error
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                    return networkResponse;
+
+                return fetch("get/blank");
+
+            }).catch(error => {
+                return fetch("get/blank");
             })
         );
 
     } else {
 
-        //Consulta cache, consulta online, update cache
-        e.respondWith(
-            caches.open(cacheData).then(function (cache) {
-                return cache.match(e.request).then(function (response) {
+        if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
 
-                    //update cache
-                    var fetchPromise = fetch(e.request).then(function (networkResponse) {
+            //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR BLANK
+            e.respondWith(
+                caches.open('core-v' + VERSION).then(cache => {
+                    return cache.match("index").then(response => {
+                        if(response)
+                            return response;
 
-                        //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            cache.put(e.request, networkResponse.clone());
+                        //update cache
+                        return fetch("index").then(networkResponse => {
+                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                                cache.put(e.request, networkResponse.clone());
+                                return networkResponse;
+                            } else {
+                                return fetch("get/blank");
+                            }
 
-                        //retorna online asset para fetch
-                        return networkResponse;
-
-                    }).catch(function (error) {
-
-                        //se online tiver errro e cache não existir
-                        if (error.toString() === "TypeError: Failed to fetch" && !response) {
-
-                            //retorna erro de conexão ao fetch
-                            return cache.match("get/network").then(function (response) {
-                                return response;
-                            });
-                        }
+                        }).catch(error => {
+                            return fetch("get/blank");
+                        });
                     });
+                })
+            );
 
-                    return response || fetchPromise;
-                });
-            })
-        );
+        } else {
+
+            //REQUEST resource
+            // determina qual cache deve deve ser usado para este request
+            // ONLINE FIRST, UPDATE CACHE
+
+            let extension = url.split('.').pop().split('&').reverse().pop();
+            let cacheName = 'misc';
+            if(["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"].indexOf(extension) > -1) {
+                cacheName = 'midia';
+            } else if(extension === 'js') {
+                cacheName = 'js';
+            } else if(extension === 'css' || extension === 'ttf' || extension === "woff" || extension === 'woff2') {
+                cacheName = 'css';
+            }
+
+            //retorna online or cache
+            e.respondWith(
+                caches.open(cacheName + "-v" + VERSION).then(cache => {
+                    return cache.match(e.request).then(response => {
+
+                        //update cache
+                        return fetch(e.request).then(networkResponse => {
+
+                            //se conexão e conexão correta e conexão para o domínio principal
+                            //cache content local
+                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                                cache.put(e.request, networkResponse.clone());
+                                return networkResponse;
+                            } else {
+                                return response || fetch("get/blank");
+                            }
+
+                        }).catch(error => {
+                            return response || fetch("get/blank");
+                        });
+                    });
+                })
+            );
+        }
     }
 });

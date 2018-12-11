@@ -1,5 +1,5 @@
 <div id="core-overlay" onclick="closeSidebar()"></div>
-<div id="core-loader">
+<div id="core-loader" :class="{ spinnerClass: loading }">
     <svg viewBox="0 0 32 32" width="32" height="32">
         <circle id="core-spinner" style="stroke: {$theme}" cx="16" cy="16" r="14" fill="none"></circle>
     </svg>

@@ -37,7 +37,7 @@ class Config
             $conf .= "define('" . strtoupper(trim($dado)) . "', {$value});\n";
         }
 
-        $conf .= "\nrequire_once PATH_HOME . 'vendor/autoload.php';\nnew Route\Sessao();";
+        $conf .= "\nrequire_once PATH_HOME . 'vendor/autoload.php';\nnew LinkControl\Sessao();";
 
         self::writeFile("_config/config.php", $conf);
     }
