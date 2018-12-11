@@ -26,7 +26,7 @@ $pre = substr(str_replace(array('a', 'e', 'i', 'o', 'u'), '', $table), 0, 3) . "
             <div class="file-field input-field col s12 m6">
                 <div class="btn">
                     <span>Logo</span>
-                    <input type="file" name="logo"  ccept="image/*">
+                    <input type="file" name="logo" accept="image/*">
                 </div>
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text">
