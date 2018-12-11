@@ -6,13 +6,15 @@
     "hammer",
     "toast",
     "helpers",
-    "app"
+    "app",
+    "header"
   ],
   "css": [
     "normalize",
     "toast",
     "cssIcon",
-    "app"
+    "app",
+    "header"
   ],
   "font": [
     "roboto"
