@@ -94,10 +94,10 @@ self.addEventListener('fetch', function (e) {
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                     return networkResponse;
 
-                return fetch("get/blank");
+                return fetch("get/network");
 
             }).catch(error => {
-                return fetch("get/blank");
+                return fetch("get/network");
             })
         );
 
@@ -118,11 +118,11 @@ self.addEventListener('fetch', function (e) {
                                 cache.put(e.request, networkResponse.clone());
                                 return networkResponse;
                             } else {
-                                return fetch("get/blank");
+                                return fetch("view/network");
                             }
 
                         }).catch(error => {
-                            return fetch("get/blank");
+                            return fetch("view/network");
                         });
                     });
                 })
