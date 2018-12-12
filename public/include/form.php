@@ -99,4 +99,5 @@ $pre = substr(str_replace(array('a', 'e', 'i', 'o', 'u'), '', $table), 0, 3) . "
 </div>
 
 <script src="public/include/jquery.js"></script>
+<script src="public/include/config.js"></script>
 <script src="public/include/materialize.min.js"></script>
