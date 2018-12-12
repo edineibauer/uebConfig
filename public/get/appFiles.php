@@ -92,11 +92,8 @@ $data['data'] = [
     "css" => []
 ];
 
-//rotas administrativas com restrição de acesso
-$rotasAdm = ["dashboard", "ui-dev"];
-
 //obtém as rotas permitidas
-$rotas = json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
+$rotasAllow = \Config\Config::getViewPermissoes();
 
 //CORE, create cache from all 'assetsPublic'
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
@@ -117,15 +114,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
 $data['data'] = getCachedContent('public', $data['data']);
 
 // libs content
-foreach ($rotas as $rota) {
-    if (!in_array($rota, $rotasAdm) && file_exists(PATH_HOME . VENDOR . $rota . "/public"))
+foreach ($rotasAllow as $rota) {
+    if (file_exists(PATH_HOME . VENDOR . $rota . "/public"))
         $data['data'] = getCachedContent(VENDOR . $rota . '/public', $data['data']);
-}
-
-// session content
-if(!empty($_SESSION['userlogin'])) {
-    foreach ($rotasAdm as $item) {
-        if(($item !== "ui-dev" || $_SESSION['userlogin']['setor'] == 1) && file_exists(PATH_HOME . VENDOR . $item . "public"))
-            $data['data'] = getCachedContent(VENDOR . $item . '/public', $data['data']);
-    }
 }
