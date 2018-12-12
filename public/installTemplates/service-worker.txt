@@ -25,10 +25,14 @@ self.addEventListener('fetch', function (e) {
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
 
-                        return fetch("get/blank");
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
+                        });
 
                     }).catch(error => {
-                        return fetch("get/blank");
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
+                        });
                     });
                 });
             })
@@ -49,11 +53,21 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         } else {
-                            return response || fetch("view/network");
+                            if(response)
+                                return response;
+
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match("view/network");
+                            })
                         }
 
                     }).catch(error => {
-                        return response || fetch("view/network");
+                        if(response)
+                            return response;
+
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.match("view/network");
+                        })
                     });
                 });
             })
@@ -74,11 +88,21 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         } else {
-                            return response || fetch("get/blank");
+                            if(response)
+                                return response;
+
+                            return caches.open('get-v' + VERSION).then(cache => {
+                                return cache.match("get/blank");
+                            });
                         }
 
                     }).catch(error => {
-                        return response || fetch("get/blank");
+                        if(response)
+                            return response;
+
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
+                        });
                     });
                 });
             })
@@ -121,11 +145,15 @@ self.addEventListener('fetch', function (e) {
                                 cache.put(e.request, networkResponse.clone());
                                 return networkResponse;
                             } else {
-                                return fetch("view/network");
+                                return caches.open('view-v' + VERSION).then(cache => {
+                                    return cache.match("view/network");
+                                })
                             }
 
                         }).catch(error => {
-                            return fetch("view/network");
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match("view/network");
+                            })
                         });
                     });
                 })
@@ -161,11 +189,21 @@ self.addEventListener('fetch', function (e) {
                                 cache.put(e.request, networkResponse.clone());
                                 return networkResponse;
                             } else {
-                                return response || fetch("get/blank");
+                                if(response)
+                                    return response;
+
+                                return caches.open('get-v' + VERSION).then(cache => {
+                                    return cache.match("get/blank");
+                                });
                             }
 
                         }).catch(error => {
-                            return response || fetch("get/blank");
+                            if(response)
+                                return response;
+
+                            return caches.open('get-v' + VERSION).then(cache => {
+                                return cache.match("get/blank");
+                            });
                         });
                     });
                 })

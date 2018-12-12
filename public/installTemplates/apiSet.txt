@@ -29,6 +29,7 @@ if (!empty($file) && !empty($lib)) {
 
 } else {
     $data["response"] = 4;
+    $data["data"] = 'no-network';
 }
 
 echo json_encode($data);
