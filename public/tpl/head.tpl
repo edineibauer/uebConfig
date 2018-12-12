@@ -22,7 +22,6 @@
     const DOMINIO = '{$dominio}';
     const VERSION = {$version};
     const VENDOR = '{$vendor}';
-    const ROUTE = '{$url}';
     const THEME = '{$theme}';
     const THEMETEXT = '{$themeColor}';
     const TITLE = '{$title}';
