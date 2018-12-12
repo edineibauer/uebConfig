@@ -22,12 +22,10 @@ self.addEventListener('fetch', function (e) {
                     return fetch(e.request).then(networkResponse => {
 
                         //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(e.request, networkResponse.clone());
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
-                        } else {
-                            return fetch("get/blank");
-                        }
+
+                        return fetch("get/blank");
 
                     }).catch(error => {
                         return fetch("get/blank");
