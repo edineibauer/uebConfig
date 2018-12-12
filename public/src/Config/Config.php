@@ -20,6 +20,22 @@ class Config
     }
 
     /**
+     * @return array
+     */
+    public static function getViewPermissoes(): array
+    {
+        $rotas = json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
+        if(!empty($_SESSION['userlogin']) && $_SESSION['userlogin']['setor'] > 0) {
+            $rotas[] = "dashboard";
+
+            if($_SESSION['userlogin']['setor'] == 1){
+                $rotas[] = "dev-ui";
+                $rotas[] = "entity-ui";
+            }
+        }
+    }
+
+    /**
      * Gera arquivo de configurações
      * @param array $dados
      */
