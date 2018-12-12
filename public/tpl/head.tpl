@@ -31,5 +31,3 @@
 
 <script src='{$home}assetsPublic/loadingScreen.min.js' defer></script>
 <script src='{$home}assetsPublic/appCore.min.js' defer></script>
-{*<script src='{$home}assetsPublic/core.min.js?v={$version}' defer></script>*}
-{*<script src='{$home}vue.js?v={$version}' defer></script>*}
