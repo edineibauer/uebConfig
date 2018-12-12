@@ -33,6 +33,8 @@ class Config
                 $rotas[] = "entity-ui";
             }
         }
+
+        return $rotas;
     }
 
     /**
