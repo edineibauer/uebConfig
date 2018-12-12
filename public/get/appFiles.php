@@ -83,7 +83,7 @@ function getCachedContent(string $path, array $dados): array
 
 // return values
 $data['data'] = [
-    "core" => [HOME, HOME . "index"],
+    "core" => [HOME, HOME . "index", HOME . "set"],
     "view" => [],
     "get" => [],
     "misc" => [HOME . "manifest.json"],

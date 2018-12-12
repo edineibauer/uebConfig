@@ -88,19 +88,22 @@ self.addEventListener('fetch', function (e) {
 
         //NO CACHE, JUST ONLINE OR BLANK
         e.respondWith(
-            fetch(e.request).then(networkResponse => {
+            caches.open('core-v' + VERSION).then(cache => {
+                return cache.match('set').then(response => {
+                    return fetch(e.request).then(networkResponse => {
 
-                //se o request online estiver ok, retorna ele, se não retorna error
-                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                    return networkResponse;
+                        //se online estiver ok, armazena no cache
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            return networkResponse;
 
-                return fetch("get/network");
+                        return response;
 
-            }).catch(error => {
-                return fetch("get/network");
+                    }).catch(error => {
+                        return response;
+                    });
+                });
             })
         );
-
     } else {
 
         if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
