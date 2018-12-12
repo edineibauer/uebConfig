@@ -98,7 +98,7 @@ $rotasAllow = \Config\Config::getViewPermissoes();
 //CORE, create cache from all 'assetsPublic'
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
     if (is_dir(PATH_HOME . "assetsPublic/{$item}")) {
-        if($item !== "view") {
+        if($item !== "cache") {
             foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
                 if (strpos($iten, ".") && !in_array(HOME . "assetsPublic/{$item}/{$iten}", $data['data']['core']))
                     $data['data']['core'][] = HOME . "assetsPublic/{$item}/{$iten}";
