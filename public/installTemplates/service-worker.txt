@@ -49,11 +49,11 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         } else {
-                            return response || fetch("get/blank");
+                            return response || fetch("view/network");
                         }
 
                     }).catch(error => {
-                        return response || fetch("get/blank");
+                        return response || fetch("view/network");
                     });
                 });
             })

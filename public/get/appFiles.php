@@ -60,8 +60,8 @@ function getCachedContent(string $path, array $dados): array
         $dados = getAssets("{$path}/assets", $dados);
 
     //get
-    if (file_exists(PATH_HOME . "{$path}/ajax/get")) {
-        foreach (Helper::listFolder(PATH_HOME . "{$path}/ajax/get") as $get) {
+    if (file_exists(PATH_HOME . "{$path}/get")) {
+        foreach (Helper::listFolder(PATH_HOME . "{$path}/get") as $get) {
             $getUrl = HOME . "get/" . str_replace('.php', '', $get);
             if (preg_match('/\.php$/i', $get) && !in_array($getUrl, $dados['get']))
                 $dados['get'][] = $getUrl;
