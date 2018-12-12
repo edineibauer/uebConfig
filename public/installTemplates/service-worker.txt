@@ -14,7 +14,7 @@ self.addEventListener('fetch', function (e) {
         //FIRST CACHE ELSE ONLINE AND CACHE
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
-                return cache.match(e.request).then(response => {
+                return cache.match(url).then(response => {
                     if (response)
                         return response;
 
@@ -39,7 +39,7 @@ self.addEventListener('fetch', function (e) {
         //FIRST ONLINE, UPDATE CACHE
         e.respondWith(
             caches.open('view-v' + VERSION).then(cache => {
-                return cache.match(e.request).then(response => {
+                return cache.match(url).then(response => {
 
                     return fetch(e.request).then(networkResponse => {
 
@@ -64,7 +64,7 @@ self.addEventListener('fetch', function (e) {
         //FIRST ONLINE, UPDATE CACHE
         e.respondWith(
             caches.open('get-v' + VERSION).then(cache => {
-                return cache.match(e.request).then(response => {
+                return cache.match(url).then(response => {
 
                     return fetch(e.request).then(networkResponse => {
 
@@ -147,7 +147,7 @@ self.addEventListener('fetch', function (e) {
             //retorna online or cache
             e.respondWith(
                 caches.open(cacheName + "-v" + VERSION).then(cache => {
-                    return cache.match(e.request).then(response => {
+                    return cache.match(url).then(response => {
 
                         //update cache
                         return fetch(e.request).then(networkResponse => {
