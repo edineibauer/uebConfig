@@ -14,7 +14,7 @@ class UpdateSystem
     private $result;
 
     /**
-     * UpdateDashboard constructor.
+     * UpdateSystem constructor.
      * @param array $custom
      */
     public function __construct(array $custom = [])
