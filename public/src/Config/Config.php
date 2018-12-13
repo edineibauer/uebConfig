@@ -25,14 +25,16 @@ class Config
     public static function getViewPermissoes(): array
     {
         $rotas = json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
-        if(!empty($_SESSION['userlogin']) && $_SESSION['userlogin']['setor'] > 0) {
+
+        /* Por hora, não cria cache de conteúdo do painel administrativo */
+        /*if(!empty($_SESSION['userlogin']) && $_SESSION['userlogin']['setor'] > 0) {
             $rotas[] = "dashboard";
 
             if($_SESSION['userlogin']['setor'] == 1){
                 $rotas[] = "dev-ui";
                 $rotas[] = "entity-ui";
             }
-        }
+        }*/
 
         return $rotas;
     }
