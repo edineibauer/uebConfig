@@ -64,21 +64,18 @@ function updateCache() {
         })
     }).then(d => {
         loading_screen.finish();
-        console.log('finish cached');
     })
 }
 
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
-            return cache.match("assetsPublic/appCore.min.js").then(response => {
+            return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
                 if (!response)
                     return updateCache();
                 return response
             })
         }).then(d => {
-
-            console.log('service worker active');
             if ('serviceWorker' in navigator)
                 navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
 

@@ -20,12 +20,12 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
 
                     }).catch(error => {
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
                     });
                 });
@@ -43,12 +43,12 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
 
                     }).catch(error => {
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
                     });
                 });
@@ -66,12 +66,12 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match("view/network");
+                            return cache.match(HOME + "view/network");
                         })
 
                     }).catch(error => {
                         return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match("view/network");
+                            return cache.match(HOME + "view/network");
                         })
                     });
                 });
@@ -89,12 +89,12 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
 
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
 
                     }).catch(error => {
                         return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match("get/blank");
+                            return cache.match(HOME + "get/blank");
                         });
                     });
                 });
@@ -105,7 +105,7 @@ self.addEventListener('fetch', function (e) {
 
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
-                return cache.match('set').then(response => {
+                return cache.match(HOME + 'set').then(response => {
                     return fetch(e.request).then(networkResponse => {
 
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
@@ -126,19 +126,19 @@ self.addEventListener('fetch', function (e) {
             //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR BLANK
             e.respondWith(
                 caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match("index").then(response => {
+                    return cache.match(HOME + "index").then(response => {
 
                         return response || fetch("index").then(networkResponse => {
                             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                                 return networkResponse;
 
                             return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match("view/network");
+                                return cache.match(HOME + "view/network");
                             })
 
                         }).catch(error => {
                             return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match("view/network");
+                                return cache.match(HOME + "view/network");
                             })
                         });
                     });
@@ -162,12 +162,12 @@ self.addEventListener('fetch', function (e) {
                                 return networkResponse;
 
                             return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match("get/blank");
+                                return cache.match(HOME + "get/blank");
                             });
 
                         }).catch(error => {
                             return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match("get/blank");
+                                return cache.match(HOME + "get/blank");
                             });
                         });
                     });

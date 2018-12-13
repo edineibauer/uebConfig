@@ -63,7 +63,7 @@ function getCachedContent(string $path, array $dados): array
     if (file_exists(PATH_HOME . "{$path}/get")) {
         foreach (Helper::listFolder(PATH_HOME . "{$path}/get") as $get) {
             $getUrl = HOME . "get/" . str_replace('.php', '', $get);
-            if (preg_match('/\.php$/i', $get) && !in_array($getUrl, $dados['get']))
+            if (preg_match('/\.php$/i', $get) && !in_array($get, ['appFiles', 'appData']) && !in_array($getUrl, $dados['get']))
                 $dados['get'][] = $getUrl;
         }
     }
@@ -73,7 +73,7 @@ function getCachedContent(string $path, array $dados): array
         foreach (Helper::listFolder(PATH_HOME . "{$path}/view") as $view) {
             $viewUrl = HOME . "view/" . str_replace('.php', '', $view);
 
-            if (preg_match('/\.php$/i', $view) && $viewUrl !== "updateSystem" && !in_array($viewUrl, $dados['view']))
+            if (preg_match('/\.php$/i', $view) && $view !== "updateSystem.php" && !in_array($viewUrl, $dados['view']))
                 $dados['view'][] = $viewUrl;
         }
     }
