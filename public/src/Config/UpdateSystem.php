@@ -534,6 +534,29 @@ class UpdateSystem
         }
     }
 
+    private function getUrlAssetsView(string $request, string $ext)
+    {
+        if (preg_match('/^http/i', $request)) {
+            $nameOnline = explode('.', pathinfo($request, PATHINFO_FILENAME))[0];
+            $extOnline = pathinfo($request, PATHINFO_EXTENSION);
+
+            if ($extOnline === $ext && file_exists(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.{$ext}"))
+                return PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.{$ext}";
+
+        } elseif (count(explode('.', $request)) === 1) {
+            //busca da central
+            return PATH_HOME . "assetsPublic/cache/{$request}.min.{$ext}";
+
+        } elseif (file_exists($request)) {
+            //busca do sistema
+            return $request;
+
+        } elseif (file_exists(PATH_HOME . $request)) {
+            //busca do sistema
+            return PATH_HOME . $request;
+        }
+    }
+
     private function createViewAssets(string $path, string $nameView)
     {
         $mjs = new Minify\JS("");
@@ -544,50 +567,22 @@ class UpdateSystem
             $param = json_decode(file_get_contents($path . "param/{$nameView}.json"), true);
 
             if (!empty($param['js'])) {
-                foreach ($param['js'] as $js) {
-                    if (preg_match('/^http/i', $js)) {
-                        $nameOnline = explode('.', pathinfo($js, PATHINFO_FILENAME))[0];
-                        $extOnline = pathinfo($js, PATHINFO_EXTENSION);
+                if(is_string($param['js'])) {
+                    $mjs->add($this->getUrlAssetsView($param['js'], 'js'));
 
-                        if ($extOnline === "js" && file_exists(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.js"))
-                            $mjs->add(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.js");
-
-                    } elseif (count(explode('.', $js)) === 1) {
-                        //busca da central
-                        $mjs->add(PATH_HOME . "assetsPublic/cache/{$js}.min.js");
-
-                    } elseif (file_exists($js)) {
-                        //busca do sistema
-                        $mjs->add($js);
-
-                    } elseif (file_exists(PATH_HOME . $js)) {
-                        //busca do sistema
-                        $mjs->add(PATH_HOME . $js);
-                    }
+                } elseif (is_array($param['js'])) {
+                    foreach ($param['js'] as $js)
+                        $mjs->add($this->getUrlAssetsView($js, 'js'));
                 }
             }
 
             if (!empty($param['css'])) {
-                foreach ($param['css'] as $css) {
-                    if (preg_match('/^http/i', $css)) {
-                        $nameOnline = explode('.', pathinfo($css, PATHINFO_FILENAME))[0];
-                        $extOnline = pathinfo($css, PATHINFO_EXTENSION);
+                if(is_string($param['css'])) {
+                    $mcss->add($this->getUrlAssetsView($param['css'], 'css'));
 
-                        if ($extOnline === "css" && file_exists(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.css"))
-                            $mcss->add(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.css");
-
-                    } elseif (count(explode('.', $css)) === 1) {
-                        //busca da central
-                        $mcss->add(PATH_HOME . "assetsPublic/cache/{$css}.min.css");
-
-                    } elseif (file_exists($css)) {
-                        //busca do sistema
-                        $mcss->add($css);
-
-                    } elseif (file_exists(PATH_HOME . $css)) {
-                        //busca do sistema
-                        $mcss->add(PATH_HOME . $css);
-                    }
+                } elseif(is_array($param['css'])) {
+                    foreach ($param['css'] as $css)
+                        $mcss->add($this->getUrlAssetsView($css, 'css'));
                 }
             }
         }
