@@ -23,17 +23,21 @@ function getJSON(url) {
     })
 }
 
+function clearCache() {
+    return caches.keys().then(cacheNames => {
+        return Promise.all(cacheNames.map(cacheName => {
+            return caches.delete(cacheName)
+        }))
+    })
+}
+
 function updateCache() {
     let loading_screen = pleaseWait({
         logo: FAVICON,
         backgroundColor: THEME,
         loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
-    return caches.keys().then(cacheNames => {
-        return Promise.all(cacheNames.map(cacheName => {
-            return caches.delete(cacheName)
-        }))
-    }).then(d => {
+    return clearCache().then(d => {
         return getJSON(HOME + "get/appFiles").then(g => {
             if (g && g.response === 1 && typeof g.data === 'object') {
                 g = g.data;
@@ -91,10 +95,6 @@ window.onload = function () {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
         document.head.appendChild(scriptCore);
-        caches.keys().then(cacheNames => {
-            return Promise.all(cacheNames.map(cacheName => {
-                return caches.delete(cacheName)
-            }))
-        })
+        clearCache();
     }
 }
