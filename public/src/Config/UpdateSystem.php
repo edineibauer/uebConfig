@@ -633,8 +633,9 @@ class UpdateSystem
 
                         //para cada view
                         $nameView = str_replace('.php', '', $view);
-                        $this->createViewAssets($path, $nameView);
 
+                        if(!in_array($nameView, ['updateSystema']))
+                            $this->createViewAssets($path, $nameView);
                     }
                 }
             }
