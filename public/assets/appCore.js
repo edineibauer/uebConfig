@@ -1,6 +1,3 @@
-if ('serviceWorker' in navigator)
-    navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
-
 function getRequest(url) {
     return new Promise(function (resolve, reject) {
         var req = new XMLHttpRequest();
@@ -66,7 +63,8 @@ function updateCache() {
             }
         })
     }).then(d => {
-        loading_screen.finish()
+        loading_screen.finish();
+        console.log('finish cached');
     })
 }
 
@@ -79,6 +77,11 @@ window.onload = function () {
                 return response
             })
         }).then(d => {
+
+            console.log('service worker active');
+            if ('serviceWorker' in navigator)
+                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
+
             let scriptCore = document.createElement('script');
             scriptCore.src = HOME + "assetsPublic/core.min.js";
             document.head.appendChild(scriptCore);
@@ -86,14 +89,11 @@ window.onload = function () {
             styleFont.rel = "stylesheet";
             styleFont.href = HOME + "assetsPublic/fonts.min.css";
             document.head.appendChild(styleFont)
-        });
-
+        })
     } else {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
         document.head.appendChild(scriptCore);
-
-        //Atualizando sistema, deleta cache
         caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName)
