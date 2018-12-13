@@ -35,8 +35,8 @@ function updateCache() {
         }))
     }).then(d => {
         return getJSON(HOME + "get/appFiles").then(g => {
-            if (g && g.response === 1 && typeof g.data.content === 'object') {
-                g = g.data.content;
+            if (g && g.response === 1 && typeof g.data === 'object') {
+                g = g.data;
                 caches.open('core-v' + VERSION).then(cache => {
                     return cache.addAll(g.core)
                 }).then(d => {
