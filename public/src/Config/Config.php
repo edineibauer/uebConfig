@@ -26,8 +26,6 @@ class Config
     {
         $rotas = json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
 
-        unset($rotas['dashboard'], $rotas['entity-ui'], $rotas['dev-ui']);
-
         /* Por hora, não cria cache de conteúdo do painel administrativo */
         /*if(!empty($_SESSION['userlogin']) && $_SESSION['userlogin']['setor'] > 0) {
             $rotas[] = "dashboard";

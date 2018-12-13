@@ -91,9 +91,6 @@ $data['data'] = [
     "midia" => []
 ];
 
-//obtém as rotas permitidas
-$rotasAllow = \Config\Config::getViewPermissoes();
-
 //CORE, create cache from all 'assetsPublic'
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
     if (is_dir(PATH_HOME . "assetsPublic/{$item}")) {
@@ -113,7 +110,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
 $data['data'] = getCachedContent('public', $data['data']);
 
 // libs content
-foreach ($rotasAllow as $rota) {
-    if (file_exists(PATH_HOME . VENDOR . $rota . "/public"))
+foreach (\Config\Config::getViewPermissoes() as $rota) {
+    if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && !in_array($rota, ['dashboard', 'entity-ui', 'dev-ui']))
         $data['data'] = getCachedContent(VENDOR . $rota . '/public', $data['data']);
 }
