@@ -632,16 +632,12 @@ class UpdateSystem
 
         foreach ($vendors as $lib) {
             $path = PATH_HOME . VENDOR . $lib . "/public/";
-            if (file_exists($path . "view") && file_exists($path . "assets")) {
-
-                //para cada view
+            if (file_exists($path . "view")) {
                 foreach (Helper::listFolder($path . "view") as $view) {
-
-                    //se for um arquivo php válido
                     if (preg_match('/.php$/i', $view)) {
 
+                        //para cada view
                         $nameView = str_replace('.php', '', $view);
-
                         $this->createViewAssets($path, $nameView);
 
                     }
