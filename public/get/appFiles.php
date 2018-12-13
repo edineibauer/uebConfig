@@ -73,7 +73,7 @@ function getCachedContent(string $path, array $dados): array
         foreach (Helper::listFolder(PATH_HOME . "{$path}/view") as $view) {
             $viewUrl = HOME . "view/" . str_replace('.php', '', $view);
 
-            if (preg_match('/\.php$/i', $view) && !in_array($viewUrl, $dados['view']))
+            if (preg_match('/\.php$/i', $view) && $viewUrl !== "updateSystem" && !in_array($viewUrl, $dados['view']))
                 $dados['view'][] = $viewUrl;
         }
     }
@@ -88,9 +88,7 @@ $data['data'] = [
     "view" => [],
     "get" => [],
     "misc" => [HOME . "manifest.json"],
-    "midia" => [],
-    "js" => [],
-    "css" => []
+    "midia" => []
 ];
 
 //obtém as rotas permitidas

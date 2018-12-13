@@ -11,44 +11,34 @@ self.addEventListener('fetch', function (e) {
     let set = new RegExp("set$", "i");
 
     if(assets.test(url)) {
+        e.respondWith(
+            caches.open('assets-v' + VERSION).then(cache => {
+                return cache.match(url).then(response => {
+                    return response || fetch(e.request).then(networkResponse => {
 
-            e.respondWith(
-                caches.open('assets-v' + VERSION).then(cache => {
-                    return cache.match(url).then(response => {
-                        if (response)
-                            return response;
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                            return networkResponse;
 
-                        //não possui cache, request online
-                        return fetch(e.request).then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                                return networkResponse;
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
+                        });
 
-                            return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match("get/blank");
-                            });
-
-                        }).catch(error => {
-                            return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match("get/blank");
-                            });
+                    }).catch(error => {
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
                         });
                     });
-                })
-            );
+                });
+            })
+        );
 
-        } else if(core.test(url)) {
+    } else if(core.test(url)) {
 
-        //FIRST CACHE ELSE ONLINE AND CACHE
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if (response)
-                        return response;
+                    return response || fetch(e.request).then(networkResponse => {
 
-                    //não possui cache, request online
-                    return fetch(e.request).then(networkResponse => {
-
-                        //se online estiver ok, armazena no cache
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
 
@@ -67,28 +57,19 @@ self.addEventListener('fetch', function (e) {
 
     } else if(view.test(url)) {
 
-        //FIRST ONLINE, UPDATE CACHE
         e.respondWith(
             caches.open('view-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    return fetch(e.request).then(networkResponse => {
+                    return response || fetch(e.request).then(networkResponse => {
 
-                        //se online estiver ok, armazena no cache
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
-
-                        if(response)
-                            return response;
 
                         return caches.open('view-v' + VERSION).then(cache => {
                             return cache.match("view/network");
                         })
 
                     }).catch(error => {
-
-                        if(response)
-                            return response;
-
                         return caches.open('view-v' + VERSION).then(cache => {
                             return cache.match("view/network");
                         })
@@ -99,31 +80,19 @@ self.addEventListener('fetch', function (e) {
 
     } else if(get.test(url)) {
 
-        //FIRST ONLINE, UPDATE CACHE
         e.respondWith(
             caches.open('get-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
+                    return response || fetch(e.request).then(networkResponse => {
 
-                    return fetch(e.request).then(networkResponse => {
-
-                        //se online estiver ok, armazena no cache
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(e.request, networkResponse.clone());
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
 
-                        } else {
-                            if(response)
-                                return response;
-
-                            return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match("get/blank");
-                            });
-                        }
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.match("get/blank");
+                        });
 
                     }).catch(error => {
-                        if(response)
-                            return response;
-
                         return caches.open('get-v' + VERSION).then(cache => {
                             return cache.match("get/blank");
                         });
@@ -134,13 +103,11 @@ self.addEventListener('fetch', function (e) {
 
     } else if(set.test(url)) {
 
-        //NO CACHE, JUST ONLINE OR BLANK
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
                 return cache.match('set').then(response => {
                     return fetch(e.request).then(networkResponse => {
 
-                        //se online estiver ok, armazena no cache
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
 
@@ -160,19 +127,14 @@ self.addEventListener('fetch', function (e) {
             e.respondWith(
                 caches.open('core-v' + VERSION).then(cache => {
                     return cache.match("index").then(response => {
-                        if(response)
-                            return response;
 
-                        //update cache
-                        return fetch("index").then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                                cache.put(e.request, networkResponse.clone());
+                        return response || fetch("index").then(networkResponse => {
+                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                                 return networkResponse;
-                            } else {
-                                return caches.open('view-v' + VERSION).then(cache => {
-                                    return cache.match("view/network");
-                                })
-                            }
+
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match("view/network");
+                            })
 
                         }).catch(error => {
                             return caches.open('view-v' + VERSION).then(cache => {
@@ -185,46 +147,25 @@ self.addEventListener('fetch', function (e) {
 
         } else {
 
-            //REQUEST resource
-            // determina qual cache deve deve ser usado para este request
-            // ONLINE FIRST, UPDATE CACHE
-
             let extension = url.split('.').pop().split('&').reverse().pop();
             let cacheName = 'misc';
-            if(["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"].indexOf(extension) > -1) {
+            if(["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"].indexOf(extension) > -1)
                 cacheName = 'midia';
-            } else if(extension === 'js') {
-                cacheName = 'js';
-            } else if(extension === 'css' || extension === 'ttf' || extension === "woff" || extension === 'woff2') {
-                cacheName = 'css';
-            }
 
-            //retorna online or cache
             e.respondWith(
                 caches.open(cacheName + "-v" + VERSION).then(cache => {
                     return cache.match(url).then(response => {
 
-                        //update cache
-                        return fetch(e.request).then(networkResponse => {
+                        return response || fetch(e.request).then(networkResponse => {
 
-                            //se conexão e conexão correta e conexão para o domínio principal
-                            //cache content local
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                                cache.put(e.request, networkResponse.clone());
+                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                                 return networkResponse;
-                            } else {
-                                if(response)
-                                    return response;
 
-                                return caches.open('get-v' + VERSION).then(cache => {
-                                    return cache.match("get/blank");
-                                });
-                            }
+                            return caches.open('get-v' + VERSION).then(cache => {
+                                return cache.match("get/blank");
+                            });
 
                         }).catch(error => {
-                            if(response)
-                                return response;
-
                             return caches.open('get-v' + VERSION).then(cache => {
                                 return cache.match("get/blank");
                             });
