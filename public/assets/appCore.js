@@ -43,6 +43,10 @@ function updateCache() {
                 caches.open('core-v' + VERSION).then(cache => {
                     return cache.addAll(g.core)
                 }).then(d => {
+                    caches.open('assets-v' + VERSION).then(cache => {
+                        return cache.addAll(g.assets)
+                    })
+                }).then(d => {
                     caches.open('misc-v' + VERSION).then(cache => {
                         return cache.addAll(g.misc)
                     })

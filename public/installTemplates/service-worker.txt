@@ -4,12 +4,39 @@ const HOME = '';
 self.addEventListener('fetch', function (e) {
 
     let url = e.request.url.replace(HOME, '');
+    let assets = new RegExp("assetsPublic\/view\/", "i");
     let core = new RegExp("assetsPublic\/", "i");
     let view = new RegExp("view\/", "i");
     let get = new RegExp("get\/", "i");
     let set = new RegExp("set$", "i");
 
-    if(core.test(url)) {
+    if(assets.test(url)) {
+
+            e.respondWith(
+                caches.open('assets-v' + VERSION).then(cache => {
+                    return cache.match(url).then(response => {
+                        if (response)
+                            return response;
+
+                        //não possui cache, request online
+                        return fetch(e.request).then(networkResponse => {
+                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                                return networkResponse;
+
+                            return caches.open('get-v' + VERSION).then(cache => {
+                                return cache.match("get/blank");
+                            });
+
+                        }).catch(error => {
+                            return caches.open('get-v' + VERSION).then(cache => {
+                                return cache.match("get/blank");
+                            });
+                        });
+                    });
+                })
+            );
+
+        } else if(core.test(url)) {
 
         //FIRST CACHE ELSE ONLINE AND CACHE
         e.respondWith(

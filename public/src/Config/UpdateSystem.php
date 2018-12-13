@@ -621,7 +621,7 @@ class UpdateSystem
                 unlink(PATH_HOME . "assetsPublic/view/" . $cache);
         }
 
-        $vendors = Helper::listFolder(PATH_HOME . VENDOR);
+        $vendors = Config::getViewPermissoes();
         $this->createRepositorioCache($vendors);
         $this->downloadAssetsCache($vendors);
 

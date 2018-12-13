@@ -84,6 +84,7 @@ function getCachedContent(string $path, array $dados): array
 // return values
 $data['data'] = [
     "core" => [HOME, HOME . "index", HOME . "set"],
+    "assets" => [],
     "view" => [],
     "get" => [],
     "misc" => [HOME . "manifest.json"],
@@ -101,7 +102,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
         if($item !== "cache") {
             foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
                 if (strpos($iten, ".") && !in_array(HOME . "assetsPublic/{$item}/{$iten}", $data['data']['core']))
-                    $data['data']['core'][] = HOME . "assetsPublic/{$item}/{$iten}";
+                    $data['data'][$item !== "view" ? 'core' : 'assets'][] = HOME . "assetsPublic/{$item}/{$iten}";
             }
         }
 
