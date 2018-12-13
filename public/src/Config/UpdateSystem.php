@@ -216,13 +216,13 @@ class UpdateSystem
         $this->createCoreImages();
 
 
-        $m = new Minify\JS(PATH_HOME . VENDOR . "dashboard/public/assets/appCore.js");
+        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
         //copy loadingScreen to assetsPublic
-        $m = new Minify\JS(PATH_HOME . VENDOR . "dashboard/public/assets/loadingScreen.js");
+        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/loadingScreen.js");
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.js");
-        $m = new Minify\CSS(PATH_HOME . VENDOR . "dashboard/public/assets/loadingScreen.css");
+        $m = new Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/loadingScreen.css");
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.css");
 
         $this->copyInstallTemplate();
@@ -355,8 +355,8 @@ class UpdateSystem
             }
 
             //copia theme padrão para pasta do site
-            if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "dashboard/public/assets/theme.min.css"))
-                copy(PATH_HOME . VENDOR . "dashboard/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+            if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
+                copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
             $minifier->add(PATH_HOME . "public/assets/theme.min.css");
             $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
