@@ -1,6 +1,6 @@
 <?php
 
-$read = new \ConnCrud\Read();
+$read = new \Conn\Read();
 $entidadesAllow = \Config\Config::getPermissoes((int) $_SESSION['userlogin']['setor']);
 $data['data'] = [];
 

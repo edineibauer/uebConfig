@@ -30,7 +30,7 @@ function updateCache() {
     let loading_screen = pleaseWait({
         logo: FAVICON,
         backgroundColor: THEME,
-        loadingHtml: "<p>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
+        loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
     return caches.keys().then(cacheNames => {
         return Promise.all(cacheNames.map(cacheName => {

@@ -40,31 +40,28 @@ self.addEventListener('fetch', function (e) {
 
     } else if(view.test(url)) {
 
-        //FIRST ONLINE, UPDATE CACHE
+        //FIRST ONLINE, then 404 or network
         e.respondWith(
             caches.open('view-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
+                    if(response)
+                        return response;
 
                     return fetch(e.request).then(networkResponse => {
 
                         //se online estiver ok, armazena no cache
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(e.request, networkResponse.clone());
-                            return networkResponse;
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match("view/404");
+                            })
 
                         } else {
-                            if(response)
-                                return response;
-
                             return caches.open('view-v' + VERSION).then(cache => {
                                 return cache.match("view/network");
                             })
                         }
 
                     }).catch(error => {
-                        if(response)
-                            return response;
-
                         return caches.open('view-v' + VERSION).then(cache => {
                             return cache.match("view/network");
                         })
