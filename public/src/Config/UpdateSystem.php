@@ -359,6 +359,7 @@ class UpdateSystem
     private function createCoreImages()
     {
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/save.gif", PATH_HOME . "assetsPublic/img/save.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
         copy(PATH_HOME . FAVICON, PATH_HOME . "assetsPublic/img/favicon.png");
         copy((!empty(LOGO) ? PATH_HOME . LOGO : PATH_HOME . VENDOR . "config/public/assets/image-not-found.png"), PATH_HOME . "assetsPublic/img/logo.png");
