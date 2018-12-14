@@ -10,9 +10,6 @@
                 <div class="core-class-container" id="core-header-name">
                     {$login.nome}
                 </div>
-                <button class="btn-editLogin core-class-container">
-                    <i class="material-icons">edit</i>
-                </button>
             </div>
         {else}
             <i id="core-sidebar-perfil-img" class="material-icons">people</i>
