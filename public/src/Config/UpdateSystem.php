@@ -38,21 +38,7 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "composer.lock")) {
             $this->createJsonConfigFileIfNotExist();
 
-            if (!empty($custom)) {
-
-                if (in_array('assets', $custom) || in_array('lib', $custom) || in_array('manifest', $custom) || in_array('serviceworker', $custom))
-                    $this->updateVersionNumber();
-
-                $this->updateVersion($custom);
-
-            } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
-                $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
-                $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
-                if ($old !== $keyVersion) {
-                    $this->updateVersionNumber();
-                    $this->updateVersion($custom);
-                }
-            } else {
+            if (!file_exists(PATH_HOME . "_config/updates/version.txt")) {
 
                 //check if is the first time in the system to clear database
                 if (!file_exists(PATH_HOME . "entity/cache")) {
@@ -74,7 +60,15 @@ class UpdateSystem
                 fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
                 fclose($f);
 
-                $this->updateVersion($custom);
+                $this->updateVersion();
+
+            } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
+                $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
+                $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
+                if ($old !== $keyVersion) {
+                    $this->updateVersionNumber();
+                    $this->updateVersion();
+                }
             }
         }
     }
@@ -123,43 +117,16 @@ class UpdateSystem
             Entity::add("usuarios", ["nome" => "Admin", "nome_usuario" => "admin", "setor" => 1, "email" => (!defined('EMAIL') ? "contato@ontab.com.br" : EMAIL), "password" => "mudar"]);
     }
 
-    /**
-     * @param array $updates
-     */
-    private function updateVersion(array $updates)
+    private function updateVersion()
     {
         $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
 
-        if (empty($updates)) {
-            $this->updateDependenciesEntity();
-            $this->checkAdminExist();
-            $this->updateAssets();
-            $this->createMinifyAssetsLib();
-            $this->createManifest($dados);
-            $this->updateServiceWorker();
-        } else {
-
-            //atualizações personalizadas
-
-            if (in_array('entity', $updates))
-                $this->updateDependenciesEntity();
-
-            if (in_array('admin', $updates))
-                $this->checkAdminExist();
-
-            if (in_array('assets', $updates)) {
-                $this->updateAssets();
-                $this->updateServiceWorker();
-            }
-
-            if (in_array('lib', $updates))
-                $this->createMinifyAssetsLib();
-
-            if (in_array('manifest', $updates)) {
-                $this->createManifest($dados);
-                $this->updateServiceWorker();
-            }
-        }
+        $this->updateDependenciesEntity();
+        $this->checkAdminExist();
+        $this->updateAssets();
+        $this->createMinifyAssetsLib();
+        $this->createManifest($dados);
+        $this->updateServiceWorker();
 
         $this->result = true;
     }
