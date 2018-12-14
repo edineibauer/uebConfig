@@ -37,38 +37,45 @@ function updateCache() {
         backgroundColor: THEME,
         loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
-    return clearCache().then(d => {
-        return getJSON(HOME + "get/appFiles").then(g => {
-            if (g && g.response === 1 && typeof g.data === 'object') {
-                g = g.data;
-                caches.open('core-v' + VERSION).then(cache => {
-                    return cache.addAll(g.core)
-                }).then(d => {
-                    caches.open('assets-v' + VERSION).then(cache => {
-                        return cache.addAll(g.assets)
-                    })
-                }).then(d => {
-                    caches.open('misc-v' + VERSION).then(cache => {
-                        return cache.addAll(g.misc)
-                    })
-                }).then(d => {
-                    return caches.open('get-v' + VERSION).then(cache => {
-                        return cache.addAll(g.get)
-                    })
-                }).then(d => {
-                    return caches.open('view-v' + VERSION).then(cache => {
-                        return cache.addAll(g.view)
-                    })
-                }).then(d => {
-                    return caches.open('midia-v' + VERSION).then(cache => {
-                        return cache.addAll(g.midia)
-                    })
-                })
-            }
-        })
+
+    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations)
+            registration.unregister();
+
     }).then(d => {
-        loading_screen.finish();
-    })
+        return clearCache().then(d => {
+            return getJSON(HOME + "get/appFiles").then(g => {
+                if (g && g.response === 1 && typeof g.data === 'object') {
+                    g = g.data;
+                    caches.open('core-v' + VERSION).then(cache => {
+                        return cache.addAll(g.core)
+                    }).then(d => {
+                        caches.open('assets-v' + VERSION).then(cache => {
+                            return cache.addAll(g.assets)
+                        })
+                    }).then(d => {
+                        caches.open('misc-v' + VERSION).then(cache => {
+                            return cache.addAll(g.misc)
+                        })
+                    }).then(d => {
+                        return caches.open('get-v' + VERSION).then(cache => {
+                            return cache.addAll(g.get)
+                        })
+                    }).then(d => {
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.addAll(g.view)
+                        })
+                    }).then(d => {
+                        return caches.open('midia-v' + VERSION).then(cache => {
+                            return cache.addAll(g.midia)
+                        })
+                    })
+                }
+            })
+        }).then(d => {
+            loading_screen.finish();
+        })
+    });
 }
 
 window.onload = function () {

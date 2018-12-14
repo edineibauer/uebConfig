@@ -729,9 +729,9 @@ class UpdateSystem
     {
         //copia service worker
         $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.txt");
-        $service = str_replace(["const VERSION = '';", "const HOME = '';"], ["const VERSION = '" . VERSION . "';", "const HOME = '" . HOME . "';"], $service);
+        $service = str_replace(["const VERSION = '';", "const HOME = '';"], ["const VERSION = '" . (VERSION + 0.01) . "';", "const HOME = '" . HOME . "';"], $service);
 
-        $f = fopen(PATH_HOME . "service-worker.js", "w");
+        $f = fopen(PATH_HOME . "service-worker.js", "w+");
         fwrite($f, $service);
         fclose($f);
     }
