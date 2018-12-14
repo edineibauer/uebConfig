@@ -119,13 +119,11 @@ class UpdateSystem
 
     private function updateVersion()
     {
-        $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
-
         $this->updateDependenciesEntity();
         $this->checkAdminExist();
         $this->updateAssets();
         $this->createMinifyAssetsLib();
-        $this->createManifest($dados);
+        $this->createManifest();
         $this->updateServiceWorker();
 
         $this->result = true;
@@ -687,11 +685,11 @@ class UpdateSystem
 
     /**
      * Create Manifest
-     * @param array $dados
      */
-    private function createManifest(array $dados)
+    private function createManifest()
     {
         //Cria Tamanhos de Ícones
+        $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         $this->createFaviconSizes($dados);
 
         //Create Manifest
