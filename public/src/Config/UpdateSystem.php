@@ -54,12 +54,13 @@ class UpdateSystem
                     }
                 }
 
-                //Cria Version hash info
+                //Cria Version config file
                 Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
                 $f = fopen(PATH_HOME . "_config/updates/version.txt", "w");
                 fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
                 fclose($f);
 
+                $this->updateVersionNumber();
                 $this->updateVersion();
 
             } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
