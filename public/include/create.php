@@ -21,6 +21,7 @@ function getServerConstants(array $dados)
     $dados['vendor'] = "vendor/ueb/";
     $dados['version'] = "1.00";
     $dados['repositorio'] = "http://uebster.com/";
+    $dados['autosync'] = 1;
 
     return $dados;
 }

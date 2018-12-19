@@ -27,6 +27,7 @@
     const TITLE = '{$title}';
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
+    const AUTOSYNC = '{$autosync}';
 </script>
 
 <script src='{$home}assetsPublic/loadingScreen.min.js' defer></script>
