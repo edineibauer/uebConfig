@@ -3,12 +3,13 @@
   "js": [
     "jquery",
     "vue",
-    "mustache",
     "hammer",
+    "mustache",
+    "mask",
     "toast",
+    "idb",
     "helpers",
     "app",
-    "idb",
     "indexeddb",
     "header"
   ],
