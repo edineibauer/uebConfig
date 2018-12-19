@@ -6,6 +6,7 @@
     "hammer",
     "mustache",
     "mask",
+    "dropzone",
     "toast",
     "idb",
     "helpers",
@@ -17,6 +18,7 @@
     "normalize",
     "toast",
     "cssIcon",
+    "dropzone",
     "app",
     "header"
   ],
