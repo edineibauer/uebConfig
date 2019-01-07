@@ -7,8 +7,8 @@ self.addEventListener('fetch', function (e) {
     let fonts = new RegExp("assetsPublic\/fonts\/", "i");
     let images = new RegExp("assetsPublic\/img\/", "i");
     let reacts = new RegExp("assetsPublic\/react\/", "i");
-    let viewJs = new RegExp("assetsPublic\/view\/\w+.min.js$", "i");
-    let viewCss = new RegExp("assetsPublic\/view\/\w+.min.css$", "i");
+    let viewJs = new RegExp("assetsPublic\/view\/\.+.min.js$", "i");
+    let viewCss = new RegExp("assetsPublic\/view\/\.+.min.css$", "i");
     let core = new RegExp("assetsPublic\/", "i");
     let view = new RegExp("view\/", "i");
     let get = new RegExp("get\/", "i");
