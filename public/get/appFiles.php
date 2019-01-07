@@ -100,7 +100,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
     if (!is_dir(PATH_HOME . "assetsPublic/{$item}")) {
 
         //apenas arquivos dentro de assetsPublic
-        if(strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
+        if (strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
             $data['data']['core'][] = HOME . "assetsPublic/{$item}";
 
     } else {
@@ -112,12 +112,15 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
                 if ($item === "view" && !in_array(HOME . "assetsPublic/view/{$iten}", $data['data']['assets'])) {
                     $ext = ucfirst(pathinfo($iten, PATHINFO_EXTENSION));
                     $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}";
-                } elseif ($item === "react" && !in_array(HOME . "assetsPublic/react/{$iten}", $data['data']['react'])) {
-                    $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}";
                 } elseif ($item === "fonts" && !in_array(HOME . "assetsPublic/fonts/{$iten}", $data['data']['fonts'])) {
                     $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}";
                 } elseif ($item === "img" && !in_array(HOME . "assetsPublic/img/{$iten}", $data['data']['images'])) {
                     $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}";
+                }
+            } elseif ($item === "react" && is_dir(PATH_HOME . "assetsPublic/react/{$iten}")) {
+                foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}") as $react) {
+                    if (pathinfo($react, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/{$react}", $data['data']['react']))
+                        $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}/{$react}";
                 }
             }
         }
