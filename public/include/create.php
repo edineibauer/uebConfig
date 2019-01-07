@@ -189,6 +189,7 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
         Config\Config::writeFile("_config/permissoes.json", "{}");
         Config\Config::writeFile("_config/.htaccess", "Deny from all");
         Config\Config::writeFile("entity/.htaccess", "Deny from all");
+        Config\Config::writeFile("public/react/.htaccess", "Deny from all");
         Config\Config::writeFile("_cdn/.htaccess", "Deny from all");
         Config\Config::writeFile("public/cron/.htaccess", "Deny from all");
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
