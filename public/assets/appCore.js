@@ -50,20 +50,36 @@ function updateCache() {
                     caches.open('core-v' + VERSION).then(cache => {
                         return cache.addAll(g.core)
                     }).then(d => {
-                        caches.open('assets-v' + VERSION).then(cache => {
-                            return cache.addAll(g.assets)
+                        return caches.open('fonts-v' + VERSION).then(cache => {
+                            return cache.addAll(g.fonts)
                         })
                     }).then(d => {
-                        caches.open('misc-v' + VERSION).then(cache => {
-                            return cache.addAll(g.misc)
+                        return caches.open('images-v' + VERSION).then(cache => {
+                            return cache.addAll(g.images)
+                        })
+                    }).then(d => {
+                        return caches.open('viewJs-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewJs)
+                        })
+                    }).then(d => {
+                        return caches.open('viewCss-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewCss)
+                        })
+                    }).then(d => {
+                        return caches.open('react-v' + VERSION).then(cache => {
+                            return cache.addAll(g.react)
+                        })
+                    }).then(d => {
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.addAll(g.view)
                         })
                     }).then(d => {
                         return caches.open('get-v' + VERSION).then(cache => {
                             return cache.addAll(g.get)
                         })
                     }).then(d => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.addAll(g.view)
+                        return caches.open('misc-v' + VERSION).then(cache => {
+                            return cache.addAll(g.misc)
                         })
                     }).then(d => {
                         return caches.open('midia-v' + VERSION).then(cache => {

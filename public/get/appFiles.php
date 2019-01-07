@@ -24,7 +24,7 @@ function getAssets(string $path, array $dados): array
                     $dados['js'][] = HOME . "{$path}/" . str_replace('.js', '.min.js', $asset) . "?v=" . VERSION;
                 elseif ($extension === "css")
                     $dados['css'][] = HOME . "{$path}/" . str_replace('.css', '.css.js', $asset) . "?v=" . VERSION;
-                elseif(in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
+                elseif (in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
                     $dados['midia'][] = HOME . "{$path}/{$asset}";
                 else
                     $dados['misc'][] = HOME . "{$path}/{$asset}";
@@ -84,7 +84,11 @@ function getCachedContent(string $path, array $dados): array
 // return values
 $data['data'] = [
     "core" => [HOME, HOME . "index", HOME . "set"],
-    "assets" => [],
+    "fonts" => [],
+    "images" => [],
+    "viewJs" => [],
+    "viewCss" => [],
+    "react" => [],
     "view" => [],
     "get" => [],
     "misc" => [HOME . "manifest.json"],
@@ -93,16 +97,30 @@ $data['data'] = [
 
 //CORE, create cache from all 'assetsPublic'
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
-    if (is_dir(PATH_HOME . "assetsPublic/{$item}")) {
-        if($item !== "cache") {
-            foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
-                if (strpos($iten, ".") && !in_array(HOME . "assetsPublic/{$item}/{$iten}", $data['data']['core']))
-                    $data['data'][$item !== "view" ? 'core' : 'assets'][] = HOME . "assetsPublic/{$item}/{$iten}";
+    if (!is_dir(PATH_HOME . "assetsPublic/{$item}")) {
+
+        //apenas arquivos dentro de assetsPublic
+        if(strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
+            $data['data']['core'][] = HOME . "assetsPublic/{$item}";
+
+    } else {
+
+        //para cada diretório na pasta assetsPublic
+        foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
+            //se for arquivo dentro da pasta
+            if (strpos($iten, ".")) {
+                if ($item === "view" && !in_array(HOME . "assetsPublic/view/{$iten}", $data['data']['assets'])) {
+                    $ext = ucfirst(pathinfo($iten, PATHINFO_EXTENSION));
+                    $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}";
+                } elseif ($item === "react" && !in_array(HOME . "assetsPublic/react/{$iten}", $data['data']['react'])) {
+                    $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}";
+                } elseif ($item === "fonts" && !in_array(HOME . "assetsPublic/fonts/{$iten}", $data['data']['fonts'])) {
+                    $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}";
+                } elseif ($item === "img" && !in_array(HOME . "assetsPublic/img/{$iten}", $data['data']['images'])) {
+                    $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}";
+                }
             }
         }
-
-    } elseif (strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core'])) {
-        $data['data']['core'][] = HOME . "assetsPublic/{$item}";
     }
 }
 
