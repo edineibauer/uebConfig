@@ -66,7 +66,7 @@ function updateCache() {
                             return cache.addAll(g.viewCss)
                         })
                     }).then(d => {
-                        return caches.open('react-v' + VERSION).then(cache => {
+                        return caches.open('reacts-v' + VERSION).then(cache => {
                             return cache.addAll(g.react)
                         })
                     }).then(d => {
