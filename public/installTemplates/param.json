@@ -2,16 +2,17 @@
   "title": "{$sitename}",
   "js": [
     "jquery",
-    "vue",
     "hammer",
     "mustache",
+    "toast",
+    "helpers",
+    "idb",
+    "indexeddb",
     "mask",
     "dropzone",
-    "toast",
-    "idb",
-    "helpers",
+    "form",
+    "formValidate",
     "app",
-    "indexeddb",
     "header"
   ],
   "css": [

@@ -16,9 +16,7 @@
 
     {include 'loading.tpl'}
 
-    <section id="core-content" class="core-class-container">
-        <div v-html="content" ></div>
-    </section>
+    <section id="core-content" class="core-class-container"></section>
 </div>
 {include 'analytics.tpl'}
 
