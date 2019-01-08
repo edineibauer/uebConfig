@@ -1,7 +1,7 @@
 <?php
 require_once './_config/config.php';
 
-use Route\Route;
+use Route\Link;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
