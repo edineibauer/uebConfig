@@ -1,6 +1,6 @@
 <?php
-if(!empty($route->getVar())) {
-    $force = $route->getVar()[0];
+if(!empty($link->getVariaveis())) {
+    $force = $link->getVariaveis()[0];
     if ($force === "force" && file_exists(PATH_HOME . "_config/updates/version.txt"))
         unlink(PATH_HOME . "_config/updates/version.txt");
 }

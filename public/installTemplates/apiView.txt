@@ -1,29 +1,17 @@
 <?php
 require_once './_config/config.php';
-
-use Route\Route;
 use Route\Link;
-
-/** RESPONSES
- * 1 -> rota encontrada e corretamente executada
- * 2 -> rota encontrada e erro encontrado
- * 3 -> redirecionamento
- * 4 -> rota não encontrada
- * outro -> não faz nada
- * */
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    $route = new Route($url);
+    $link = new Link($url);
 
-    if ($route->getRoute()) {
+    if ($link->getRoute()) {
 
         ob_start();
 
-        $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
-
         try {
-            include_once $route->getRoute();
+            include_once $link->getRoute();
 
             if (isset($data['error'])) {
                 $data["response"] = 2;
@@ -44,7 +32,6 @@ if (!empty($url)) {
 
         ob_end_clean();
         if ($data['response'] === 1) {
-            $link = new Link($route->getLib(), $route->getFile(), $route->getVar());
             $data["data"] = [
                 "title" => $link->getParam()['title'],
                 "descricao" => $link->getParam()['descricao'],

@@ -4,11 +4,8 @@ require_once './_config/config.php';
 
 use Helpers\Template;
 use Route\Link;
-use Route\Route;
 
-$route = new Route();
-$link = new Link($route->getLib(), $route->getFile(), $route->getVar());
-
+$link = new Link();
 $view = new Template("config");
 $view->show("index", $link->getParam());
 

@@ -5,14 +5,14 @@ use Route\Route;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    $route = new Route($url, 'get');
+    $link = new Link($url, 'get');
 
-    if ($route->getRoute()) {
+    if ($link->getRoute()) {
 
         ob_start();
 
         try {
-            include_once $route->getRoute();
+            include_once $link->getRoute();
 
             if (isset($data['error'])) {
                 $data["response"] = 2;
