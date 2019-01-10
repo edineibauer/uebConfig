@@ -212,6 +212,18 @@ class Config
     }
 
     /**
+     * @return array
+     */
+    public static function getPermission(): array
+    {
+        $file = [];
+        if(file_exists(PATH_HOME . "_config/permissoes.json"))
+            $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), true);
+
+        return $file;
+    }
+
+    /**
      * Retorna a lista de entidades bloqueadas por setor
      * @return array
      */
