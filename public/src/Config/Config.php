@@ -8,18 +8,6 @@ class Config
 {
 
     /**
-     * Obtém a lista de permissões de cada setor ou do setor específico
-     * @param int $setor
-     * @return array
-     */
-    public static function getPermissoes(int $setor): array
-    {
-        $permissoes = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), true);
-
-        return ($setor ? $permissoes[$setor] : $permissoes);
-    }
-
-    /**
      * @return array
      */
     public static function getViewPermissoes(): array
