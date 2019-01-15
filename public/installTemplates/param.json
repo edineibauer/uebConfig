@@ -9,6 +9,7 @@
     "idb",
     "indexeddb",
     "mask",
+    "grid",
     "form",
     "formValidate",
     "app",
