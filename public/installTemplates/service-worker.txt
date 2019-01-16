@@ -38,6 +38,12 @@ self.addEventListener('fetch', function (e) {
         );
 
     } else if(view.test(url)) {
+        let listagens = new RegExp("listagem\/\.+", "i");
+        let formulario = new RegExp("formulario\/\.+", "i");
+        if(listagens.test(url))
+            url = HOME + "view/listagem";
+        else if(formulario.test(url))
+            url = HOME + "view/formulario";
 
         e.respondWith(
             caches.open('view-v' + VERSION).then(cache => {
