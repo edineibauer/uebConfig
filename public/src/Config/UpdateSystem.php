@@ -151,6 +151,12 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "assetsPublic/loadingScreen.min.css"))
             unlink(PATH_HOME . "assetsPublic/loadingScreen.min.css");
 
+        if (file_exists(PATH_HOME . "assetsPublic/tableCore.min.js"))
+            unlink(PATH_HOME . "assetsPublic/tableCore.min.js");
+
+        if (file_exists(PATH_HOME . "assetsPublic/tableCore.min.css"))
+            unlink(PATH_HOME . "assetsPublic/tableCore.min.css");
+
         if (file_exists(PATH_HOME . "assetsPublic/view")) {
             foreach (Helper::listFolder(PATH_HOME . "assetsPublic/view") as $item)
                 unlink(PATH_HOME . "assetsPublic/view/{$item}");
@@ -190,6 +196,17 @@ class UpdateSystem
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.js");
         $m = new Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/loadingScreen.css");
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.css");
+
+        //table js & css
+        if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
+            $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
+            $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.js");
+        }
+
+        if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.css")) {
+            $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.css"));
+            $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.css");
+        }
 
         $this->copyInstallTemplate();
         $this->copyCustomSystem();
