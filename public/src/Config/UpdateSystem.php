@@ -204,7 +204,7 @@ class UpdateSystem
         }
 
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.css")) {
-            $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.css"));
+            $minifier = new Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.css"));
             $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.css");
         }
 
