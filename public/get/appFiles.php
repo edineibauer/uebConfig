@@ -20,11 +20,7 @@ function getAssets(string $path, array $dados): array
             if (strpos($asset, ".")) {
                 $extension = explode('&', pathinfo($asset, PATHINFO_EXTENSION))[0];
 
-                if ($extension === "js")
-                    $dados['js'][] = HOME . "{$path}/" . str_replace('.js', '.min.js', $asset) . "?v=" . VERSION;
-                elseif ($extension === "css")
-                    $dados['css'][] = HOME . "{$path}/" . str_replace('.css', '.css.js', $asset) . "?v=" . VERSION;
-                elseif (in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
+                if (in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
                     $dados['midia'][] = HOME . "{$path}/{$asset}";
                 else
                     $dados['misc'][] = HOME . "{$path}/{$asset}";
@@ -46,7 +42,7 @@ function getAssets(string $path, array $dados): array
  */
 function getCachedContent(string $path, array $dados): array
 {
-    // components templates VUE
+    //components templates VUE
     if (file_exists(PATH_HOME . "{$path}/components")) {
         foreach (Helper::listFolder(PATH_HOME . "{$path}/components") as $tpl) {
             $tplUrl = HOME . "{$path}/components/{$tpl}";
@@ -55,7 +51,7 @@ function getCachedContent(string $path, array $dados): array
         }
     }
 
-    //Assets
+    //assets
     if (file_exists(PATH_HOME . "{$path}/assets"))
         $dados = getAssets("{$path}/assets", $dados);
 
@@ -63,7 +59,7 @@ function getCachedContent(string $path, array $dados): array
     if (file_exists(PATH_HOME . "{$path}/get")) {
         foreach (Helper::listFolder(PATH_HOME . "{$path}/get") as $get) {
             $getUrl = HOME . "get/" . str_replace('.php', '', $get);
-            if (preg_match('/\.php$/i', $get) && !in_array($get, ['appFiles.php', 'appData.php']) && !in_array($getUrl, $dados['get']))
+            if (preg_match('/\.php$/i', $get) && !in_array($get, ['appFiles.php', 'appData.php', 'allow.php', 'dicionarios.php', 'info.php', 'react.php', 'relevant.php', 'templates.php', 'user.php']) && !in_array($getUrl, $dados['get']))
                 $dados['get'][] = $getUrl;
         }
     }
@@ -88,7 +84,6 @@ $data['data'] = [
     "images" => [],
     "viewJs" => [],
     "viewCss" => [],
-    "react" => [],
     "view" => [],
     "get" => [],
     "misc" => [HOME . "manifest.json"],

@@ -85,7 +85,39 @@ function updateCache() {
                         return caches.open('midia-v' + VERSION).then(cache => {
                             return cache.addAll(g.midia)
                         })
-                    })
+                    }).then(d => {
+                        return get("react").then(react => {
+                            return dbLocal.exeCreate('__react', react);
+                        });
+                    }).then(d => {
+                        return get("allow").then(allow => {
+                            return dbLocal.exeCreate('__allow', allow);
+                        });
+                    }).then(d => {
+                        return get("dicionarios").then(dicionario => {
+                            return dbLocal.exeCreate('__dicionario', dicionario);
+                        });
+                    }).then(d => {
+                        return get("info").then(info => {
+                            return dbLocal.exeCreate('__info', info);
+                        });
+                    }).then(d => {
+                        return get("relevant").then(relevant => {
+                            return dbLocal.exeCreate('__relevant', relevant);
+                        });
+                    }).then(d => {
+                        return get("general").then(general => {
+                            return dbLocal.exeCreate('__general', general);
+                        });
+                    }).then(d => {
+                        return get("templates").then(template => {
+                            return dbLocal.exeCreate('__template', template);
+                        });
+                    }).then(d => {
+                        return get("user").then(templates => {
+                            return dbLocal.exeCreate('__user', user);
+                        });
+                    });
                 }
             })
         }).then(d => {
