@@ -114,7 +114,7 @@ function updateCache() {
                             return dbLocal.exeCreate('__template', template);
                         });
                     }).then(d => {
-                        return get("user").then(templates => {
+                        return get("user").then(user => {
                             return dbLocal.exeCreate('__user', user);
                         });
                     });
