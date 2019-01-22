@@ -65,8 +65,6 @@ function clearCache() {
             clear.push(dbLocal.clear(k));
         }
 
-        dbLocal.clear();
-
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__dicionario'));
         clear.push(dbLocal.clear('__info'));

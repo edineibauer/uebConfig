@@ -9,10 +9,8 @@ const dbRemote = {
             })
         } else if (typeof entity === "undefined") {
             dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-                $.each(dicionarios, function (e, f) {
-                    if (typeof f === "object" && typeof e === "string")
-                        dbRemote.sync(e)
-                })
+                for(var e in dicionarios)
+                    dbRemote.sync(e);
             })
         } else if (typeof entity === "object" && $.isArray(entity)) {
             $.each(entity, function (i, e) {
