@@ -31,4 +31,6 @@
 </script>
 
 <script src='{$home}assetsPublic/loadingScreen.min.js' defer></script>
+<script src='{$home}assetsPublic/idb.min.js' defer></script>
+<script src='{$home}assetsPublic/indexedDB.min.js' defer></script>
 <script src='{$home}assetsPublic/appCore.min.js' defer></script>

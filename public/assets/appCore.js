@@ -1,25 +1,59 @@
 function getRequest(url) {
+    // Return a new promise.
     return new Promise(function (resolve, reject) {
+        // Do the usual XHR stuff
         var req = new XMLHttpRequest();
         req.open('GET', url);
+
         req.onload = function () {
+            // This is called even on 404 etc
+            // so check the status
             if (req.status == 200) {
-                resolve(req.response)
+                // Resolve the promise with the response text
+                resolve(req.response);
             } else {
-                reject(Error(req.statusText))
+                // Otherwise reject with the status text
+                // which will hopefully be a meaningful error
+                reject(Error(req.statusText));
             }
         };
+
+        // Handle network errors
         req.onerror = function () {
-            reject(Error("Network Error"))
+            reject(Error("Network Error"));
         };
-        req.send()
-    })
+
+        // Make the request
+        req.send();
+    });
 }
 
 function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
         console.log("getJSON failed for", url, err);
         throw err
+    })
+}
+
+function get(file) {
+    return getJSON(HOME + "get/" + file).then(data => {
+        if (data.response === 1) {
+            if (typeof data.data.js === "undefined")
+                return data.data;
+            toast("sem conexão", 1500, "toast-warning")
+        } else {
+            switch (data.response) {
+                case 2:
+                    toast(data.error, 3000, "toast-warning");
+                    break;
+                case 3:
+                    location.href = data.data;
+                    break;
+                case 4:
+                    toast("Caminho não encontrado", 1500, "toast-warning")
+            }
+        }
+        throw error
     })
 }
 
@@ -37,93 +71,76 @@ function updateCache() {
         backgroundColor: THEME,
         loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
-
     return navigator.serviceWorker.getRegistrations().then(function (registrations) {
         for (let registration of registrations)
-            registration.unregister();
-
-    }).then(d => {
-        return clearCache().then(d => {
-            return getJSON(HOME + "get/appFiles").then(g => {
-                if (g && g.response === 1 && typeof g.data === 'object') {
-                    g = g.data;
-                    caches.open('core-v' + VERSION).then(cache => {
-                        return cache.addAll(g.core)
-                    }).then(d => {
-                        return caches.open('fonts-v' + VERSION).then(cache => {
-                            return cache.addAll(g.fonts)
-                        })
-                    }).then(d => {
-                        return caches.open('images-v' + VERSION).then(cache => {
-                            return cache.addAll(g.images)
-                        })
-                    }).then(d => {
-                        return caches.open('viewJs-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewJs)
-                        })
-                    }).then(d => {
-                        return caches.open('viewCss-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewCss)
-                        })
-                    }).then(d => {
-                        return caches.open('reacts-v' + VERSION).then(cache => {
-                            return cache.addAll(g.react)
-                        })
-                    }).then(d => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.addAll(g.view)
-                        })
-                    }).then(d => {
-                        return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.addAll(g.get)
-                        })
-                    }).then(d => {
-                        return caches.open('misc-v' + VERSION).then(cache => {
-                            return cache.addAll(g.misc)
-                        })
-                    }).then(d => {
-                        return caches.open('midia-v' + VERSION).then(cache => {
-                            return cache.addAll(g.midia)
-                        })
-                    }).then(d => {
-                        return get("react").then(react => {
-                            return dbLocal.exeCreate('__react', react);
-                        });
-                    }).then(d => {
-                        return get("allow").then(allow => {
-                            return dbLocal.exeCreate('__allow', allow);
-                        });
-                    }).then(d => {
-                        return get("dicionarios").then(dicionario => {
-                            return dbLocal.exeCreate('__dicionario', dicionario);
-                        });
-                    }).then(d => {
-                        return get("info").then(info => {
-                            return dbLocal.exeCreate('__info', info);
-                        });
-                    }).then(d => {
-                        return get("relevant").then(relevant => {
-                            return dbLocal.exeCreate('__relevant', relevant);
-                        });
-                    }).then(d => {
-                        return get("general").then(general => {
-                            return dbLocal.exeCreate('__general', general);
-                        });
-                    }).then(d => {
-                        return get("templates").then(template => {
-                            return dbLocal.exeCreate('__template', template);
-                        });
-                    }).then(d => {
-                        return get("user").then(user => {
-                            return dbLocal.exeCreate('__user', user);
-                        });
-                    });
-                }
+            registration.unregister()
+    }).then(() => {
+        return clearCache().then(() => {
+            return get("appFiles").then(g => {
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.addAll(g.core)
+                }).then(() => {
+                    return caches.open('fonts-v' + VERSION).then(cache => {
+                        return cache.addAll(g.fonts)
+                    })
+                }).then(() => {
+                    return caches.open('images-v' + VERSION).then(cache => {
+                        return cache.addAll(g.images)
+                    })
+                }).then(() => {
+                    return caches.open('viewJs-v' + VERSION).then(cache => {
+                        return cache.addAll(g.viewJs)
+                    })
+                }).then(() => {
+                    return caches.open('viewCss-v' + VERSION).then(cache => {
+                        return cache.addAll(g.viewCss)
+                    })
+                }).then(() => {
+                    return caches.open('view-v' + VERSION).then(cache => {
+                        return cache.addAll(g.view)
+                    })
+                }).then(() => {
+                    return caches.open('get-v' + VERSION).then(cache => {
+                        return cache.addAll(g.get)
+                    })
+                }).then(() => {
+                    return caches.open('misc-v' + VERSION).then(cache => {
+                        return cache.addAll(g.misc)
+                    })
+                }).then(() => {
+                    return caches.open('midia-v' + VERSION).then(cache => {
+                        return cache.addAll(g.midia)
+                    })
+                });
             })
-        }).then(d => {
-            loading_screen.finish();
+        }).then(() => {
+            let gets = [];
+            let creates = [];
+            gets.push(get("react"));
+            gets.push(get("allow"));
+            gets.push(get("dicionarios"));
+            gets.push(get("info"));
+            gets.push(get("relevant"));
+            gets.push(get("general"));
+            gets.push(get("templates"));
+            gets.push(get("user"));
+
+            return Promise.all(gets).then(r => {
+                creates.push(dbLocal.exeCreate('__react', r[0]));
+                creates.push(dbLocal.exeCreate('__allow', r[1]));
+                creates.push(dbLocal.exeCreate('__dicionario', r[2]));
+                creates.push(dbLocal.exeCreate('__info', r[3]));
+                creates.push(dbLocal.exeCreate('__relevant', r[4]));
+                creates.push(dbLocal.exeCreate('__general', r[5]));
+                creates.push(dbLocal.exeCreate('__template', r[6]));
+                creates.push(dbLocal.exeCreate('__user', r[7]));
+
+                return Promise.all(creates);
+            });
+        }).then(() => {
+            loading_screen.finish()
         })
-    });
+    })
 }
 
 window.onload = function () {
@@ -134,7 +151,7 @@ window.onload = function () {
                     return updateCache();
                 return response
             })
-        }).then(d => {
+        }).then(() => {
             if ('serviceWorker' in navigator)
                 navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
 

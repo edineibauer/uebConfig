@@ -145,6 +145,12 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "assetsPublic/appCore.min.js"))
             unlink(PATH_HOME . "assetsPublic/appCore.min.js");
 
+        if (file_exists(PATH_HOME . "assetsPublic/idb.min.js"))
+            unlink(PATH_HOME . "assetsPublic/idb.min.js");
+
+        if (file_exists(PATH_HOME . "assetsPublic/indexedDB.min.js"))
+            unlink(PATH_HOME . "assetsPublic/indexedDB.min.js");
+
         if (file_exists(PATH_HOME . "assetsPublic/loadingScreen.min.js"))
             unlink(PATH_HOME . "assetsPublic/loadingScreen.min.js");
 
@@ -190,6 +196,12 @@ class UpdateSystem
 
         $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+
+        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/idb.js");
+        $m->minify(PATH_HOME . "assetsPublic/idb.min.js");
+
+        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
+        $m->minify(PATH_HOME . "assetsPublic/indexedDB.min.js");
 
         //copy loadingScreen to assetsPublic
         $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/loadingScreen.js");

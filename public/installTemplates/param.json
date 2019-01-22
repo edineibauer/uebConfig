@@ -6,8 +6,6 @@
     "mustache",
     "toast",
     "helpers",
-    "idb",
-    "indexeddb",
     "mask",
     "grid",
     "form",
