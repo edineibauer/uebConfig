@@ -9,7 +9,7 @@ const dbRemote = {
             })
         } else if (typeof entity === "undefined") {
             dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-                $.each(dicionarios.dicionario, function (e, f) {
+                $.each(dicionarios, function (e, f) {
                     if (typeof f === "object" && typeof e === "string")
                         dbRemote.sync(e)
                 })
@@ -237,10 +237,10 @@ const dbLocal = {
         })
     }, insert(entity, val, key) {
         return dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-            if (!/^__/.test(entity) && typeof dicionarios.dicionario[entity] === "object") {
+            if (!/^__/.test(entity) && typeof dicionarios[entity] === "object") {
                 $.each(val, function (col, v) {
                     if (col !== "id")
-                        val[col] = getDefaultValue(dicionarios.dicionario[entity][col], v)
+                        val[col] = getDefaultValue(dicionarios[entity][col], v)
                 })
             }
             return dbLocal.conn(entity).then(dbLocalTmp => {

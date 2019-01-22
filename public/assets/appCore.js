@@ -58,11 +58,33 @@ function get(file) {
 }
 
 function clearCache() {
-    return caches.keys().then(cacheNames => {
-        return Promise.all(cacheNames.map(cacheName => {
-            return caches.delete(cacheName)
-        }))
-    })
+    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+        let clear = [];
+        for (var k in dicionarios) {
+            clear.push(dbLocal.clear("sync_" + k));
+            clear.push(dbLocal.clear(k));
+        }
+
+        dbLocal.clear();
+
+        clear.push(dbLocal.clear('__historic'));
+        clear.push(dbLocal.clear('__dicionario'));
+        clear.push(dbLocal.clear('__info'));
+        clear.push(dbLocal.clear('__allow'));
+        clear.push(dbLocal.clear('__general'));
+        clear.push(dbLocal.clear('__react'));
+        clear.push(dbLocal.clear('__relevant'));
+        clear.push(dbLocal.clear('__template'));
+        clear.push(dbLocal.clear('__user'));
+
+        return Promise.all(clear);
+    }).then(() => {
+        return caches.keys().then(cacheNames => {
+            return Promise.all(cacheNames.map(cacheName => {
+                return caches.delete(cacheName)
+            }))
+        })
+    });
 }
 
 function updateCache() {
