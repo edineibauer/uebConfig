@@ -1,3 +1,5 @@
-post("config", "updateConfiguracoes", function () {
-    updateVersion();
+post("config", "updateConfiguracoes", function (g) {
+    clearCache().then(() => {
+        window.location.reload();
+    });
 });
