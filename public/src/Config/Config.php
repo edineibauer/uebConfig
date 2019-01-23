@@ -225,9 +225,9 @@ class Config
     }
 
     /**
-     * @return array
+     * Cria arquivo de atualização do site
      */
-    public static function updateSite(): array
+    public static function updateSite()
     {
         $update = "0";
         if(file_exists(PATH_HOME . "_config/updates/update.txt"))
