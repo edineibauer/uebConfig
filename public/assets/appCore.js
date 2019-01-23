@@ -88,12 +88,18 @@ function setCookieAnonimo() {
     setCookie("setor", 0);
     setCookie("nivel", 1);
 
-    $.ajax({
-        type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update'}, success: function (data) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", HOME + "set", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let data = JSON.parse(this.responseText);
+            console.log(data);
             if (data.data !== "no-network" && data.response === 1)
-                setCookie("update", data.data);
-        }, dataType: "json"
-    });
+                setCookie("update", data.data)
+        }
+    };
+    xhttp.send("lib=config&file=update");
 }
 
 function clearCache() {
