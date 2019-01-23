@@ -120,6 +120,16 @@ class UpdateSystem
 
     private function updateVersion()
     {
+        //cria/atualiza update log file
+        $update = "0";
+        if(file_exists(PATH_HOME . "_config/updates/update.txt"))
+            $update = file_get_contents(PATH_HOME . "_config/updates/update.txt");
+        $update += 1;
+
+        $f = fopen(PATH_HOME . "_config/updates/update.txt", "w");
+        fwrite($f, $update);
+        fclose($f);
+
         $this->updateDependenciesEntity();
         $this->checkAdminExist();
         $this->updateAssets();
