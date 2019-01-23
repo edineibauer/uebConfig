@@ -61,14 +61,14 @@ class UpdateSystem
                 fclose($f);
 
                 $this->updateVersionNumber();
-                $this->updateVersion();
+                $this->updateVersion($custom);
 
             } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
                 $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
                 $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
                 if ($old !== $keyVersion) {
                     $this->updateVersionNumber();
-                    $this->updateVersion();
+                    $this->updateVersion($custom);
                 }
             }
         }
@@ -118,17 +118,38 @@ class UpdateSystem
             Entity::add("usuarios", ["nome" => "Admin", "nome_usuario" => "admin", "setor" => 1, "email" => (!defined('EMAIL') ? "contato@ontab.com.br" : EMAIL), "password" => "mudar"]);
     }
 
-    private function updateVersion()
+    /**
+     * @param array $custom
+     */
+    private function updateVersion(array $custom)
     {
         //cria/atualiza update log file
         Config::updateSite();
 
-        $this->updateDependenciesEntity();
-        $this->checkAdminExist();
-        $this->updateAssets();
-        $this->createMinifyAssetsLib();
-        $this->createManifest();
-        $this->updateServiceWorker();
+        if(empty($custom)) {
+            $this->updateDependenciesEntity();
+            $this->checkAdminExist();
+            $this->updateAssets();
+            $this->createMinifyAssetsLib();
+            $this->createManifest();
+            $this->updateServiceWorker();
+
+        } elseif(is_array($custom)) {
+
+            if(in_array("entity", $custom)) {
+                $this->updateDependenciesEntity();
+            }
+
+            if(in_array("assets", $custom)) {
+                $this->updateAssets();
+                $this->createMinifyAssetsLib();
+            }
+
+            if(in_array("manifest", $custom)) {
+                $this->createManifest();
+                $this->updateServiceWorker();
+            }
+        }
 
         $this->result = true;
     }

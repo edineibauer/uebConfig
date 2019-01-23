@@ -21,3 +21,4 @@ elseif (!$dados['HTTPS'] && SSL)
     $conf['home'] = str_replace('https://', 'http://', HOME);
 
 \Config\Config::createConfig($conf);
+$up = new \Config\updateSystem(['manifest']);
