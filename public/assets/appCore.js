@@ -87,7 +87,6 @@ function setCookieAnonimo() {
     setCookie("email", "");
     setCookie("setor", 0);
     setCookie("nivel", 1);
-    console.log("anonimo");
 }
 
 function clearCache() {
