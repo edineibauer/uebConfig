@@ -225,6 +225,22 @@ class Config
     }
 
     /**
+     * @return array
+     */
+    public static function updateSite(): array
+    {
+        $update = "0";
+        if(file_exists(PATH_HOME . "_config/updates/update.txt"))
+            $update = file_get_contents(PATH_HOME . "_config/updates/update.txt");
+        $update += 1;
+
+        Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
+        $f = fopen(PATH_HOME . "_config/updates/update.txt", "w");
+        fwrite($f, $update);
+        fclose($f);
+    }
+
+    /**
      * Retorna a lista de entidades bloqueadas por setor
      * @return array
      */
