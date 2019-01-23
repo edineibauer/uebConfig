@@ -66,7 +66,7 @@ class UpdateSystem
             } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
                 $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
                 $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
-                if ($old !== $keyVersion) {
+                if (!empty($custom) || $old !== $keyVersion) {
                     $this->updateVersionNumber();
                     $this->updateVersion($custom);
                 }
