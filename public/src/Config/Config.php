@@ -210,9 +210,13 @@ class Config
 
             //convert true string para true boolean
             foreach ($file as $setor => $datum) {
-                foreach ($datum as $entity => $dados) {
-                    foreach ($dados as $action => $value)
-                        $file[$setor][$entity][$action] = $value === "true";
+                if(!empty($datum)) {
+                    foreach ($datum as $entity => $dados) {
+                        if(!empty($dados)) {
+                            foreach ($dados as $action => $value)
+                                $file[$setor][$entity][$action] = $value === "true";
+                        }
+                    }
                 }
             }
         }
