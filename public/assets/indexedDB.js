@@ -156,8 +156,8 @@ const db = {
                 delete (val.db_action);
                 return dbLocal.exeCreate(entity, val).then(d => {
                     return dbLocal.exeRead("__react").then(react => {
-                        if (typeof react.react !== "undefined" && typeof react.react[entity] !== "undefined" && typeof react.react[entity][action] !== "undefined")
-                            $.cachedScript(react.react[entity][action]);
+                        if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                            eval(react[0][entity][action]);
                         if (AUTOSYNC) {
                             return dbRemote.sync(entity).then(d => {
                                 return val.id
@@ -178,8 +178,8 @@ const db = {
             }, parseInt(key)).then(idSync => {
                 dbLocal.exeDelete(entity, id).then(d => {
                     return dbLocal.exeRead("__react").then(react => {
-                        if (typeof react.react[entity] !== "undefined" && typeof react.react[entity]['delete'] !== "undefined")
-                            $.cachedScript(react.react[entity]['delete']);
+                        if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                            eval(react[0][entity][action]);
                         if (AUTOSYNC)
                             return dbRemote.sync(entity);
                         return null
