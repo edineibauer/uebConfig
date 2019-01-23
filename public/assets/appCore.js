@@ -87,6 +87,13 @@ function setCookieAnonimo() {
     setCookie("email", "");
     setCookie("setor", 0);
     setCookie("nivel", 1);
+
+    $.ajax({
+        type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update'}, success: function (data) {
+            if (data.data !== "no-network" && data.response === 1)
+                setCookie("update", data.data);
+        }, dataType: "json"
+    });
 }
 
 function clearCache() {
