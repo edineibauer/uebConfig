@@ -146,6 +146,7 @@ class UpdateSystem
             }
 
             if(in_array("manifest", $custom)) {
+                $this->createCoreImages();
                 $this->createManifest();
                 $this->updateServiceWorker();
             }
@@ -216,7 +217,6 @@ class UpdateSystem
 
         $this->createCoreFont($f['font'], $f['icon'], 'fonts');
         $this->createCoreImages();
-
 
         $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
@@ -416,7 +416,7 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/save.gif", PATH_HOME . "assetsPublic/img/save.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
-        copy(PATH_HOME . $config['favicon'], PATH_HOME . "assetsPublic/img/favicon.png");
+        copy(PATH_HOME . str_replace(HOME, '', $config['favicon']), PATH_HOME . "assetsPublic/img/favicon.png");
         copy((!empty($config['logo']) ? PATH_HOME . $config['logo'] : PATH_HOME . VENDOR . "config/public/assets/image-not-found.png"), PATH_HOME . "assetsPublic/img/logo.png");
     }
 
@@ -765,13 +765,10 @@ class UpdateSystem
      */
     private function createFaviconSizes(array $dados)
     {
-        $ext = pathinfo($dados['favicon'], PATHINFO_EXTENSION);
-        $name = pathinfo($dados['favicon'], PATHINFO_FILENAME);
-
         Helper::createFolderIfNoExist(PATH_HOME . "uploads");
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
-        $fav = \WideImage\WideImage::load(PATH_HOME . $dados['favicon']);
+        $fav = \WideImage\WideImage::load(PATH_HOME . str_replace(HOME, '', $dados['favicon']));
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
         $fav->resize(152, 152, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-152.png");
