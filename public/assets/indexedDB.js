@@ -25,7 +25,8 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            var down = !1;
+            let down = !1;
+            let creates = [];
 
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
@@ -33,21 +34,24 @@ const dbRemote = {
                     let data = JSON.parse(this.responseText);
                     if (data.response === 1 && typeof data.data !== "no-network") {
                         if (data.data.historic !== 0) {
-                            dbLocal.clear(entity).then(() => {
+                            creates.push(dbLocal.clear(entity).then(() => {
+                                let cc = [];
                                 if(data.data.data.length) {
                                     for (let k in data.data.data) {
                                         if(!isNaN(k) && typeof data.data.data[k] === "object" && typeof data.data.data[k].id !== "undefined") {
                                             let val = data.data.data[k];
                                             val.id = parseInt(val.id);
-                                            dbLocal.exeCreate(entity, val)
+                                            cc.push(dbLocal.exeCreate(entity, val));
                                         }
                                     }
                                 }
-                                dbLocal.clear('__historic').then(() => {
+                                cc.push(dbLocal.clear('__historic').then(() => {
                                     hist[entity] = data.data.historic;
-                                    dbLocal.exeCreate('__historic', hist);
-                                });
-                            });
+                                    return dbLocal.exeCreate('__historic', hist);
+                                }));
+
+                                return Promise.all(cc);
+                            }));
                             down = !0;
                         }
                     }
@@ -57,7 +61,9 @@ const dbRemote = {
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.send("lib=entity&file=load/entity&entity=" + entity + "&historic=" + (hist[entity] || null));
 
-            return down
+            return Promise.all(creates).then(() => {
+                return down;
+            })
         })
     }, syncUpdate(entity) {
 
