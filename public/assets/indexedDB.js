@@ -1,25 +1,31 @@
 const dbRemote = {
     sync(entity) {
         if (typeof entity === "string") {
-            return dbRemote.syncDownload(entity).then(d => {
+            return dbRemote.syncDownload(entity).then(down => {
                 return dbRemote.syncUpdate(entity).then(haveUpdates => {
                     if (haveUpdates)
-                        dbRemote.syncPost(entity)
+                        return dbRemote.syncPost(entity);
+                    return down;
                 })
             })
         } else if (typeof entity === "undefined") {
-            dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-                for(var e in dicionarios)
-                    dbRemote.sync(e);
+            return dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
+                let allReads = [];
+                for (var e in dicionarios)
+                    allReads.push(dbRemote.sync(e));
+
+                return Promise.all(allReads);
             })
         } else if (typeof entity === "object" && $.isArray(entity)) {
+            let allReads = [];
             $.each(entity, function (i, e) {
-                dbRemote.sync(e)
-            })
+                allReads.push(dbRemote.sync(e));
+            });
+            return Promise.all(allReads);
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            var down = false;
+            var down = !1;
             $.ajax({
                 type: "POST",
                 url: HOME + 'set',
@@ -40,16 +46,17 @@ const dbRemote = {
                             hist.id = 1;
                             hist[entity] = data.data.historic;
                             dbLocal.exeCreate('__historic', hist);
-                            down = true;
+                            down = !0;
                         }
                     }
                 },
                 async: !1,
                 dataType: "json"
             });
-            return down;
+            return down
         })
     }, syncUpdate(entity) {
+
         return dbLocal.exeRead('sync_' + entity).then(dados => {
             if (dados.length) {
                 $.each(dados, function (i, d) {
@@ -70,7 +77,7 @@ const dbRemote = {
             return 0
         })
     }, syncPost(entity) {
-        dbLocal.exeRead('sync_' + entity).then(dadosSync => {
+        return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
             if (dadosSync.length) {
                 $.each(dadosSync, function (si, dados) {
                     let syncId = dados.id;
@@ -110,7 +117,7 @@ const dbRemote = {
                             }),
                             success: function (data) {
                                 if (data.response === 1 && typeof data.data.js === "undefined")
-                                    r = data.data;
+                                    r = {error: 0, data: 1};
                             },
                             async: false,
                             dataType: "json"
@@ -119,18 +126,24 @@ const dbRemote = {
 
                     if (r) {
                         if(r.data !== 0 && r.error === 0) {
-                            dbLocal.exeDelete('sync_' + entity, syncId);
-                            dbLocal.exeCreate(entity, r.data);
-                            dbLocal.exeRead("__historic", 1).then(hist => {
-                                hist[entity] = r.historic;
-                                hist[entity].id = 1;
-                                dbLocal.exeCreate("__historic", hist)
-                            });
+                            return dbLocal.exeDelete('sync_' + entity, syncId).then(() => {
+                                return dbLocal.exeRead("__historic", 1).then(hist => {
+                                    hist[entity] = r.historic;
+                                    return dbLocal.clear('__historic').then(() => {
+                                        return dbLocal.exeCreate("__historic", hist)
+                                    })
+                                });
+                            }).then(() => {
+                                if((dados.db_action === 'create' || dados.db_action === "update") && !isNaN(r.data) && r.data > 0)
+                                    return dbLocal.exeCreate(entity, r.data);
+                                return 1;
+                            })
                         } else if(r.error !== 0){
                             toast("Servidor não validou o formulário");
                             console.log(r.error);
                         }
                     }
+                    return 1;
                 })
             }
         })
@@ -208,11 +221,9 @@ const dbLocal = {
         })
     }, exeCreate(entity, val) {
         let id = (/^__/.test(entity) ? 1 : (!isNaN(val.id) && val.id > 0 ? parseInt(val.id) : 0));
-
         if (id > 0) {
-            if(!isNaN(val.id) && val.id > 0)
+            if (!isNaN(val.id) && val.id > 0)
                 val.id = parseInt(val.id);
-
             return dbLocal.insert(entity, val, id)
         } else {
             return dbLocal.newKey(entity).then(key => {
@@ -272,4 +283,4 @@ const dbLocal = {
             return tx.complete.then(() => keys)
         })
     }
-};
+}

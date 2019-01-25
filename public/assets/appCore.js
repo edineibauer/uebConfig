@@ -203,10 +203,12 @@ function updateCache() {
                 return Promise.all(creates);
             });
         }).then(() => {
-            if(getCookie("token") === "")
-                setCookieAnonimo();
+            dbRemote.sync().then(() => {
+                if(getCookie("token") === "")
+                    setCookieAnonimo();
 
-            loading_screen.finish()
+                loading_screen.finish()
+            })
         })
     })
 }
