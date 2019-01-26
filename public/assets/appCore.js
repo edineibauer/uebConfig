@@ -183,13 +183,6 @@ function updateCache() {
                 creates.push(dbLocal.exeCreate('__general', r[5]));
                 creates.push(dbLocal.exeCreate('__template', r[6]));
                 creates.push(dbLocal.exeCreate('__user', r[7]));
-
-                let hist = {};
-                for(let entity in r[2])
-                    hist[entity] = 0;
-
-                creates.push(db.exeCreate('__historic', hist));
-
                 return Promise.all(creates)
             })
         }).then(() => {
