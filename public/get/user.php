@@ -8,7 +8,7 @@ if(file_exists(PATH_HOME . "_config/permissoes.json")) {
         $read->exeRead("usuarios", "WHERE id != :id", "id={$_SESSION['userlogin']['id']}");
         if ($read->getResult()) {
             foreach ($read->getResult() as $item) {
-                $data['data'][$item['id']] = ["setor" => $item['setor'], "nivel" => $item['nivel'], "status" => $item['status']];
+                $data['data'][$item['id']] = ["id" => $item['id'], "nome" => $item['nome'], "setor" => $item['setor'], "nivel" => $item['nivel'], "status" => $item['status']];
             }
         }
     }

@@ -1,31 +1,19 @@
 function getRequest(url) {
-    // Return a new promise.
     return new Promise(function (resolve, reject) {
-        // Do the usual XHR stuff
         var req = new XMLHttpRequest();
         req.open('GET', url);
-
         req.onload = function () {
-            // This is called even on 404 etc
-            // so check the status
             if (req.status == 200) {
-                // Resolve the promise with the response text
-                resolve(req.response);
+                resolve(req.response)
             } else {
-                // Otherwise reject with the status text
-                // which will hopefully be a meaningful error
-                reject(Error(req.statusText));
+                reject(Error(req.statusText))
             }
         };
-
-        // Handle network errors
         req.onerror = function () {
-            reject(Error("Network Error"));
+            reject(Error("Network Error"))
         };
-
-        // Make the request
-        req.send();
-    });
+        req.send()
+    })
 }
 
 function getJSON(url) {
@@ -87,11 +75,10 @@ function setCookieAnonimo() {
     setCookie("email", "");
     setCookie("setor", 0);
     setCookie("nivel", 1);
-
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", HOME + "set", true);
+    xhttp.open("POST", HOME + "set", !0);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             let data = JSON.parse(this.responseText);
             console.log(data);
@@ -99,7 +86,7 @@ function setCookieAnonimo() {
                 setCookie("update", data.data)
         }
     };
-    xhttp.send("lib=config&file=update");
+    xhttp.send("lib=config&file=update")
 }
 
 function clearCache() {
@@ -107,9 +94,8 @@ function clearCache() {
         let clear = [];
         for (var k in dicionarios) {
             clear.push(dbLocal.clear("sync_" + k));
-            clear.push(dbLocal.clear(k));
+            clear.push(dbLocal.clear(k))
         }
-
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__dicionario'));
         clear.push(dbLocal.clear('__info'));
@@ -119,15 +105,14 @@ function clearCache() {
         clear.push(dbLocal.clear('__relevant'));
         clear.push(dbLocal.clear('__template'));
         clear.push(dbLocal.clear('__user'));
-
-        return Promise.all(clear);
+        return Promise.all(clear)
     }).then(() => {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName)
             }))
         })
-    });
+    })
 }
 
 function updateCache() {
@@ -176,7 +161,7 @@ function updateCache() {
                     return caches.open('midia-v' + VERSION).then(cache => {
                         return cache.addAll(g.midia)
                     })
-                });
+                })
             })
         }).then(() => {
             let gets = [];
@@ -189,7 +174,6 @@ function updateCache() {
             gets.push(get("general"));
             gets.push(get("templates"));
             gets.push(get("user"));
-
             return Promise.all(gets).then(r => {
                 creates.push(dbLocal.exeCreate('__react', r[0]));
                 creates.push(dbLocal.exeCreate('__allow', r[1]));
@@ -200,15 +184,19 @@ function updateCache() {
                 creates.push(dbLocal.exeCreate('__template', r[6]));
                 creates.push(dbLocal.exeCreate('__user', r[7]));
 
-                return Promise.all(creates);
-            });
-        }).then(() => {
-            dbRemote.sync().then(() => {
-                if(getCookie("token") === "")
-                    setCookieAnonimo();
+                let hist = {};
+                for(let entity in r[2])
+                    hist[entity] = 0;
 
-                loading_screen.finish()
+                creates.push(db.exeCreate('__historic', hist));
+
+                return Promise.all(creates)
             })
+        }).then(() => {
+            if(getCookie("token") === "")
+                setCookieAnonimo();
+
+            loading_screen.finish()
         })
     })
 }
@@ -224,7 +212,6 @@ window.onload = function () {
         }).then(() => {
             if ('serviceWorker' in navigator)
                 navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
-
             let scriptCore = document.createElement('script');
             scriptCore.src = HOME + "assetsPublic/core.min.js";
             document.head.appendChild(scriptCore);
@@ -237,6 +224,6 @@ window.onload = function () {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
         document.head.appendChild(scriptCore);
-        clearCache();
+        clearCache()
     }
 }

@@ -2,7 +2,9 @@ const dbRemote = {
     sync(entity) {
         if (typeof entity === "string") {
             return dbRemote.syncDownload(entity).then(down => {
+                console.log(down);
                 return dbRemote.syncUpdate(entity).then(haveUpdates => {
+                    console.log(haveUpdates);
                     if (haveUpdates)
                         return dbRemote.syncPost(entity);
                     return down;
@@ -16,7 +18,7 @@ const dbRemote = {
 
                 return Promise.all(allReads);
             })
-        } else if (typeof entity === "object" && $.isArray(entity)) {
+        } else if (typeof entity === "object" && entity.constructor === Array) {
             let allReads = [];
             for(let k in entity) {
                 allReads.push(dbRemote.sync(entity[k]));
@@ -25,6 +27,7 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
+            console.log(hist);
             let down = !1;
             let creates = [];
 
@@ -45,10 +48,9 @@ const dbRemote = {
                                         }
                                     }
                                 }
-                                cc.push(dbLocal.clear('__historic').then(() => {
-                                    hist[entity] = data.data.historic;
-                                    return dbLocal.exeCreate('__historic', hist);
-                                }));
+                                let historicData = {};
+                                historicData[entity] = data.data.historic;
+                                cc.push(dbLocal.exeUpdate('__historic', historicData, 1));
 
                                 return Promise.all(cc);
                             }));
@@ -100,50 +102,40 @@ const dbRemote = {
                             delete (dados.id);
 
                         delete (dados.db_action);
-                        $.ajax({
-                            type: "POST",
-                            url: HOME + 'set',
-                            data: convertEmptyArrayToNull({
-                                lib: 'entity',
-                                file: 'up/entity',
-                                entity: entity,
-                                dados: dados
-                            }),
-                            success: function (data) {
-                                if (data.response === 1 && typeof data.data.js === "undefined" && typeof data.data.data === "object")
-                                    r = data.data
-                            },
-                            async: false,
-                            dataType: "json"
-                        });
+
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState == 4 && this.status == 200) {
+                                let data = JSON.parse(this.responseText);
+                                if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data.data === "object")
+                                    r = data.data;
+                            }
+                        };
+                        xhttp.open("POST", HOME + "set", !1);
+                        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + dados);
 
                     } else if (dados.db_action === 'delete') {
-                        $.ajax({
-                            type: "POST",
-                            url: HOME + 'set',
-                            data: convertEmptyArrayToNull({
-                                lib: 'entity',
-                                file: 'delete/entity',
-                                entity: entity,
-                                id: dados.delete
-                            }),
-                            success: function (data) {
-                                if (data.response === 1 && typeof data.data.js === "undefined")
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState == 4 && this.status == 200) {
+                                let data = JSON.parse(this.responseText);
+                                if (data.response === 1 && typeof data.data !== "no-network")
                                     r = {error: 0, data: 1};
-                            },
-                            async: false,
-                            dataType: "json"
-                        });
+                            }
+                        };
+                        xhttp.open("POST", HOME + "set", !1);
+                        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        xhttp.send("lib=entity&file=delete/entity&entity=" + entity + "&id=" + dados.delete);
                     }
 
                     if (r) {
                         if(r.data !== 0 && r.error === 0) {
                             return dbLocal.exeDelete('sync_' + entity, syncId).then(() => {
                                 return dbLocal.exeRead("__historic", 1).then(hist => {
-                                    hist[entity] = r.historic;
-                                    return dbLocal.clear('__historic').then(() => {
-                                        return dbLocal.exeCreate("__historic", hist)
-                                    })
+                                    let historicData = {};
+                                    historicData[entity] = r.historic;
+                                    return dbLocal.exeUpdate("__historic", historicData, 1)
                                 });
                             }).then(() => {
                                 if((dados.db_action === 'create' || dados.db_action === "update") && !isNaN(r.data) && r.data > 0)
@@ -171,7 +163,7 @@ const db = {
             })
         } else {
             proc = dbLocal.exeRead('sync_' + entity, val.id).then(d => {
-                if ($.isEmptyObject(d) || d.db_action === 'update')
+                if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === 'update')
                     val.db_action = 'update'
             })
         }
@@ -212,6 +204,11 @@ const db = {
                 })
             })
         })
+
+    }, exeRead(entity, key) {
+        return dbRemote.sync(entity).then(() => {
+            return dbLocal.exeRead(entity, key);
+        })
     }
 }
 const dbLocal = {
@@ -250,26 +247,17 @@ const dbLocal = {
         })
     }, exeUpdate(entity, dados, key) {
         dbLocal.exeRead(entity, key).then(data => {
-            for(let name in dados) {
+            for(let name in dados)
                 data[name] = dados[name];
-            }
-            data.id = key;
-            dbLocal.exeCreate(entity, data)
+
+            data.id = parseInt(key);
+            return db.exeCreate(entity, data);
         })
     }, insert(entity, val, key) {
-        return dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-            if (!/^__/.test(entity) && typeof dicionarios[entity] === "object") {
-                for(let col in val) {
-                    let v = val[col];
-                    if (col !== "id")
-                        val[col] = getDefaultValue(dicionarios[entity][col], v)
-                }
-            }
-            return dbLocal.conn(entity).then(dbLocalTmp => {
-                const tx = dbLocalTmp.transaction(entity, 'readwrite');
-                tx.objectStore(entity).put(val, key);
-                return key
-            })
+        return dbLocal.conn(entity).then(dbLocalTmp => {
+            const tx = dbLocalTmp.transaction(entity, 'readwrite');
+            tx.objectStore(entity).put(val, key);
+            return key
         })
     }, newKey(entity) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
