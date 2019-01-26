@@ -3,9 +3,7 @@ const dbRemote = {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 return dbRemote.syncDownload(entity).then(down => {
-                    console.log(down);
                     return dbRemote.syncUpdate(entity).then(haveUpdates => {
-                        console.log(haveUpdates);
                         if (haveUpdates)
                             return dbRemote.syncPost(entity);
                         return down;
@@ -32,7 +30,6 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            console.log(hist);
             let down = !1;
             let creates = [];
 
@@ -40,7 +37,6 @@ const dbRemote = {
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     let data = JSON.parse(this.responseText);
-                    console.log(data.data);
                     if (data.response === 1 && typeof data.data !== "no-network") {
                         if (data.data.historic !== 0) {
                             creates.push(dbLocal.clear(entity).then(() => {
