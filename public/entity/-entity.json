@@ -1,3 +1,22 @@
 {
-  "*": ["api_chaves", "config"]
+  "2": ["api_chaves"],
+  "3": ["api_chaves", "config"],
+  "4": ["api_chaves", "config"],
+  "5": ["api_chaves", "config"],
+  "6": ["api_chaves", "config"],
+  "7": ["api_chaves", "config"],
+  "8": ["api_chaves", "config"],
+  "9": ["api_chaves", "config"],
+  "10": ["api_chaves", "config"],
+  "11": ["api_chaves", "config"],
+  "12": ["api_chaves", "config"],
+  "13": ["api_chaves", "config"],
+  "14": ["api_chaves", "config"],
+  "15": ["api_chaves", "config"],
+  "16": ["api_chaves", "config"],
+  "17": ["api_chaves", "config"],
+  "18": ["api_chaves", "config"],
+  "19": ["api_chaves", "config"],
+  "20": ["api_chaves", "config"],
+  "0": ["api_chaves", "config"]
 }
