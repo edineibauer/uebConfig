@@ -172,6 +172,19 @@ const dbRemote = {
                     let historicData = {};
                     historicData[entity] = response.historic;
                     return dbLocal.exeUpdate("__historic", historicData, 1);
+                }).then(() => {
+
+                    //se for criação, sincroniza id de criação no banco com o ID local
+                    for (let k in dadosSync) {
+                        let dado = dadosSync[k];
+
+                        if(dado['db_action'] === "create" && dado['id'] != response.data) {
+                            return dbLocal.exeDelete(entity, dado.id).then(() => {
+                                dado.id = response.data;
+                                return dbLocal.exeCreate(entity, dado);
+                            })
+                        }
+                    }
                 });
             }
         })
@@ -292,7 +305,7 @@ const dbLocal = {
     }, exeDelete(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             const tx = dbLocalTmp.transaction(entity, 'readwrite');
-            tx.objectStore(entity).delete(key);
+            tx.objectStore(entity).delete(parseInt(key));
             return tx.complete
         })
     }, exeUpdate(entity, dados, key) {
