@@ -105,6 +105,7 @@ function clearCache() {
         clear.push(dbLocal.clear('__relevant'));
         clear.push(dbLocal.clear('__template'));
         clear.push(dbLocal.clear('__user'));
+        clear.push(dbLocal.clear('__menu'));
         return Promise.all(clear)
     }).then(() => {
         return caches.keys().then(cacheNames => {
@@ -174,6 +175,7 @@ function updateCache() {
             gets.push(get("general"));
             gets.push(get("templates"));
             gets.push(get("user"));
+            gets.push(get("menu"));
             return Promise.all(gets).then(r => {
                 creates.push(dbLocal.exeCreate('__react', r[0]));
                 creates.push(dbLocal.exeCreate('__allow', r[1]));
@@ -182,7 +184,7 @@ function updateCache() {
                 creates.push(dbLocal.exeCreate('__relevant', r[4]));
                 creates.push(dbLocal.exeCreate('__general', r[5]));
                 creates.push(dbLocal.exeCreate('__template', r[6]));
-                creates.push(dbLocal.exeCreate('__user', r[7]));
+                creates.push(dbLocal.exeCreate('__menu', r[7]));
                 return Promise.all(creates)
             })
         }).then(() => {
