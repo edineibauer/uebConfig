@@ -247,26 +247,40 @@ class Config
     public static function getEntityNotAllow(): array
     {
         $file = [];
-        if (file_exists(PATH_HOME . "public/entity/-entity.json"))
-            $file = json_decode(file_get_contents(PATH_HOME . "public/entity/-entity.json"), true);
+        for($i = 0; $i < 21; $i++) {
+            if(!isset($file[$i]))
+                $file[$i] = [];
+        }
 
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            if (file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/-entity.json")) {
-                $json = json_decode(file_get_contents(PATH_HOME . VENDOR . "{$lib}/public/entity/-entity.json"), true);
-                foreach ($json as $setor => $info) {
-                    foreach ($info as $entity) {
-                        if (file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$entity}.json")) {
-                            if ($setor === "*") {
-                                for ($e = 0; $e < 20; $e++) {
-                                    //Adiciona entidade ao setor
-                                    if (!isset($file[$e]) || !in_array($entity, $file[$e]))
-                                        $file[$e][] = $entity;
-                                }
-                            } else {
+        $file = self::entityNotAllow(PATH_HOME, $file);
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+            $file = self::entityNotAllow(PATH_HOME . VENDOR . $lib, $file);
+
+        return $file;
+    }
+
+    /**
+     * @param string $path
+     * @param array $file
+     * @return array
+     */
+    private static function entityNotAllow(string $path, array $file): array
+    {
+        if (file_exists($path . "/public/entity/-entity.json")) {
+            $json = json_decode(file_get_contents($path . "/public/entity/-entity.json"), true);
+            foreach ($json as $setor => $info) {
+                foreach ($info as $entity) {
+                    if (file_exists($path . "/public/entity/cache/{$entity}.json")) {
+                        if ($setor === "*") {
+                            for ($e = 0; $e < 21; $e++) {
                                 //Adiciona entidade ao setor
-                                if (!in_array($entity, $file[$setor]))
-                                    $file[$setor][] = $entity;
+                                if (!isset($file[$e]) || !in_array($entity, $file[$e]))
+                                    $file[$e][] = $entity;
                             }
+                        } else {
+                            //Adiciona entidade ao setor
+                            if (!in_array($entity, $file[$setor]))
+                                $file[$setor][] = $entity;
                         }
                     }
                 }
