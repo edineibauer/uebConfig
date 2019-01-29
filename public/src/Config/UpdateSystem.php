@@ -414,6 +414,7 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/img");
         $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/save.gif", PATH_HOME . "assetsPublic/img/save.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
         copy(PATH_HOME . str_replace(HOME, '', $config['favicon']), PATH_HOME . "assetsPublic/img/favicon.png");
