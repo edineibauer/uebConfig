@@ -81,7 +81,6 @@ function setCookieAnonimo() {
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             let data = JSON.parse(this.responseText);
-            console.log(data);
             if (data.data !== "no-network" && data.response === 1)
                 setCookie("update", data.data)
         }
@@ -189,7 +188,7 @@ function updateCache() {
                 return Promise.all(creates)
             })
         }).then(() => {
-            if(getCookie("token") === "")
+            if(getCookie("token") === "" && app.route !== "updateSystem/force" && app.route !== "updateSystem")
                 setCookieAnonimo();
 
             loading_screen.finish()
