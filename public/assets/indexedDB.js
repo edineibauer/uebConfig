@@ -76,8 +76,6 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            let down = !1;
-            let creates = [];
             let response = false;
 
             var xhttp = new XMLHttpRequest();
