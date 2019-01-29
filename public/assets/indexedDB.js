@@ -1,29 +1,35 @@
 function moveSyncDataToDb(entity, dados) {
-    let movedAsync = [];
-    for (let k in dados) {
-        let d = dados[k];
-        if (d.constructor === Object) {
-            let ac = d.db_action;
-            delete (d.db_action);
-            switch (ac) {
-                case 'create':
-                case 'update':
-                    movedAsync.push(dbLocal.exeCreate(entity, d));
-                    break;
-                case 'delete':
-                    if (d.delete.constructor === Array) {
-                        for (let k in d.delete) {
-                            if (!isNaN(d.delete[k]) && d.delete[k] > 0)
-                                movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
+    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+        let movedAsync = [];
+        for (let k in dados) {
+            let d = dados[k];
+            if (d.constructor === Object) {
+                let ac = d.db_action;
+                delete (d.db_action);
+                switch (ac) {
+                    case 'create':
+                    case 'update':
+                        let id = parseInt(d.id);
+                        for (let col in d)
+                            d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
+                        d.id = id;
+                        movedAsync.push(dbLocal.exeCreate(entity, d));
+                        break;
+                    case 'delete':
+                        if (d.delete.constructor === Array) {
+                            for (let k in d.delete) {
+                                if (!isNaN(d.delete[k]) && d.delete[k] > 0)
+                                    movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
+                            }
+                        } else if (!isNaN(d.delete) && d.delete > 0) {
+                            movedAsync.push(dbLocal.exeDelete(entity, d.delete))
                         }
-                    } else if (!isNaN(d.delete) && d.delete > 0) {
-                        movedAsync.push(dbLocal.exeDelete(entity, d.delete))
-                    }
-                    break
+                        break
+                }
             }
         }
-    }
-    return Promise.all(movedAsync)
+        return Promise.all(movedAsync)
+    });
 }
 
 function deleteDB(entity, id) {
@@ -33,6 +39,106 @@ function deleteDB(entity, id) {
                 eval(react[0][entity][action])
         })
     })
+}
+
+function getDefaultValue(meta, value) {
+    let valor = "";
+    if (typeof meta === "object" && meta !== null) {
+        if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
+            value = ""; else if (meta.type === "json")
+            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ""); else if (meta.group === "date")
+            value = value.replace(" ", "T");
+        switch (meta.format) {
+            case 'boolean':
+            case 'status':
+                valor = value === !0 || value === 1 || value === "1" || value === "true";
+                break;
+            case 'number':
+            case 'year':
+                valor = value !== "" && !isNaN(value) ? parseInt(value) : null;
+                break;
+            case 'percent':
+                valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
+                break;
+            case 'valor':
+                if (typeof value === "string")
+                    value = parseFloat(value.replaceAll('\\.', '').replace(',', '.'));
+            case 'float':
+                value = (typeof value === "string" ? value.replace(',', '.') : value);
+                valor = value !== "" && !isNaN(value) ? parseFloat(value) : null;
+                break;
+            case 'date':
+                if (['date', 'now', 'agora', 'data', 'hoje'].indexOf(value) > -1) {
+                    let dataAgora = new Date(Date.now());
+                    valor = dataAgora.getFullYear() + "-" + zeroEsquerda(dataAgora.getMonth() + 1) + "-" + zeroEsquerda(dataAgora.getDate())
+                } else {
+                    valor = value !== "" ? value : null
+                }
+                break;
+            case 'datetime':
+                if (['date', 'now', 'agora', 'data', 'hoje', 'datetime'].indexOf(value) > -1) {
+                    let dataAgora = new Date(Date.now());
+                    valor = dataAgora.getFullYear() + "-" + zeroEsquerda(dataAgora.getMonth() + 1) + "-" + zeroEsquerda(dataAgora.getDate()) + "T" + zeroEsquerda(dataAgora.getHours()) + ":" + zeroEsquerda(dataAgora.getMinutes())
+                } else {
+                    valor = value !== "" ? value : null
+                }
+                break;
+            case 'time':
+                if (['date', 'now', 'agora', 'data', 'hoje', 'time'].indexOf(value) > -1) {
+                    let dataAgora = new Date(Date.now());
+                    valor = zeroEsquerda(dataAgora.getHours()) + ":" + zeroEsquerda(dataAgora.getMinutes())
+                } else {
+                    valor = value !== "" ? value : null
+                }
+                break;
+            case 'checkbox':
+                let options = [];
+                valor = [];
+                $.each(meta.allow.options, function (i, e) {
+                    options.push(e.option.toString())
+                });
+                if (value !== "") {
+                    if (isJson(value)) {
+                        let jsondata = $.parseJSON(value);
+                        if ($.isArray(jsondata)) {
+                            $.each(jsondata, function (i, e) {
+                                if (options.indexOf(e.toString()) > -1)
+                                    valor.push(e.toString())
+                            })
+                        } else {
+                            if (typeof jsondata !== "undefined" && jsondata !== null && jsondata !== "" && options.indexOf(jsondata.toString()) > -1)
+                                valor.push(jsondata.toString())
+                        }
+                    } else if ($.isArray(value)) {
+                        $.each(value, function (i, e) {
+                            if (typeof e !== "undefined" && value !== null && e !== "" && options.indexOf(e.toString()) > -1)
+                                valor.push(e.toString())
+                        })
+                    } else {
+                        if (typeof value !== "undefined" && value !== null && e !== "" && options.indexOf(value.toString()) > -1)
+                            valor.push(value.toString())
+                    }
+                }
+                break;
+            case 'source':
+                if (!$.isArray(value)) {
+                    valor = [];
+                    if (value !== "")
+                        valor.push(value)
+                } else {
+                    valor = value
+                }
+                break;
+            case 'extend':
+                valor = value !== "" ? value : getDefaultValues({dicionario: dicionarios[meta.relation]});
+                break;
+            default:
+                valor = value !== "" ? value : null
+        }
+    } else {
+        valor = null
+    }
+    return valor
 }
 
 const dbRemote = {
@@ -84,36 +190,40 @@ const dbRemote = {
                 xhttp.send("lib=entity&file=load/entity&entity=" + entity + "&historic=" + (hist[entity] || null));
             }).then(response => {
                 if (response !== 0) {
-                    if (response.tipo === 1) {
-                        return dbLocal.clear(entity).then(() => {
-                            let cc = [];
-                            if (response.data.length) {
-                                for (let k in response.data) {
-                                    if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
-                                        let val = response.data[k];
-                                        val.id = parseInt(val.id);
-                                        cc.push(dbLocal.exeCreate(entity, val))
+                    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+                        if (response.tipo === 1) {
+                            return dbLocal.clear(entity).then(() => {
+                                let cc = [];
+                                if (response.data.length) {
+                                    for (let k in response.data) {
+                                        if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
+                                            let id = parseInt(response.data[k]['id']);
+                                            for(let col in response.data[k])
+                                                response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
+                                            response.data[k]['id'] = id;
+                                            cc.push(dbLocal.exeCreate(entity, response.data[k]))
+                                        }
                                     }
                                 }
-                            }
-                            let historic = {};
-                            historic[entity] = response.historic;
-                            cc.push(dbLocal.exeUpdate('__historic', historic, 1));
-                            return Promise.all(cc).then(() => {
-                                return 1;
-                            })
-                        });
-                    } else {
-                        if (response.data.constructor === Array && response.data.length) {
-                            let historic = {};
-                            historic[entity] = response.historic;
-                            return dbLocal.exeUpdate('__historic', historic, 1).then(() => {
-                                return moveSyncDataToDb(entity, response.data).then(() => {
+                                let historic = {};
+                                historic[entity] = response.historic;
+                                cc.push(dbLocal.exeUpdate('__historic', historic, 1));
+                                return Promise.all(cc).then(() => {
                                     return 1;
                                 })
                             });
+                        } else {
+                            if (response.data.constructor === Array && response.data.length) {
+                                let historic = {};
+                                historic[entity] = response.historic;
+                                return dbLocal.exeUpdate('__historic', historic, 1).then(() => {
+                                    return moveSyncDataToDb(entity, response.data).then(() => {
+                                        return 1;
+                                    })
+                                });
+                            }
                         }
-                    }
+                    })
                 } else {
                     return 0;
                 }
@@ -162,10 +272,16 @@ const dbRemote = {
                     }).then(() => {
                         for (let k in dadosSync) {
                             let dado = dadosSync[k];
-                            if (dado['db_action'] === "create" && dado['id'] != response.data) {
+                            if (dado['db_action'] === "create" || dado['db_action'] === "update") {
                                 return dbLocal.exeDelete(entity, dado.id).then(() => {
-                                    dado.id = response.data;
-                                    return dbLocal.exeCreate(entity, dado);
+                                    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+                                        let id = parseInt(response.data.id);
+                                        for(let col in response.data)
+                                            response.data[col] = getDefaultValue(dicionarios[entity][col], response.data[col]);
+                                        response.data.id = id;
+
+                                        return dbLocal.exeCreate(entity, response.data);
+                                    })
                                 })
                             }
                         }
