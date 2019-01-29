@@ -70,49 +70,54 @@ const dbRemote = {
             return new Promise(function (resolve, reject) {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        let data = JSON.parse(this.responseText);
-                        if (data.response === 1 && typeof data.data !== "no-network" && data.data.historic !== 0) {
-                            response = data.data
-
-                            if (response.tipo === 1) {
-                                return resolve(dbLocal.clear(entity).then(() => {
-                                    let cc = [];
-                                    if (response.data.length) {
-                                        for (let k in response.data) {
-                                            if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
-                                                let val = response.data[k];
-                                                val.id = parseInt(val.id);
-                                                cc.push(dbLocal.exeCreate(entity, val))
-                                            }
-                                        }
-                                    }
-                                    let historic = {};
-                                    historic[entity] = response.historic;
-                                    cc.push(dbLocal.exeUpdate('__historic', historic, 1));
-                                    return Promise.all(cc).then(() => {
-                                        return 1;
-                                    })
-                                }));
-                            } else {
-                                if (response.data.constructor === Array && response.data.length) {
-                                    let historic = {};
-                                    historic[entity] = response.historic;
-                                    return resolve(dbLocal.exeUpdate('__historic', historic, 1).then(() => {
-                                        return moveSyncDataToDb(entity, response.data).then(() => {
-                                            return 1;
-                                        })
-                                    }));
-                                }
-                            }
+                    if (this.readyState === 4) {
+                        if (this.status == 200) {
+                            let data = JSON.parse(this.responseText);
+                            if (data.response === 1 && typeof data.data !== "no-network" && data.data.historic !== 0)
+                                resolve(data.data);
                         }
+                        resolve(0);
                     }
-                    return resolve(0)
                 };
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.send("lib=entity&file=load/entity&entity=" + entity + "&historic=" + (hist[entity] || null));
-            });
+            }).then(response => {
+                if (response !== 0) {
+                    if (response.tipo === 1) {
+                        return dbLocal.clear(entity).then(() => {
+                            let cc = [];
+                            if (response.data.length) {
+                                for (let k in response.data) {
+                                    if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
+                                        let val = response.data[k];
+                                        val.id = parseInt(val.id);
+                                        cc.push(dbLocal.exeCreate(entity, val))
+                                    }
+                                }
+                            }
+                            let historic = {};
+                            historic[entity] = response.historic;
+                            cc.push(dbLocal.exeUpdate('__historic', historic, 1));
+                            return Promise.all(cc).then(() => {
+                                return 1;
+                            })
+                        });
+                    } else {
+                        if (response.data.constructor === Array && response.data.length) {
+                            let historic = {};
+                            historic[entity] = response.historic;
+                            return dbLocal.exeUpdate('__historic', historic, 1).then(() => {
+                                return moveSyncDataToDb(entity, response.data).then(() => {
+                                    return 1;
+                                })
+                            });
+                        }
+                    }
+                } else {
+                    return 0;
+                }
+            })
         })
     }, syncUpdate(entity) {
         return dbLocal.exeRead('sync_' + entity).then(dados => {
@@ -130,39 +135,44 @@ const dbRemote = {
             return new Promise(function (resolve, reject) {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        let data = JSON.parse(this.responseText);
-                        if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data === "object") {
-                            response = data.data;
-                            if (response.error > 0) {
-                                toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
-                                setTimeout(function () {
-                                    toast("registros com erros são ignorados no servidor!", 8000, "toast-error")
-                                }, 2000)
-                            }
-                            return dbLocal.clear('sync_' + entity).then(() => {
-                                let historicData = {};
-                                historicData[entity] = response.historic;
-                                return dbLocal.exeUpdate("__historic", historicData, 1)
-                            }).then(() => {
-                                for (let k in dadosSync) {
-                                    let dado = dadosSync[k];
-                                    if (dado['db_action'] === "create" && dado['id'] != response.data) {
-                                        return dbLocal.exeDelete(entity, dado.id).then(() => {
-                                            dado.id = response.data;
-                                            return resolve(dbLocal.exeCreate(entity, dado));
-                                        })
-                                    }
-                                }
-                            })
+                    if (this.readyState === 4) {
+                        if (this.status === 200) {
+                            let data = JSON.parse(this.responseText);
+                            if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data === "object")
+                                resolve(data.data);
                         }
+                        resolve(0);
                     }
-                    return resolve(0);
                 };
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync));
-            });
+            }).then(response => {
+                if(response !== 0) {
+                    if (response.error > 0) {
+                        toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
+                        setTimeout(function () {
+                            toast("registros com erros são ignorados no servidor!", 8000, "toast-error")
+                        }, 2000)
+                    }
+                    return dbLocal.clear('sync_' + entity).then(() => {
+                        let historicData = {};
+                        historicData[entity] = response.historic;
+                        return dbLocal.exeUpdate("__historic", historicData, 1)
+                    }).then(() => {
+                        for (let k in dadosSync) {
+                            let dado = dadosSync[k];
+                            if (dado['db_action'] === "create" && dado['id'] != response.data) {
+                                return dbLocal.exeDelete(entity, dado.id).then(() => {
+                                    dado.id = response.data;
+                                    return dbLocal.exeCreate(entity, dado);
+                                })
+                            }
+                        }
+                    })
+                }
+                return 0;
+            })
         })
     }
 };
