@@ -127,6 +127,6 @@ $data['data'] = getCachedContent('public', $data['data']);
 
 // libs content
 foreach (\Config\Config::getViewPermissoes() as $rota) {
-    if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && !in_array($rota, ['dashboard', 'entity-ui', 'dev-ui']))
+    if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && !in_array($rota, ['entity-ui', 'dev-ui']))
         $data['data'] = getCachedContent(VENDOR . $rota . '/public', $data['data']);
 }
