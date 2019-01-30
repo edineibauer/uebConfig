@@ -13,8 +13,9 @@ function getServerConstants(array $dados)
     $dados['dominio'] = ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $porta) : explode('.', $_SERVER['SERVER_NAME'])[0]);
     $dados['ssl'] = isset($dados['protocol']) && $dados['protocol'];
     $dados['www'] = isset($dados['www']) && $dados['www'];
-    $dados['home'] = "http" . ($dados['ssl'] ? "s" : "") . "://" . ($localhost ? "localhost" : "") . (in_array($porta, ["80", "8080"]) ? "/" : ":") .
-        ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $porta) : $_SERVER['SERVER_NAME']) . "/";
+    $dados['home'] = "http" . ($dados['ssl'] ? "s" : "") . "://" .
+        ($localhost ? "localhost/" : "") .
+        ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : ":" . $porta) : $_SERVER['SERVER_NAME']) . "/";
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
