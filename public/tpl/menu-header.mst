@@ -1,0 +1,12 @@
+{{#menu}}
+    {{#href}}
+        <li>
+            <a href="{{href}}" class="theme-text-aux theme-hover-d">{{text}}</a>
+        </li>
+    {{/href}}
+    {{^href}}
+        <li>
+            <span onclick="{{funcao}}()" class="theme-text-aux theme-hover-d">{{text}}</span>
+        </li>
+    {{/href}}
+{{/menu}}

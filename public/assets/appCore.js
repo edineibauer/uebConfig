@@ -278,12 +278,28 @@ function updateCache() {
     })
 }
 
+function menuHeader() {
+    dbLocal.exeRead("__template", 1).then(tpl => {
+        let menu = [];
+        if(getCookie("token") === "0") {
+            menu.push({href: HOME + 'login', text: 'login'});
+        } else {
+            menu.push({href: HOME + 'dashboard', text: 'minha conta'});
+            menu.push({funcao: 'logoutDashboard', text: 'sair'});
+        }
+        $("#core-menu-custom").html(Mustache.render(tpl['menu-header'], {menu: menu}));
+    })
+}
+
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
                 if (!response)
                     return updateCache();
+                else
+                    menuHeader();
+
                 return response
             })
         }).then(() => {

@@ -16,21 +16,7 @@
 
     <nav role="navigation">
         <ul id="core-header-nav">
-            <div id="core-menu-custom">
-                {$menu}
-                {if $loged}
-                    <li>
-                        <a href="{$home}dashboard" class="theme-text-aux theme-hover-d">minha conta</a>
-                    </li>
-                    <li>
-                        <span onclick="logoutDashboard()" class="theme-text-aux theme-hover-d">SAIR</span>
-                    </li>
-                {else}
-                    <li class="hover-theme">
-                        <a href="{$home}login" class="theme-text-aux theme-hover-d">login</a>
-                    </li>
-                {/if}
-            </div>
+            <div id="core-menu-custom"></div>
 
             <div id="core-open-menu" class="theme-hover-d">
                 <div class="theme-text-aux menu icon" data-before="menu" data-after="remove"></div>
