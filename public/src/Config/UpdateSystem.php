@@ -751,10 +751,12 @@ class UpdateSystem
         $this->createFaviconSizes($dados);
 
         //Create Manifest
-        $theme = explode("}", explode(".theme{", file_get_contents(PATH_HOME . "public/assets/theme.min.css"))[1])[0];
+        $themeFile = file_get_contents(PATH_HOME . "public/assets/theme.min.css");
+        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
+        $themed = explode("}", explode(".theme-d1{", $themeFile)[1])[0];
         $themeBack = explode("!important", explode("background-color:", $theme)[1])[0];
-        $themeColor = explode("!important", explode("color:", $theme)[1])[0];
-        $content = str_replace(['{$sitename}', '{$theme}', '{$themeColor}'], [$dados['sitename'], $themeBack, $themeColor], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/manifest.txt"));
+        $themeBackd = explode("!important", explode("background-color:", $themed)[1])[0];
+        $content = str_replace(['{$sitename}', '{$theme}', '{$themed}'], [$dados['sitename'], $themeBack, $themeBackd], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/manifest.txt"));
 
         $fp = fopen(PATH_HOME . "manifest.json", "w");
         fwrite($fp, $content);
