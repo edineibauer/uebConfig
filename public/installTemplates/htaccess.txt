@@ -1,6 +1,7 @@
 RewriteEngine On
 {$dados}
 
+RewriteRule ^phpMyAdmin(\/.*)*$ phpMyAdmin$1 [L]
 RewriteRule ^image\/(.*)$ tim.php?src=$1 [L]
 RewriteRule ^view\/(.*)$ apiView.php?data=$1 [L]
 RewriteRule ^get\/(.*)$ apiGet.php?data=$1 [L]
