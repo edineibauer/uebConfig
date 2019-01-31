@@ -120,8 +120,6 @@ function clearCacheLogin() {
                 let cache = new RegExp("^cacheimage-v", "i");
                 if(!core.test(cacheName) && !fonts.test(cacheName) && !images.test(cacheName) && !misc.test(cacheName) && !midia.test(cacheName) && !cache.test(cacheName))
                     return caches.delete(cacheName);
-                else
-                    return new Promise();
             }))
         })
     })
@@ -273,7 +271,7 @@ function updateCache() {
             if(getCookie("token") === "" && app.route !== "updateSystem/force" && app.route !== "updateSystem")
                 setCookieAnonimo();
 
-            loading_screen.finish()
+            return loading_screen.finish()
         })
     })
 }
@@ -287,7 +285,15 @@ function menuHeader() {
             menu.push({href: HOME + 'dashboard', text: 'minha conta'});
             menu.push({funcao: 'logoutDashboard', text: 'sair'});
         }
-        $("#core-menu-custom").html(Mustache.render(tpl['menu-header'], {menu: menu}));
+
+        let content = "";
+        for(let m in menu) {
+            if(typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string")
+                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text);
+            else
+                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text);
+        }
+        document.querySelector("#core-menu-custom").innerHTML = content;
     })
 }
 
@@ -295,14 +301,15 @@ window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
-                if (!response)
+                if(response) {
+                    if(getCookie("token") === "")
+                        return updateCacheLogin();
+                } else {
                     return updateCache();
-                else
-                    menuHeader();
-
-                return response
+                }
             })
         }).then(() => {
+            menuHeader();
             if ('serviceWorker' in navigator)
                 navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
             let scriptCore = document.createElement('script');

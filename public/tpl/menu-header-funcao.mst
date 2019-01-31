@@ -1,0 +1,3 @@
+<li>
+    <span onclick="{{funcao}}()" class="theme-text-aux theme-hover-d">{{text}}</span>
+</li>
