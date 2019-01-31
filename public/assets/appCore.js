@@ -88,6 +88,88 @@ function setCookieAnonimo() {
     xhttp.send("lib=config&file=update")
 }
 
+
+function clearCacheLogin() {
+    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+        let clear = [];
+        for (var k in dicionarios) {
+            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
+                if(d.length) {
+                    return dbRemote.sync(k).then(() => {
+                        return dbLocal.clear("sync_" + k)
+                    });
+                } else {
+                    return dbLocal.clear("sync_" + k)
+                }
+            }));
+            clear.push(dbLocal.clear(k))
+        }
+        clear.push(dbLocal.clear('__historic'));
+        clear.push(dbLocal.clear('__dicionario'));
+        clear.push(dbLocal.clear('__info'));
+        clear.push(dbLocal.clear('__menu'));
+        return Promise.all(clear)
+    }).then(() => {
+        return caches.keys().then(cacheNames => {
+            return Promise.all(cacheNames.map(cacheName => {
+                let core = new RegExp("^core-v", "i");
+                let fonts = new RegExp("^fonts-v", "i");
+                let images = new RegExp("^images-v", "i");
+                let misc = new RegExp("^misc-v", "i");
+                let midia = new RegExp("^midia-v", "i");
+                let cache = new RegExp("^cacheimage-v", "i");
+                if(!core.test(cacheName) && !fonts.test(cacheName) && !images.test(cacheName) && !misc.test(cacheName) && !midia.test(cacheName) && !cache.test(cacheName))
+                    return caches.delete(cacheName);
+                else
+                    return new Promise();
+            }))
+        })
+    })
+}
+
+function updateCacheLogin() {
+    let loading_screen = pleaseWait({
+        logo: FAVICON,
+        backgroundColor: THEME,
+        loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
+    });
+    return clearCacheLogin().then(() => {
+        return get("appFiles").then(g => {
+            return caches.open('viewJs-v' + VERSION).then(cache => {
+                return cache.addAll(g.viewJs)
+            }).then(() => {
+                return caches.open('viewCss-v' + VERSION).then(cache => {
+                    return cache.addAll(g.viewCss)
+                })
+            }).then(() => {
+                return caches.open('view-v' + VERSION).then(cache => {
+                    return cache.addAll(g.view)
+                })
+            }).then(() => {
+                return caches.open('get-v' + VERSION).then(cache => {
+                    return cache.addAll(g.get)
+                })
+            })
+        })
+    }).then(() => {
+        let gets = [];
+        let creates = [];
+        gets.push(get("dicionarios"));
+        gets.push(get("info"));
+        gets.push(get("menu"));
+        return Promise.all(gets).then(r => {
+            creates.push(dbLocal.exeCreate('__dicionario', r[0]));
+            creates.push(dbLocal.exeCreate('__info', r[1]));
+            creates.push(dbLocal.exeCreate('__menu', r[2]));
+            return Promise.all(creates)
+        })
+    }).then(() => {
+        if (getCookie("token") === "" && app.route !== "updateSystem/force" && app.route !== "updateSystem")
+            setCookieAnonimo();
+        loading_screen.finish()
+    })
+}
+
 function clearCache() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
