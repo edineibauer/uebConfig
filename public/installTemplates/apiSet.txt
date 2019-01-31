@@ -1,5 +1,4 @@
 <?php
-ob_start();
 require_once './_config/config.php';
 
 $file = filter_input(INPUT_POST, 'file', FILTER_DEFAULT);
@@ -33,5 +32,3 @@ if (!empty($file) && !empty($lib)) {
 }
 
 echo json_encode($data);
-
-ob_get_flush();
