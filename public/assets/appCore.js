@@ -288,10 +288,12 @@ function menuHeader() {
 
         let content = "";
         for(let m in menu) {
-            if(typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string")
-                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text);
-            else
-                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text);
+            if(typeof menu[m].text === "string" && menu[m].text !== "undefined") {
+                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string")
+                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text);
+                else
+                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text);
+            }
         }
         document.querySelector("#core-menu-custom").innerHTML = content;
     })
