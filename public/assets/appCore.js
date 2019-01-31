@@ -302,8 +302,12 @@ window.onload = function () {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
                 if(response) {
-                    if(getCookie("token") === "")
-                        return updateCacheLogin();
+                    return caches.open('get-v' + VERSION).then(function (cache) {
+                        return cache.match(HOME + "get/network").then(response => {
+                            if(!response)
+                                return updateCacheLogin()
+                        })
+                    });
                 } else {
                     return updateCache();
                 }
