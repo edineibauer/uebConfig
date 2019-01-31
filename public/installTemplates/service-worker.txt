@@ -13,7 +13,7 @@ self.addEventListener('fetch', function (e) {
     let view = new RegExp("view\/", "i");
     let get = new RegExp("get\/", "i");
     let set = new RegExp("set$", "i");
-    let cacheImages = new RegExp("cacheImage\/", "i");
+    let cacheImages = new RegExp("image\/", "i");
 
     if(core.test(url)) {
         let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : (reacts.test(url) ? 'reacts' : 'core')))));
@@ -40,7 +40,7 @@ self.addEventListener('fetch', function (e) {
 
     } else if(cacheImages.test(url)) {
         e.respondWith(
-            caches.open('cacheimage-v' + VERSION).then(cache => {
+            caches.open('cacheImage-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
                     return response || fetch(e.request).then(networkResponse => {
 
