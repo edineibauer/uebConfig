@@ -256,7 +256,7 @@ const dbRemote = {
                 };
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync));
+                xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify({dados: dadosSync}));
             }).then(response => {
                 if(response !== 0) {
                     if (response.error > 0) {
