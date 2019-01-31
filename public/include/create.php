@@ -135,7 +135,7 @@ function getAccessFile()
 if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
 
     $dados['database'] = strtolower(str_replace(['-', '_', ' '], '', $dados['database']));
-    $dados['pre'] = strtolower(str_replace(['-', '_', ' '], '', $dados['pre']));
+    $dados['pre'] = strtolower(str_replace(['-', ' '], '_', $dados['pre']));
 
     session_start();
     if (requireConnectionDatabase($dados)) {
