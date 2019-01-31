@@ -8,7 +8,13 @@
             {/if}
             <div id="core-sidebar-perfil-name">
                 <div class="core-class-container" id="core-header-name">
-                    {$login.nome}
+                    <strong class="padding-right left no-select dashboard-nome"></strong>
+
+                    <span class="left pointer menu-li padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
+                          data-action="form" data-entity="usuarios"
+                          data-atributo="{$login.id}">
+                        <i class="material-icons left font-large">edit</i>
+                    </span>
                 </div>
             </div>
         {else}
