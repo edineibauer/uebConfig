@@ -323,9 +323,8 @@ function checkSessao() {
         xhttp.open("POST", HOME + "set", !0);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
+            if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                console.log(data);
                 if (data.data !== "no-network" && typeof data.response === "object") {
                     setCookieUser(g);
                 } else {
