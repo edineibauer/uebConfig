@@ -295,7 +295,7 @@ function menuHeader() {
     if(LOGO !== "") {
         logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/logo.png' alt='logo do site " + TITLE + "' title='"+ TITLE +"' height='39' id='core-header-img'><h1 style='font-size:0'>" + TITLE + "</h1>";
     } else {
-        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/favicon-48.png' height='35' style='height: 35px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>";
+        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>";
     }
 
     if(getCookie("token") === "0")
