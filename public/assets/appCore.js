@@ -90,13 +90,8 @@ function clearCacheLogin() {
     }).then(() => {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
-                let core = new RegExp("^core-v", "i");
-                let fonts = new RegExp("^fonts-v", "i");
-                let images = new RegExp("^images-v", "i");
-                let misc = new RegExp("^misc-v", "i");
-                let midia = new RegExp("^midia-v", "i");
-                let cache = new RegExp("^cacheimage-v", "i");
-                if(!core.test(cacheName) && !fonts.test(cacheName) && !images.test(cacheName) && !misc.test(cacheName) && !midia.test(cacheName) && !cache.test(cacheName))
+                let versionOld = new RegExp("-v" + VERSION + "$", "i");
+                if(!versionOld.test(cacheName))
                     return caches.delete(cacheName);
             }))
         })
@@ -110,21 +105,19 @@ function updateCacheLogin() {
         loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
     return clearCacheLogin().then(() => {
-        return get("appFiles").then(g => {
-            return caches.open('viewJs-v' + VERSION).then(cache => {
-                return cache.addAll(g.viewJs)
-            }).then(() => {
-                return caches.open('viewCss-v' + VERSION).then(cache => {
-                    return cache.addAll(g.viewCss)
-                })
-            }).then(() => {
-                return caches.open('view-v' + VERSION).then(cache => {
-                    return cache.addAll(g.view)
-                })
-            }).then(() => {
-                return caches.open('get-v' + VERSION).then(cache => {
-                    return cache.addAll(g.get)
-                })
+        return get("appView").then(g => {
+            return caches.open('view-v' + VERSION).then(cache => {
+                let all = [];
+                for(let i in g.view) {
+                    if(typeof g.view[i] === "string") {
+                        let view = g.view[i].replace(HOME, "");
+                        console.log(g.view[i]);
+                        all.push(cache.delete(g.view[i]).then(() => {
+                            return cache.add(g.view[i]);
+                        }));
+                    }
+                }
+                return Promise.all(all);
             })
         })
     }).then(() => {
@@ -206,10 +199,6 @@ function updateCache() {
                         return cache.addAll(g.view)
                     })
                 }).then(() => {
-                    return caches.open('get-v' + VERSION).then(cache => {
-                        return cache.addAll(g.get)
-                    })
-                }).then(() => {
                     return caches.open('misc-v' + VERSION).then(cache => {
                         return cache.addAll(g.misc)
                     })
@@ -250,7 +239,7 @@ function updateCache() {
                 xhttp.open("POST", HOME + "set", !0);
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
+                    if (this.readyState === 4 && this.status === 200) {
                         let data = JSON.parse(this.responseText);
                         if (data.data !== "no-network" && data.response === 1)
                             setCookie("update", data.data)
@@ -315,6 +304,7 @@ function setCookieUser(user) {
     setCookie("imagem", user['imagem']);
     setCookie("setor", user['setor']);
     setCookie("nivel", user['nivel']);
+    updateCacheLogin();
 }
 
 function checkSessao() {
@@ -352,16 +342,8 @@ window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
-                if(response) {
-                    return caches.open('get-v' + VERSION).then(function (cache) {
-                        return cache.match(HOME + "get/network").then(response => {
-                            if(!response)
-                                return updateCacheLogin()
-                        })
-                    });
-                } else {
+                if (!response)
                     return updateCache();
-                }
             })
         }).then(() => {
             menuHeader();
@@ -373,9 +355,9 @@ window.onload = function () {
             let styleFont = document.createElement('link');
             styleFont.rel = "stylesheet";
             styleFont.href = HOME + "assetsPublic/fonts.min.css";
-            document.head.appendChild(styleFont);
+            document.head.appendChild(styleFont)
         }).then(() => {
-            checkSessao();
+            checkSessao()
         })
     } else {
         let scriptCore = document.createElement('script');
@@ -383,4 +365,4 @@ window.onload = function () {
         document.head.appendChild(scriptCore);
         clearCache()
     }
-}
+};

@@ -55,15 +55,6 @@ function getCachedContent(string $path, array $dados): array
     if (file_exists(PATH_HOME . "{$path}/assets"))
         $dados = getAssets("{$path}/assets", $dados);
 
-    //get
-    if (file_exists(PATH_HOME . "{$path}/get")) {
-        foreach (Helper::listFolder(PATH_HOME . "{$path}/get") as $get) {
-            $getUrl = HOME . "get/" . str_replace('.php', '', $get);
-            if (preg_match('/\.php$/i', $get) && !in_array($get, ['appFiles.php', 'appData.php', 'allow.php', 'dicionarios.php', 'info.php', 'react.php', 'relevant.php', 'templates.php', 'user.php']) && !in_array($getUrl, $dados['get']))
-                $dados['get'][] = $getUrl;
-        }
-    }
-
     //views
     if (file_exists(PATH_HOME . "{$path}/view")) {
         foreach (Helper::listFolder(PATH_HOME . "{$path}/view") as $view) {
@@ -85,7 +76,6 @@ $data['data'] = [
     "viewJs" => [],
     "viewCss" => [],
     "view" => [],
-    "get" => [],
     "misc" => [HOME . "manifest.json"],
     "midia" => []
 ];

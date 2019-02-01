@@ -91,30 +91,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(get.test(url)) {
-
-        e.respondWith(
-            caches.open('get-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            return networkResponse;
-
-                        return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "get/blank");
-                        });
-
-                    }).catch(error => {
-                        return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "get/blank");
-                        });
-                    });
-                });
-            })
-        );
-
-    } else if(set.test(url)) {
+    } else if(get.test(url) || set.test(url)) {
 
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
