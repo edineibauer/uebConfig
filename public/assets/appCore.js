@@ -67,28 +67,6 @@ function getCookie(cname) {
     return ""
 }
 
-function setCookieAnonimo() {
-    setCookie("token", 0);
-    setCookie("id", 0);
-    setCookie("nome", "Desconhecido");
-    setCookie("nome_usuario", "desconhecido");
-    setCookie("email", "");
-    setCookie("setor", 0);
-    setCookie("nivel", 1);
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", HOME + "set", !0);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            let data = JSON.parse(this.responseText);
-            if (data.data !== "no-network" && data.response === 1)
-                setCookie("update", data.data)
-        }
-    };
-    xhttp.send("lib=config&file=update")
-}
-
-
 function clearCacheLogin() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
@@ -162,8 +140,6 @@ function updateCacheLogin() {
             return Promise.all(creates)
         })
     }).then(() => {
-        if (getCookie("token") === "" && app.route !== "updateSystem/force" && app.route !== "updateSystem")
-            setCookieAnonimo();
         loading_screen.finish()
     })
 }
@@ -268,8 +244,20 @@ function updateCache() {
                 return Promise.all(creates)
             })
         }).then(() => {
-            if(getCookie("token") === "" && app.route !== "updateSystem/force" && app.route !== "updateSystem")
-                setCookieAnonimo();
+
+            if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", HOME + "set", !0);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        let data = JSON.parse(this.responseText);
+                        if (data.data !== "no-network" && data.response === 1)
+                            setCookie("update", data.data)
+                    }
+                };
+                xhttp.send("lib=config&file=update");
+            }
 
             return loading_screen.finish()
         })
@@ -299,6 +287,40 @@ function menuHeader() {
     })
 }
 
+function setCookieAnonimo() {
+    setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', setor:0, nivel:1});
+}
+
+function setCookieUser(user) {
+    setCookie("token", user['token']);
+    setCookie("id", user['id']);
+    setCookie("nome", user['nome']);
+    setCookie("nome_usuario", user['nome_usuario'] || slug(getCookie("nome")));
+    setCookie("email", user['email']);
+    setCookie("setor", user['setor']);
+    setCookie("nivel", user['nivel']);
+}
+
+function checkSessao() {
+    if (getCookie("token") === "") {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", HOME + "set", !0);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let data = JSON.parse(this.responseText);
+                console.log(data);
+                if (data.data !== "no-network" && typeof data.response === "object") {
+                    setCookieUser(g);
+                } else {
+                    setCookieAnonimo();
+                }
+            }
+        };
+        xhttp.send("lib=route&file=sessao");
+    }
+}
+
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
@@ -324,7 +346,9 @@ window.onload = function () {
             let styleFont = document.createElement('link');
             styleFont.rel = "stylesheet";
             styleFont.href = HOME + "assetsPublic/fonts.min.css";
-            document.head.appendChild(styleFont)
+            document.head.appendChild(styleFont);
+        }).then(() => {
+            checkSessao();
         })
     } else {
         let scriptCore = document.createElement('script');
