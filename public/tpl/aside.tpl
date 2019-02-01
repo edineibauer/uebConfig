@@ -1,28 +1,17 @@
 <div class="theme core-class-container" id="core-sidebar-header">
     <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
-        {if $loged}
-            {if $login.imagem}
-                <img src="{$home}image/{$login.imagem}&h=120&w=120" height="80" width="100" id="core-sidebar-perfil-img">
-            {else}
-                <div id="core-sidebar-perfil-img"><i class="material-icons">people</i></div>
-            {/if}
-            <div id="core-sidebar-perfil-name">
-                <div class="core-class-container" id="core-header-name">
-                    <strong class="padding-right left no-select dashboard-nome"></strong>
+        <div class="left" id="core-sidebar-imagem"></div>
+        <div id="core-sidebar-perfil-name">
+            <div class="core-class-container" id="core-header-name">
+                <strong class="padding-right left no-select" id="core-sidebar-nome"></strong>
 
-                    <span class="left pointer menu-li padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
-                          data-action="form" data-entity="usuarios"
-                          data-atributo="{$login.id}" style="margin-top: -10px;">
+                <span id="core-sidebar-edit" class="hide left pointer menu-li padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
+                      data-action="form" data-entity="usuarios"
+                      data-atributo="{$login.id}" style="margin-top: -10px;">
                         <i class="material-icons left font-large">edit</i>
                     </span>
-                </div>
             </div>
-        {else}
-            <i id="core-sidebar-perfil-img" class="material-icons">people</i>
-            <div id="core-sidebar-name">
-                Anônimo
-            </div>
-        {/if}
+        </div>
     </div>
 </div>
 

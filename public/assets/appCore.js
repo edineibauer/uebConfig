@@ -288,7 +288,7 @@ function menuHeader() {
 }
 
 function setCookieAnonimo() {
-    setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', setor:0, nivel:1});
+    setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', imagem:'', setor:0, nivel:1});
 }
 
 function setCookieUser(user) {
@@ -297,6 +297,7 @@ function setCookieUser(user) {
     setCookie("nome", user['nome']);
     setCookie("nome_usuario", user['nome_usuario'] || slug(getCookie("nome")));
     setCookie("email", user['email']);
+    setCookie("imagem", user['imagem']);
     setCookie("setor", user['setor']);
     setCookie("nivel", user['nivel']);
 }
@@ -319,6 +320,18 @@ function checkSessao() {
         };
         xhttp.send("lib=route&file=sessao");
     }
+    setSidebarInfo();
+}
+
+function setSidebarInfo() {
+    if(getCookie("token") === "0" || getCookie("imagem") === "") {
+        $("#core-sidebar-imagem").html("<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>")
+    } else {
+        $("#core-sidebar-imagem").html("<img src='" + getCookie("imagem") + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>");
+    }
+
+    $("#core-sidebar-nome").html(getCookie("nome"));
+    $("#core-sidebar-edit").addClass("hide");
 }
 
 window.onload = function () {
