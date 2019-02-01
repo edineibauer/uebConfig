@@ -289,6 +289,17 @@ function menuHeader() {
         document.querySelector("#core-menu-custom").innerHTML = content
         document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
     })
+
+    let logo = document.querySelector("#logo-href");
+    logo.href = HOME;
+    if(LOGO !== "") {
+        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/logo.png' alt='logo do site " + TITLE + "' title='"+ TITLE +"' height='39' id='core-header-img'><h1 style='font-size:0'>" + TITLE + "</h1>";
+    } else {
+        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/favicon-48.png' height='35' style='height: 35px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>";
+    }
+
+    if(getCookie("token") === "0")
+        document.querySelector("#core-header-container").style.maxWidth = "1200px";
 }
 
 function setCookieAnonimo() {
