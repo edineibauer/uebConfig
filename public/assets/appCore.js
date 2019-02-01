@@ -267,23 +267,27 @@ function updateCache() {
 function menuHeader() {
     dbLocal.exeRead("__template", 1).then(tpl => {
         let menu = [];
-        if(getCookie("token") === "0") {
-            menu.push({href: HOME + 'login', text: 'login'});
+        if (getCookie("token") === "0") {
+            menu.push({href: HOME + 'login', text: 'login'})
         } else {
             menu.push({href: HOME + 'dashboard', text: 'minha conta'});
-            menu.push({funcao: 'logoutDashboard', text: 'sair'});
+            menu.push({funcao: 'logoutDashboard', text: 'sair'})
         }
-
         let content = "";
-        for(let m in menu) {
-            if(typeof menu[m].text === "string" && menu[m].text !== "undefined") {
-                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string")
-                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text);
-                else
-                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text);
+        let contentSidebar = "";
+        for (let m in menu) {
+            if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
+                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
+                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper");
+                } else {
+                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper");
+                }
             }
         }
-        document.querySelector("#core-menu-custom").innerHTML = content;
+        document.querySelector("#core-menu-custom").innerHTML = content
+        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
     })
 }
 

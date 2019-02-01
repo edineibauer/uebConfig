@@ -19,23 +19,5 @@
 <div id="core-sidebar-main" class="core-class-container">
     <ul id="core-applications" class="core-class-container"></ul>
 
-    <ul id="core-sidebar-menu" class="core-class-container">
-        {$menu}
-        {if $loged}
-            <li>
-                <a href="{$home}dashboard">
-                    Minha Conta
-                </a>
-            </li>
-            <li>
-                    <span onclick="logoutDashboard()">
-                        sair
-                    </span>
-            </li>
-        {else}
-            <li>
-                <a href="{$home}login">login</a>
-            </li>
-        {/if}
-    </ul>
+    <ul id="core-sidebar-menu" class="core-class-container"></ul>
 </div>
