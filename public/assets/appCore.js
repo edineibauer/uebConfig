@@ -110,8 +110,6 @@ function updateCacheLogin() {
                 let all = [];
                 for(let i in g.view) {
                     if(typeof g.view[i] === "string") {
-                        let view = g.view[i].replace(HOME, "");
-                        console.log(g.view[i]);
                         all.push(cache.delete(g.view[i]).then(() => {
                             return cache.add(g.view[i]);
                         }));
@@ -296,14 +294,14 @@ function setCookieAnonimo() {
 }
 
 function setCookieUser(user) {
-    setCookie("token", user['token']);
-    setCookie("id", user['id']);
-    setCookie("nome", user['nome']);
-    setCookie("nome_usuario", user['nome_usuario'] || slug(getCookie("nome")));
-    setCookie("email", user['email']);
-    setCookie("imagem", user['imagem']);
-    setCookie("setor", user['setor']);
-    setCookie("nivel", user['nivel']);
+    setCookie("token", user.token);
+    setCookie("id", user.id);
+    setCookie("nome", user.nome);
+    setCookie("nome_usuario", user.nome_usuario || slug(getCookie("nome")));
+    setCookie("email", user.email);
+    setCookie("imagem", user.imagem);
+    setCookie("setor", user.setor);
+    setCookie("nivel", user.nivel);
     updateCacheLogin();
 }
 
@@ -315,16 +313,16 @@ function checkSessao() {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                if (data.data !== "no-network" && typeof data.response === "object") {
-                    setCookieUser(g);
+                if (typeof data.data === "object" && data.response === 1) {
+                    setCookieUser(data.data)
                 } else {
-                    setCookieAnonimo();
+                    setCookieAnonimo()
                 }
             }
         };
-        xhttp.send("lib=route&file=sessao");
+        xhttp.send("lib=route&file=sessao")
     }
-    setSidebarInfo();
+    setSidebarInfo()
 }
 
 function setSidebarInfo() {
