@@ -325,13 +325,13 @@ function checkSessao() {
 
 function setSidebarInfo() {
     if(getCookie("token") === "0" || getCookie("imagem") === "") {
-        $("#core-sidebar-imagem").html("<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>")
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>";
     } else {
-        $("#core-sidebar-imagem").html("<img src='" + getCookie("imagem") + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>");
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>";
     }
 
-    $("#core-sidebar-nome").html(getCookie("nome"));
-    $("#core-sidebar-edit").addClass("hide");
+    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("nome");
+    document.querySelector("#core-sidebar-edit").classList.add("hide");
 }
 
 window.onload = function () {

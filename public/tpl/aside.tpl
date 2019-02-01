@@ -5,7 +5,8 @@
             <div class="core-class-container" id="core-header-name">
                 <strong class="padding-right left no-select" id="core-sidebar-nome"></strong>
 
-                <span id="core-sidebar-edit" class="hide left pointer menu-li padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
+                <span id="core-sidebar-edit"
+                      class="hide left pointer menu-li padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
                       data-action="form" data-entity="usuarios"
                       data-atributo="{$login.id}" style="margin-top: -10px;">
                         <i class="material-icons left font-large">edit</i>
