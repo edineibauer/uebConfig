@@ -131,7 +131,7 @@ function updateCacheLogin() {
             return Promise.all(creates)
         })
     }).then(() => {
-        loading_screen.finish()
+        window.location.reload();
     })
 }
 
