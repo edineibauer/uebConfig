@@ -344,6 +344,8 @@ window.onload = function () {
                     return updateCache();
             })
         }).then(() => {
+            checkSessao()
+        }).then(() => {
             menuHeader();
             if ('serviceWorker' in navigator)
                 navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
@@ -354,8 +356,6 @@ window.onload = function () {
             styleFont.rel = "stylesheet";
             styleFont.href = HOME + "assetsPublic/fonts.min.css";
             document.head.appendChild(styleFont)
-        }).then(() => {
-            checkSessao()
         })
     } else {
         let scriptCore = document.createElement('script');
