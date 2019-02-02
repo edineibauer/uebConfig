@@ -243,9 +243,17 @@ const dbRemote = {
                 return 0;
 
             return new Promise(function (resolve, reject) {
+                let longTime = setTimeout(function () {
+                    toast("é normal demorar quando tem arquivos para serem enviados!", 5000, "toast-warning");
+                },6000);
+                let longLongTime = setTimeout(function () {
+                    toast("conexão lenta, ou arquivo muito grande! Ainda enviando...", 5000, "toast-warning");
+                },20000);
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function () {
                     if (this.readyState === 4) {
+                        clearTimeout(longTime);
+                        clearTimeout(longLongTime);
                         if (this.status === 200) {
                             let data = JSON.parse(this.responseText);
                             if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data === "object")
