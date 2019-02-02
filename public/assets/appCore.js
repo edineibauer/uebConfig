@@ -98,12 +98,16 @@ function clearCacheLogin() {
     })
 }
 
-function updateCacheLogin() {
-    let loading_screen = pleaseWait({
-        logo: FAVICON,
+function loadScreen() {
+    return pleaseWait({
+        logo: HOME + "assetsPublic/img/favicon-96.png",
         backgroundColor: THEME,
-        loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
+        loadingHtml: "<p class='theme-text-aux load-screen-text'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     });
+}
+
+function updateCacheLogin() {
+    loadScreen();
     return clearCacheLogin().then(() => {
         return get("appView").then(g => {
             return caches.open('view-v' + VERSION).then(cache => {
@@ -163,11 +167,7 @@ function clearCache() {
 }
 
 function updateCache() {
-    let loading_screen = pleaseWait({
-        logo: FAVICON,
-        backgroundColor: THEME,
-        loadingHtml: "<p class='theme-text-aux'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
-    });
+    loadScreen();
     return navigator.serviceWorker.getRegistrations().then(function (registrations) {
         for (let registration of registrations)
             registration.unregister()
@@ -246,7 +246,7 @@ function updateCache() {
                 xhttp.send("lib=config&file=update");
             }
 
-            return loading_screen.finish()
+            window.location.reload();
         })
     })
 }
