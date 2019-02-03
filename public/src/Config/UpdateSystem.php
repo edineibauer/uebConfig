@@ -417,8 +417,11 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/save.gif", PATH_HOME . "assetsPublic/img/save.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
-        copy(PATH_HOME . str_replace(HOME, '', $config['favicon']), PATH_HOME . "assetsPublic/img/favicon.png");
-        copy((!empty($config['logo']) ? PATH_HOME . $config['logo'] : PATH_HOME . VENDOR . "config/public/assets/image-not-found.png"), PATH_HOME . "assetsPublic/img/logo.png");
+        copy(PATH_HOME . (!empty($config['favicon']) ? str_replace([$config['home'] . "image/", $config['home']], '', $config['favicon']) : VENDOR . "config/public/assets/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
+        if(!empty($config['logo']))
+            copy(PATH_HOME . str_replace([$config['home'] . "image/", $config['home']], '', $config['logo']), PATH_HOME . "assetsPublic/img/logo.png");
+        elseif(file_exists(PATH_HOME . "assetsPublic/img/logo.png"))
+            unlink(PATH_HOME . "assetsPublic/img/logo.png");
     }
 
     /**
@@ -771,7 +774,7 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "uploads");
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
-        $fav = \WideImage\WideImage::load(PATH_HOME . str_replace(HOME, '', $dados['favicon']));
+        $fav = \WideImage\WideImage::load(PATH_HOME . str_replace([$dados['home'] . "image/", $dados['home']], '', $dados['favicon']));
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
         $fav->resize(152, 152, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-152.png");

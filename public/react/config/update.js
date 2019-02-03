@@ -1,1 +1,1 @@
-post("config", "updateConfiguracoes");
+post("config", "updateConfiguracoes", {dados: dados});

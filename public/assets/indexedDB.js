@@ -301,24 +301,24 @@ const dbRemote = {
     }
 };
 const db = {
-    exeCreate(entity, val) {
+    exeCreate(entity, dados) {
         let proc = null;
         let action = 'create';
-        if (isNaN(val.id) || val.id < 1) {
+        if (isNaN(dados.id) || dados.id < 1) {
             proc = dbLocal.newKey(entity).then(key => {
-                val.id = key
+                dados.id = key
             })
         } else {
-            val.id = parseInt(val.id);
-            proc = dbLocal.exeRead('sync_' + entity, val.id).then(d => {
+            dados.id = parseInt(dados.id);
+            proc = dbLocal.exeRead('sync_' + entity, dados.id).then(d => {
                 if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === 'update')
                     action = 'update'
             })
         }
         return proc.then(() => {
-            return dbLocal.exeCreate(entity, val).then(() => {
-                val.db_action = action;
-                return dbLocal.insert("sync_" + entity, val, val.id)
+            return dbLocal.exeCreate(entity, dados).then(() => {
+                dados.db_action = action;
+                return dbLocal.insert("sync_" + entity, dados, dados.id)
             }).then(() => {
                 return dbLocal.exeRead("__react").then(react => {
                     if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
@@ -329,7 +329,7 @@ const db = {
                     return dbRemote.sync(entity)
             })
         }).then(() => {
-            return val.id
+            return dados.id
         })
     }, exeDelete(entity, id) {
         let allDelete = [];
