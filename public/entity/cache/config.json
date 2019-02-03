@@ -109,6 +109,7 @@
     "size": "1",
     "key": "",
     "unique": "false",
+    "group": "boolean",
     "default": "0",
     "update": "true",
     "relation": "",
@@ -148,6 +149,7 @@
     "unique": "false",
     "default": "0",
     "update": "true",
+    "group": "boolean",
     "relation": "",
     "allow": {
       "regexp": "",
