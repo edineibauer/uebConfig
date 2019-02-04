@@ -37,6 +37,31 @@ function deleteDB(entity, id) {
         return dbLocal.exeRead("__react").then(react => {
             if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
                 eval(react[0][entity][action])
+        }).then(() => {
+            return dbLocal.exeRead("sync_" + entity).then(d => {
+                if (typeof d === "object") {
+                    for (let k in d) {
+                        if (typeof d[k] === "object" && !isNaN(d[k]['id']) && d[k]['id'] === id) {
+                            if (d[k]['db_action'] === "create") {
+                                return dbLocal.exeDelete("sync_" + entity, id);
+                            } else if (d[k]['db_action'] === "update") {
+                                return dbLocal.exeDelete("sync_" + entity, id).then(() => {
+                                    return dbLocal.newKey("sync_" + entity).then(key => {
+                                        return dbLocal.insert("sync_" + entity, {
+                                            'id': key,
+                                            'delete': id,
+                                            'db_action': 'delete'
+                                        }, key)
+                                    })
+                                });
+                            }
+                        }
+                    }
+                }
+                return dbLocal.newKey("sync_" + entity).then(key => {
+                    return dbLocal.insert("sync_" + entity, {'id': key, 'delete': id, 'db_action': 'delete'}, key)
+                })
+            })
         })
     })
 }
@@ -342,12 +367,10 @@ const db = {
             allDelete.push(deleteDB(entity, parseInt(id)))
         }
         return Promise.all(allDelete).then(() => {
-            return dbLocal.newKey("sync_" + entity).then(key => {
-                return dbLocal.insert("sync_" + entity, {'id': key, 'delete': id, 'db_action': 'delete'}, key)
-            }).then(() => {
-                if (AUTOSYNC)
-                    return dbRemote.sync(entity); else return 0
-            })
+            if (AUTOSYNC)
+                return dbRemote.sync(entity);
+            else
+                return 0
         })
     }, exeRead(entity, key) {
         if (AUTOSYNC) {
