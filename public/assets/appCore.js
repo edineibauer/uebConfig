@@ -290,7 +290,7 @@ function menuHeader() {
 }
 
 function setCookieAnonimo() {
-    setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', imagem:'', setor:0, nivel:1});
+    return setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', imagem:'', setor:0, nivel:1});
 }
 
 function setCookieUser(user) {
@@ -302,27 +302,29 @@ function setCookieUser(user) {
     setCookie("imagem", user.imagem);
     setCookie("setor", user.setor);
     setCookie("nivel", user.nivel);
-    updateCacheLogin();
+    return updateCacheLogin();
 }
 
 function checkSessao() {
     if (getCookie("token") === "") {
         var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set", !0);
+        xhttp.open("POST", HOME + "set", !1);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
                 if (typeof data.data === "object" && data.response === 1) {
-                    setCookieUser(data.data)
+                    return setCookieUser(data.data)
                 } else {
-                    setCookieAnonimo()
+                    return setCookieAnonimo()
                 }
             }
         };
         xhttp.send("lib=route&file=sessao")
+    } else {
+        setSidebarInfo();
+        return 1;
     }
-    setSidebarInfo()
 }
 
 function setSidebarInfo() {
@@ -344,7 +346,7 @@ window.onload = function () {
                     return updateCache();
             })
         }).then(() => {
-            checkSessao()
+            return checkSessao()
         }).then(() => {
             menuHeader();
             if ('serviceWorker' in navigator)
