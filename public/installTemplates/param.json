@@ -7,7 +7,6 @@
     "toast",
     "helpers",
     "mask",
-    "sha256",
     "grid",
     "form",
     "formValidate",
