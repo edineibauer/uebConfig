@@ -320,7 +320,8 @@ function checkSessao() {
                 }
             }
         };
-        xhttp.send("lib=route&file=sessao")
+        xhttp.send("lib=route&file=sessao");
+        return 1;
     } else {
         setSidebarInfo();
         return 1;
