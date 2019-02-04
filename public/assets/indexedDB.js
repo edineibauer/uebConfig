@@ -29,7 +29,7 @@ function moveSyncDataToDb(entity, dados) {
             }
         }
         return Promise.all(movedAsync)
-    });
+    })
 }
 
 function deleteDB(entity, id) {
@@ -38,29 +38,16 @@ function deleteDB(entity, id) {
             if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
                 eval(react[0][entity][action])
         }).then(() => {
-            return dbLocal.exeRead("sync_" + entity).then(d => {
-                if (typeof d === "object") {
-                    for (let k in d) {
-                        if (typeof d[k] === "object" && !isNaN(d[k]['id']) && d[k]['id'] === id) {
-                            if (d[k]['db_action'] === "create") {
-                                return dbLocal.exeDelete("sync_" + entity, id);
-                            } else if (d[k]['db_action'] === "update") {
-                                return dbLocal.exeDelete("sync_" + entity, id).then(() => {
-                                    return dbLocal.newKey("sync_" + entity).then(key => {
-                                        return dbLocal.insert("sync_" + entity, {
-                                            'id': key,
-                                            'delete': id,
-                                            'db_action': 'delete'
-                                        }, key)
-                                    })
-                                });
-                            }
-                        }
+            return dbLocal.exeRead("sync_" + entity, id).then(d => {
+                if(Object.entries(d).length === 0 && d.constructor === Object) {
+                    return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'});
+                } else {
+                    if (d.db_action === "create") {
+                        return dbLocal.exeDelete("sync_" + entity, id)
+                    } else if (d.db_action === "update") {
+                        return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'}, id);
                     }
                 }
-                return dbLocal.newKey("sync_" + entity).then(key => {
-                    return dbLocal.insert("sync_" + entity, {'id': key, 'delete': id, 'db_action': 'delete'}, key)
-                })
             })
         })
     })
@@ -205,14 +192,14 @@ const dbRemote = {
                         if (this.status == 200) {
                             let data = JSON.parse(this.responseText);
                             if (data.response === 1 && typeof data.data !== "no-network" && data.data.historic !== 0)
-                                resolve(data.data);
+                                resolve(data.data)
                         }
-                        resolve(0);
+                        resolve(0)
                     }
                 };
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("lib=entity&file=load/entity&entity=" + entity + "&historic=" + (hist[entity] || null));
+                xhttp.send("lib=entity&file=load/entity&entity=" + entity + "&historic=" + (hist[entity] || null))
             }).then(response => {
                 if (response !== 0) {
                     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
@@ -222,10 +209,10 @@ const dbRemote = {
                                 if (response.data.length) {
                                     for (let k in response.data) {
                                         if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
-                                            let id = parseInt(response.data[k]['id']);
-                                            for(let col in response.data[k])
+                                            let id = parseInt(response.data[k].id);
+                                            for (let col in response.data[k])
                                                 response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
-                                            response.data[k]['id'] = id;
+                                            response.data[k].id = id;
                                             cc.push(dbLocal.exeCreate(entity, response.data[k]))
                                         }
                                     }
@@ -234,23 +221,23 @@ const dbRemote = {
                                 historic[entity] = response.historic;
                                 cc.push(dbLocal.exeUpdate('__historic', historic, 1));
                                 return Promise.all(cc).then(() => {
-                                    return 1;
+                                    return 1
                                 })
-                            });
+                            })
                         } else {
                             if (response.data.constructor === Array && response.data.length) {
                                 let historic = {};
                                 historic[entity] = response.historic;
                                 return dbLocal.exeUpdate('__historic', historic, 1).then(() => {
                                     return moveSyncDataToDb(entity, response.data).then(() => {
-                                        return 1;
+                                        return 1
                                     })
-                                });
+                                })
                             }
                         }
                     })
                 } else {
-                    return 0;
+                    return 0
                 }
             })
         })
@@ -266,7 +253,6 @@ const dbRemote = {
         return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
             if (!dadosSync.length)
                 return 0;
-
             return new Promise(function (resolve, reject) {
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function () {
@@ -274,16 +260,16 @@ const dbRemote = {
                         if (this.status === 200) {
                             let data = JSON.parse(this.responseText);
                             if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data === "object")
-                                resolve(data.data);
+                                resolve(data.data)
                         }
-                        resolve(0);
+                        resolve(0)
                     }
                 };
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync));
+                xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync))
             }).then(response => {
-                if(response !== 0) {
+                if (response !== 0) {
                     if (response.error > 0) {
                         toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
                         setTimeout(function () {
@@ -301,10 +287,9 @@ const dbRemote = {
                                 return dbLocal.exeDelete(entity, dado.id).then(() => {
                                     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
                                         let id = parseInt(response.data.id);
-                                        for(let col in response.data)
+                                        for (let col in response.data)
                                             response.data[col] = getDefaultValue(dicionarios[entity][col], response.data[col]);
                                         response.data.id = id;
-
                                         return dbLocal.exeCreate(entity, response.data);
                                     })
                                 })
@@ -312,7 +297,7 @@ const dbRemote = {
                         }
                     })
                 }
-                return 0;
+                return 0
             })
         })
     }
@@ -360,9 +345,7 @@ const db = {
         }
         return Promise.all(allDelete).then(() => {
             if (AUTOSYNC)
-                return dbRemote.sync(entity);
-            else
-                return 0
+                return dbRemote.sync(entity); else return 0
         })
     }, exeRead(entity, key) {
         if (AUTOSYNC) {
