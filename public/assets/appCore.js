@@ -257,7 +257,7 @@ function menuHeader() {
         if (getCookie("token") === "0") {
             menu.push({href: HOME + 'login', text: 'login'})
         } else {
-            menu.push({href: HOME + 'dashboard', text: 'minha conta'});
+            menu.push({href: HOME + 'dashboard', text: 'painel'});
             menu.push({funcao: 'logoutDashboard', text: 'sair'})
         }
         let content = "";
