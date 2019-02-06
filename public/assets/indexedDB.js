@@ -276,31 +276,32 @@ const dbRemote = {
                         setTimeout(function () {
                             toast("registros com erros são ignorados no servidor!", 8000, "toast-error")
                         }, 2000)
-                    } else {
-                        return dbLocal.exeRead("__reactOnline").then(react => {
-                            if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                                eval(react[0][entity][action])
-                        })
                     }
                     return dbLocal.clear('sync_' + entity).then(() => {
                         let historicData = {};
                         historicData[entity] = response.historic;
                         return dbLocal.exeUpdate("__historic", historicData, 1)
                     }).then(() => {
-                        for (let k in dadosSync) {
-                            let dado = dadosSync[k];
-                            if (dado['db_action'] === "create" || dado['db_action'] === "update") {
-                                return dbLocal.exeDelete(entity, dado.id).then(() => {
-                                    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
-                                        let id = parseInt(response.data.id);
-                                        for (let col in response.data)
-                                            response.data[col] = getDefaultValue(dicionarios[entity][col], response.data[col], dicionarios);
-                                        response.data.id = id;
-                                        return dbLocal.exeCreate(entity, response.data);
+                        return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
+                            for (let k in dadosSync) {
+                                let dado = dadosSync[k];
+                                let action = dado['db_action'];
+                                if (action === "create" || action === "update") {
+                                    return dbLocal.exeDelete(entity, dado.id).then(() => {
+                                        let id = parseInt(dados.id);
+                                        for (let col in dados)
+                                            dados[col] = getDefaultValue(dicionarios[entity][col], dados[col], dicionarios);
+                                        dados.id = id;
+                                        return dbLocal.exeCreate(entity, dados);
                                     })
+                                }
+
+                                return dbLocal.exeRead("__reactOnline").then(react => {
+                                    if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                                        eval(react[0][entity][action])
                                 })
                             }
-                        }
+                        })
                     })
                 }
                 return 0

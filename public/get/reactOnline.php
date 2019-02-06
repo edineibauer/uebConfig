@@ -42,7 +42,7 @@ function addReact(string $path, array $list, int $setor, string $entity): array
 }
 
 
-if(file_exists(PATH_HOME . "public/react")) {
+if(file_exists(PATH_HOME . "public/react/online")) {
     if ($setor && file_exists(PATH_HOME . "public/react/online/{$setor}")) {
         foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/react/online/{$setor}") as $entity) {
             if(is_dir(PATH_HOME . "public/react/online/{$setor}/{$entity}"))
@@ -50,27 +50,23 @@ if(file_exists(PATH_HOME . "public/react")) {
         }
     }
 
-    if (file_exists(PATH_HOME . "public/react")) {
-        foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/react") as $entity) {
-            if(is_dir(PATH_HOME . "public/react/online/{$entity}"))
-                $data['data'] = addReact(PATH_HOME . "public/react/online/{$entity}", $data['data'], $setor, $entity);
-        }
+    foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/react/online") as $entity) {
+        if(is_dir(PATH_HOME . "public/react/online/{$entity}"))
+            $data['data'] = addReact(PATH_HOME . "public/react/online/{$entity}", $data['data'], $setor, $entity);
     }
 }
 
 foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-    if(file_exists(PATH_HOME . VENDOR . "{$lib}/public/react")) {
+    if(file_exists(PATH_HOME . VENDOR . "{$lib}/public/react/online")) {
         if ($setor && file_exists(PATH_HOME . VENDOR . "{$lib}/public/react/online/{$setor}")) {
             foreach (\Helpers\Helper::listFolder(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$setor}") as $entity) {
                 if(is_dir(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$setor}/{$entity}"))
                     $data['data'] = addReact(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$setor}/{$entity}", $data['data'], $setor, $entity);
             }
         }
-        if (file_exists(PATH_HOME .  VENDOR . "{$lib}/public/react")) {
-            foreach (\Helpers\Helper::listFolder(PATH_HOME .  VENDOR . "{$lib}/public/react") as $entity) {
-                if(is_dir(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$entity}"))
-                    $data['data'] = addReact(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$entity}", $data['data'], $setor, $entity);
-            }
+        foreach (\Helpers\Helper::listFolder(PATH_HOME .  VENDOR . "{$lib}/public/react/online") as $entity) {
+            if(is_dir(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$entity}"))
+                $data['data'] = addReact(PATH_HOME .  VENDOR . "{$lib}/public/react/online/{$entity}", $data['data'], $setor, $entity);
         }
     }
 }
