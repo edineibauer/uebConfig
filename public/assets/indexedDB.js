@@ -11,7 +11,7 @@ function moveSyncDataToDb(entity, dados) {
                     case 'update':
                         let id = parseInt(d.id);
                         for (let col in d)
-                            d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
+                            d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
                         d.id = id;
                         movedAsync.push(dbLocal.exeCreate(entity, d));
                         break;
@@ -39,13 +39,13 @@ function deleteDB(entity, id) {
                 eval(react[0][entity][action])
         }).then(() => {
             return dbLocal.exeRead("sync_" + entity, id).then(d => {
-                if(Object.entries(d).length === 0 && d.constructor === Object) {
-                    return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'});
+                if (Object.entries(d).length === 0 && d.constructor === Object) {
+                    return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'})
                 } else {
                     if (d.db_action === "create") {
                         return dbLocal.exeDelete("sync_" + entity, id)
                     } else if (d.db_action === "update") {
-                        return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'}, id);
+                        return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'}, id)
                     }
                 }
             })
@@ -53,7 +53,7 @@ function deleteDB(entity, id) {
     })
 }
 
-function getDefaultValue(meta, value) {
+function getDefaultValue(meta, value, dicionarios) {
     let valor = "";
     if (typeof meta === "object" && meta !== null) {
         if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
@@ -211,7 +211,7 @@ const dbRemote = {
                                         if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                             let id = parseInt(response.data[k].id);
                                             for (let col in response.data[k])
-                                                response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
+                                                response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col], dicionarios);
                                             response.data[k].id = id;
                                             cc.push(dbLocal.exeCreate(entity, response.data[k]))
                                         }
@@ -288,7 +288,7 @@ const dbRemote = {
                                     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
                                         let id = parseInt(response.data.id);
                                         for (let col in response.data)
-                                            response.data[col] = getDefaultValue(dicionarios[entity][col], response.data[col]);
+                                            response.data[col] = getDefaultValue(dicionarios[entity][col], response.data[col], dicionarios);
                                         response.data.id = id;
                                         return dbLocal.exeCreate(entity, response.data);
                                     })
