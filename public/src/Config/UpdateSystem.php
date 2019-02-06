@@ -264,6 +264,7 @@ class UpdateSystem
         Config::writeFile("_config/.htaccess", "Deny from all");
         Config::writeFile("entity/.htaccess", "Deny from all");
         Config::writeFile("public/react/.htaccess", "Deny from all");
+        Config::writeFile("public/react/online/.htaccess", "Deny from all");
         Config::writeFile("public/cron/.htaccess", "Deny from all");
         Config::writeFile("public/api/.htaccess", "Deny from all");
         Config::writeFile("vendor/.htaccess", $this->getAccessFile());

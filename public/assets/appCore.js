@@ -152,6 +152,7 @@ function clearCache() {
         clear.push(dbLocal.clear('__allow'));
         clear.push(dbLocal.clear('__general'));
         clear.push(dbLocal.clear('__react'));
+        clear.push(dbLocal.clear('__reactOnline'));
         clear.push(dbLocal.clear('__relevant'));
         clear.push(dbLocal.clear('__template'));
         clear.push(dbLocal.clear('__user'));
@@ -218,6 +219,7 @@ function updateCache() {
             gets.push(get("templates"));
             gets.push(get("user"));
             gets.push(get("menu"));
+            gets.push(get("reactOnline"));
             return Promise.all(gets).then(r => {
                 creates.push(dbLocal.exeCreate('__react', r[0]));
                 creates.push(dbLocal.exeCreate('__allow', r[1]));
@@ -228,6 +230,7 @@ function updateCache() {
                 creates.push(dbLocal.exeCreate('__template', r[6]));
                 creates.push(dbLocal.exeCreate('__user', r[7]));
                 creates.push(dbLocal.exeCreate('__menu', r[8]));
+                creates.push(dbLocal.exeCreate('__reactOnline', r[9]));
                 return Promise.all(creates)
             })
         }).then(() => {
@@ -273,9 +276,9 @@ function menuHeader() {
                 }
             }
         }
-        document.querySelector("#core-menu-custom").innerHTML = content
+        document.querySelector("#core-menu-custom").innerHTML = content;
         document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
-    })
+    });
 
     let logo = document.querySelector("#logo-href");
     logo.href = HOME;

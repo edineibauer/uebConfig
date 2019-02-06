@@ -6,7 +6,6 @@ self.addEventListener('fetch', function (e) {
     let url = e.request.url.replace(HOME, '');
     let fonts = new RegExp("assetsPublic\/fonts\/", "i");
     let images = new RegExp("assetsPublic\/img\/", "i");
-    let reacts = new RegExp("assetsPublic\/react\/", "i");
     let viewJs = new RegExp("assetsPublic\/view\/\.+.min.js$", "i");
     let viewCss = new RegExp("assetsPublic\/view\/\.+.min.css$", "i");
     let core = new RegExp("assetsPublic\/", "i");
@@ -16,7 +15,7 @@ self.addEventListener('fetch', function (e) {
     let cacheImages = new RegExp("image\/", "i");
 
     if(core.test(url)) {
-        let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : (reacts.test(url) ? 'reacts' : 'core')))));
+        let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {

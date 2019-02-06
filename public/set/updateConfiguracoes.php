@@ -16,7 +16,7 @@ if ($dados['www'] && !WWW)
 elseif (!$dados['www'] && WWW)
     $conf['home'] = str_replace('://www.', '://', HOME);
 
-if ($dados['HTTPS'] && !SSL)
+if (($dados['HTTPS'] === "true" || $dados['HTTPS'] === true || $dados['HTTPS'] == 1) && !SSL)
     $conf['home'] = str_replace('http://', 'https://', HOME);
 elseif (!$dados['HTTPS'] && SSL)
     $conf['home'] = str_replace('https://', 'http://', HOME);

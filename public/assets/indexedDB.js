@@ -270,11 +270,17 @@ const dbRemote = {
                 xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync))
             }).then(response => {
                 if (response !== 0) {
+                    let dados = response.data;
                     if (response.error > 0) {
                         toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
                         setTimeout(function () {
                             toast("registros com erros são ignorados no servidor!", 8000, "toast-error")
                         }, 2000)
+                    } else {
+                        return dbLocal.exeRead("__reactOnline").then(react => {
+                            if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                                eval(react[0][entity][action])
+                        })
                     }
                     return dbLocal.clear('sync_' + entity).then(() => {
                         let historicData = {};

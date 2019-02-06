@@ -76,6 +76,8 @@ $data['data'] = [
     "viewJs" => [],
     "viewCss" => [],
     "view" => [],
+    "react" => [],
+    "reactOnline" => [],
     "misc" => [HOME . "manifest.json"],
     "midia" => []
 ];
@@ -104,8 +106,15 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
                 }
             } elseif ($item === "react" && is_dir(PATH_HOME . "assetsPublic/react/{$iten}")) {
                 foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}") as $react) {
-                    if (pathinfo($react, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/{$react}", $data['data']['react']))
+                    if (pathinfo($react, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/{$react}", $data['data']['react'])) {
                         $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}/{$react}";
+                    } elseif ($react === "online") {
+                        foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}/online") as $reactOnline) {
+                            if (pathinfo($reactOnline, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}", $data['data']['reactOnline']))
+                                $data['data']['reactOnline'][] = HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}";
+                        }
+
+                    }
                 }
             }
         }
