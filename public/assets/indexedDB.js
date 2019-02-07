@@ -254,20 +254,16 @@ const dbRemote = {
             if (!dadosSync.length)
                 return 0;
             return new Promise(function (resolve, reject) {
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState === 4) {
-                        if (this.status === 200) {
-                            let data = JSON.parse(this.responseText);
-                            if (data.response === 1 && typeof data.data !== "no-network" && typeof data.data === "object")
-                                resolve(data.data)
-                        }
-                        resolve(0)
-                    }
-                };
-                xhttp.open("POST", HOME + "set");
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.send("lib=entity&file=up/entity&entity=" + entity + "&dados=" + JSON.stringify(dadosSync))
+
+                $.ajax({
+                    type: "POST", url: HOME + 'set', data: {lib: "entity", file: "up/entity", entity: entity, dados: dadosSync}, success: function (data) {
+                        if (data.response === 1 && data.data !== "no-network" && typeof data.data === "object")
+                            resolve(data.data);
+
+                        resolve(0);
+                    }, dataType: "json", async: !1
+                })
+
             }).then(response => {
                 if (response !== 0) {
                     let dados = response.data;
@@ -295,7 +291,6 @@ const dbRemote = {
                                         return dbLocal.exeCreate(entity, dados);
                                     })
                                 }
-
                                 return dbLocal.exeRead("__reactOnline").then(react => {
                                     if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
                                         eval(react[0][entity][action])
