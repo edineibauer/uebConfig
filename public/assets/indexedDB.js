@@ -281,7 +281,6 @@ const dbRemote = {
                             toast("registros com erros são ignorados no servidor!", 8000, "toast-error")
                         }, 2000)
                     }
-
                     return dbLocal.clear('sync_' + entity).then(() => {
                         let historicData = {};
                         historicData[entity] = response.historic;
@@ -291,21 +290,23 @@ const dbRemote = {
                             let allP = [];
                             for (let k in dadosSync) {
                                 let dado = dadosSync[k];
-                                let action = dado['db_action'];
-                                allP.push(dbLocal.exeRead("__reactOnline").then(react => {
-                                    if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                                        eval(react[0][entity][action])
-                                }).then(() => {
-                                    if (action === "create" || action === "update") {
-                                        return dbLocal.exeDelete(entity, dado.id).then(() => {
-                                            let id = parseInt(dados.id);
-                                            for (let col in dados)
-                                                dados[col] = getDefaultValue(dicionarios[entity][col], dados[col], dicionarios);
-                                            dados.id = id;
-                                            return dbLocal.exeCreate(entity, dados);
-                                        })
-                                    }
-                                }));
+                                if(typeof dado === "object") {
+                                    let action = dado['db_action'];
+                                    allP.push(dbLocal.exeRead("__reactOnline").then(react => {
+                                        if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                                            eval(react[0][entity][action])
+                                    }).then(() => {
+                                        if (action === "create" || action === "update") {
+                                            return dbLocal.exeDelete(entity, dado.id).then(() => {
+                                                let id = parseInt(dados.id);
+                                                for (let col in dados)
+                                                    dados[col] = getDefaultValue(dicionarios[entity][col], dados[col], dicionarios);
+                                                dados.id = id;
+                                                return dbLocal.exeCreate(entity, dados);
+                                            })
+                                        }
+                                    }));
+                                }
                             }
 
                             return Promise.all(allP);
