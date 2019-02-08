@@ -17,6 +17,11 @@
 
 <div id="core-sidebar-main" class="core-class-container">
     <ul id="core-applications" class="core-class-container"></ul>
-
     <ul id="core-sidebar-menu" class="core-class-container"></ul>
+</div>
+
+<div class="core-class-container" style="position: absolute; bottom:5px;left:10px">
+    <div class="col">
+        <button onclick="updateCache();" class="padding-tiny theme font-small upper"><i class="material-icons left">refresh</i><span class="left padding-small">Atualizar App</span></button>
+    </div>
 </div>
