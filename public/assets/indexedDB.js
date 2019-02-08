@@ -13,7 +13,13 @@ function moveSyncDataToDb(entity, dados) {
                         for (let col in d)
                             d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
                         d.id = id;
-                        movedAsync.push(dbLocal.exeCreate(entity, d));
+
+                        if(typeof d.ownerpub !== "undefined" && parseInt(d.ownerpub) !== parseInt(getCookie("id"))){
+                            movedAsync.push(dbLocal.exeDelete(entity, d.id))
+                        } else {
+                            movedAsync.push(dbLocal.exeCreate(entity, d));
+                        }
+
                         break;
                     case 'delete':
                         if (d.delete.constructor === Array) {
@@ -254,16 +260,18 @@ const dbRemote = {
             if (!dadosSync.length)
                 return 0;
             return new Promise(function (resolve, reject) {
-
                 $.ajax({
-                    type: "POST", url: HOME + 'set', data: {lib: "entity", file: "up/entity", entity: entity, dados: dadosSync}, success: function (data) {
+                    type: "POST",
+                    url: HOME + 'set',
+                    data: {lib: "entity", file: "up/entity", entity: entity, dados: dadosSync},
+                    success: function (data) {
                         if (data.response === 1 && data.data !== "no-network" && typeof data.data === "object")
                             resolve(data.data);
-
-                        resolve(0);
-                    }, dataType: "json", async: !1
+                        resolve(0)
+                    },
+                    dataType: "json",
+                    async: !1
                 })
-
             }).then(response => {
                 if (response !== 0) {
                     let dados = response.data;
