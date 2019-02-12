@@ -11,7 +11,15 @@ const db = {
                 if (AUTOSYNC)
                     dbRemote.syncDownload(entity);
 
-                return dbLocal.exeRead(entity, key);
+                return dbLocal.exeRead(entity, key).then(d => {
+                    if(d.length === 0){
+                        delete (hist[entity]);
+                        return dbLocal.exeCreate("__historic", hist).then(() => {
+                            return this.exeReadOnline(entity, key);
+                        });
+                    }
+                    return d;
+                });
             }
         });
     },

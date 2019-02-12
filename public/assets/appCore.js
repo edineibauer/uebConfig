@@ -256,6 +256,10 @@ function updateCache() {
 
 function menuHeader() {
     dbLocal.exeRead("__template", 1).then(tpl => {
+
+        if(typeof tpl['menu-header-href'] === "undefined")
+            updateCache();
+
         let menu = [];
         if (getCookie("token") === "0") {
             menu.push({href: HOME + 'login', text: 'login'})
