@@ -71,28 +71,30 @@ function clearCacheLogin() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
         for (var k in dicionarios) {
-            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
-                if(d.length) {
-                    return dbRemote.sync(k).then(() => {
-                        return dbLocal.clear("sync_" + k)
-                    });
-                } else {
-                    return dbLocal.clear("sync_" + k)
-                }
-            }));
-            clear.push(dbLocal.clear(k))
+            clear.push(dbLocal.exeRead("sync_" + k)
+                .then(d => {
+                    //antes de limpar os registros, sobe alterações caso tenha
+                    if (d.length) {
+                        return dbRemote.syncPost(k).then(() => {
+                            return dbLocal.clear("sync_" + k)
+                        })
+                    }
+                }).then(() => {
+                    dbLocal.clear(k);
+                })
+            );
         }
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__dicionario'));
         clear.push(dbLocal.clear('__info'));
         clear.push(dbLocal.clear('__menu'));
-        return Promise.all(clear)
+        return Promise.all(clear);
     }).then(() => {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 let versionOld = new RegExp("-v" + VERSION + "$", "i");
-                if(!versionOld.test(cacheName))
-                    return caches.delete(cacheName);
+                if (!versionOld.test(cacheName))
+                    return caches.delete(cacheName)
             }))
         })
     })
@@ -103,7 +105,7 @@ function loadScreen() {
         logo: HOME + "assetsPublic/img/favicon-96.png",
         backgroundColor: THEME,
         loadingHtml: "<p class='theme-text-aux load-screen-text'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
-    });
+    })
 }
 
 function updateCacheLogin() {
@@ -112,14 +114,14 @@ function updateCacheLogin() {
         return get("appView").then(g => {
             return caches.open('view-v' + VERSION).then(cache => {
                 let all = [];
-                for(let i in g.view) {
-                    if(typeof g.view[i] === "string") {
+                for (let i in g.view) {
+                    if (typeof g.view[i] === "string") {
                         all.push(cache.delete(g.view[i]).then(() => {
-                            return cache.add(g.view[i]);
-                        }));
+                            return cache.add(g.view[i])
+                        }))
                     }
                 }
-                return Promise.all(all);
+                return Promise.all(all)
             })
         })
     }).then(() => {
@@ -135,7 +137,7 @@ function updateCacheLogin() {
             return Promise.all(creates)
         })
     }).then(() => {
-        window.location.reload();
+        window.location.reload()
     })
 }
 
@@ -234,7 +236,6 @@ function updateCache() {
                 return Promise.all(creates)
             })
         }).then(() => {
-
             if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
                 var xhttp = new XMLHttpRequest();
                 xhttp.open("POST", HOME + "set", !0);
@@ -246,10 +247,9 @@ function updateCache() {
                             setCookie("update", data.data)
                     }
                 };
-                xhttp.send("lib=config&file=update");
+                xhttp.send("lib=config&file=update")
             }
-
-            window.location.reload();
+            window.location.reload()
         })
     })
 }
@@ -269,31 +269,38 @@ function menuHeader() {
             if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
                 if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
                     content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper");
+                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
                 } else {
                     content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper");
+                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
                 }
             }
         }
         document.querySelector("#core-menu-custom").innerHTML = content;
-        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
+        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar
     });
-
     let logo = document.querySelector("#logo-href");
     logo.href = HOME;
-    if(LOGO !== "") {
-        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/logo.png' alt='logo do site " + TITLE + "' title='"+ TITLE +"' height='39' id='core-header-img'><h1 style='font-size:0'>" + TITLE + "</h1>";
+    if (LOGO !== "") {
+        logo.innerHTML = "<img src='" + HOME + "assetsPublic/img/logo.png' alt='logo do site " + TITLE + "' title='" + TITLE + "' height='39' id='core-header-img'><h1 style='font-size:0'>" + TITLE + "</h1>"
     } else {
-        logo.innerHTML = "<img src='"+ HOME +"assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>";
+        logo.innerHTML = "<img src='" + HOME + "assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>"
     }
-
-    if(getCookie("token") === "0")
-        document.querySelector("#core-header-container").style.maxWidth = "1200px";
+    if (getCookie("token") === "0")
+        document.querySelector("#core-header-container").style.maxWidth = "1200px"
 }
 
 function setCookieAnonimo() {
-    return setCookieUser({token: 0, id: 0, nome: 'Desconhecido', nome_usuario: 'desconhecido', email:'', imagem:'', setor:0, nivel:1});
+    return setCookieUser({
+        token: 0,
+        id: 0,
+        nome: 'Desconhecido',
+        nome_usuario: 'desconhecido',
+        email: '',
+        imagem: '',
+        setor: 0,
+        nivel: 1
+    })
 }
 
 function setCookieUser(user) {
@@ -305,7 +312,7 @@ function setCookieUser(user) {
     setCookie("imagem", user.imagem);
     setCookie("setor", user.setor);
     setCookie("nivel", user.nivel);
-    return updateCacheLogin();
+    return updateCacheLogin()
 }
 
 function checkSessao() {
@@ -324,22 +331,21 @@ function checkSessao() {
             }
         };
         xhttp.send("lib=route&file=sessao");
-        return 1;
+        return 1
     } else {
         setSidebarInfo();
-        return 1;
+        return 1
     }
 }
 
 function setSidebarInfo() {
-    if(getCookie("token") === "0" || getCookie("imagem") === "") {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>";
+    if (getCookie("token") === "0" || getCookie("imagem") === "") {
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
     } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>";
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
-
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("nome");
-    document.querySelector("#core-sidebar-edit").classList.add("hide");
+    document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
 window.onload = function () {
@@ -347,7 +353,7 @@ window.onload = function () {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
                 if (!response)
-                    return updateCache();
+                    return updateCache()
             })
         }).then(() => {
             return checkSessao()
@@ -369,4 +375,4 @@ window.onload = function () {
         document.head.appendChild(scriptCore);
         clearCache()
     }
-};
+}
