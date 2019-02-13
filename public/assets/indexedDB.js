@@ -49,11 +49,13 @@ const db = {
                 dados.db_action = action;
 
                 //add sync [assync]
-                dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
+                return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
 
                     //sobe alterações
                     if (AUTOSYNC)
-                        dbRemote.syncPost(entity);
+                        return dbRemote.syncPost(entity);
+
+                    return 1;
                 });
 
                 return dados.id;
@@ -90,11 +92,9 @@ const dbRemote = {
                 return dbRemote.syncDownload(entity).then(down => {
 
                     //caso não tenha nada para baixar passa a resposta para o post
-                    if (down === 0)
-                        return dbRemote.syncPost(entity);
-
-                    //tem atualizações que foram baixadas
-                    return 1;
+                    return dbRemote.syncPost(entity).then(d => {
+                        return down === 0 ? d : 1;
+                    })
                 })
             } else {
                 return new Promise((s, f) => {
@@ -128,6 +128,9 @@ const dbRemote = {
                     success: function (data) {
                         if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0)
                             resolve(data.data);
+                        resolve(0);
+                    },
+                    error: function() {
                         resolve(0);
                     },
                     dataType: "json",
@@ -183,7 +186,7 @@ const dbRemote = {
             if (!dadosSync.length)
                 return 0;
 
-            new Promise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
 
                 //sobe alterações
                 $.ajax({
@@ -194,6 +197,9 @@ const dbRemote = {
                         if (data.response === 1 && data.data !== "no-network" && typeof data.data === "object")
                             resolve(data.data);
                         resolve(0)
+                    },
+                    error: function() {
+                        resolve(0);
                     },
                     dataType: "json",
                     async: !1
@@ -223,7 +229,7 @@ const dbRemote = {
                 //busca reacts online
                 let react = dbLocal.exeRead("__reactOnline");
 
-                Promise.all([syncData, react]).then(r => {
+                return Promise.all([syncData, react]).then(r => {
                     syncData = r[0];
                     react = r[1];
 
@@ -232,15 +238,11 @@ const dbRemote = {
                         let dados = Object.assign({}, syncD);
 
                         //react
-                        // if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                        //     eval(react[0][entity][dados.db_action]);
-
-                        //para cada formulário aberto em edição
-                        // $.each(forms, function (i, formm) {
-                        //     if (parseInt(formm.id) === parseInt(dados.id_old) && formm.reloadAfterSave)
-                        //         formm.show(formm.editAfter ? parseInt(dados.id) : "");
-                        // })
+                        if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
+                            eval(react[0][entity][dados.db_action]);
                     });
+
+                    return syncData;
                 });
 
                 return 1;
