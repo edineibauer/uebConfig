@@ -350,10 +350,11 @@ function getIdAction(entity, id) {
 }
 
 function moveSyncDataToDb(entity, dados) {
-    if (dados.constructor !== Array || !dados.length)
+    if (typeof dados !== "undefined" && dados.constructor !== Array || !dados.length) {
         return new Promise((r, f) => {
             return r([]);
         });
+    }
 
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let movedAsync = [];
