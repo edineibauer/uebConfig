@@ -71,18 +71,16 @@ function clearCacheLogin() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
         for (var k in dicionarios) {
-            clear.push(dbLocal.exeRead("sync_" + k)
-                .then(d => {
-                    //antes de limpar os registros, sobe alterações caso tenha
-                    if (d.length) {
-                        return dbRemote.syncPost(k).then(() => {
-                            return dbLocal.clear("sync_" + k)
-                        })
-                    }
-                }).then(() => {
-                    dbLocal.clear(k);
-                })
-            );
+            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
+                if(d.length) {
+                    return dbRemote.sync(k).then(() => {
+                        return dbLocal.clear("sync_" + k)
+                    });
+                } else {
+                    return dbLocal.clear("sync_" + k)
+                }
+            }));
+            clear.push(dbLocal.clear(k))
         }
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__dicionario'));
