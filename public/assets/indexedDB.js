@@ -350,24 +350,32 @@ function getIdAction(entity, id) {
 }
 
 function moveSyncDataToDb(entity, dados) {
-    if (typeof dados !== "undefined" && dados.constructor !== Array || !dados.length) {
-        return new Promise((r, f) => {
-            return r([]);
-        });
+
+    //convert Object to Array
+    if(dados.constructor === Object) {
+        let dd = dados;
+        dados = [];
+        dados.push(dd);
     }
 
+    //Se não for Array ou estiver vazio, então retorna
+    if (typeof dados === "undefined" || dados.constructor !== Array || !dados.length) {
+        return new Promise((r, f) => {
+            return r([])
+        })
+    }
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let movedAsync = [];
-        for (let k in dados) {
-            let d = Object.assign({}, dados[k]);
+        $.each(dados, function(i, dado) {
+            let d = Object.assign({}, dado);
+            let idOld = parseInt(d.id_old);
+            let ac = d.db_action;
+            delete (d.db_action);
             delete (d.id_old);
-            if (d.constructor === Object && !isEmpty(d) && typeof d.db_action === "string") {
-                let ac = d.db_action;
-                delete (d.db_action);
+
+            if (d.constructor === Object && !isEmpty(d) && !isNaN(d.id)) {
                 switch (ac) {
                     case 'create':
-                        if(parseInt(d.id) !== parseInt(d.id_old))
-                            dbLocal.exeDelete(entity, parseInt(d.id_old));
                     case 'update':
                         let id = parseInt(d.id);
                         for (let col in d)
@@ -391,10 +399,10 @@ function moveSyncDataToDb(entity, dados) {
                         break
                 }
             }
-        }
+        });
         return Promise.all(movedAsync).then(() => {
             return dados
-        });
+        })
     })
 }
 
