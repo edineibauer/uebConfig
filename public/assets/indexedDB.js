@@ -366,6 +366,8 @@ function moveSyncDataToDb(entity, dados) {
                 delete (d.db_action);
                 switch (ac) {
                     case 'create':
+                        if(parseInt(d.id) !== parseInt(d.id_old))
+                            dbLocal.exeDelete(entity, parseInt(d.id_old));
                     case 'update':
                         let id = parseInt(d.id);
                         for (let col in d)
