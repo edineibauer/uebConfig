@@ -135,7 +135,7 @@ function updateCacheLogin() {
             return Promise.all(creates)
         })
     }).then(() => {
-        window.location.reload()
+        window.location.reload(!0)
     })
 }
 
@@ -247,7 +247,7 @@ function updateCache() {
                 };
                 xhttp.send("lib=config&file=update")
             }
-            window.location.reload()
+            window.location.reload(!0)
         })
     })
 }
