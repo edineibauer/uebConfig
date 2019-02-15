@@ -24,7 +24,7 @@ if (!empty($url)) {
                 $data['error'] = "";
             }
 
-            if(preg_match('/^http/i', $data['data']))
+            if(is_string($data['data']) && preg_match('/^http/i', $data['data']))
                 $data = ["response" => 3, "error" => "", "data" => $data['data']];
 
         } catch (Exception $e) {

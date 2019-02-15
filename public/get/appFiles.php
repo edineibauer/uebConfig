@@ -96,7 +96,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
         foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
             //se for arquivo dentro da pasta
             if (strpos($iten, ".")) {
-                if ($item === "view" && !in_array(HOME . "assetsPublic/view/{$iten}", $data['data']['assets'])) {
+                if ($item === "view") {
                     $ext = ucfirst(pathinfo($iten, PATHINFO_EXTENSION));
                     $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}";
                 } elseif ($item === "fonts" && !in_array(HOME . "assetsPublic/fonts/{$iten}", $data['data']['fonts'])) {
