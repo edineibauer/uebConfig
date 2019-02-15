@@ -1,1 +1,211 @@
-body.pg-loading{overflow:hidden}.spinner{margin:50px auto 0;width:100px;text-align:center}.spinner>div{width:18px;height:18px;margin:0 7px;background-color:#333;border-radius:100%;display:inline-block;-webkit-animation:sk-bouncedelay 1.4s infinite ease-in-out both;animation:sk-bouncedelay 1.4s infinite ease-in-out both}.spinner .bounce1{-webkit-animation-delay:-0.32s;animation-delay:-0.32s}.spinner .bounce2{-webkit-animation-delay:-0.16s;animation-delay:-0.16s}@-webkit-keyframes sk-bouncedelay{0%,80%,100%{-webkit-transform:scale(0)}40%{-webkit-transform:scale(1)}}@keyframes sk-bouncedelay{0%,80%,100%{-webkit-transform:scale(0);transform:scale(0)}40%{-webkit-transform:scale(1);transform:scale(1)}}.pg-loading-screen{position:fixed;bottom:0;left:0;right:0;top:0;z-index:1000000;opacity:1;background-color:#FFF;-webkit-transition:background-color 0.4s ease-in-out 0s;-moz-transition:background-color 0.4s ease-in-out 0s;-ms-transition:background-color 0.4s ease-in-out 0s;-o-transition:background-color 0.4s ease-in-out 0s;transition:background-color 0.4s ease-in-out 0s}.pg-loading-screen.pg-loaded{opacity:0;-webkit-animation:pgAnimLoaded 0.5s cubic-bezier(.7,0,.3,1) both;-moz-animation:pgAnimLoaded 0.5s cubic-bezier(.7,0,.3,1) both;-ms-animation:pgAnimLoaded 0.5s cubic-bezier(.7,0,.3,1) both;-o-animation:pgAnimLoaded 0.5s cubic-bezier(.7,0,.3,1) both;animation:pgAnimLoaded 0.5s cubic-bezier(.7,0,.3,1) both}.pg-loading-screen.pg-loading .pg-loading-logo-header,.pg-loading-screen.pg-loading .pg-loading-html{opacity:1}.pg-loading-screen.pg-loading .pg-loading-logo-header,.pg-loading-screen.pg-loading .pg-loading-html:not(.pg-loaded){-webkit-animation:pgAnimLoading 1s cubic-bezier(.7,0,.3,1) both;-moz-animation:pgAnimLoading 1s cubic-bezier(.7,0,.3,1) both;-ms-animation:pgAnimLoading 1s cubic-bezier(.7,0,.3,1) both;-o-animation:pgAnimLoading 1s cubic-bezier(.7,0,.3,1) both;animation:pgAnimLoading 1s cubic-bezier(.7,0,.3,1) both}.pg-loading-screen.pg-loading .pg-loading-html:not(.pg-loaded){-webkit-animation-delay:0.3s;-moz-animation-delay:0.3s;-ms-animation-delay:0.3s;-o-animation-delay:0.3s;animation-delay:0.3s}.pg-loading-screen .pg-loading-inner{height:100%;width:100%;margin:0;padding:0;position:static}.pg-loading-screen .pg-loading-center-outer{width:100%;padding:0;display:table!important;height:100%;position:absolute;top:0;left:0;margin:0}.pg-loading-screen .pg-loading-center-middle{padding:0;vertical-align:middle;display:table-cell!important;margin:0;text-align:center}.pg-loading-screen .pg-loading-logo-header,.pg-loading-screen .pg-loading-html{width:100%;opacity:0}.pg-loading-screen .pg-loading-logo-header{text-align:center}.pg-loading-screen .pg-loading-logo-header img{display:inline-block!important}.pg-loading-screen .pg-loading-html{margin-top:40px}.pg-loading-screen .pg-loading-html.pg-loaded{-webkit-transition:opacity 0.5s cubic-bezier(.7,0,.3,1);-moz-transition:opacity 0.5s cubic-bezier(.7,0,.3,1);-ms-transition:opacity 0.5s cubic-bezier(.7,0,.3,1);-o-transition:opacity 0.5s cubic-bezier(.7,0,.3,1);transition:opacity 0.5s cubic-bezier(.7,0,.3,1)}.pg-loading-screen .pg-loading-html.pg-loaded.pg-removing{opacity:0}.pg-loading-screen .pg-loading-html.pg-loaded.pg-loading{opacity:1}@-webkit-keyframes pgAnimLoading{from{opacity:0}}@-moz-keyframes pgAnimLoading{from{opacity:0}}@-o-keyframes pgAnimLoading{from{opacity:0}}@-ms-keyframes pgAnimLoading{from{opacity:0}}@keyframes pgAnimLoading{from{opacity:0}}@-webkit-keyframes pgAnimLoaded{from{opacity:1}}@-moz-keyframes pgAnimLoaded{from{opacity:1}}@-o-keyframes pgAnimLoaded{from{opacity:1}}@-ms-keyframes pgAnimLoaded{from{opacity:1}}@keyframes pgAnimLoaded{from{opacity:1}}
+body.pg-loading {
+    overflow: hidden
+}
+
+.spinner {
+    margin: 50px auto 0;
+    width: 100px;
+    text-align: center
+}
+
+.spinner > div {
+    width: 18px;
+    height: 18px;
+    margin: 0 7px;
+    background-color: #333;
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both
+}
+
+.spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s
+}
+
+.spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s
+}
+
+@-webkit-keyframes sk-bouncedelay {
+    0%, 80%, 100% {
+        -webkit-transform: scale(0)
+    }
+    40% {
+        -webkit-transform: scale(1)
+    }
+}
+
+@keyframes sk-bouncedelay {
+    0%, 80%, 100% {
+        -webkit-transform: scale(0);
+        transform: scale(0)
+    }
+    40% {
+        -webkit-transform: scale(1);
+        transform: scale(1)
+    }
+}
+
+.pg-loading-screen {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 1000000;
+    opacity: 1;
+    background-color: #FFF;
+    -webkit-transition: background-color 0.4s ease-in-out 0s;
+    -moz-transition: background-color 0.4s ease-in-out 0s;
+    -ms-transition: background-color 0.4s ease-in-out 0s;
+    -o-transition: background-color 0.4s ease-in-out 0s;
+    transition: background-color 0.4s ease-in-out 0s
+}
+
+.pg-loading-screen.pg-loaded {
+    opacity: 0;
+    -webkit-animation: pgAnimLoaded 0.5s cubic-bezier(.7, 0, .3, 1) both;
+    -moz-animation: pgAnimLoaded 0.5s cubic-bezier(.7, 0, .3, 1) both;
+    -ms-animation: pgAnimLoaded 0.5s cubic-bezier(.7, 0, .3, 1) both;
+    -o-animation: pgAnimLoaded 0.5s cubic-bezier(.7, 0, .3, 1) both;
+    animation: pgAnimLoaded 0.5s cubic-bezier(.7, 0, .3, 1) both
+}
+
+.pg-loading-screen.pg-loading .pg-loading-logo-header, .pg-loading-screen.pg-loading .pg-loading-html {
+    opacity: 1
+}
+
+.pg-loading-screen.pg-loading .pg-loading-logo-header, .pg-loading-screen.pg-loading .pg-loading-html:not(.pg-loaded) {
+    -webkit-animation: pgAnimLoading 1s cubic-bezier(.7, 0, .3, 1) both;
+    -moz-animation: pgAnimLoading 1s cubic-bezier(.7, 0, .3, 1) both;
+    -ms-animation: pgAnimLoading 1s cubic-bezier(.7, 0, .3, 1) both;
+    -o-animation: pgAnimLoading 1s cubic-bezier(.7, 0, .3, 1) both;
+    animation: pgAnimLoading 1s cubic-bezier(.7, 0, .3, 1) both
+}
+
+.pg-loading-screen.pg-loading .pg-loading-html:not(.pg-loaded) {
+    -webkit-animation-delay: 0.3s;
+    -moz-animation-delay: 0.3s;
+    -ms-animation-delay: 0.3s;
+    -o-animation-delay: 0.3s;
+    animation-delay: 0.3s
+}
+
+.pg-loading-screen .pg-loading-inner {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: static
+}
+
+.pg-loading-screen .pg-loading-center-outer {
+    width: 100%;
+    padding: 0;
+    display: table !important;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0
+}
+
+.pg-loading-screen .pg-loading-center-middle {
+    padding: 0;
+    vertical-align: middle;
+    display: table-cell !important;
+    margin: 0;
+    text-align: center
+}
+
+.pg-loading-screen .pg-loading-logo-header, .pg-loading-screen .pg-loading-html {
+    width: 100%;
+    opacity: 0
+}
+
+.pg-loading-screen .pg-loading-logo-header {
+    text-align: center
+}
+
+.pg-loading-screen .pg-loading-logo-header img {
+    display: inline-block !important
+}
+
+.pg-loading-screen .pg-loading-html.pg-loaded {
+    -webkit-transition: opacity 0.5s cubic-bezier(.7, 0, .3, 1);
+    -moz-transition: opacity 0.5s cubic-bezier(.7, 0, .3, 1);
+    -ms-transition: opacity 0.5s cubic-bezier(.7, 0, .3, 1);
+    -o-transition: opacity 0.5s cubic-bezier(.7, 0, .3, 1);
+    transition: opacity 0.5s cubic-bezier(.7, 0, .3, 1)
+}
+
+.pg-loading-screen .pg-loading-html.pg-loaded.pg-removing {
+    opacity: 0
+}
+
+.pg-loading-screen .pg-loading-html.pg-loaded.pg-loading {
+    opacity: 1
+}
+
+@-webkit-keyframes pgAnimLoading {
+    from {
+        opacity: 0
+    }
+}
+
+@-moz-keyframes pgAnimLoading {
+    from {
+        opacity: 0
+    }
+}
+
+@-o-keyframes pgAnimLoading {
+    from {
+        opacity: 0
+    }
+}
+
+@-ms-keyframes pgAnimLoading {
+    from {
+        opacity: 0
+    }
+}
+
+@keyframes pgAnimLoading {
+    from {
+        opacity: 0
+    }
+}
+
+@-webkit-keyframes pgAnimLoaded {
+    from {
+        opacity: 1
+    }
+}
+
+@-moz-keyframes pgAnimLoaded {
+    from {
+        opacity: 1
+    }
+}
+
+@-o-keyframes pgAnimLoaded {
+    from {
+        opacity: 1
+    }
+}
+
+@-ms-keyframes pgAnimLoaded {
+    from {
+        opacity: 1
+    }
+}
+
+@keyframes pgAnimLoaded {
+    from {
+        opacity: 1
+    }
+}
