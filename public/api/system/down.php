@@ -20,8 +20,10 @@ try {
             }
         }
 
+        unlink(PATH_HOME . "composer.json");
+
         //Salva composer
-        $f = fopen(PATH_HOME . "composer.json", "w");
+        $f = fopen(PATH_HOME . "composer.json", "w+");
         fwrite($f, json_encode($comp));
         fclose($f);
     }

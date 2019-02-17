@@ -19,8 +19,10 @@ if(!defined("KEY") && !empty($key)) {
         }
     }
 
+    unlink(PATH_HOME . "composer.json");
+
     //salva composer.json
-    $f = fopen(PATH_HOME . "composer.json", "w");
+    $f = fopen(PATH_HOME . "composer.json", "w+");
     fwrite($f, str_replace('\/', '/', json_encode($comp)));
     fclose($f);
 

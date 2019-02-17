@@ -8,7 +8,9 @@ if(file_exists(PATH_HOME . "composer.json")) {
         $comp = json_decode(file_get_contents(PATH_HOME . "composer.json"), true);
         $comp['require'][$lib] = $version;
 
-        $f = fopen(PATH_HOME . "composer.json", "w");
+        unlink(PATH_HOME . "composer.json");
+
+        $f = fopen(PATH_HOME . "composer.json", "w+");
         fwrite($f, str_replace("\/", "/", json_encode($comp)));
         fclose($f);
 
