@@ -11,7 +11,7 @@ if(!defined("KEY") && !empty($key)) {
     $teste = json_decode(file_get_contents(PATH_HOME . "composer.lock"), true);
     $libs = [];
     foreach ($teste['packages'] as $package) {
-        if (preg_match('/^conn\//i', $package['name'])){
+        if (preg_match('/^ueb\//i', $package['name'])){
             $libs[] = ["versao" => $package['version'], "nome" => $package['name']];
 
             //adiciona dependencias para o composer.json

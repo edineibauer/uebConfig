@@ -14,7 +14,7 @@ try {
     if(file_exists(PATH_HOME . "composer.json")) {
         $comp = json_decode(file_get_contents(PATH_HOME . "composer.json"), true);
         foreach ($comp['require'] as $lib => $version) {
-            if(preg_match('/^conn\//i', $lib)) {
+            if(preg_match('/^ueb\//i', $lib)) {
                 $v = explode('.', $version);
                 $comp['require'][$lib] = $v[0] . '.*';
             }
