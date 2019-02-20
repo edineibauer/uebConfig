@@ -705,6 +705,9 @@ class UpdateSystem
         return $data;
     }
 
+    /**
+     * Sincroniza entidades e banco
+     */
     private function updateDependenciesEntity()
     {
         Helper::createFolderIfNoExist(PATH_HOME . "entity");
@@ -712,6 +715,7 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "entity/cache/info");
 
         //importa entidades ausentes para o sistema
+        $sql = new SqlCommand();
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
             if (file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/cache")) {
                 foreach (Helper::listFolder(PATH_HOME . VENDOR . "{$lib}/public/entity/cache") as $file) {
@@ -734,6 +738,11 @@ class UpdateSystem
                         }
 
                         new EntityCreateEntityDatabase(str_replace('.json', '', $file), []);
+                    } else {
+                        $sql->exeCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'TheSchema' AND TABLE_NAME = '" . PRE . str_replace('.json', '', $file) . "'");
+                        if(!$sql->getResult())
+                            new EntityCreateEntityDatabase(str_replace('.json', '', $file), []);
+
                     }
                 }
             }
