@@ -837,17 +837,18 @@ class UpdateSystem
     private function getFontIcon(string $item, string $tipo): string
     {
         $data = "";
-        $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
-        if (Helper::isOnline($urlOnline)) {
-            $data = file_get_contents($urlOnline);
+        try {
+            $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
+            $data = @file_get_contents($urlOnline);
             foreach (explode('url(', $data) as $i => $u) {
                 if ($i > 0) {
                     $url = explode(')', $u)[0];
+                    $urlData = @file_get_contents($url);
                     if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
-                        if (Helper::isOnline($url)) {
+                        if ($urlData) {
                             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/fonts");
                             $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
-                            fwrite($f, file_get_contents($url));
+                            fwrite($f, $urlData);
                             fclose($f);
                             $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
                         } else {
@@ -860,7 +861,9 @@ class UpdateSystem
                     }
                 }
             }
+        } catch (Exception $e) {
         }
+
         return $data;
     }
 }
