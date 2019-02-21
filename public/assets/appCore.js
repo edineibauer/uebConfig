@@ -353,7 +353,7 @@ function setSidebarInfo() {
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
-            return cache.match(HOME + "assetsPublic/appCore.min.js").then(response => {
+            return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
                 if (!response)
                     return updateCache()
             })
