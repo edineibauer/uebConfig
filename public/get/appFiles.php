@@ -88,7 +88,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
 
         //apenas arquivos dentro de assetsPublic
         if (strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
-            $data['data']['core'][] = HOME . "assetsPublic/{$item}";
+            $data['data']['core'][] = HOME . "assetsPublic/{$item}?v=" . VERSION;
 
     } else {
 
@@ -98,22 +98,21 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
             if (strpos($iten, ".")) {
                 if ($item === "view") {
                     $ext = ucfirst(pathinfo($iten, PATHINFO_EXTENSION));
-                    $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}";
+                    $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}?v=" . VERSION;
                 } elseif ($item === "fonts" && !in_array(HOME . "assetsPublic/fonts/{$iten}", $data['data']['fonts'])) {
-                    $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}";
+                    $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}?v=" . VERSION;
                 } elseif ($item === "img" && !in_array(HOME . "assetsPublic/img/{$iten}", $data['data']['images'])) {
-                    $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}";
+                    $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}?v=" . VERSION;
                 }
             } elseif ($item === "react" && is_dir(PATH_HOME . "assetsPublic/react/{$iten}")) {
                 foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}") as $react) {
                     if (pathinfo($react, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/{$react}", $data['data']['react'])) {
-                        $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}/{$react}";
+                        $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}/{$react}?v=" . VERSION;
                     } elseif ($react === "online") {
                         foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}/online") as $reactOnline) {
                             if (pathinfo($reactOnline, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}", $data['data']['reactOnline']))
-                                $data['data']['reactOnline'][] = HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}";
+                                $data['data']['reactOnline'][] = HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}?v=" . VERSION;
                         }
-
                     }
                 }
             }

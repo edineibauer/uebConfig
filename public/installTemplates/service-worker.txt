@@ -18,7 +18,7 @@ self.addEventListener('fetch', function (e) {
         let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
+                return cache.match(url + "?v=" + VERSION).then(response => {
                     return response || fetch(e.request).then(networkResponse => {
 
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
