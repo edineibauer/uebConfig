@@ -388,7 +388,7 @@ function moveSyncDataToDb(entity, dados) {
                         }
                         break;
                     case 'delete':
-                        if (d.delete.constructor === Array) {
+                        if (typeof d.delete !== "undefined" && d.delete.constructor === Array) {
                             for (let k in d.delete) {
                                 if (!isNaN(d.delete[k]) && d.delete[k] > 0)
                                     movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
