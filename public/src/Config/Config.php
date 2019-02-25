@@ -87,9 +87,11 @@ class Config
             elseif (!defined("PATH_HOME"))
                 $url = "../../../" . $url;
 
-            $fp = fopen($url, "w+");
-            fwrite($fp, $content);
-            fclose($fp);
+            $fp = fopen($url, "w");
+            if($fp) {
+                fwrite($fp, $content);
+                fclose($fp);
+            }
 
         } catch (Exception $e) {
 
