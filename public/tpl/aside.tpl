@@ -3,13 +3,11 @@
         <div class="left" id="core-sidebar-imagem"></div>
         <div id="core-sidebar-perfil-name">
             <div class="core-class-container" id="core-header-name">
-                <strong class="padding-right left no-select" id="core-sidebar-nome"></strong>
+                <strong id="core-sidebar-nome"></strong>
 
-                <span id="core-sidebar-edit"
-                      class="hide left pointer padding-small color-gray-light opacity hover-opacity-off hover-shadow radius"
-                      style="margin-top: -10px;">
-                        <i class="material-icons left font-large">edit</i>
-                    </span>
+                <span id="core-sidebar-edit">
+                    <i class="material-icons">edit</i>
+                </span>
             </div>
         </div>
     </div>
@@ -20,8 +18,9 @@
     <ul id="core-sidebar-menu" class="core-class-container"></ul>
 </div>
 
-<div class="core-class-container" style="position: absolute; bottom:5px;left:10px">
-    <div class="col">
-        <button onclick="updateCache();" class="padding-tiny theme font-small upper"><i class="material-icons left">refresh</i><span class="left padding-small">Atualizar App</span></button>
-    </div>
+<div style="position: absolute; bottom:5px;left:10px">
+    <button onclick="updateCache();" class="theme theme-border-l" id="update-site-btn">
+        <i class="material-icons">refresh</i>
+        <span>Atualizar App</span>
+    </button>
 </div>
