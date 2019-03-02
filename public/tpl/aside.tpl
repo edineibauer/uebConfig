@@ -19,8 +19,8 @@
 </div>
 
 <div style="position: absolute; bottom:5px;left:10px">
-    <button onclick="updateCache();" class="theme theme-border-l" id="update-site-btn">
+    <div onclick="updateCache();" class="theme theme-border-l" id="update-site-btn">
         <i class="material-icons">refresh</i>
         <span>Atualizar App</span>
-    </button>
+    </div>
 </div>
