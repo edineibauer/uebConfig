@@ -458,8 +458,6 @@ function getDefaultValue(meta, value, dicionarios) {
                 valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
                 break;
             case 'valor':
-                if (typeof value === "string")
-                    value = parseFloat(value.replaceAll('\\.', '').replace(',', '.'));
             case 'float':
                 value = (typeof value === "string" ? value.replace(',', '.') : value);
                 valor = value !== "" && !isNaN(value) ? parseFloat(value) : null;
