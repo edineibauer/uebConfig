@@ -72,10 +72,10 @@ function clearCacheLogin() {
         let clear = [];
         for (var k in dicionarios) {
             clear.push(dbLocal.exeRead("sync_" + k).then(d => {
-                if(d.length) {
+                if (d.length) {
                     return dbRemote.sync(k).then(() => {
                         return dbLocal.clear("sync_" + k)
-                    });
+                    })
                 } else {
                     return dbLocal.clear("sync_" + k)
                 }
@@ -86,7 +86,8 @@ function clearCacheLogin() {
         clear.push(dbLocal.clear('__dicionario'));
         clear.push(dbLocal.clear('__info'));
         clear.push(dbLocal.clear('__menu'));
-        return Promise.all(clear);
+        clear.push(dbLocal.clear('__dashboard'));
+        return Promise.all(clear)
     }).then(() => {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
@@ -128,10 +129,12 @@ function updateCacheLogin() {
         gets.push(get("dicionarios"));
         gets.push(get("info"));
         gets.push(get("menu"));
+        gets.push(get("dashboard"));
         return Promise.all(gets).then(r => {
             creates.push(dbLocal.exeCreate('__dicionario', r[0]));
             creates.push(dbLocal.exeCreate('__info', r[1]));
             creates.push(dbLocal.exeCreate('__menu', r[2]));
+            creates.push(dbLocal.exeCreate('__dashboard', r[3]));
             return Promise.all(creates)
         })
     }).then(() => {
@@ -157,6 +160,7 @@ function clearCache() {
         clear.push(dbLocal.clear('__template'));
         clear.push(dbLocal.clear('__user'));
         clear.push(dbLocal.clear('__menu'));
+        clear.push(dbLocal.clear('__dashboard'));
         return Promise.all(clear)
     }).then(() => {
         return caches.keys().then(cacheNames => {
@@ -219,6 +223,7 @@ function updateCache() {
             gets.push(get("templates"));
             gets.push(get("user"));
             gets.push(get("menu"));
+            gets.push(get("dashboard"));
             gets.push(get("reactOnline"));
             return Promise.all(gets).then(r => {
                 creates.push(dbLocal.exeCreate('__react', r[0]));
@@ -230,7 +235,8 @@ function updateCache() {
                 creates.push(dbLocal.exeCreate('__template', r[6]));
                 creates.push(dbLocal.exeCreate('__user', r[7]));
                 creates.push(dbLocal.exeCreate('__menu', r[8]));
-                creates.push(dbLocal.exeCreate('__reactOnline', r[9]));
+                creates.push(dbLocal.exeCreate('__dashboard', r[9]));
+                creates.push(dbLocal.exeCreate('__reactOnline', r[10]));
                 return Promise.all(creates)
             })
         }).then(() => {
@@ -254,10 +260,8 @@ function updateCache() {
 
 function menuHeader() {
     dbLocal.exeRead("__template", 1).then(tpl => {
-
-        if(typeof tpl['menu-header-href'] === "undefined")
+        if (typeof tpl['menu-header-href'] === "undefined")
             updateCache();
-
         let menu = [];
         if (getCookie("token") === "0") {
             menu.push({href: HOME + 'login', text: 'login'})
