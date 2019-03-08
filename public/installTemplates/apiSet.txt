@@ -4,12 +4,13 @@ require_once './_config/config.php';
 $file = filter_input(INPUT_POST, 'file', FILTER_DEFAULT);
 $lib = filter_input(INPUT_POST, 'lib', FILTER_DEFAULT);
 $data = ["response" => 1, "error" => "", "data" => ""];
+$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
 
 if (!empty($file) && !empty($lib)) {
 
     $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $file . ".php";
-    if (!file_exists($include) && !empty($_SESSION['userlogin']['setor']))
-        $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $_SESSION['userlogin']['setor'] . "/" . $file . ".php";
+    if (!file_exists($include))
+        $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $setor . "/" . $file . ".php";
 
     $result = "";
     if (file_exists($include)) {

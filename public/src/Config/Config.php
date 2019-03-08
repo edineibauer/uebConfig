@@ -12,19 +12,7 @@ class Config
      */
     public static function getViewPermissoes(): array
     {
-        $rotas = json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
-
-        /* Por hora, não cria cache de conteúdo do painel administrativo */
-        /*if(!empty($_SESSION['userlogin']) && $_SESSION['userlogin']['setor'] > 0) {
-            $rotas[] = "dashboard";
-
-            if($_SESSION['userlogin']['setor'] == 1){
-                $rotas[] = "dev-ui";
-                $rotas[] = "entity-ui";
-            }
-        }*/
-
-        return $rotas;
+        return json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
     }
 
     /**
@@ -118,9 +106,9 @@ class Config
      */
     public static function getMenuNotAllowAll(): array
     {
-        $setor = empty($_SESSION['userlogin']['setor']) ? 0 : $_SESSION['userlogin']['setor'];
+        $setor = empty($_SESSION['userlogin']) ? "0" : (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "");
         $path = "public/dash/-menu.json";
-        $pathSession = "public/dash/{$setor}/-menu.json";
+        $pathSession = !empty($setor) ? "public/dash/{$setor}/-menu.json" : "";
         $file = [];
 
         //public base
@@ -128,7 +116,7 @@ class Config
             $file = self::addNotShow(PATH_HOME . $path, $file);
 
         //public session
-        if (file_exists(PATH_HOME . $pathSession))
+        if (!empty($pathSession) && file_exists(PATH_HOME . $pathSession))
             $file = self::addNotShow(PATH_HOME . $pathSession, $file);
 
         //para cada biblioteca
@@ -140,7 +128,7 @@ class Config
                 $file = self::addNotShow($base . $path, $file, $base);
 
             //lib session
-            if (file_exists($base . $pathSession))
+            if (!empty($pathSession) && file_exists($base . $pathSession))
                 $file = self::addNotShow($base . $pathSession, $file, $base);
         }
 
@@ -153,7 +141,7 @@ class Config
      */
     public static function getMenuNotAllow(): array
     {
-        $setor = empty($_SESSION['userlogin']['setor']) ? 0 : $_SESSION['userlogin']['setor'];
+        $setor = empty($_SESSION['userlogin']) ? "0" : (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "");
         return self::getMenuNotAllowAll()[$setor] ?? [];
     }
 
@@ -248,10 +236,12 @@ class Config
      */
     public static function getEntityNotAllow(): array
     {
+        return [];
+
         $file = [];
         for($i = 0; $i < 21; $i++) {
             if(!isset($file[$i]))
-                $file[$i] = [];
+            $file[$i] = [];
         }
 
         $file = self::entityNotAllow(PATH_HOME, $file);

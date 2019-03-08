@@ -300,12 +300,9 @@ function setCookieAnonimo() {
     return setCookieUser({
         token: 0,
         id: 0,
-        nome: 'Desconhecido',
-        nome_usuario: 'desconhecido',
-        email: '',
+        nome: 'Anônimo',
         imagem: '',
         setor: 0,
-        nivel: 1
     })
 }
 
@@ -313,11 +310,8 @@ function setCookieUser(user) {
     setCookie("token", user.token);
     setCookie("id", user.id);
     setCookie("nome", user.nome);
-    setCookie("nome_usuario", user.nome_usuario || slug(getCookie("nome")));
-    setCookie("email", user.email);
     setCookie("imagem", user.imagem);
     setCookie("setor", user.setor);
-    setCookie("nivel", user.nivel);
     return updateCacheLogin()
 }
 

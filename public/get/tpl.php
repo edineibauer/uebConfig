@@ -1,14 +1,17 @@
 <?php
 $data['data'] = [];
+
+$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+
 if (!empty($link->getVariaveis())) {
     foreach ($link->getVariaveis() as $variavel) {
         $data['data'][$variavel] = "";
-        if (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . "public/tpl/{$_SESSION['userlogin']['setor']}")) {
-            foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl/{$_SESSION['userlogin']['setor']}") as $tpl) {
+        if (file_exists(PATH_HOME . "public/tpl/{$setor}")) {
+            foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl/{$setor}") as $tpl) {
                 $ext = pathinfo($tpl, PATHINFO_EXTENSION);
                 $file = pathinfo($tpl, PATHINFO_FILENAME);
                 if ($ext === "mst" && $file === $variavel) {
-                    $data['data'][$variavel] = file_get_contents(PATH_HOME . "public/tpl/{$_SESSION['userlogin']['setor']}/{$tpl}");
+                    $data['data'][$variavel] = file_get_contents(PATH_HOME . "public/tpl/{$setor}/{$tpl}");
                     break;
                 }
             }
@@ -27,12 +30,12 @@ if (!empty($link->getVariaveis())) {
         if (empty($data['data'][$variavel])) {
             foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
                 if (empty($data['data'][$variavel])) {
-                    if (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$_SESSION['userlogin']['setor']}")) {
-                        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/tpl/{$_SESSION['userlogin']['setor']}") as $tpl) {
+                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}")) {
+                        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}") as $tpl) {
                             $ext = pathinfo($tpl, PATHINFO_EXTENSION);
                             $file = pathinfo($tpl, PATHINFO_FILENAME);
                             if ($ext === "mst" && $file === $variavel) {
-                                $data['data'][$variavel] = file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$_SESSION['userlogin']['setor']}/{$tpl}");
+                                $data['data'][$variavel] = file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$tpl}");
                                 break;
                             }
                         }

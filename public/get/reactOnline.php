@@ -8,7 +8,7 @@
 use \Helpers\Helper;
 
 $data['data'] = [];
-$setor = $_SESSION['userlogin']['setor'] ?? 0;
+$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
 
 Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/react/online");
 $list = [];

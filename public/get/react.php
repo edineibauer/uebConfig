@@ -8,7 +8,7 @@
 use \Helpers\Helper;
 
 $data['data'] = [];
-$setor = $_SESSION['userlogin']['setor'] ?? 0;
+$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
 
 Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/react");
 $list = [];
@@ -34,6 +34,7 @@ function addReact(string $path, array $list, int $setor, string $entity): array
                 $m = new MatthiasMullie\Minify\JS(file_get_contents("{$path}/{$reactFile}"));
                 file_put_contents(PATH_HOME . "assetsPublic/react/{$setor}/{$entity}/{$fileName}.min.js", $m->minify());
             }
+
             $list[$entity][$fileName] = file_get_contents(PATH_HOME . "assetsPublic/react/{$setor}/{$entity}/{$fileName}.min.js");
         }
     }

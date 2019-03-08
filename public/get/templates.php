@@ -10,13 +10,12 @@ function getTemplates(string $base)
             $list[str_replace('.mst', '', $tpl)] = file_get_contents(PATH_HOME . $base . $tplPublic . $tpl);
     }
 
-    if (!empty($_SESSION['userlogin'])) {
-        $tplPublic = "public/tpl/{$_SESSION['userlogin']['setor']}/";
+    $setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+        $tplPublic = "public/tpl/{$setor}/";
         foreach (\Helpers\Helper::listFolder(PATH_HOME . $base . $tplPublic) as $tpl) {
             if(preg_match('/\.mst$/i', $tpl))
                 $list[str_replace('.mst', '', $tpl)] = file_get_contents(PATH_HOME . $base . $tplPublic . $tpl);
         }
-    }
 
     return $list;
 }
