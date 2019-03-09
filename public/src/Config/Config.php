@@ -106,7 +106,7 @@ class Config
      */
     public static function getMenuNotAllowAll(): array
     {
-        $setor = empty($_SESSION['userlogin']) ? "0" : (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "");
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
         $path = "public/dash/-menu.json";
         $pathSession = !empty($setor) ? "public/dash/{$setor}/-menu.json" : "";
         $file = [];
@@ -141,7 +141,7 @@ class Config
      */
     public static function getMenuNotAllow(): array
     {
-        $setor = empty($_SESSION['userlogin']) ? "0" : (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "");
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
         return self::getMenuNotAllowAll()[$setor] ?? [];
     }
 
@@ -199,15 +199,19 @@ class Config
             $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), true);
 
             //convert true string para true boolean
-            foreach ($file as $setor => $datum) {
-                if(!empty($datum)) {
-                    foreach ($datum as $entity => $dados) {
-                        if(!empty($dados)) {
-                            foreach ($dados as $action => $value)
-                                $file[$setor][$entity][$action] = $value === "true";
+            if(is_array($file)) {
+                foreach ($file as $setor => $datum) {
+                    if (!empty($datum)) {
+                        foreach ($datum as $entity => $dados) {
+                            if (!empty($dados)) {
+                                foreach ($dados as $action => $value)
+                                    $file[$setor][$entity][$action] = $value === "true";
+                            }
                         }
                     }
                 }
+            } else {
+                $file = [];
             }
         }
 

@@ -1,5 +1,5 @@
 <?php
-$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 $entityNot = \Config\Config::getEntityNotAllow()[$setor];
 
 //convert dicionário para referenciar colunas e não ids

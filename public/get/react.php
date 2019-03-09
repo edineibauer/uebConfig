@@ -8,7 +8,7 @@
 use \Helpers\Helper;
 
 $data['data'] = [];
-$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
 Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/react");
 $list = [];
@@ -16,11 +16,11 @@ $list = [];
 /**
  * @param string $path
  * @param array $list
- * @param int $setor
+ * @param $setor
  * @param string $entity
  * @return array
  */
-function addReact(string $path, array $list, int $setor, string $entity): array
+function addReact(string $path, array $list, $setor, string $entity): array
 {
     foreach (Helper::listFolder($path) as $reactFile) {
         $fileName = pathinfo($reactFile, PATHINFO_FILENAME);

@@ -10,7 +10,7 @@ function getTemplates(string $base)
             $list[str_replace('.mst', '', $tpl)] = file_get_contents(PATH_HOME . $base . $tplPublic . $tpl);
     }
 
-    $setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+    $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
         $tplPublic = "public/tpl/{$setor}/";
         foreach (\Helpers\Helper::listFolder(PATH_HOME . $base . $tplPublic) as $tpl) {
             if(preg_match('/\.mst$/i', $tpl))

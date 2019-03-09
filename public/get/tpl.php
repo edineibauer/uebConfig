@@ -1,7 +1,7 @@
 <?php
 $data['data'] = [];
 
-$setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor']['entity']) ? $_SESSION['userlogin']['setor']['entity'] : "admin") : 0;
+$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
 if (!empty($link->getVariaveis())) {
     foreach ($link->getVariaveis() as $variavel) {
