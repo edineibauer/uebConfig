@@ -39,6 +39,8 @@ if (!empty($url)) {
                 "js" => $link->getParam()['js'],
                 "meta" => $link->getParam()['meta'],
                 "font" => $link->getParam()['font'],
+                "setor" => $link->getParam()['setor'],
+                "!setor" => $link->getParam()['!setor'],
                 "content" => $data['data']
             ];
 
