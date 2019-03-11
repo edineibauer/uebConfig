@@ -738,11 +738,11 @@ class UpdateSystem
                             fclose($fp);
                         }
 
-                        new EntityCreateEntityDatabase(str_replace('.json', '', $file), []);
+                        new EntityCreateEntityDatabase(str_replace('.json', '', $file));
                     } else {
                         $sql->exeCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'TheSchema' AND TABLE_NAME = '" . PRE . str_replace('.json', '', $file) . "'");
                         if(!$sql->getResult())
-                            new EntityCreateEntityDatabase(str_replace('.json', '', $file), []);
+                            new EntityCreateEntityDatabase(str_replace('.json', '', $file));
 
                     }
                 }
