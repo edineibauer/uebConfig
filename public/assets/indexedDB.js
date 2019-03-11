@@ -2,71 +2,47 @@ const db = {
     exeRead(entity, key) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
             if (typeof hist[entity] === "undefined") {
-
-                //ainda não possui registros, baixa dados
                 return this.exeReadOnline(entity, key)
             } else {
-
-                //sincroniza segundo plano
                 if (AUTOSYNC)
                     dbRemote.syncDownload(entity);
-
                 return dbLocal.exeRead(entity, key).then(d => {
-                    if(d.length === 0){
+                    if (d.length === 0) {
                         delete (hist[entity]);
                         return dbLocal.exeCreate("__historic", hist).then(() => {
-                            return this.exeReadOnline(entity, key);
-                        });
+                            return this.exeReadOnline(entity, key)
+                        })
                     }
-                    return d;
-                });
+                    return d
+                })
             }
-        });
-    },
-    exeReadOnline(entity, key) {
-        return dbRemote.syncDownload(entity).then(() => {
-            return dbLocal.exeRead(entity, key);
         })
-    },
-    exeCreate(entity, dados) {
+    }, exeReadOnline(entity, key) {
+        return dbRemote.syncDownload(entity).then(() => {
+            return dbLocal.exeRead(entity, key)
+        })
+    }, exeCreate(entity, dados) {
         let idAction = getIdAction(entity, dados.id);
         let react = dbLocal.exeRead("__react");
-
         return Promise.all([idAction, react]).then(r => {
             dados.id = r[0][0];
             let action = r[0][1];
             react = r[1];
-
-            //create local
             return dbLocal.exeCreate(entity, dados).then(() => {
-
-                //react local
                 if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                    eval(react[0][entity][action]);
-
+                    eval(react[0][entity][action])
             }).then(() => {
-
                 dados.db_action = action;
-
-                //add sync [assync]
                 return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
-
-                    //sobe alterações
                     if (AUTOSYNC)
                         return dbRemote.syncPost(entity);
-
-                    return 1;
+                    return dados.id;
                 });
-
-                return dados.id;
             })
-        });
-
+        })
     }, exeDelete(entity, id) {
-
         return dbLocal.exeRead("__react").then(react => {
             let allDelete = [];
-
             if (id.constructor === Array) {
                 for (let k in id) {
                     if (!isNaN(id[k]) && id[k] > 0)
@@ -75,25 +51,20 @@ const db = {
             } else if (!isNaN(id) && id > 0) {
                 allDelete.push(deleteDB(entity, parseInt(id), react))
             }
-
-            //após deletar todos os registros localmente, aplicar o react e criar o sync
             return Promise.all(allDelete).then(() => {
                 if (AUTOSYNC)
-                    dbRemote.syncPost(entity);
+                    dbRemote.syncPost(entity)
             })
         })
     }
 };
-
 const dbRemote = {
     sync(entity) {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 return dbRemote.syncDownload(entity).then(down => {
-
-                    //caso não tenha nada para baixar passa a resposta para o post
                     return dbRemote.syncPost(entity).then(d => {
-                        return down === 0 ? d : 1;
+                        return down === 0 ? d : 1
                     })
                 })
             } else {
@@ -102,12 +73,10 @@ const dbRemote = {
                 })
             }
         } else if (typeof entity === "undefined") {
-            return dbLocal.exeRead('__dicionario', 1).then(dicionarios => {
-                let allReads = [];
-                for (var e in dicionarios)
-                    allReads.push(dbRemote.sync(e));
-                return Promise.all(allReads)
-            })
+            let allReads = [];
+            for (var e in dicionarios)
+                allReads.push(dbRemote.sync(e));
+            return Promise.all(allReads)
         } else if (typeof entity === "object" && entity.constructor === Array) {
             let allReads = [];
             for (let k in entity) {
@@ -115,12 +84,9 @@ const dbRemote = {
             }
             return Promise.all(allReads)
         }
-
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
             return new Promise(function (resolve, reject) {
-
-                //busca dados online
                 $.ajax({
                     type: "POST",
                     url: HOME + 'set',
@@ -128,67 +94,48 @@ const dbRemote = {
                     success: function (data) {
                         if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0)
                             resolve(data.data);
-                        resolve(0);
+                        resolve(0)
                     },
-                    error: function() {
-                        resolve(0);
+                    error: function () {
+                        resolve(0)
                     },
                     dataType: "json",
                     async: !1
-                });
-
+                })
             }).then(response => {
-
-                //não tem atualizações
                 if (response === 0)
                     return 0;
-
-                //atualiza histórico de alterações
                 let historic = {};
                 historic[entity] = response.historic;
                 dbLocal.exeUpdate('__historic', historic, 1);
-
                 if (response.tipo === 1) {
-
-                    //fez o download da base toda, limpa base e cria todos os registros
                     return dbLocal.clear(entity).then(() => {
                         let cc = [];
                         if (response.data.length) {
-                            return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
-                                for (let k in response.data) {
-                                    if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
-                                        let id = parseInt(response.data[k].id);
-                                        for (let col in response.data[k])
-                                            response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col], dicionarios);
-                                        response.data[k].id = id;
-                                        cc.push(dbLocal.exeCreate(entity, response.data[k]));
-                                    }
+                            for (let k in response.data) {
+                                if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
+                                    let id = parseInt(response.data[k].id);
+                                    for (let col in response.data[k])
+                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col], dicionarios);
+                                    response.data[k].id = id;
+                                    cc.push(dbLocal.exeCreate(entity, response.data[k]));
                                 }
-                            });
+                            }
                         }
-                        return Promise.all(cc);
-                    });
+                        return Promise.all(cc)
+                    })
                 } else {
-
-                    //fez o download de algumas alterações
-                    return moveSyncDataToDb(entity, response.data);
+                    return moveSyncDataToDb(entity, response.data)
                 }
-
             }).then(response => {
-                return response === 0 ? 0 : 1;
+                return response === 0 ? 0 : 1
             })
-        });
-
+        })
     }, syncPost(entity) {
         return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
-
-            //se não tiver sync, retorna 0
             if (!dadosSync.length)
                 return 0;
-
             return new Promise(function (resolve, reject) {
-
-                //sobe alterações
                 $.ajax({
                     type: "POST",
                     url: HOME + 'set',
@@ -198,69 +145,47 @@ const dbRemote = {
                             resolve(data.data);
                         resolve(0)
                     },
-                    error: function() {
-                        resolve(0);
+                    error: function () {
+                        resolve(0)
                     },
                     dataType: "json",
                     async: !1
-                });
-
+                })
             }).then(response => {
-
-                //erro no post request, retorna 0
                 if (response === 0)
                     return 0;
-
-                //erro no servidor, informa
                 if (response.error > 0)
                     toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
-
-                //exclui os sync processados
                 dbLocal.clear('sync_' + entity);
-
-                //atualiza histórico
                 let historicData = {};
                 historicData[entity] = response.historic;
                 dbLocal.exeUpdate("__historic", historicData, 1);
-
-                //altera os dados locais com as atualizações
                 let syncData = moveSyncDataToDb(entity, response.data);
-
-                //busca reacts online
                 let react = dbLocal.exeRead("__reactOnline");
-
                 return Promise.all([syncData, react]).then(r => {
                     syncData = r[0];
                     react = r[1];
-
-                    //para cada sync alterado
                     $.each(syncData, function (i, syncD) {
                         let dados = Object.assign({}, syncD);
-
-                        //react
                         if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                            eval(react[0][entity][dados.db_action]);
+                            eval(react[0][entity][dados.db_action])
                     });
-
-                    return syncData;
+                    return syncData
                 });
-
-                return 1;
+                return 1
             })
         })
     }
 };
-
 var conn = {};
 const dbLocal = {
     conn(entity) {
         if (typeof conn[entity] === "undefined") {
             conn[entity] = idb.open(entity, 1, upgradeDB => {
                 upgradeDB.createObjectStore(entity)
-            });
+            })
         }
-        return conn[entity];
-
+        return conn[entity]
     }, exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             if (typeof key !== "undefined") {
@@ -331,106 +256,79 @@ const dbLocal = {
     }
 }
 
-/**
- * Obtém o id e a action de um novo registro ou uma edição de registro
- * @param entity
- * @param id
- * @returns {PromiseLike<any[] | never> | Promise<any[] | never> | *}
- */
 function getIdAction(entity, id) {
     if (isNaN(id) || id < 1) {
         return dbLocal.newKey(entity).then(key => {
-            return [key, 'create'];
+            return [key, 'create']
         })
     } else {
         return dbLocal.exeRead('sync_' + entity, id).then(d => {
-            return [parseInt(id), ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === 'update' ? 'update' : 'create')];
+            return [parseInt(id), ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === 'update' ? 'update' : 'create')]
         })
     }
 }
 
 function moveSyncDataToDb(entity, dados) {
-
-    //convert Object to Array
-    if(dados.constructor === Object) {
+    if (dados.constructor === Object) {
         let dd = dados;
         dados = [];
-        dados.push(dd);
+        dados.push(dd)
     }
-
-    //Se não for Array ou estiver vazio, então retorna
     if (typeof dados === "undefined" || dados.constructor !== Array || !dados.length) {
         return new Promise((r, f) => {
             return r([])
         })
     }
-    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
-        let movedAsync = [];
-        $.each(dados, function(i, dado) {
-            let d = Object.assign({}, dado);
-            let idOld = parseInt(d.id_old);
-            let ac = d.db_action;
-            delete (d.db_action);
-            delete (d.id_old);
-
-            if (d.constructor === Object && !isEmpty(d) && !isNaN(d.id)) {
-                switch (ac) {
-                    case 'create':
-                    case 'update':
-                        let id = parseInt(d.id);
-                        for (let col in d)
-                            d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
-                        d.id = id;
-                        if (typeof d.ownerpub !== "undefined" && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
-                            movedAsync.push(dbLocal.exeDelete(entity, d.id))
-                        } else {
-                            movedAsync.push(dbLocal.exeCreate(entity, d))
+    let movedAsync = [];
+    $.each(dados, function (i, dado) {
+        let d = Object.assign({}, dado);
+        let idOld = parseInt(d.id_old);
+        let ac = d.db_action;
+        delete (d.db_action);
+        delete (d.id_old);
+        if (d.constructor === Object && !isEmpty(d) && !isNaN(d.id)) {
+            switch (ac) {
+                case 'create':
+                case 'update':
+                    let id = parseInt(d.id);
+                    for (let col in d)
+                        d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
+                    d.id = id;
+                    if (typeof d.ownerpub !== "undefined" && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
+                        movedAsync.push(dbLocal.exeDelete(entity, d.id))
+                    } else {
+                        movedAsync.push(dbLocal.exeCreate(entity, d))
+                    }
+                    break;
+                case 'delete':
+                    if (typeof d.delete !== "undefined" && d.delete.constructor === Array) {
+                        for (let k in d.delete) {
+                            if (!isNaN(d.delete[k]) && d.delete[k] > 0)
+                                movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
                         }
-                        break;
-                    case 'delete':
-                        if (typeof d.delete !== "undefined" && d.delete.constructor === Array) {
-                            for (let k in d.delete) {
-                                if (!isNaN(d.delete[k]) && d.delete[k] > 0)
-                                    movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
-                            }
-                        } else if (!isNaN(d.delete) && d.delete > 0) {
-                            movedAsync.push(dbLocal.exeDelete(entity, d.delete))
-                        }
-                        break
-                }
+                    } else if (!isNaN(d.delete) && d.delete > 0) {
+                        movedAsync.push(dbLocal.exeDelete(entity, d.delete))
+                    }
+                    break
             }
-        });
-        return Promise.all(movedAsync).then(() => {
-            return dados
-        })
+        }
+    });
+    return Promise.all(movedAsync).then(() => {
+        return dados
     })
 }
 
 function deleteDB(entity, id, react) {
     return dbLocal.exeDelete(entity, id).then(() => {
-
-        //react
         if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity]["delete"] !== "undefined")
             eval(react[0][entity]["delete"]);
-
-        //verifica se este registro esta online [assync]
         return dbLocal.exeRead("sync_" + entity, id).then(d => {
-
             if (Object.entries(d).length === 0 && d.constructor === Object) {
-
-                //create sync delete
-                return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'});
-
+                return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'})
             } else {
-
                 if (d.db_action === "create") {
-
-                    //deleta sync
-                    return dbLocal.exeDelete("sync_" + entity, id);
-
+                    return dbLocal.exeDelete("sync_" + entity, id)
                 } else if (d.db_action === "update") {
-
-                    //atualiza sync para remoção
                     return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'}, id)
                 }
             }

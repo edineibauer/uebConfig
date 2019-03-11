@@ -240,49 +240,63 @@ class Config
      */
     public static function getEntityNotAllow(): array
     {
-        return [];
-
-        $file = [];
-        for($i = 0; $i < 21; $i++) {
-            if(!isset($file[$i]))
-            $file[$i] = [];
+        $users = ["0" => [], "admin" => []];
+        foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $info) {
+            $infos = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$info}"), !0);
+            if(!empty($infos['user']) && $infos['user'])
+                $users[str_replace(".json", "", $info)] = [];
         }
 
-        $file = self::entityNotAllow(PATH_HOME, $file);
+        $users = self::entityNotAllow(PATH_HOME, $users);
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-            $file = self::entityNotAllow(PATH_HOME . VENDOR . $lib, $file);
+            $users = self::entityNotAllow(PATH_HOME . VENDOR . $lib, $users);
 
-        return $file;
+        return $users;
     }
 
     /**
      * @param string $path
-     * @param array $file
+     * @param array $users
      * @return array
      */
-    private static function entityNotAllow(string $path, array $file): array
+    private static function entityNotAllow(string $path, array $users): array
     {
         if (file_exists($path . "/public/entity/-entity.json")) {
-            $json = json_decode(file_get_contents($path . "/public/entity/-entity.json"), true);
+            $json = json_decode(file_get_contents($path . "/public/entity/-entity.json"), !0);
             foreach ($json as $setor => $info) {
-                foreach ($info as $entity) {
-                    if (file_exists($path . "/public/entity/cache/{$entity}.json")) {
-                        if ($setor === "*") {
-                            for ($e = 0; $e < 21; $e++) {
-                                //Adiciona entidade ao setor
-                                if (!isset($file[$e]) || !in_array($entity, $file[$e]))
-                                    $file[$e][] = $entity;
+                if(is_string($setor))
+                    $setor = [$setor];
+
+                if(is_string($info))
+                    $info = [$info];
+
+                if(is_array($setor) && is_array($info)) {
+                    foreach ($setor as $item) {
+                        if ($item === "*") {
+                            $setor = array_keys($users);
+                            break;
+                        }
+                    }
+
+                    foreach ($info as $item) {
+                        if ($item === "*") {
+                            $info = array_keys($users);
+                            break;
+                        }
+                    }
+
+                    foreach ($info as $entity) {
+                        if (file_exists($path . "/public/entity/cache/{$entity}.json")) {
+                            foreach ($setor as $seto) {
+                                if (isset($users[$seto]))
+                                    $users[$seto][] = $entity;
                             }
-                        } else {
-                            //Adiciona entidade ao setor
-                            if (!in_array($entity, $file[$setor]))
-                                $file[$setor][] = $entity;
                         }
                     }
                 }
             }
         }
 
-        return $file;
+        return $users;
     }
 }
