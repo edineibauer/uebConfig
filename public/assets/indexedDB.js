@@ -188,7 +188,7 @@ const dbLocal = {
         return conn[entity]
     }, exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
-            if (typeof key !== "undefined") {
+            if (typeof key !== "undefined" && !isNaN(key)) {
                 return dbLocalTmp.transaction(entity).objectStore(entity).get(key).then(v => {
                     return (typeof v !== "undefined" ? v : {})
                 })
