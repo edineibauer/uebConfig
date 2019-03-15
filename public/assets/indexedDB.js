@@ -295,7 +295,7 @@ function moveSyncDataToDb(entity, dados) {
                     for (let col in d)
                         d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
                     d.id = id;
-                    if (typeof d.ownerpub !== "undefined" && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
+                    if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
                         movedAsync.push(dbLocal.exeDelete(entity, d.id))
                     } else {
                         movedAsync.push(dbLocal.exeCreate(entity, d))
