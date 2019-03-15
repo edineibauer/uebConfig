@@ -2,9 +2,6 @@ const db = {
     exeRead(entity, key) {
         key = typeof key === "string" ? parseInt(key) : key;
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            if(typeof key !== "number")
-                return [];
-
             if (typeof hist[entity] === "undefined") {
                 return this.exeReadOnline(entity, key)
             } else {
