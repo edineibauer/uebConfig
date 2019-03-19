@@ -5,8 +5,15 @@ const db = {
             if (typeof hist[entity] === "undefined") {
                 return this.exeReadOnline(entity, key)
             } else {
-                if (AUTOSYNC)
-                    dbRemote.syncDownload(entity);
+                if (AUTOSYNC) {
+                    dbRemote.syncDownload(entity).then(h => {
+                        if(h !== 0) {
+                            let historic = {};
+                            historic[entity] = h;
+                            dbLocal.exeUpdate('__historic', historic, 1);
+                        }
+                    });
+                }
                 return dbLocal.exeRead(entity, key).then(d => {
                     if (d.length === 0) {
                         delete (hist[entity]);
@@ -19,7 +26,12 @@ const db = {
             }
         })
     }, exeReadOnline(entity, key) {
-        return dbRemote.syncDownload(entity).then(() => {
+        return dbRemote.syncDownload(entity).then(h => {
+            if(h !== 0) {
+                let historic = {};
+                historic[entity] = h;
+                dbLocal.exeUpdate('__historic', historic, 1);
+            }
             return dbLocal.exeRead(entity, key)
         })
     }, exeCreate(entity, dados) {
@@ -64,6 +76,11 @@ const dbRemote = {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 return dbRemote.syncDownload(entity).then(down => {
+                    if(down !== 0) {
+                        let historic = {};
+                        historic[entity] = down;
+                        dbLocal.exeUpdate('__historic', historic, 1);
+                    }
                     return dbRemote.syncPost(entity).then(d => {
                         return down === 0 ? d : 1
                     })
@@ -106,9 +123,6 @@ const dbRemote = {
             }).then(response => {
                 if (response === 0)
                     return 0;
-                let historic = {};
-                historic[entity] = response.historic;
-                dbLocal.exeUpdate('__historic', historic, 1);
                 if (response.tipo === 1) {
                     return dbLocal.clear(entity).then(() => {
                         let cc = [];
@@ -123,13 +137,17 @@ const dbRemote = {
                                 }
                             }
                         }
-                        return Promise.all(cc)
+                        return Promise.all(cc).then(() => {
+                            return response.historic;
+                        })
                     })
                 } else {
-                    return moveSyncDataToDb(entity, response.data)
+                    return moveSyncDataToDb(entity, response.data).then(() => {
+                        return response.historic;
+                    })
                 }
             }).then(response => {
-                return response === 0 ? 0 : 1
+                return response;
             })
         })
     }, syncPost(entity) {
