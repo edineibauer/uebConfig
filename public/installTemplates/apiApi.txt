@@ -1,5 +1,6 @@
 <?php
 header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
 ob_start();
 require_once './_config/config.php';
@@ -47,18 +48,33 @@ if (isset($_GET['data'])) {
             if ($read->getResult() || (!defined("KEY") && $include === PATH_HOME . VENDOR . "config/public/api/system/activation.php")) {
                 include_once $include;
 
-                if (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
-                    $data = ["response" => 2, "error" => "data retornada não formatada corretamente", "data" => ""];
+                if(!empty($data['error']))
+                    $data['response'] = 2;
+                elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
+                    $data = ["response" => 5, "error" => "retorno inválido!", "data" => ""];
                 elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
-                    $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+                    $data = ["response" => 2, "error" => "url de redirecionamento inválida.", "data" => ""];
             } else {
-                $data = ["response" => 2, "error" => "Chave de Acesso não Corresponde", "data" => ""];
+                $data = ["response" => 2, "error" => "Chave de Acesso Inválida", "data" => ""];
             }
         } else {
             $data["response"] = 4;
+            $data["error"] = "Rota não Encontrada.";
         }
     }
 }
 
-echo json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+//trabalha cabeçalho de Código de Resposta com base no response
+if($data['response'] === 1)
+    header("HTTP/1.1 200 OK");
+if($data['response'] === 2)
+    header("HTTP/1.1 400 Bad Request");
+elseif($data['response'] === 3)
+    header("HTTP/1.1 301 Moved Permanently");
+elseif($data['response'] === 4)
+    header("HTTP/1.1 404 Not Found");
+elseif($data['response'] === 5)
+    header("HTTP/1.1 500 Internal Server Error");
+
+echo json_encode(($data['response'] === 1 ? $data['data'] : $data['error']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ob_get_flush();
