@@ -117,8 +117,7 @@ const dbRemote = {
                     error: function () {
                         resolve(0)
                     },
-                    dataType: "json",
-                    async: !1
+                    dataType: "json"
                 })
             }).then(response => {
                 if (response === 0)
