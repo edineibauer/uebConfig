@@ -7,7 +7,7 @@ const db = {
             } else {
                 if (AUTOSYNC) {
                     dbRemote.syncDownload(entity).then(h => {
-                        if(h !== 0) {
+                        if (h !== 0) {
                             let historic = {};
                             historic[entity] = h;
                             dbLocal.exeUpdate('__historic', historic, 1);
@@ -27,7 +27,7 @@ const db = {
         })
     }, exeReadOnline(entity, key) {
         return dbRemote.syncDownload(entity).then(h => {
-            if(h !== 0) {
+            if (h !== 0) {
                 let historic = {};
                 historic[entity] = h;
                 dbLocal.exeUpdate('__historic', historic, 1);
@@ -57,17 +57,43 @@ const db = {
         return dbLocal.exeRead("__react").then(react => {
             let allDelete = [];
             if (id.constructor === Array) {
+                let ids = [];
                 for (let k in id) {
-                    if (!isNaN(id[k]) && id[k] > 0)
-                        allDelete.push(deleteDB(entity, parseInt(id[k]), react))
+                    if (!isNaN(id[k]) && id[k] > 0) {
+                        let idU = parseInt(id[k]);
+                        allDelete.push(deleteDB(entity, idU, react).then(() => {
+                            return dbLocal.exeRead("sync_" + entity, idU).then(d => {
+                                if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === "update") {
+                                    ids.push(idU);
+                                } else if (d.db_action === "create") {
+                                    return dbLocal.exeDelete("sync_" + entity, idU)
+                                }
+                            })
+                        }));
+                    }
                 }
+
+                return Promise.all(allDelete).then(() => {
+                    return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
+                        if (AUTOSYNC)
+                            dbRemote.syncPost(entity)
+                    })
+                })
             } else if (!isNaN(id) && id > 0) {
-                allDelete.push(deleteDB(entity, parseInt(id), react))
+                id = parseInt(id);
+                return deleteDB(entity, id, react).then(() => {
+                    return dbLocal.exeRead("sync_" + entity, id).then(sync => {
+                        if ((Object.entries(sync).length === 0 && sync.constructor === Object) || d.db_action === "update") {
+                            return dbLocal.exeCreate("sync_" + entity, {'id': id, 'db_action': 'delete'})
+                        } else if (sync.db_action === "create") {
+                            return dbLocal.exeDelete("sync_" + entity, id)
+                        }
+                    }).then(() => {
+                        if (AUTOSYNC)
+                            dbRemote.syncPost(entity);
+                    })
+                });
             }
-            return Promise.all(allDelete).then(() => {
-                if (AUTOSYNC)
-                    dbRemote.syncPost(entity)
-            })
         })
     }
 };
@@ -76,7 +102,7 @@ const dbRemote = {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 return dbRemote.syncDownload(entity).then(down => {
-                    if(down !== 0) {
+                    if (down !== 0) {
                         let historic = {};
                         historic[entity] = down;
                         dbLocal.exeUpdate('__historic', historic, 1);
@@ -300,7 +326,7 @@ function moveSyncDataToDb(entity, dados) {
     let movedAsync = [];
     $.each(dados, function (i, dado) {
         let d = Object.assign({}, dado);
-        let idOld = parseInt(d.id_old);
+        // let idOld = parseInt(d.id_old);
         let ac = d.db_action;
         delete (d.db_action);
         delete (d.id_old);
@@ -319,13 +345,11 @@ function moveSyncDataToDb(entity, dados) {
                     }
                     break;
                 case 'delete':
-                    if (typeof d.delete !== "undefined" && d.delete.constructor === Array) {
-                        for (let k in d.delete) {
-                            if (!isNaN(d.delete[k]) && d.delete[k] > 0)
-                                movedAsync.push(dbLocal.exeDelete(entity, d.delete[k]))
+                    if (typeof d.id !== "undefined" && d.id.constructor === Array) {
+                        for (let k in d.id) {
+                            if (!isNaN(d.id[k]) && d.id[k] > 0)
+                                movedAsync.push(dbLocal.exeDelete(entity, d.id[k]))
                         }
-                    } else if (!isNaN(d.delete) && d.delete > 0) {
-                        movedAsync.push(dbLocal.exeDelete(entity, d.delete))
                     }
                     break
             }
@@ -340,17 +364,6 @@ function deleteDB(entity, id, react) {
     return dbLocal.exeDelete(entity, id).then(() => {
         if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity]["delete"] !== "undefined")
             eval(react[0][entity]["delete"]);
-        return dbLocal.exeRead("sync_" + entity, id).then(d => {
-            if (Object.entries(d).length === 0 && d.constructor === Object) {
-                return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'})
-            } else {
-                if (d.db_action === "create") {
-                    return dbLocal.exeDelete("sync_" + entity, id)
-                } else if (d.db_action === "update") {
-                    return dbLocal.exeCreate("sync_" + entity, {'id': id, 'delete': id, 'db_action': 'delete'}, id)
-                }
-            }
-        })
     })
 }
 
