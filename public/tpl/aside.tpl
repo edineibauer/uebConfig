@@ -18,9 +18,13 @@
     <ul id="core-sidebar-menu" class="core-class-container"></ul>
 </div>
 
-<div style="position: absolute; bottom:5px;left:10px">
-    <div onclick="updateCache();" class="theme theme-border-l" id="update-site-btn">
+<div style="position: absolute;bottom: 0px;left: 0px;width: 250px;height: 50px;padding: 8px;background: #ffffff;box-shadow: 0px 9px 12px 0px;">
+    <div onclick="updateCache();" class="theme theme-border-l" style="float:left" id="update-site-btn">
         <i class="material-icons">refresh</i>
         <span>Atualizar App</span>
+    </div>
+
+    <div style="float:right;padding: 5px 8px;height: 42px;cursor: pointer;" id="login-aside">
+        <i class="material-icons">exit_to_app</i>
     </div>
 </div>

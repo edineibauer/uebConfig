@@ -293,7 +293,21 @@ function menuHeader() {
         logo.innerHTML = "<img src='" + HOME + "assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'><h1 id='core-header-title' class='theme-text-aux'>" + TITLE + "</h1>"
     }
     if (getCookie("token") === "0")
-        document.querySelector("#core-header-container").style.maxWidth = "1200px"
+        document.querySelector("#core-header-container").style.maxWidth = "1200px";
+
+    let btnLoginAside = document.querySelector("#login-aside");
+    if (getCookie("setor") !== "0") {
+        btnLoginAside.onclick = function () {
+            logoutDashboard();
+        };
+        btnLoginAside.children[0].innerHTML = "exit_to_app";
+    } else {
+        btnLoginAside.onclick = function () {
+            app.loadView(HOME + "login");
+            closeSidebar();
+        };
+        btnLoginAside.children[0].innerHTML = "lock_open";
+    }
 }
 
 function setCookieAnonimo() {
