@@ -5,6 +5,8 @@
     "hammer",
     "mustache",
     "toast",
+    "chart",
+    "chartFunction",
     "helpers",
     "mask",
     "grid",
