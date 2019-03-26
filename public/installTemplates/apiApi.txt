@@ -45,7 +45,7 @@ if (isset($_GET['data'])) {
 
         if ($find) {
             $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
-            if ($read->getResult() || (!defined("KEY") && $include === PATH_HOME . VENDOR . "config/public/api/system/activation.php")) {
+            if ($read->getResult() || (!defined("KEY") && $include === PATH_HOME . VENDOR . "config/public/api/system/activation.php") || (defined("KEY") && KEY === $key)) {
                 include_once $include;
 
                 if(!empty($data['error']))
