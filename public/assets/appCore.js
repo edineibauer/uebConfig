@@ -138,9 +138,7 @@ function updateCacheLogin() {
             creates.push(dbLocal.exeCreate('__panel', r[3]));
             return Promise.all(creates)
         })
-    }).then(() => {
-        window.location.reload(!0)
-    })
+    });
 }
 
 function clearCache() {
@@ -325,9 +323,13 @@ function checkSessao() {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
                 if (typeof data.data === "object" && data.response === 1) {
-                    return setCookieUser(data.data)
+                    return setCookieUser(data.data).then(() => {
+                        window.location.href = HOME + "dashboard";
+                    });
                 } else {
-                    return setCookieAnonimo()
+                    return setCookieAnonimo().then(() => {
+                        window.location.href = HOME + "login";
+                    });
                 }
             }
         };
