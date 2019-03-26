@@ -38,10 +38,11 @@ function get(file) {
                     location.href = data.data;
                     break;
                 case 4:
-                    toast("Caminho não encontrado", 1500, "toast-warning")
+                    if(data.data !== "no-network")
+                        toast("Caminho não encontrado", 1500, "toast-warning")
             }
         }
-        throw error
+        throw new TypeError("Request sem conexão e sem cache");
     })
 }
 
@@ -178,7 +179,7 @@ function updateCache() {
             registration.unregister()
     }).then(() => {
         return clearCache().then(() => {
-            return get("appFiles").then(g => {
+            return get("currentFiles/" + window.location.pathname).then(g => {
                 return caches.open('core-v' + VERSION).then(cache => {
                     return cache.addAll(g.core)
                 }).then(() => {
@@ -202,10 +203,6 @@ function updateCache() {
                         return cache.addAll(g.view)
                     })
                 }).then(() => {
-                    return caches.open('misc-v' + VERSION).then(cache => {
-                        return cache.addAll(g.misc)
-                    })
-                }).then(() => {
                     return caches.open('midia-v' + VERSION).then(cache => {
                         return cache.addAll(g.midia)
                     })
@@ -214,29 +211,19 @@ function updateCache() {
         }).then(() => {
             let gets = [];
             let creates = [];
-            gets.push(get("react"));
             gets.push(get("allow"));
             gets.push(get("dicionarios"));
             gets.push(get("info"));
-            gets.push(get("relevant"));
-            gets.push(get("general"));
             gets.push(get("templates"));
-            gets.push(get("user"));
             gets.push(get("menu"));
             gets.push(get("panel"));
-            gets.push(get("reactOnline"));
             return Promise.all(gets).then(r => {
-                creates.push(dbLocal.exeCreate('__react', r[0]));
-                creates.push(dbLocal.exeCreate('__allow', r[1]));
-                creates.push(dbLocal.exeCreate('__dicionario', r[2]));
-                creates.push(dbLocal.exeCreate('__info', r[3]));
-                creates.push(dbLocal.exeCreate('__relevant', r[4]));
-                creates.push(dbLocal.exeCreate('__general', r[5]));
-                creates.push(dbLocal.exeCreate('__template', r[6]));
-                creates.push(dbLocal.exeCreate('__user', r[7]));
-                creates.push(dbLocal.exeCreate('__menu', r[8]));
-                creates.push(dbLocal.exeCreate('__panel', r[9]));
-                creates.push(dbLocal.exeCreate('__reactOnline', r[10]));
+                creates.push(dbLocal.exeCreate('__allow', r[0]));
+                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+                creates.push(dbLocal.exeCreate('__info', r[2]));
+                creates.push(dbLocal.exeCreate('__template', r[3]));
+                creates.push(dbLocal.exeCreate('__menu', r[4]));
+                creates.push(dbLocal.exeCreate('__panel', r[5]));
                 return Promise.all(creates)
             })
         }).then(() => {
