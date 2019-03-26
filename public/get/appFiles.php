@@ -20,7 +20,7 @@ function getAssets(string $path, array $dados): array
             if (strpos($asset, ".")) {
                 $extension = explode('&', pathinfo($asset, PATHINFO_EXTENSION))[0];
 
-                if (!in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
+                if (!in_array($extension, ["js", "css", "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
                     $dados['misc'][] = HOME . "{$path}/{$asset}";
 
             } else {
