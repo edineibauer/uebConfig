@@ -20,9 +20,7 @@ function getAssets(string $path, array $dados): array
             if (strpos($asset, ".")) {
                 $extension = explode('&', pathinfo($asset, PATHINFO_EXTENSION))[0];
 
-                if (in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
-                    $dados['midia'][] = HOME . "{$path}/{$asset}";
-                else
+                if (!in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
                     $dados['misc'][] = HOME . "{$path}/{$asset}";
 
             } else {
@@ -70,27 +68,15 @@ function getCachedContent(string $path, array $dados): array
 
 // return values
 $data['data'] = [
-    "core" => [HOME, HOME . "index", HOME . "set"],
-    "fonts" => [],
-    "images" => [],
     "viewJs" => [],
     "viewCss" => [],
     "view" => [],
-    "react" => [],
-    "reactOnline" => [],
-    "misc" => [HOME . "manifest.json"],
-    "midia" => []
+    "misc" => [HOME . "manifest.json"]
 ];
 
 //CORE, create cache from all 'assetsPublic'
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
-    if (!is_dir(PATH_HOME . "assetsPublic/{$item}")) {
-
-        //apenas arquivos dentro de assetsPublic
-        if (strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
-            $data['data']['core'][] = HOME . "assetsPublic/{$item}?v=" . VERSION;
-
-    } else {
+    if (is_dir(PATH_HOME . "assetsPublic/{$item}")) {
 
         //para cada diretório na pasta assetsPublic
         foreach (Helper::listFolder(PATH_HOME . "assetsPublic/{$item}") as $iten) {
@@ -99,21 +85,6 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
                 if ($item === "view") {
                     $ext = ucfirst(pathinfo($iten, PATHINFO_EXTENSION));
                     $data['data']["view{$ext}"][] = HOME . "assetsPublic/view/{$iten}?v=" . VERSION;
-                } elseif ($item === "fonts" && !in_array(HOME . "assetsPublic/fonts/{$iten}", $data['data']['fonts'])) {
-                    $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}?v=" . VERSION;
-                } elseif ($item === "img" && !in_array(HOME . "assetsPublic/img/{$iten}", $data['data']['images'])) {
-                    $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}?v=" . VERSION;
-                }
-            } elseif ($item === "react" && is_dir(PATH_HOME . "assetsPublic/react/{$iten}")) {
-                foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}") as $react) {
-                    if (pathinfo($react, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/{$react}", $data['data']['react'])) {
-                        $data['data']['react'][] = HOME . "assetsPublic/react/{$iten}/{$react}?v=" . VERSION;
-                    } elseif ($react === "online") {
-                        foreach (Helper::listFolder(PATH_HOME . "assetsPublic/react/{$iten}/online") as $reactOnline) {
-                            if (pathinfo($reactOnline, PATHINFO_EXTENSION) === "js" && !in_array(HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}", $data['data']['reactOnline']))
-                                $data['data']['reactOnline'][] = HOME . "assetsPublic/react/{$iten}/online/{$reactOnline}?v=" . VERSION;
-                        }
-                    }
                 }
             }
         }
