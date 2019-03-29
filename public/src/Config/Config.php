@@ -34,10 +34,12 @@ class Config
         }
 
         //atualiza versão do Service Worker
-        $serviceWorker = file_get_contents(PATH_HOME . "service-worker.js");
-        $version = (float) explode("'", explode("const VERSION = '", $serviceWorker)[1])[0];
-        $serviceWorker = str_replace("const VERSION = '{$version}'", "const VERSION = '{$dados['version']}'", $serviceWorker);
-        self::writeFile("service-worker.js", $serviceWorker);
+        if(file_exists(PATH_HOME . "service-worker.js")) {
+            $serviceWorker = file_get_contents(PATH_HOME . "service-worker.js");
+            $version = (float)explode("'", explode("const VERSION = '", $serviceWorker)[1])[0];
+            $serviceWorker = str_replace("const VERSION = '{$version}'", "const VERSION = '{$dados['version']}'", $serviceWorker);
+            self::writeFile("service-worker.js", $serviceWorker);
+        }
 
         $conf .= "\nrequire_once PATH_HOME . 'vendor/autoload.php';\nnew Route\Sessao();";
 
