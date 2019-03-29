@@ -233,7 +233,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
         Config\Config::writeFile("vendor/.htaccess", getAccessFile());
 
-        Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl'], $configuracoes ?? "");
+        Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl']);
 
         header("Location: ../../../updateSystem/force");
     } else {

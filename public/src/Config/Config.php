@@ -50,7 +50,7 @@ class Config
      * @param string $www
      * @param string $protocol
      */
-    public static function createHtaccess(string $vendor = "", string $domain = "", string $www = "", string $protocol = "", $config = null)
+    public static function createHtaccess(string $vendor = "", string $domain = "", string $www = "", string $protocol = "")
     {
         if (!empty($vendor) || defined("DOMINIO")) {
             if (empty($vendor)) {
@@ -64,7 +64,7 @@ class Config
             }
 
             $vendor = str_replace('/', '\\/', $vendor);
-            $rewriteDomain = $config ? "" : "RewriteRule ^{$vendor}{$domain}\/public\/(.*)$ public/$1 [L]";
+            $rewriteDomain = file_exists(PATH_HOME . "_config/permissoes.json") ? "RewriteRule ^{$vendor}{$domain}\/public\/(.*)$ public/$1 [L]" : "";
             $dados = "RewriteCond %{HTTP_HOST} ^" . ($www ? "{$domain}\nRewriteRule ^ http" . ($protocol ? "s" : "") . "://www.{$domain}%{REQUEST_URI}" : "www.(.*) [NC]\nRewriteRule ^(.*) http" . ($protocol ? "s" : "") . "://%1/$1") . " [L,R=301]";
             self::writeFile(".htaccess", str_replace(['{$dados}', '{$rewriteDomain}'], [$dados, $rewriteDomain], file_get_contents("{$path}public/installTemplates/htaccess.txt")));
         }
