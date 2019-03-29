@@ -23,7 +23,7 @@ if (file_exists($dir)) {
 $options = "";
 foreach ($directory as $item) {
     if(file_exists($dir . $item . "/public/_config/config.json"))
-        $options .= (empty($options) ? "<select name='base'>" : "") . "<option value='" . $dir . $item . "'>" . ucfirst(str_replace(["-", "_"], "", $item)) . "</option>";
+        $options .= (empty($options) ? "<select name='base' style='display: block;width: auto;float: right;'><option value=''>Nenhum</option>" : "") . "<option value='" . $dir . $item . "'>" . ucfirst(str_replace(["-", "_"], "", $item)) . "</option>";
 }
 if(!empty($options))
     $options .= "</select>";
@@ -31,24 +31,22 @@ if(!empty($options))
 ?>
 <link rel="stylesheet" href="public/include/config.css" />
 <div class="row">
-    <div class="container">
-        <form class="card" method="post" action="" enctype="multipart/form-data"
-              style="background: #FFF; padding:30px; margin-top:20px; border-radius: 5px">
-
+    <form method="post" action="" enctype="multipart/form-data" class="container">
+        <?php if (!empty($options)) { ?>
+            <div class="card" style="padding: 20px 10px; display: flex;">
+                <div class="input-field col s12 m6" style="margin: 0;">
+                    <h5 style="font-weight: lighter">Template de Sistema Base</h5>
+                </div>
+                <div class="input-field col s12 m6" style="text-align: right;text-align: right; margin: 0.1em 0;">
+                    <?=$options?>
+                </div>
+            </div>
+        <?php } ?>
+        <div class="card" style="background: #FFF; padding:30px; margin-top:20px; border-radius: 5px">
             <br>
             <h4>Informações do Projeto</h4>
-            <?php if (!empty($options)) { ?>
-                <div class="col s12" style="padding: 20px 10px; background: #EEEEEE">
-                    <div class="input-field col s12 m6">
-                        <h3 style="font-weight: lighter">Template de Sistema Base</h3>
-                    </div>
-                    <div class="input-field col s12 m6" style="text-align: right">
-                        <?=$options?>
-                    </div>
-                </div>
-            <?php } ?>
             <div class="input-field col s12 m6">
-                <input id="sitename" name="sitename" type="text" class="validate" required>
+                <input id="sitename" name="sitename" type="text" class="validate">
                 <label for="sitename">Nome do Projeto</label>
             </div>
             <div class="input-field col s12 m6">
@@ -69,7 +67,7 @@ if(!empty($options))
             <div class="file-field input-field col s12 m6">
                 <div class="btn">
                     <span>Favicon</span>
-                    <input type="file" name="favicon" accept="image/*" required>
+                    <input type="file" name="favicon" accept="image/*">
                 </div>
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text">
@@ -127,8 +125,8 @@ if(!empty($options))
 
             <button type="submit" class="waves-effect waves-light btn">Criar Projeto</button>
 
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 <script src="public/include/jquery.js"></script>

@@ -132,7 +132,7 @@ function getAccessFile()
         </Files>';
 }
 if(!empty($dados['base']))
-    $configuracoes = json_decode(file_get_contents($dados['base'] . "/public/_config/config.json"));
+    $configuracoes = json_decode(file_get_contents($dados['base'] . "/public/_config/config.json"), !0);
 
 if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favicon']['name']))) {
 
@@ -194,6 +194,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
                     $dados[$field] = $value;
             }
 
+            copy($dados['base'] . "/public/assets/theme.min.css", $dados['path_home'] . "public/assets/theme.min.css");
             copy($dados['base'] . "/public/_config/permissoes.json", $dados['path_home'] . "_config/permissoes.json");
             copy($dados['base'] . "/public/_config/route.json", $dados['path_home'] . "_config/route.json");
             copy($dados['base'] . "/public/_config/param.json", $dados['path_home'] . "_config/param.json");
@@ -232,7 +233,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
         Config\Config::writeFile("vendor/.htaccess", getAccessFile());
 
-        Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl']);
+        Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl'], $configuracoes ?? "");
 
         header("Location: ../../../updateSystem/force");
     } else {
@@ -240,6 +241,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         require_once 'form.php';
     }
 } else {
-    echo "<h3 class='container' style='text-align:center;padding-top:30px'>Nome do Site e Ícone são obrigatórios!</h3>";
+    echo "<h3 class='container' style='text-align:center;padding-top:30px;font-size: 20px;color: firebrick;'>Nome do Site e Ícone são obrigatórios!</h3>";
     require_once 'form.php';
 }

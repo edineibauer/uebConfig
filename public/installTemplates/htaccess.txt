@@ -6,7 +6,7 @@ RewriteRule ^view\/(.*)$ apiView.php?data=$1 [L]
 RewriteRule ^get\/(.*)$ apiGet.php?data=$1 [L]
 RewriteRule ^set\/?$ apiSet.php [L]
 RewriteRule ^api\/(.*)$ apiApi.php?data=$1 [L]
-RewriteRule ^{$vendor}{$dominio}\/public\/(.*)$ public/$1 [L]
+{$rewriteDomain}
 
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
