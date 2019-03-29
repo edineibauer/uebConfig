@@ -131,8 +131,10 @@ function getAccessFile()
             Deny from all
         </Files>';
 }
+if(!empty($dados['base']))
+    $configuracoes = json_decode(file_get_contents($dados['base'] . "/public/_config/config.json"));
 
-if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
+if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favicon']['name']))) {
 
     $dados['database'] = strtolower(str_replace(['-', '_', ' '], '', $dados['database']));
     $dados['pre'] = strtolower(str_replace(['-', ' '], '_', $dados['pre']));
@@ -168,13 +170,48 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
         Config\Config::createDir("public/entity");
         Config\Config::createDir("assetsPublic");
         Config\Config::createDir("assetsPublic/img");
+
+        if(isset($configuracoes)) {
+            $dados['sitename'] = empty($dados['sitename']) ? $configuracoes['sitename'] : $dados['sitename'];
+            $dados['sitedesc'] = empty($dados['sitedesc']) ? $configuracoes['sitedesc'] : $dados['sitedesc'];
+            $dados['sitesub'] = empty($dados['sitesub']) ? $configuracoes['sitesub'] : $dados['sitesub'];
+            $dados['pre'] = $configuracoes['pre'];
+            $dados['autosync'] = $configuracoes['autosync'];
+            $dados['dominio'] = $configuracoes['dominio'];
+
+            if (empty($_FILES['favicon']['name']) && !empty($configuracoes['favicon'])) {
+                $dados['favicon'] = $configuracoes['favicon'];
+                copy($dados['base'] . "/public/_config/favicon.png", $dados['path_home'] . "uploads/site/favicon.png");
+            }
+
+            if (empty($_FILES['logo']['name']) && !empty($configuracoes['logo'])) {
+                $dados['logo'] = $configuracoes['logo'];
+                copy($dados['base'] . "/public/_config/logo.png", $dados['path_home'] . "uploads/site/logo.png");
+            }
+
+            foreach ($configuracoes as $field => $value) {
+                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'autosync', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version', 'repositorio']))
+                    $dados[$field] = $value;
+            }
+
+            copy($dados['base'] . "/public/_config/permissoes.json", $dados['path_home'] . "_config/permissoes.json");
+            copy($dados['base'] . "/public/_config/route.json", $dados['path_home'] . "_config/route.json");
+            copy($dados['base'] . "/public/_config/param.json", $dados['path_home'] . "_config/param.json");
+            copy($dados['base'] . "/public/_config/general_info.json", $dados['path_home'] . "entity/general/general_info.json");
+        } else {
+            Config\Config::writeFile("_config/permissoes.json", "{}");
+        }
+
         copy('public/assets/dino.png', "../../../uploads/site/dino.png");
         copy('public/assets/image-not-found.png', "../../../uploads/site/image-not-found.png");
 
         uploadFiles();
         Config\Config::createConfig($dados);
-        createRoute($dados);
-        createParam($dados);
+
+        if(!isset($configuracoes)) {
+            createRoute($dados);
+            createParam($dados);
+        }
 
         Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.txt"));
         Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.txt"));
@@ -187,7 +224,6 @@ if (!empty($dados['sitename']) && !empty($_FILES['favicon']['name'])) {
         Config\Config::writeFile("public/entity/-entity.json", '{"1":[],"2":[],"3":[],"0":[], "20":[]}');
         Config\Config::writeFile("public/dash/-menu.json", '{"1":[],"2":[],"3":[]}');
         Config\Config::writeFile("entity/general/general_info.json", "[]");
-        Config\Config::writeFile("_config/permissoes.json", "{}");
         Config\Config::writeFile("_config/.htaccess", "Deny from all");
         Config\Config::writeFile("entity/.htaccess", "Deny from all");
         Config\Config::writeFile("public/react/.htaccess", "Deny from all");

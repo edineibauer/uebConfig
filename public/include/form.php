@@ -1,9 +1,32 @@
 <?php
 
-$domain = $_SERVER['SERVER_NAME'];
-$domain = ($domain === "localhost" ? explode('/', $_SERVER['REQUEST_URI'])[1] : $domain);
+$domain = ($_SERVER['SERVER_NAME'] === "localhost" ? explode('/', $_SERVER['REQUEST_URI'])[1] : $_SERVER['SERVER_NAME']);
 $table = explode(".", $domain)[0];
 $pre = substr(str_replace(array('a', 'e', 'i', 'o', 'u'), '', $table), 0, 3) . "_";
+
+$localhost = ($_SERVER['SERVER_NAME'] === "localhost" ? true : false);
+$porta = $_SERVER['SERVER_PORT'];
+$dominio = ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $porta) : explode('.', $_SERVER['SERVER_NAME'])[0]);
+$pathhome = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dominio) && $_SERVER['HTTP_HOST'] == 'localhost' ? $dominio . "/" : "");
+$dir = $pathhome . "vendor/ueb/";
+$directory = array();
+if (file_exists($dir)) {
+    $i = 0;
+    foreach (scandir($dir) as $b):
+        if ($b !== "." && $b !== ".." && $i < 500):
+            $directory[] = $b;
+            $i++;
+        endif;
+    endforeach;
+}
+
+$options = "";
+foreach ($directory as $item) {
+    if(file_exists($dir . $item . "/public/_config/config.json"))
+        $options .= (empty($options) ? "<select name='base'>" : "") . "<option value='" . $dir . $item . "'>" . ucfirst(str_replace(["-", "_"], "", $item)) . "</option>";
+}
+if(!empty($options))
+    $options .= "</select>";
 
 ?>
 <link rel="stylesheet" href="public/include/config.css" />
@@ -14,6 +37,16 @@ $pre = substr(str_replace(array('a', 'e', 'i', 'o', 'u'), '', $table), 0, 3) . "
 
             <br>
             <h4>Informações do Projeto</h4>
+            <?php if (!empty($options)) { ?>
+                <div class="col s12" style="padding: 20px 10px; background: #EEEEEE">
+                    <div class="input-field col s12 m6">
+                        <h3 style="font-weight: lighter">Template de Sistema Base</h3>
+                    </div>
+                    <div class="input-field col s12 m6" style="text-align: right">
+                        <?=$options?>
+                    </div>
+                </div>
+            <?php } ?>
             <div class="input-field col s12 m6">
                 <input id="sitename" name="sitename" type="text" class="validate" required>
                 <label for="sitename">Nome do Projeto</label>
