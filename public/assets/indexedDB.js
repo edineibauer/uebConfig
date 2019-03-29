@@ -193,7 +193,7 @@ const dbRemote = {
                         resolve(0)
                     },
                     dataType: "json",
-                    async: !1
+                    async: !0
                 })
             }).then(response => {
                 if (response === 0)
