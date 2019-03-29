@@ -11,7 +11,7 @@ self.addEventListener('fetch', function (e) {
     let core = new RegExp("assetsPublic\/", "i");
     let view = new RegExp("view\/", "i");
     let get = new RegExp("get\/", "i");
-    let set = new RegExp("set$", "i");
+    let set = new RegExp("set\/?$", "i");
     let cacheImages = new RegExp("image\/", "i");
 
     if(core.test(url)) {
