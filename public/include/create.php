@@ -23,6 +23,7 @@ function getServerConstants(array $dados)
     $dados['version'] = "1.00";
     $dados['repositorio'] = "http://uebster.com/";
     $dados['autosync'] = 1;
+    $dados['limitoffline'] = 500;
 
     return $dados;
 }
