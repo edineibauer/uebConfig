@@ -33,5 +33,5 @@
   "start_url": "./",
   "display": "standalone",
   "background_color": "{$theme}",
-  "theme_color": "{$themed}"
+  "theme_color": "{$theme}"
 }
