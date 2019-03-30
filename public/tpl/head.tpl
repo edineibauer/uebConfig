@@ -27,6 +27,7 @@
     const TITLE = '{$title}';
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
+    const LIMITOFFLINE = '{$limitoffline}';
     var AUTOSYNC = {$autosync};
 </script>
 
