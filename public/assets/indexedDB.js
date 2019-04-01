@@ -90,9 +90,9 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                         offset: offset,
                         historic: null
                     },
-                    success: function (data) {
-                        if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0) {
-                            let dados = data.data;
+                    success: function (dados) {
+                        if (dados.response === 1 && dados.data.historic !== 0) {
+                            dados = dados.data;
                             let hist = {};
                             hist[entity] = dados.historic;
                             dbLocal.exeUpdate("__historic", hist, 1);
@@ -310,7 +310,7 @@ const dbRemote = {
                     url: HOME + 'set',
                     data: {lib: "entity", file: "load/entity", entity: entity, historic: (hist[entity] || null)},
                     success: function (data) {
-                        if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0)
+                        if (data.response === 1 && data.data.historic !== 0)
                             resolve(data.data);
                         resolve(0)
                     },
@@ -359,7 +359,7 @@ const dbRemote = {
                     url: HOME + 'set',
                     data: {lib: "entity", file: "up/entity", entity: entity, dados: convertEmptyArrayToNull(dadosSync)},
                     success: function (data) {
-                        if (data.response === 1 && data.data !== "no-network" && typeof data.data === "object")
+                        if (data.response === 1 && typeof data.data === "object")
                             resolve(data.data);
                         resolve(0)
                     },
