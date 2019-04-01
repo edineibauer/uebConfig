@@ -1,3 +1,171 @@
+function exeReadApplyFilter(data, filter) {
+    let dataFiltered = [];
+
+    for (var k in data) {
+        if (typeof data[k] === "object") {
+            let dd = data[k];
+            let passou = !0;
+            for (var f in filter) {
+                if (typeof filter[f] === "object" && passou) {
+                    let filterOption = filter[f];
+                    passou = !1;
+
+                    if (filterOption.operator === "por") {
+                        $.each(dd, function (col, valor) {
+                            if (typeof valor === "string" && valor !== "" && col !== 'ownerpub' && col !== 'autorpub' && valor.toLowerCase().indexOf(filterOption.value.toLowerCase()) > -1) {
+                                passou = !0;
+                                return !1
+                            }
+                        });
+
+                    } else if (typeof dd[filterOption.column] !== "undefined") {
+
+                        if (typeof dd[filterOption.column] === "string") {
+                            dd[filterOption.column] = dd[filterOption.column].toLowerCase();
+                            filterOption.value = filterOption.value.toLowerCase()
+                        }
+                        switch (filterOption.operator) {
+                            case 'contém':
+                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) > -1);
+                                break;
+                            case 'igual a':
+                                passou = (dd[filterOption.column] == filterOption.value);
+                                break;
+                            case 'diferente de':
+                                passou = (dd[filterOption.column] != filterOption.value);
+                                break;
+                            case 'começa com':
+                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) === 0);
+                                break;
+                            case 'termina com':
+                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) === (dd[filterOption.column].length - filterOption.value.length));
+                                break;
+                            case 'maior que':
+                                passou = (dd[filterOption.column] > filterOption.value);
+                                break;
+                            case 'menor que':
+                                passou = (dd[filterOption.column] < filterOption.value);
+                                break;
+                            case 'maior igual a':
+                                passou = (dd[filterOption.column] >= filterOption.value);
+                                break;
+                            case 'menor igual a':
+                                passou = (dd[filterOption.column] <= filterOption.value);
+                                break
+                        }
+                    }
+                }
+            }
+            if (passou)
+                dataFiltered.push(dd)
+        }
+    }
+
+    return dataFiltered;
+}
+
+function exeRead(entity, filter, order, reverse, limit, offset) {
+    filter = typeof filter === "object" ? filter : {};
+    order = typeof order === "string" ? order : "id";
+    reverse = (typeof reverse !== "undefined" ? (reverse ? !0 : !1) : !1);
+    limit = parseInt(typeof limit === "number" ? limit : (localStorage.limitGrid ? localStorage.limitGrid : 15));
+    limit = limit > parseInt(LIMITOFFLINE) ? parseInt(LIMITOFFLINE) : limit;
+    offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
+
+    return dbLocal.exeRead(entity).then(data => {
+        let result = {
+            data: [],
+            total: data.length,
+            lenght: 0
+        };
+
+        if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
+            //online
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "POST",
+                    url: HOME + 'set',
+                    data: {
+                        lib: "entity",
+                        file: "load/entity",
+                        entity: entity,
+                        filter: filter,
+                        order: order,
+                        reverse: reverse,
+                        limit: limit,
+                        offset: offset,
+                        historic: null
+                    },
+                    success: function (data) {
+                        if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0)
+                            resolve(data.data);
+                        else
+                            resolve([]);
+                    },
+                    error: function () {
+                        resolve([]);
+                    },
+                    dataType: "json",
+                });
+            }).then(dados => {
+                let hist = {};
+                hist[entity] = dados.historic;
+                dbLocal.exeUpdate("__historic", hist, 1);
+
+                if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
+                    let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length;
+
+                    for (let i = 0; i < delNum; i++) {
+                        if (typeof data[i] === "object")
+                            dbLocal.exeDelete(entity, data[i].id);
+                    }
+                }
+
+                moveSyncDataToDb(entity, dados.data);
+
+                result.data = dados.data;
+                result.lenght = dados.data.length;
+                result.total = dados.total;
+                return result;
+            });
+
+        } else {
+            //offline
+
+            //FILTER
+            if (!isEmpty(filter)) {
+                data = exeReadApplyFilter(data, filter);
+                result.total = data.length;
+            }
+
+            //ORDER
+            data.sort(dynamicSort(order));
+
+            //REVERSE
+            if (reverse)
+                data.reverse();
+
+            //LIMIT OFFSET
+            let i = 0;
+            for (var k in data) {
+                if (typeof data[k] === "object") {
+                    if (k > offset && i < limit) {
+                        result.data.push(data[k]);
+                        i++;
+
+                        if (i == limit)
+                            break;
+                    }
+                }
+            }
+
+            result.lenght = result.data.length;
+
+            return result;
+        }
+    });
+}
+
 const db = {
     exeRead(entity, key) {
         key = typeof key === "string" ? parseInt(key) : key;
