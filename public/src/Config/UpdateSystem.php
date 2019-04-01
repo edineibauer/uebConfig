@@ -257,7 +257,6 @@ class UpdateSystem
         Config::writeFile("public/cron/.htaccess", "Deny from all");
         Config::writeFile("public/api/.htaccess", "Deny from all");
         Config::writeFile("vendor/.htaccess", $this->getAccessFile());
-        Config::createHtaccess();
 
         if (!file_exists(PATH_HOME . "entity/general/general_info.json"))
             Config::writeFile("entity/general/general_info.json", "[]");
