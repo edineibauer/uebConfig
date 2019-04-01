@@ -73,15 +73,9 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
     return dbLocal.exeRead(entity).then(data => {
-        let result = {
-            data: [],
-            total: data.length,
-            lenght: 0
-        };
-
         if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
-            //online
             return new Promise(function (resolve, reject) {
+                //online
                 $.ajax({
                     type: "POST",
                     url: HOME + 'set',
@@ -97,73 +91,85 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                         historic: null
                     },
                     success: function (data) {
-                        if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0)
-                            resolve(data.data);
-                        else
-                            resolve([]);
+                        if (data.response === 1 && data.data !== "no-network" && data.data.historic !== 0) {
+                            let dados = data.data;
+                            let hist = {};
+                            hist[entity] = dados.historic;
+                            dbLocal.exeUpdate("__historic", hist, 1);
+
+                            if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
+                                let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length;
+
+                                for (let i = 0; i < delNum; i++) {
+                                    if (typeof data[i] === "object")
+                                        dbLocal.exeDelete(entity, data[i].id);
+                                }
+                            }
+
+                            moveSyncDataToDb(entity, dados.data).then(() => {
+                                resolve({
+                                    data: dados.data,
+                                    lenght: dados.data.length,
+                                    total: dados.total,
+                                });
+                            });
+                        } else {
+                            toast("Sem Conexão! Lendo apenas dados locais.", 5000, "toast-warning");
+                            resolve(readOffline(data, filter, order, reverse, limit, offset));
+                        }
                     },
-                    error: function () {
-                        resolve([]);
+                    error: function(e) {
+                        toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
+                        resolve(readOffline(data, filter, order, reverse, limit, offset));
                     },
                     dataType: "json",
                 });
-            }).then(dados => {
-                let hist = {};
-                hist[entity] = dados.historic;
-                dbLocal.exeUpdate("__historic", hist, 1);
-
-                if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
-                    let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length;
-
-                    for (let i = 0; i < delNum; i++) {
-                        if (typeof data[i] === "object")
-                            dbLocal.exeDelete(entity, data[i].id);
-                    }
-                }
-
-                moveSyncDataToDb(entity, dados.data);
-
-                result.data = dados.data;
-                result.lenght = dados.data.length;
-                result.total = dados.total;
-                return result;
-            });
+            })
 
         } else {
             //offline
-
-            //FILTER
-            if (!isEmpty(filter)) {
-                data = exeReadApplyFilter(data, filter);
-                result.total = data.length;
-            }
-
-            //ORDER
-            data.sort(dynamicSort(order));
-
-            //REVERSE
-            if (reverse)
-                data.reverse();
-
-            //LIMIT OFFSET
-            let i = 0;
-            for (var k in data) {
-                if (typeof data[k] === "object") {
-                    if (k > offset && i < limit) {
-                        result.data.push(data[k]);
-                        i++;
-
-                        if (i == limit)
-                            break;
-                    }
-                }
-            }
-
-            result.lenght = result.data.length;
-
-            return result;
+            return readOffline(data, filter, order, reverse, limit, offset);
         }
     });
+}
+
+function readOffline(data, filter, order, reverse, limit, offset) {
+    let result = {
+        data: [],
+        total: data.length,
+        lenght: 0
+    };
+
+    //FILTER
+    if (!isEmpty(filter)) {
+        data = exeReadApplyFilter(data, filter);
+        result.total = data.length;
+    }
+
+    //ORDER
+    data.sort(dynamicSort(order));
+
+    //REVERSE
+    if (reverse)
+        data.reverse();
+
+    //LIMIT OFFSET
+    let i = 0;
+    for (var k in data) {
+        if (typeof data[k] === "object") {
+            if (k > offset && i < limit) {
+                result.data.push(data[k]);
+                i++;
+
+                if (i == limit)
+                    break;
+            }
+        }
+    }
+
+    result.lenght = result.data.length;
+
+    return result;
 }
 
 const db = {
