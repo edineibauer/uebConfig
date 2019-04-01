@@ -98,11 +98,19 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             dbLocal.exeUpdate("__historic", hist, 1);
 
                             if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
-                                let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length;
 
+                                let contRemoved = 0;
+                                for(let t in dados.data) {
+                                    if(typeof dados.data[t] === "object") {
+                                        dbLocal.exeDelete(entity, dados.data[t].id);
+                                        contRemoved++;
+                                    }
+                                }
+
+                                let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length - contRemoved;
                                 for (let i = 0; i < delNum; i++) {
                                     if (typeof data[i] === "object")
-                                        dbLocal.exeDelete(entity, data[i].id);
+                                        dbLocal.exeDelete(entity, data[i].id)
                                 }
                             }
 
