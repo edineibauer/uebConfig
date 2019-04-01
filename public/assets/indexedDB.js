@@ -114,7 +114,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                                 });
                             });
                         } else {
-                            toast("Sem Conexão! Lendo apenas dados locais.", 5000, "toast-warning");
+                            toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
                         }
                     },
