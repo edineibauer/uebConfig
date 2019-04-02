@@ -18,6 +18,7 @@ function getRequest(url) {
 
 function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
+        toast("Sem Conexão");
         console.log("getJSON failed for", url, err);
         throw err
     })
