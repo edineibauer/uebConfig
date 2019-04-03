@@ -103,7 +103,7 @@ function clearCacheLogin() {
 
 function loadScreen() {
     return pleaseWait({
-        logo: HOME + "assetsPublic/img/favicon-96.png",
+        logo: HOME + "assetsPublic/img/favicon-144.png",
         backgroundColor: THEME,
         loadingHtml: "<p class='theme-text-aux load-screen-text'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
     })
