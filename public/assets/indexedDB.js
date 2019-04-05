@@ -338,7 +338,7 @@ const dbRemote = {
                                 if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
                                     for (let col in response.data[k])
-                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col], dicionarios);
+                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
                                     response.data[k].id = id;
                                     cc.push(dbLocal.exeCreate(entity, response.data[k]));
                                 }
@@ -518,7 +518,7 @@ function moveSyncDataToDb(entity, dados) {
                 case 'update':
                     let id = parseInt(d.id);
                     for (let col in d)
-                        d[col] = getDefaultValue(dicionarios[entity][col], d[col], dicionarios);
+                        d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
                     d.id = id;
                     if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
                         movedAsync.push(dbLocal.exeDelete(entity, d.id))
@@ -549,7 +549,18 @@ function deleteDB(entity, id, react) {
     })
 }
 
-function getDefaultValue(meta, value, dicionarios) {
+function getDefaultValues(entity, values) {
+    let valores = {};
+    $.each(dicionarios[entity], function (column, meta) {
+        if (meta.format !== "information" && meta.key !== "identifier") {
+            let value = (typeof values !== "undefined" && typeof values[meta.column] !== "undefined" ? values[meta.column] : meta.default)
+            valores[column] = getDefaultValue(meta, value)
+        }
+    });
+    return valores
+}
+
+function getDefaultValue(meta, value) {
     let valor = "";
     if (typeof meta === "object" && meta !== null) {
         if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
@@ -645,7 +656,7 @@ function getDefaultValue(meta, value, dicionarios) {
                 }
                 break;
             case 'extend':
-                valor = value !== "" ? value : getDefaultValues(meta.relation);
+                valor = value !== "" ? getDefaultValues(meta.relation, value) : getDefaultValues(meta.relation);
                 break;
             default:
                 valor = value !== "" ? value : null
