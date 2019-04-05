@@ -645,7 +645,7 @@ function getDefaultValue(meta, value, dicionarios) {
                 }
                 break;
             case 'extend':
-                valor = value !== "" ? value : getDefaultValues({dicionario: dicionarios[meta.relation]});
+                valor = value !== "" ? value : getDefaultValues(meta.relation);
                 break;
             default:
                 valor = value !== "" ? value : null
