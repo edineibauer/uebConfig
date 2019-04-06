@@ -25,7 +25,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
         foreach (json_decode($campos, !0) as $item) {
             $convertido = [
                 "nome"  => $item["coluna"],
-                "column"  => Check::name($item["coluna"]),
+                "column"  => str_replace('-', '_', Check::name($item["coluna"])),
                 "minimo"  => $item['propriedades']["min"],
                 "size"  => $item['propriedades']["max"],
                 "unique"  => $item['propriedades']["unico"],
