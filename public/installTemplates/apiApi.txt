@@ -2,6 +2,9 @@
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
+use \Conn\Read;
+use \Helpers\Helper;
+
 ob_start();
 require_once './_config/config.php';
 
@@ -15,7 +18,7 @@ if (isset($_GET['data'])) {
         $data = ["response" => 2, "error" => "Chave de Acesso não Corresponde", "data" => ""];
     } else {
 
-        $read = new \Conn\Read();
+        $read = new Read();
         $url = explode('/', strip_tags(trim($_GET['data'])));
         $include = "";
         $find = false;
@@ -27,7 +30,7 @@ if (isset($_GET['data'])) {
                     $include = PATH_HOME . "public/api" . $include . "/{$u}.php";
                     $find = true;
                 } else {
-                    foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                    foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
                         if (file_exists(PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php")) {
                             $include = PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php";
                             $find = true;
@@ -44,11 +47,20 @@ if (isset($_GET['data'])) {
         }
 
         if ($find) {
-            $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
-            if ($read->getResult() || (!defined("KEY") && $include === PATH_HOME . VENDOR . "config/public/api/system/activation.php") || (defined("KEY") && KEY === $key)) {
+            $allow = !0;
+            if ((!defined("KEY") && $include !== PATH_HOME . VENDOR . "config/public/api/system/activation.php") || (defined("KEY") && KEY !== $key)) {
+                if (defined("KEY") && preg_match("/^" . preg_quote(PATH_HOME . VENDOR . "config/") . "/i", $include)) {
+                    $allow = !1;
+                } else {
+                    $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
+                    $allow = $read->getResult() ? !0 : !1;
+                }
+            }
+
+            if ($allow) {
                 include_once $include;
 
-                if(!empty($data['error']))
+                if (!empty($data['error']))
                     $data['response'] = 2;
                 elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
                     $data = ["response" => 5, "error" => "retorno inválido!", "data" => ""];
@@ -65,15 +77,15 @@ if (isset($_GET['data'])) {
 }
 
 //trabalha cabeçalho de Código de Resposta com base no response
-if($data['response'] === 1)
+if ($data['response'] === 1)
     header("HTTP/1.1 200 OK");
-if($data['response'] === 2)
+if ($data['response'] === 2)
     header("HTTP/1.1 400 Bad Request");
-elseif($data['response'] === 3)
+elseif ($data['response'] === 3)
     header("HTTP/1.1 301 Moved Permanently");
-elseif($data['response'] === 4)
+elseif ($data['response'] === 4)
     header("HTTP/1.1 404 Not Found");
-elseif($data['response'] === 5)
+elseif ($data['response'] === 5)
     header("HTTP/1.1 500 Internal Server Error");
 
 echo json_encode(($data['response'] === 1 ? $data['data'] : $data['error']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
