@@ -1,23 +1,28 @@
 <?php
-$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
+use Config\Config;
+use Entity\Entity;
+use Helpers\Helper;
+
+$permissoes = Config::getPermission();
+$setor = !empty($_SESSION['userlogin']['setor']) ? $_SESSION['userlogin']['setor'] : "0";
+$permissoes = isset($permissoes[$setor]) ? $permissoes[$setor] : [];
 
 //convert dicionário para referenciar colunas e não ids
-$dicionario = [];
-$dicionarioOrdenado = [];
-foreach (Entity\Entity::dicionario() as $entity => $metas) {
-    $indice = 99999;
-    foreach ($metas as $i => $meta) {
-        if ($meta['key'] !== "identifier") {
-            $meta['id'] = $i;
-            $dicionario[$entity][$meta['indice'] ?? $indice++] = $meta;
+$data['data'] = [];
+
+foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
+    if ($entity !== "info" && preg_match("/\.json$/i", $entity)) {
+        $entidade = str_replace(".json", "", $entity);
+        $user = (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . "entity/" . $_SESSION['userlogin']['setor'] . "/{$entity}") ? $_SESSION['userlogin']['setor'] : "cache");
+
+        //Se tiver permissão para ler
+        if (($setor === "admin" || (!empty($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']))) {
+            $result = Helper::convertStringToValueArray(json_decode(file_get_contents(PATH_HOME . "entity/{$user}/{$entity}"), !0));
+            if (!empty($result)) {
+                foreach ($result as $id => $metas)
+                    $data['data'][$entidade][$metas['column']] = $metas;
+            }
         }
     }
-
-    if (!empty($dicionario[$entity])) {
-        ksort($dicionario[$entity]);
-        foreach ($dicionario[$entity] as $i => $meta)
-            $dicionarioOrdenado[$entity][$meta['column']] = $meta;
-    }
 }
-
-$data['data'] = $dicionarioOrdenado;
