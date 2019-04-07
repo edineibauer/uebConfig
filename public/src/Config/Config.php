@@ -244,26 +244,6 @@ class Config
     }
 
     /**
-     * Retorna a lista de entidades bloqueadas por setor
-     * @return array
-     */
-    public static function getEntityNotAllow(): array
-    {
-        $users = ["0" => [], "admin" => []];
-        foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $info) {
-            $infos = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$info}"), !0);
-            if(!empty($infos['user']) && $infos['user'])
-                $users[str_replace(".json", "", $info)] = [];
-        }
-
-        $users = self::entityNotAllow(PATH_HOME, $users);
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-            $users = self::entityNotAllow(PATH_HOME . VENDOR . $lib, $users);
-
-        return $users;
-    }
-
-    /**
      * @param string $path
      * @param array $users
      * @return array
