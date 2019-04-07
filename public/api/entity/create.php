@@ -4,12 +4,13 @@ use Entity\Dicionario;
 use Helpers\Check;
 use Helpers\Helper;
 use \EntityUi\SaveEntity;
+use \Conn\SqlCommand;
 
 $entity = str_replace('-', '_', Check::name(strip_tags(trim(filter_input(INPUT_POST, "entidade", FILTER_DEFAULT)))));
 $icone = strip_tags(trim(filter_input(INPUT_POST, "icone", FILTER_DEFAULT)));
 $autoridade = strip_tags(trim(filter_input(INPUT_POST, "autoridade", FILTER_VALIDATE_INT)));
-$autoridade = $autoridade > 0 ? (int) $autoridade : null;
-$tipo = (int) strip_tags(trim(filter_input(INPUT_POST, "tipo", FILTER_VALIDATE_INT)));
+$autoridade = $autoridade > 0 ? (int)$autoridade : null;
+$tipo = (int)strip_tags(trim(filter_input(INPUT_POST, "tipo", FILTER_VALIDATE_INT)));
 $campos = strip_tags(trim(filter_input(INPUT_POST, "campos", FILTER_DEFAULT)));
 $entityOld = strip_tags(trim(filter_input(INPUT_POST, "entidadeOld", FILTER_DEFAULT)));
 $autoridadeOld = strip_tags(trim(filter_input(INPUT_POST, "autoridadeOld", FILTER_VALIDATE_INT)));
@@ -127,6 +128,19 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
         return $data;
     }
 
+    function getOptionsSource($sources)
+    {
+        $result = [];
+        foreach ($sources as $source) {
+            foreach ($source as $item) {
+                if ($item !== "1")
+                    $result[] = ["option" => $item, "name" => $item];
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @param array $item
      * @param array $propriedades
@@ -140,12 +154,12 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
             "minimo" => checkInt($propriedades["min"]),
             "size" => checkInt($propriedades["max"]),
             "unique" => checkBool($propriedades["unico"]),
-            "default" => checkBool($propriedades["unico"]) ? false : checkString($propriedades["valor_padrao"]),
+            "default" => ($item['tipo_do_campo'] === "information" ? checkString($propriedades["html"]) : (checkBool($propriedades["unico"]) ? false : checkString($propriedades["valor_padrao"]))),
             "update" => checkBool($propriedades["atualizar"]),
             "relation" => checkString($item["entidade_relacional"]),
             "allow" => [
                 "regexp" => checkString($propriedades["expressao_regular"]),
-                "options" => checkArray($propriedades["opcoes_de_entrada"] ?? [])
+                "options" => ($item['tipo_do_campo'] === "1" && $item['generico'] === "source_list" ? getOptionsSource($propriedades['formatos_de_entrada']) : checkArray($propriedades["opcoes_de_entrada"] ?? []))
             ],
             "form" => (checkBool($propriedades["formulario"]) ? [
                 "cols" => checkInt($propriedades["largura_do_campo"]),
@@ -264,7 +278,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
     if (!empty($entityOld) && $entityOld !== $entity) {
 
         //Table Rename
-        $sql = new \Conn\SqlCommand();
+        $sql = new SqlCommand();
         $sql->exeCommand("RENAME TABLE  `" . PRE . "{$entityOld}` TO  `" . PRE . "{$entity}`");
 
         //Entity Rename
