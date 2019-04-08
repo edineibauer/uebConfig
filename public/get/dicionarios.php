@@ -20,8 +20,12 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
         if (($setor === "admin" || (!empty($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']))) {
             $result = Helper::convertStringToValueArray(json_decode(file_get_contents(PATH_HOME . "entity/{$user}/{$entity}"), !0));
             if (!empty($result)) {
-                foreach ($result as $id => $metas)
+                foreach ($result as $id => $metas) {
+                    if (!empty($metas['allow']['options']))
+                        $metas['allow']['options'] = array_reverse($metas['allow']['options']);
+
                     $data['data'][$entidade][$metas['column']] = $metas;
+                }
             }
         }
     }
