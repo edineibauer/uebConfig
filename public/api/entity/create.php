@@ -4,7 +4,6 @@ use Entity\Dicionario;
 use Helpers\Check;
 use Helpers\Helper;
 use \EntityUi\SaveEntity;
-use \Conn\SqlCommand;
 
 $entity = str_replace('-', '_', Check::name(strip_tags(trim(filter_input(INPUT_POST, "entidade", FILTER_DEFAULT)))));
 $icone = strip_tags(trim(filter_input(INPUT_POST, "icone", FILTER_DEFAULT)));
@@ -156,7 +155,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
             "unique" => checkBool($propriedades["unico"]),
             "default" => ($item['tipo_do_campo'] === "information" ? checkString($propriedades["html"]) : (checkBool($propriedades["unico"]) ? false : checkString($propriedades["valor_padrao"]))),
             "update" => checkBool($propriedades["atualizar"]),
-            "relation" => checkString($item["entidade_relacional"]),
+            "relation" => str_replace('-', '_', Check::name(checkString($item["entidade_relacional"]))),
             "allow" => [
                 "regexp" => checkString($propriedades["expressao_regular"]),
                 "options" => ($item['tipo_do_campo'] === "1" && $item['generico'] === "source_list" ? getOptionsSource($propriedades['formatos_de_entrada']) : checkArray($propriedades["opcoes_de_entrada"] ?? []))
@@ -278,7 +277,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
     if (!empty($entityOld) && $entityOld !== $entity) {
 
         //Table Rename
-        $sql = new SqlCommand();
+        $sql = new \Conn\SqlCommand();
         $sql->exeCommand("RENAME TABLE  `" . PRE . "{$entityOld}` TO  `" . PRE . "{$entity}`");
 
         //Entity Rename
