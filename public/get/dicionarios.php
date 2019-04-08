@@ -20,11 +20,34 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
         if (($setor === "admin" || (!empty($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']))) {
             $result = Helper::convertStringToValueArray(json_decode(file_get_contents(PATH_HOME . "entity/{$user}/{$entity}"), !0));
             if (!empty($result)) {
-                foreach ($result as $id => $metas) {
-                    if (!empty($metas['allow']['options']))
-                        $metas['allow']['options'] = array_reverse($metas['allow']['options']);
 
-                    $data['data'][$entidade][$metas['column']] = $metas;
+                if (!empty($result[0]['id'])) {
+                    foreach ($result as $id => $metas) {
+                        if (!empty($metas['allow']['options']))
+                            $metas['allow']['options'] = array_reverse($metas['allow']['options']);
+
+                        $data['data'][$entidade][$metas['column']] = $metas;
+                    }
+                } else {
+
+                    $indice = 99999;
+                    foreach ($result as $id => $meta) {
+                        if ($meta['key'] !== "identifier") {
+                            $meta['id'] = $id;
+
+                            if (!empty($meta['allow']['options']))
+                                $meta['allow']['options'] = array_reverse($meta['allow']['options']);
+
+                            $dicionario[$entity][$meta['indice'] ?? $indice++] = $meta;
+                        }
+                    }
+
+                    if (!empty($dicionario[$entity])) {
+                        ksort($dicionario[$entity]);
+                        foreach ($dicionario[$entity] as $i => $meta)
+                            $dicionarioOrdenado[$entity][$meta['column']] = $meta;
+                    }
+                    $data['data'] = $dicionarioOrdenado;
                 }
             }
         }
