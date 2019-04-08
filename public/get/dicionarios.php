@@ -38,14 +38,14 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
                             if (!empty($meta['allow']['options']))
                                 $meta['allow']['options'] = array_reverse($meta['allow']['options']);
 
-                            $dicionario[$entity][$meta['indice'] ?? $indice++] = $meta;
+                            $dicionario[$entidade][$meta['indice'] ?? $indice++] = $meta;
                         }
                     }
 
-                    if (!empty($dicionario[$entity])) {
-                        ksort($dicionario[$entity]);
-                        foreach ($dicionario[$entity] as $i => $meta)
-                            $dicionarioOrdenado[$entity][$meta['column']] = $meta;
+                    if (!empty($dicionario[$entidade])) {
+                        ksort($dicionario[$entidade]);
+                        foreach ($dicionario[$entidade] as $i => $meta)
+                            $dicionarioOrdenado[$entidade][$meta['column']] = $meta;
                     }
                     $data['data'] = $dicionarioOrdenado;
                 }
