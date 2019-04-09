@@ -220,6 +220,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.txt"));
         Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.txt"));
         Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.txt"));
+        Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.txt"));
         Config\Config::writeFile("public/view/index.php", file_get_contents("public/installTemplates/viewIndex.txt"));
         Config\Config::writeFile("public/param/index.json", file_get_contents("public/installTemplates/viewIndexParam.txt"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
