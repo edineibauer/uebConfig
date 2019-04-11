@@ -254,7 +254,6 @@ class UpdateSystem
         Config::writeFile("_config/.htaccess", "Deny from all");
         Config::writeFile("entity/.htaccess", "Deny from all");
         Config::writeFile("public/react/.htaccess", "Deny from all");
-        Config::writeFile("public/react/online/.htaccess", "Deny from all");
         Config::writeFile("public/cron/.htaccess", "Deny from all");
         Config::writeFile("public/api/.htaccess", "Deny from all");
         Config::writeFile("vendor/.htaccess", $this->getAccessFile());
@@ -468,7 +467,7 @@ class UpdateSystem
         if(!empty($data)) {
             foreach ($data as $datum) {
                 foreach ($datum['arquivos'] as $file) {
-                    if ($file['type'] === "text/javascript") {
+                    if ($file['type'] === "text/javascript" && !empty($file['content'])) {
 
                         //remove old
                         if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js"))
@@ -478,7 +477,7 @@ class UpdateSystem
                         $minifier = new Minify\JS($file['content']);
                         $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
 
-                    } elseif ($file['type'] === "text/css") {
+                    } elseif ($file['type'] === "text/css" && !empty($file['content'])) {
 
                         //remove old
                         if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css"))
@@ -502,7 +501,7 @@ class UpdateSystem
             $nameOnline = explode('.', pathinfo($url, PATHINFO_FILENAME))[0];
             $extOnline = pathinfo($url, PATHINFO_EXTENSION);
 
-            if (!file_exists(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.{$extOnline}") && Helper::isOnline($url)) {
+            if (!file_exists(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.{$extOnline}")) {
 
                 //busca online
                 if ($extOnline === "js")
@@ -511,6 +510,37 @@ class UpdateSystem
                     $m = new Minify\CSS(file_get_contents($url));
 
                 $m->minify(PATH_HOME . "assetsPublic/cache/{$nameOnline}.min.{$extOnline}");
+            }
+        } else {
+
+            //busca online
+            $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$url}"), !0);
+
+            if(!empty($data)) {
+                foreach ($data as $datum) {
+                    foreach ($datum['arquivos'] as $file) {
+                        if ($file['type'] === "text/javascript" && !empty($file['content'])) {
+
+                            //remove old
+                            if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js"))
+                                unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
+
+                            //minifica novo
+                            $minifier = new Minify\JS($file['content']);
+                            $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
+
+                        } elseif ($file['type'] === "text/css" && !empty($file['content'])) {
+
+                            //remove old
+                            if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css"))
+                                unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+
+                            //minifica novo
+                            $minifier = new Minify\CSS($file['content']);
+                            $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+                        }
+                    }
+                }
             }
         }
     }
@@ -532,11 +562,16 @@ class UpdateSystem
                             $param = json_decode(file_get_contents($path . "param/{$nameView}.json"), true);
 
                             if (!empty($param['js']) || !empty($param['css'])) {
-                                $assets = array_unique(array_merge((!empty($param['js']) ? (is_string($param['js']) ? [$param['js']] : $param['js']) : []), (!empty($param['css']) ? (is_string($param['css']) ? [$param['css']] : $param['css']) : [])));
+                                $assets = array_unique((!empty($param['js']) ? (is_string($param['js']) ? [$param['js']] : $param['js']) : []));
+                                $assetsCss = array_unique((!empty($param['css']) ? (is_string($param['css']) ? [$param['css']] : $param['css']) : []));
 
                                 foreach ($assets as $asset) {
                                     if (is_string($asset))
-                                        $this->downloadAssets($asset);
+                                        $this->downloadAssets($asset, 'js');
+                                }
+                                foreach ($assetsCss as $asset) {
+                                    if (is_string($asset))
+                                        $this->downloadAssets($asset, 'css');
                                 }
                             }
                         }
