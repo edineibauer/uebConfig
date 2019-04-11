@@ -84,7 +84,7 @@ class Config
             elseif (!defined("PATH_HOME"))
                 $url = "../../../" . $url;
 
-            $fp = fopen($url, "w");
+            $fp = fopen($url, "w+");
             if($fp) {
                 fwrite($fp, $content);
                 fclose($fp);
@@ -238,7 +238,7 @@ class Config
         $update += 1;
 
         Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
-        $f = fopen(PATH_HOME . "_config/updates/update.txt", "w");
+        $f = fopen(PATH_HOME . "_config/updates/update.txt", "w+");
         fwrite($f, $update);
         fclose($f);
     }
