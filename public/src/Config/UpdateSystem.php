@@ -201,13 +201,13 @@ class UpdateSystem
         //gera core novamente
         $f = [];
         if (file_exists(PATH_HOME . "_config/param.json"))
-            $f = json_decode(file_get_contents(PATH_HOME . "_config/param.json"), true);
+            $f = json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0);
 
         $list = implode('/', array_unique(array_merge($f['js'], $f['css'])));
-        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
-        if ($data['response'] === 1 && !empty($data['data'])) {
-            $this->createCoreJs($f['js'], $data['data'], 'core');
-            $this->createCoreCss($f['css'], $data['data'], 'core');
+        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), !0);
+        if (!empty($data)) {
+            $this->createCoreJs($f['js'], $data, 'core');
+            $this->createCoreCss($f['css'], $data, 'core');
         }
 
         $this->createCoreFont($f['font'], $f['icon'], 'fonts');
@@ -463,30 +463,31 @@ class UpdateSystem
     private function createRepositorioCache(array $vendors)
     {
         $listaRequestScripts = implode('/', $this->getAllAssetsFromRepositorio($vendors));
-        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$listaRequestScripts}"), true);
-        $data = $data['response'] === 1 && !empty($data['data']) ? $data['data'] : [];
+        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$listaRequestScripts}"), !0);
 
-        foreach ($data as $datum) {
-            foreach ($datum['arquivos'] as $file) {
-                if ($file['type'] === "text/javascript") {
+        if(!empty($data)) {
+            foreach ($data as $datum) {
+                foreach ($datum['arquivos'] as $file) {
+                    if ($file['type'] === "text/javascript") {
 
-                    //remove old
-                    if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js"))
-                        unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
+                        //remove old
+                        if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js"))
+                            unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
 
-                    //minifica novo
-                    $minifier = new Minify\JS($file['content']);
-                    $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
+                        //minifica novo
+                        $minifier = new Minify\JS($file['content']);
+                        $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.js");
 
-                } elseif ($file['type'] === "text/css") {
+                    } elseif ($file['type'] === "text/css") {
 
-                    //remove old
-                    if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css"))
-                        unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+                        //remove old
+                        if (file_exists(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css"))
+                            unlink(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
 
-                    //minifica novo
-                    $minifier = new Minify\CSS($file['content']);
-                    $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+                        //minifica novo
+                        $minifier = new Minify\CSS($file['content']);
+                        $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+                    }
                 }
             }
         }
