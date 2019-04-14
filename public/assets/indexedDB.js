@@ -621,7 +621,7 @@ function getDefaultValue(meta, value) {
                 let options = [];
                 valor = [];
                 $.each(meta.allow.options, function (i, e) {
-                    options.push(e.option.toString())
+                    options.push(e.valor.toString())
                 });
                 if (value !== "") {
                     if (isJson(value)) {
