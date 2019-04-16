@@ -659,7 +659,7 @@ function getDefaultValue(meta, value) {
                 valor = value !== "" ? getDefaultValues(meta.relation, value) : getDefaultValues(meta.relation);
                 break;
             default:
-                valor = value !== "" ? value : null
+                valor = value !== "" ? (value === 0 ? "0" : value) : null
         }
     } else {
         valor = null
