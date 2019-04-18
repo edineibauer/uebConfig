@@ -177,7 +177,8 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
                 "grid_template" => checkString($propriedades["template_listagem"]),
             ] : false),
             "indice" => $indice,
-            "id" => $item['id']
+            "id" => $item['id'],
+            "rules" => !empty($item['regras_de_campo']) ? $item['regras_de_campo']['propriedades'] : []
         ];
     }
 
