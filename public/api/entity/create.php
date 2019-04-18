@@ -133,7 +133,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
         foreach ($sources as $source) {
             foreach ($source as $item) {
                 if ($item !== "1")
-                    $result[] = ["option" => $item, "name" => $item];
+                    $result[] = ["valor" => $item, "representacao" => $item];
             }
         }
 
