@@ -178,7 +178,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
             ] : false),
             "indice" => $indice,
             "id" => $item['id'],
-            "rules" => !empty($item['regras_de_campo']) ? $item['regras_de_campo']['propriedades'] : []
+            "rules" => $item['regras_de_campo'] ?? []
         ];
     }
 
