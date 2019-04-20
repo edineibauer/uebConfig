@@ -145,41 +145,59 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
      * @param array $propriedades
      * @return array
      */
-    function getConvertedCampos(array $item, array $propriedades, int $indice): array
+    function getConvertedCampos(array $item, array $propriedades, array $base, int $indice): array
     {
-        return [
-            "nome" => $item["coluna"],
-            "column" => str_replace('-', '_', Check::name($item["coluna"])),
-            "minimo" => checkInt($propriedades["min"]),
-            "size" => checkInt($propriedades["max"]),
-            "unique" => checkBool($propriedades["unico"]),
-            "default" => ($item['tipo_do_campo'] === "information" ? checkString($propriedades["html"]) : (checkBool($propriedades["unico"]) ? false : checkString($propriedades["valor_padrao"]))),
-            "update" => checkBool($propriedades["atualizar"]),
-            "relation" => str_replace('-', '_', Check::name(checkString($item["entidade_relacional"]))),
+        $regras = [];
+        if (!empty($item['regras_de_campo'])) {
+            foreach ($item['regras_de_campo'] as $rule) {
+                $itemR = $item;
+                unset($itemR['regras_de_campo']);
+                $additional = [
+                    "campo" => $rule['campo'],
+                    "valor" => $rule['valor'],
+                    "rule" => "="
+                ];
+                $ruleCampo = getConvertedCampos($itemR, $rule['propriedades'], $base, 0);
+                $regras[] = Helper::arrayMerge($ruleCampo, $additional);
+            }
+        }
+
+        $fields = [
+            "nome" => $item["coluna"] ?? "",
+            "column" => str_replace('-', '_', Check::name($item["coluna"] ?? "")),
+            "minimo" => checkInt($propriedades["min"] ?? ""),
+            "size" => checkInt($propriedades["max"] ?? ""),
+            "unique" => checkBool($propriedades["unico"] ?? !1),
+            "default" => ($item['tipo_do_campo'] === "information" ? checkString($propriedades["html"] ?? "") : (checkBool($propriedades["unico"] ?? !1) ? false : checkString($propriedades["valor_padrao"] ?? ""))),
+            "update" => checkBool($propriedades["atualizar"] ?? !1),
+            "relation" => str_replace('-', '_', Check::name(checkString($item["entidade_relacional"] ?? ""))),
             "allow" => [
-                "regexp" => checkString($propriedades["expressao_regular"]),
-                "options" => ($item['tipo_do_campo'] === "1" && $item['generico'] === "source_list" ? getOptionsSource($propriedades['formatos_de_entrada']) : checkArray($propriedades["opcoes_de_entrada"] ?? []))
+                "regexp" => checkString($propriedades["expressao_regular"] ?? ""),
+                "options" => ($item['tipo_do_campo'] === "1" && $item['generico'] === "source_list" ? getOptionsSource($propriedades['formatos_de_entrada'] ?? []) : checkArray($propriedades["opcoes_de_entrada"] ?? []))
             ],
-            "form" => (checkBool($propriedades["formulario"]) ? [
-                "cols" => checkInt($propriedades["largura_do_campo"]),
-                "colm" => checkInt($propriedades["tablet"]),
-                "coll" => checkInt($propriedades["desktop"]),
-                "orientation" => checkInt($propriedades["orientacao_das_opcoes"]),
-                "class" => checkString($propriedades["class"]),
-                "style" => checkString($propriedades["style"]),
-                "template" => checkString($propriedades["template"]),
-                "atributos" => checkString($propriedades["atributos"])
-            ] : false),
-            "datagrid" => (checkBool($propriedades["listagem"]) ? [
-                "grid_relevant" => checkInt($propriedades["posicionamento"]),
-                "grid_class" => checkString($propriedades["class_listagem"]),
-                "grid_style" => checkString($propriedades["style_listagem"]),
-                "grid_template" => checkString($propriedades["template_listagem"]),
+            "form" => [
+                "display" => checkBool($propriedades["formulario"] ?? !1),
+                "cols" => checkInt($propriedades["largura_do_campo"] ?? ""),
+                "colm" => checkInt($propriedades["tablet"] ?? ""),
+                "coll" => checkInt($propriedades["desktop"] ?? ""),
+                "orientation" => checkInt($propriedades["orientacao_das_opcoes"] ?? ""),
+                "class" => checkString($propriedades["class"] ?? ""),
+                "style" => checkString($propriedades["style"] ?? ""),
+                "template" => checkString($propriedades["template"] ?? ""),
+                "atributos" => checkString($propriedades["atributos"] ?? "")
+            ],
+            "datagrid" => (checkBool($propriedades["listagem"] ?? !1) ? [
+                "grid_relevant" => checkInt($propriedades["posicionamento"] ?? ""),
+                "grid_class" => checkString($propriedades["class_listagem"] ?? ""),
+                "grid_style" => checkString($propriedades["style_listagem"] ?? ""),
+                "grid_template" => checkString($propriedades["template_listagem"] ?? ""),
             ] : false),
             "indice" => $indice,
             "id" => $item['id'],
-            "rules" => $item['regras_de_campo'] ?? []
+            "rules" => $regras
         ];
+
+        return Helper::arrayMerge($base, $fields);
     }
 
     /**
@@ -200,16 +218,13 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
         foreach ($campos as $item) {
             $tipo = $item['tipo_do_campo'] === "1" ? $item['generico'] : ($item['tipo_do_campo'] === "2" ? $item['semantico'] : ($item['tipo_do_campo'] === "3" ? $item['relacionamento'] : $item['tipo_do_campo']));
             $base = Helper::arrayMerge($defaults['default'], $defaults[$tipo]);
-            $userCampos = getConvertedCampos($item, $item['propriedades'], $i);
-            $result['cache'][$item['id']] = Helper::arrayMerge($base, $userCampos);
+            $result['cache'][$item['id']] = getConvertedCampos($item, $item['propriedades'], $base, $i);
 
             if (!empty($item['regras_de_usuario'])) {
                 foreach ($item['regras_de_usuario'] as $regra) {
                     $regraUser = str_replace('-', '_', Check::name($regra['tipo_de_usuario']));
-                    if (isset($result[$regraUser])) {
-                        $userCamposRegra = getConvertedCampos($item, $regra['propriedades'], $i);
-                        $result[$regraUser][$item['id']] = Helper::arrayMerge($base, $userCamposRegra);
-                    }
+                    if (isset($result[$regraUser]))
+                        $result[$regraUser][$item['id']] = getConvertedCampos($item, $regra['propriedades'], $base, $i);
                 }
             }
 
