@@ -346,10 +346,10 @@ class UpdateSystem
             foreach ($cssList as $item) {
                 $datum = array_values(array_filter(array_map(function ($d) use ($item) {
                     return $d['nome'] === $item ? $d : [];
-                }, $data)))[0];
+                }, $data)));
 
-                if (!empty($datum['arquivos'])) {
-                    foreach ($datum['arquivos'] as $file) {
+                if (!empty($datum[0]) && !empty($datum[0]['arquivos'])) {
+                    foreach ($datum[0]['arquivos'] as $file) {
                         if ($file['type'] === "text/css")
                             $minifier->add($file['content']);
                     }
