@@ -401,9 +401,11 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/save.gif", PATH_HOME . "assetsPublic/img/save.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/file_type.svg", PATH_HOME . "assetsPublic/img/file_type.svg");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
+
+        if(file_exists(PATH_HOME . (!empty($config['favicon']) ? "uploads/site/favicon.png" : VENDOR . "config/public/assets/favicon.png")))
         copy(PATH_HOME . (!empty($config['favicon']) ? "uploads/site/favicon.png" : VENDOR . "config/public/assets/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
 
-        if(!empty($config['logo']))
+        if(!empty($config['logo']) && file_exists(PATH_HOME . "uploads/site/logo.png"))
             copy(PATH_HOME . "uploads/site/logo.png", PATH_HOME . "assetsPublic/img/logo.png");
 
         elseif(file_exists(PATH_HOME . "assetsPublic/img/logo.png"))
