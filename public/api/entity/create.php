@@ -186,11 +186,11 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
                 "template" => checkString($propriedades["template"] ?? ""),
                 "atributos" => checkString($propriedades["atributos"] ?? "")
             ],
-            "datagrid" => (checkBool($propriedades["listagem"] ?? !1) ? [
-                "grid_relevant" => checkInt($propriedades["posicionamento"] ?? ""),
-                "grid_class" => checkString($propriedades["class_listagem"] ?? ""),
-                "grid_style" => checkString($propriedades["style_listagem"] ?? ""),
-                "grid_template" => checkString($propriedades["template_listagem"] ?? ""),
+            "datagrid" => (checkBool($item["listagem"] ?? !1) ? [
+                "grid_relevant" => checkInt($item["posicionamento"] ?? ""),
+                "grid_class" => checkString($item["class_listagem"] ?? ""),
+                "grid_style" => checkString($item["style_listagem"] ?? ""),
+                "grid_template" => checkString($item["template_listagem"] ?? ""),
             ] : false),
             "indice" => $indice,
             "id" => $item['id'],
