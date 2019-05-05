@@ -69,6 +69,7 @@ function getCookie(cname) {
     return ""
 }
 
+
 function clearCacheLogin() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
@@ -102,11 +103,56 @@ function clearCacheLogin() {
 }
 
 function loadScreen() {
+
+    document.querySelector("#app").style.opacity = 0.7;
+
+    let spin = '<div class="spinner">\n' +
+        '  <div class="double-bounce1" style="background-color: ' + THEMETEXT + '"></div>\n' +
+        '  <div class="double-bounce2" style="background-color: ' + THEMETEXT + '"></div>\n' +
+        '</div>';
+
     return pleaseWait({
         logo: HOME + "assetsPublic/img/favicon-144.png",
-        backgroundColor: THEME,
-        loadingHtml: "<p class='theme-text-aux load-screen-text'>Carregando Recursos</p><div class='spinner'><div class='bounce1' style='background-color: " + THEMETEXT + "'></div><div class='bounce2' style='background-color: " + THEMETEXT + "'></div><div class='bounce3' style='background-color: " + THEMETEXT + "'></div></div>"
+        loadingHtml: spin
     })
+}
+
+function updateVersion() {
+    return clearCache().then(() => {
+        return new Promise(function (resolve, reject) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", HOME + "set");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+                    if (typeof data.data === "object" && data.response === 1)
+                        setCookie("update", data.data);
+
+                    resolve(1);
+                }
+            };
+            xhttp.send("lib=config&file=update&update=false");
+        })
+    });
+}
+
+function checkUpdate() {
+    return new Promise(function (resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", HOME + "set");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let data = JSON.parse(this.responseText);
+                if (typeof data.data === "object" && data.response === 1 && data.data != getCookie("update"))
+                    resolve(updateVersion());
+                else
+                    resolve(1);
+            }
+        };
+        xhttp.send("lib=config&file=update&update=false");
+    });
 }
 
 function updateCacheLogin() {
@@ -139,7 +185,7 @@ function updateCacheLogin() {
             creates.push(dbLocal.exeCreate('__panel', r[3]));
             return Promise.all(creates)
         })
-    });
+    })
 }
 
 function clearCache() {
@@ -226,19 +272,30 @@ function updateCache() {
                 return Promise.all(creates)
             })
         }).then(() => {
-            if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("POST", HOME + "set", !0);
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let data = JSON.parse(this.responseText);
-                        if (data.data !== "no-network" && data.response === 1)
-                            setCookie("update", data.data)
-                    }
-                };
-                xhttp.send("lib=config&file=update")
-            }
+            return new Promise(function (resolve, reject) {
+                if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open("POST", HOME + "set");
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState === 4 && this.status === 200) {
+                            let data = JSON.parse(this.responseText);
+                            if (data.data !== "no-network" && data.response === 1)
+                                setCookie("update", data.data);
+
+                            resolve(1);
+                        }
+                    };
+                    xhttp.send("lib=config&file=update")
+                } else {
+                    resolve(1);
+                }
+            });
+        }).then(() => {
+            return checkUpdate();
+        }).then(() => {
+            return checkSessao()
+        }).then(() => {
             window.location.reload(!0)
         })
     })
@@ -280,30 +337,23 @@ function menuHeader() {
     }
     if (getCookie("token") === "0")
         document.querySelector("#core-header-container").style.maxWidth = "1200px";
-
     let btnLoginAside = document.querySelector("#login-aside");
     if (getCookie("setor") !== "0") {
         btnLoginAside.onclick = function () {
-            logoutDashboard();
+            logoutDashboard()
         };
-        btnLoginAside.children[0].innerHTML = "exit_to_app";
+        btnLoginAside.children[0].innerHTML = "exit_to_app"
     } else {
         btnLoginAside.onclick = function () {
             app.loadView(HOME + "login");
-            closeSidebar();
+            closeSidebar()
         };
-        btnLoginAside.children[0].innerHTML = "lock_open";
+        btnLoginAside.children[0].innerHTML = "lock_open"
     }
 }
 
 function setCookieAnonimo() {
-    return setCookieUser({
-        token: 0,
-        id: 0,
-        nome: 'Anônimo',
-        imagem: '',
-        setor: 0,
-    })
+    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0,})
 }
 
 function setCookieUser(user) {
@@ -316,30 +366,31 @@ function setCookieUser(user) {
 }
 
 function checkSessao() {
-    if (getCookie("token") === "") {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set", !1);
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                let data = JSON.parse(this.responseText);
-                if (typeof data.data === "object" && data.response === 1) {
-                    return setCookieUser(data.data).then(() => {
-                        window.location.href = HOME + "dashboard";
-                    });
-                } else {
-                    return setCookieAnonimo().then(() => {
-                        window.location.href = HOME + "login";
-                    });
+    return new Promise(function (resolve, reject) {
+        if (getCookie("token") === "") {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", HOME + "set");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+                    if (typeof data.data === "object" && data.response === 1) {
+                        resolve(setCookieUser(data.data).then(() => {
+                            window.location.href = HOME + "dashboard"
+                        }));
+                    } else {
+                        resolve(setCookieAnonimo().then(() => {
+                            window.location.href = HOME
+                        }));
+                    }
                 }
-            }
-        };
-        xhttp.send("lib=route&file=sessao");
-        return 1
-    } else {
-        setSidebarInfo();
-        return 1
-    }
+            };
+            xhttp.send("lib=route&file=sessao");
+        } else {
+            setSidebarInfo();
+            resolve(1);
+        }
+    });
 }
 
 function setSidebarInfo() {
@@ -358,9 +409,9 @@ window.onload = function () {
             return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
                 if (!response)
                     return updateCache()
+                else
+                    return checkSessao()
             })
-        }).then(() => {
-            return checkSessao()
         }).then(() => {
             menuHeader();
             if ('serviceWorker' in navigator)
