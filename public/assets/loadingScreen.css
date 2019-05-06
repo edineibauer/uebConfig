@@ -22,7 +22,7 @@ body.pg-loading {
 .pg-loading-html {
     position: absolute;
     left: calc(50% - 72.5px);
-    top: calc(50% - 76.5px);
+    top: calc(50% - 77.5px);
 }
 
 .pg-loading-logo {
