@@ -129,7 +129,7 @@ function updateVersion() {
                     if (typeof data.data === "object" && data.response === 1)
                         setCookie("update", data.data);
 
-                    resolve(1);
+                    location.reload(!0);
                 }
             };
             xhttp.send("lib=config&file=update&update=false");
@@ -145,8 +145,8 @@ function checkUpdate() {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                if (typeof data.data === "object" && data.response === 1 && data.data != getCookie("update"))
-                    resolve(updateVersion());
+                if (data.response === 1 && data.data != getCookie("update"))
+                    updateVersion();
                 else
                     resolve(1);
             }
@@ -387,6 +387,7 @@ function checkSessao() {
             };
             xhttp.send("lib=route&file=sessao");
         } else {
+            checkUpdate();
             setSidebarInfo();
             resolve(1);
         }

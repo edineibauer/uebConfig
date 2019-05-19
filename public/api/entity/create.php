@@ -1,5 +1,6 @@
 <?php
 
+use Config\Config;
 use Entity\Dicionario;
 use Helpers\Check;
 use Helpers\Helper;
@@ -240,6 +241,11 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
     }
 
     /**
+     * Verifica se é uma atualização ou criação
+     */
+    $isCreate = !file_exists(PATH_HOME . "entity/cache/{$entity}.json");
+
+    /**
      *  Obtém lista de usuários
      */
     $users = ['cache'];
@@ -315,6 +321,20 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
             }
         }
     }
+
+    /**
+     * Se for uma nova entidade, dê permissão de menu ao ADM
+     */
+    if($isCreate) {
+        $p = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), !0);
+        $p['admin'][$entity]['menu'] = "true";
+        Config::writeFile(PATH_HOME . "_config/permissoes.json", json_encode($p));
+    }
+
+    /**
+     * Informa ao sistema que houve atualização
+     */
+    Config::updateSite();
 
     $data['data'] = 1;
 } else {
