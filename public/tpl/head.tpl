@@ -16,6 +16,10 @@
 <link rel='stylesheet' href='{$home}assetsPublic/loadingScreen.min.css' type='text/css' media='all'/>
 <link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
 
+<meta name="theme-color" content="{{$theme}}">
+<meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
+<meta name="msapplication-navbutton-color" content="{{$theme}}">
+
 <style type="text/css" id="core-style"></style>
 <script>
     const HOME = '{$home}';
