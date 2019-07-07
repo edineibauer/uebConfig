@@ -39,7 +39,7 @@ function get(file) {
                     location.href = data.data;
                     break;
                 case 4:
-                    if(data.data !== "no-network")
+                    if (data.data !== "no-network")
                         toast("Caminho não encontrado", 1500, "toast-warning")
             }
         }
@@ -156,36 +156,41 @@ function checkUpdate() {
 }
 
 function updateCacheLogin() {
-    loadScreen();
-    return clearCacheLogin().then(() => {
-        return get("appView").then(g => {
-            return caches.open('view-v' + VERSION).then(cache => {
-                let all = [];
-                for (let i in g.view) {
-                    if (typeof g.view[i] === "string") {
-                        all.push(cache.delete(g.view[i]).then(() => {
-                            return cache.add(g.view[i])
-                        }))
+    if (navigator.onLine) {
+        loadScreen();
+        return clearCacheLogin().then(() => {
+            return get("appView").then(g => {
+                return caches.open('view-v' + VERSION).then(cache => {
+                    let all = [];
+                    for (let i in g.view) {
+                        if (typeof g.view[i] === "string") {
+                            all.push(cache.delete(g.view[i]).then(() => {
+                                return cache.add(g.view[i])
+                            }))
+                        }
                     }
-                }
-                return Promise.all(all)
+                    return Promise.all(all)
+                })
             })
-        })
-    }).then(() => {
-        let gets = [];
-        let creates = [];
-        gets.push(get("dicionarios"));
-        gets.push(get("info"));
-        gets.push(get("menu"));
-        gets.push(get("panel"));
-        return Promise.all(gets).then(r => {
-            creates.push(dbLocal.exeCreate('__dicionario', r[0]));
-            creates.push(dbLocal.exeCreate('__info', r[1]));
-            creates.push(dbLocal.exeCreate('__menu', r[2]));
-            creates.push(dbLocal.exeCreate('__panel', r[3]));
-            return Promise.all(creates)
-        })
-    })
+        }).then(() => {
+            let gets = [];
+            let creates = [];
+            gets.push(get("dicionarios"));
+            gets.push(get("info"));
+            gets.push(get("menu"));
+            gets.push(get("panel"));
+            return Promise.all(gets).then(r => {
+                creates.push(dbLocal.exeCreate('__dicionario', r[0]));
+                creates.push(dbLocal.exeCreate('__info', r[1]));
+                creates.push(dbLocal.exeCreate('__menu', r[2]));
+                creates.push(dbLocal.exeCreate('__panel', r[3]));
+                return Promise.all(creates)
+            })
+        });
+
+    } else {
+        toast("Sem Conexão", 1200);
+    }
 }
 
 function clearCache() {
@@ -218,87 +223,91 @@ function clearCache() {
 }
 
 function updateCache() {
-    loadScreen();
-    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        for (let registration of registrations)
-            registration.unregister()
-    }).then(() => {
-        return clearCache().then(() => {
-            return get("currentFiles/" + window.location.pathname).then(g => {
-                return caches.open('core-v' + VERSION).then(cache => {
-                    return cache.addAll(g.core)
-                }).then(() => {
-                    return caches.open('fonts-v' + VERSION).then(cache => {
-                        return cache.addAll(g.fonts)
-                    })
-                }).then(() => {
-                    return caches.open('images-v' + VERSION).then(cache => {
-                        return cache.addAll(g.images)
-                    })
-                }).then(() => {
-                    return caches.open('viewJs-v' + VERSION).then(cache => {
-                        return cache.addAll(g.viewJs)
-                    })
-                }).then(() => {
-                    return caches.open('viewCss-v' + VERSION).then(cache => {
-                        return cache.addAll(g.viewCss)
-                    })
-                }).then(() => {
-                    return caches.open('view-v' + VERSION).then(cache => {
-                        return cache.addAll(g.view)
-                    })
-                }).then(() => {
-                    return caches.open('midia-v' + VERSION).then(cache => {
-                        return cache.addAll(g.midia)
+    if (navigator.onLine) {
+        loadScreen();
+        return navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            for (let registration of registrations)
+                registration.unregister()
+        }).then(() => {
+            return clearCache().then(() => {
+                return get("currentFiles/" + window.location.pathname).then(g => {
+                    return caches.open('core-v' + VERSION).then(cache => {
+                        return cache.addAll(g.core)
+                    }).then(() => {
+                        return caches.open('fonts-v' + VERSION).then(cache => {
+                            return cache.addAll(g.fonts)
+                        })
+                    }).then(() => {
+                        return caches.open('images-v' + VERSION).then(cache => {
+                            return cache.addAll(g.images)
+                        })
+                    }).then(() => {
+                        return caches.open('viewJs-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewJs)
+                        })
+                    }).then(() => {
+                        return caches.open('viewCss-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewCss)
+                        })
+                    }).then(() => {
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.addAll(g.view)
+                        })
+                    }).then(() => {
+                        return caches.open('midia-v' + VERSION).then(cache => {
+                            return cache.addAll(g.midia)
+                        })
                     })
                 })
-            })
-        }).then(() => {
-            let gets = [];
-            let creates = [];
-            gets.push(get("allow"));
-            gets.push(get("dicionarios"));
-            gets.push(get("info"));
-            gets.push(get("templates"));
-            gets.push(get("menu"));
-            gets.push(get("panel"));
-            return Promise.all(gets).then(r => {
-                creates.push(dbLocal.exeCreate('__allow', r[0]));
-                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-                creates.push(dbLocal.exeCreate('__info', r[2]));
-                creates.push(dbLocal.exeCreate('__template', r[3]));
-                creates.push(dbLocal.exeCreate('__menu', r[4]));
-                creates.push(dbLocal.exeCreate('__panel', r[5]));
-                return Promise.all(creates)
-            })
-        }).then(() => {
-            return new Promise(function (resolve, reject) {
-                if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.open("POST", HOME + "set");
-                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    xhttp.onreadystatechange = function () {
-                        if (this.readyState === 4 && this.status === 200) {
-                            let data = JSON.parse(this.responseText);
-                            if (data.data !== "no-network" && data.response === 1)
-                                setCookie("update", data.data);
+            }).then(() => {
+                let gets = [];
+                let creates = [];
+                gets.push(get("allow"));
+                gets.push(get("dicionarios"));
+                gets.push(get("info"));
+                gets.push(get("templates"));
+                gets.push(get("menu"));
+                gets.push(get("panel"));
+                return Promise.all(gets).then(r => {
+                    creates.push(dbLocal.exeCreate('__allow', r[0]));
+                    creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+                    creates.push(dbLocal.exeCreate('__info', r[2]));
+                    creates.push(dbLocal.exeCreate('__template', r[3]));
+                    creates.push(dbLocal.exeCreate('__menu', r[4]));
+                    creates.push(dbLocal.exeCreate('__panel', r[5]));
+                    return Promise.all(creates)
+                })
+            }).then(() => {
+                return new Promise(function (resolve, reject) {
+                    if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.open("POST", HOME + "set");
+                        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        xhttp.onreadystatechange = function () {
+                            if (this.readyState === 4 && this.status === 200) {
+                                let data = JSON.parse(this.responseText);
+                                if (data.data !== "no-network" && data.response === 1)
+                                    setCookie("update", data.data);
 
-                            resolve(1);
-                        }
-                    };
-                    xhttp.send("lib=config&file=update")
-                } else {
-                    resolve(1);
-                }
-            });
-        }).then(() => {
-            return checkUpdate();
-        }).then(() => {
-            return checkSessao()
-        }).then(() => {
-            window.location.reload(!0)
+                                resolve(1);
+                            }
+                        };
+                        xhttp.send("lib=config&file=update")
+                    } else {
+                        resolve(1);
+                    }
+                });
+            }).then(() => {
+                return checkUpdate();
+            }).then(() => {
+                return checkSessao()
+            }).then(() => {
+                window.location.reload(!0)
+            })
         })
-    })
+    } else {
+        toast("Sem Conexão", 1200);
+    }
 }
 
 function menuHeader() {
