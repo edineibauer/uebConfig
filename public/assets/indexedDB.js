@@ -488,8 +488,14 @@ function getIdAction(entity, id) {
             return [key, 'create']
         })
     } else {
-        return db.exeRead(entity, id).then(d => {
-            return [parseInt(id), (!isEmpty(d) || d.db_action === 'update' ? 'update' : 'create')]
+        return db.exeRead("sync_" + entity, id).then(d => {
+            if(isEmpty(d)) {
+                return db.exeRead(entity, id).then(d => {
+                    return [parseInt(id), (isEmpty(d) ? 'create' : 'update')]
+                })
+            } else {
+                return [parseInt(id), (d.db_action === 'update' ? 'update' : 'create')];
+            }
         })
     }
 }
