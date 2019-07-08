@@ -361,45 +361,73 @@ const dbRemote = {
         return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
             if (!dadosSync.length)
                 return 0;
-            return new Promise(function (resolve, reject) {
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {lib: "entity", file: "up/entity", entity: entity, dados: convertEmptyArrayToNull(dadosSync)},
-                    success: function (data) {
-                        if (data.response === 1 && typeof data.data === "object")
-                            resolve(data.data);
-                        resolve(0)
-                    },
-                    error: function () {
-                        resolve(0)
-                    },
-                    dataType: "json",
-                    async: !0
-                })
-            }).then(response => {
-                if (response === 0)
-                    return 0;
-                if (response.error > 0)
-                    toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
-                dbLocal.clear('sync_' + entity);
-                let historicData = {};
-                historicData[entity] = response.historic;
-                dbLocal.exeUpdate("__historic", historicData, 1);
-                let syncData = moveSyncDataToDb(entity, response.data);
-                let react = dbLocal.exeRead("__reactOnline");
-                return Promise.all([syncData, react]).then(r => {
-                    syncData = r[0];
-                    react = r[1];
-                    $.each(syncData, function (i, syncD) {
-                        let dados = Object.assign({}, syncD);
-                        if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                            eval(react[0][entity][dados.db_action])
+
+            if(navigator.onLine) {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        type: "POST",
+                        url: HOME + 'set',
+                        data: {
+                            lib: "entity",
+                            file: "up/entity",
+                            entity: entity,
+                            dados: convertEmptyArrayToNull(dadosSync)
+                        },
+                        success: function (data) {
+                            $(".toast").remove();
+                            toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
+                            if (data.response === 1 && typeof data.data === "object")
+                                resolve(data.data);
+                            resolve(0)
+                        },
+                        error: function () {
+                            $(".toast").remove();
+                            toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
+                            resolve(0)
+                        },
+                        xhr: function () {
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.addEventListener("progress", function (evt) {
+                                if (evt.lengthComputable) {
+                                    $(".toast").remove();
+                                    toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
+                                }
+                            }, !1);
+                            return xhr;
+                        },
+                        beforeSend: function () {
+                            toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
+                        },
+                        dataType: "json",
+                        async: !0
+                    })
+                }).then(response => {
+                    if (response === 0)
+                        return 0;
+                    if (response.error > 0)
+                        toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
+                    dbLocal.clear('sync_' + entity);
+                    let historicData = {};
+                    historicData[entity] = response.historic;
+                    dbLocal.exeUpdate("__historic", historicData, 1);
+                    let syncData = moveSyncDataToDb(entity, response.data);
+                    let react = dbLocal.exeRead("__reactOnline");
+                    return Promise.all([syncData, react]).then(r => {
+                        syncData = r[0];
+                        react = r[1];
+                        $.each(syncData, function (i, syncD) {
+                            let dados = Object.assign({}, syncD);
+                            if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
+                                eval(react[0][entity][dados.db_action])
+                        });
+                        return syncData
                     });
-                    return syncData
-                });
-                return 1
-            })
+                    return 1;
+                })
+            } else {
+                toast("Sem Conexão", 2000);
+                return 1;
+            }
         })
     }
 };
@@ -671,4 +699,21 @@ function getDefaultValue(meta, value) {
         valor = null
     }
     return valor
+}
+
+function syncDataBtn(entity) {
+    $(".toast").remove();
+
+    if(navigator.onLine) {
+        dbRemote.sync(entity).then(isUpdated => {
+            if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
+                $.each(grids, function (i, e) {
+                    if (typeof entity === "undefined" || e.entity === entity)
+                        e.reload(1);
+                })
+            }
+        })
+    } else {
+        toast("Sem Conexão", 2000);
+    }
 }
