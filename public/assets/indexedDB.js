@@ -702,7 +702,7 @@ function getDefaultValue(meta, value) {
 }
 
 function syncDataBtn(entity) {
-    $(".toast").remove();
+    $(".toast, .btn-panel-sync").remove();
 
     if(navigator.onLine) {
         dbRemote.sync(entity).then(isUpdated => {
