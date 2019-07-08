@@ -1,7 +1,6 @@
 {
   "title": "{$sitename}",
   "js": [
-    "jquery",
     "hammer",
     "mustache",
     "toast",

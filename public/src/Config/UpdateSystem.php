@@ -179,6 +179,9 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "assetsPublic/loadingScreen.min.js"))
             unlink(PATH_HOME . "assetsPublic/loadingScreen.min.js");
 
+        if (file_exists(PATH_HOME . "assetsPublic/jquery.min.js"))
+            unlink(PATH_HOME . "assetsPublic/jquery.min.js");
+
         if (file_exists(PATH_HOME . "assetsPublic/loadingScreen.min.css"))
             unlink(PATH_HOME . "assetsPublic/loadingScreen.min.css");
 
@@ -227,6 +230,9 @@ class UpdateSystem
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.js");
         $m = new Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/loadingScreen.css");
         $m->minify(PATH_HOME . "assetsPublic/loadingScreen.min.css");
+
+        //copy jquery
+        copy(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js", PATH_HOME . "assetsPublic/jquery.min.js");
 
         //table js & css
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
