@@ -404,7 +404,7 @@ const dbRemote = {
                         },
                         beforeSend: function () {
                             if(dadosSync.length > 1)
-                                toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
+                                toast("Sincronizando " + dadosSync.length + " registros de " + entity, 1000000);
                         },
                         dataType: "json",
                         async: !0
