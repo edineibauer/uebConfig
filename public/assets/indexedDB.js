@@ -375,14 +375,19 @@ const dbRemote = {
                         },
                         success: function (data) {
                             $(".toast").remove();
-                            toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
+
+                            if(dadosSync.length > 1)
+                                toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
                             if (data.response === 1 && typeof data.data === "object")
                                 resolve(data.data);
                             resolve(0)
                         },
                         error: function () {
                             $(".toast").remove();
-                            toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
+
+                            if(dadosSync.length > 1)
+                                toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
+
                             resolve(0)
                         },
                         xhr: function () {
@@ -390,13 +395,16 @@ const dbRemote = {
                             xhr.addEventListener("progress", function (evt) {
                                 if (evt.lengthComputable) {
                                     $(".toast").remove();
-                                    toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
+
+                                    if(dadosSync.length > 1)
+                                        toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
                                 }
                             }, !1);
                             return xhr;
                         },
                         beforeSend: function () {
-                            toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
+                            if(dadosSync.length > 1)
+                                toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
                         },
                         dataType: "json",
                         async: !0
