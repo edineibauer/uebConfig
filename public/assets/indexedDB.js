@@ -363,43 +363,47 @@ const dbRemote = {
                 return 0;
 
             return new Promise(function (resolve, reject) {
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {
-                        lib: "entity",
-                        file: "up/entity",
-                        entity: entity,
-                        dados: convertEmptyArrayToNull(dadosSync)
-                    },
-                    success: function (data) {
-                        $(".toast").remove();
-                        toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
-                        if (data.response === 1 && typeof data.data === "object")
-                            resolve(data.data);
-                        resolve(0)
-                    },
-                    error: function () {
-                        $(".toast").remove();
-                        toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
-                        resolve(0)
-                    },
-                    xhr: function () {
-                        var xhr = new window.XMLHttpRequest();
-                        xhr.addEventListener("progress", function (evt) {
-                            if (evt.lengthComputable) {
-                                $(".toast").remove();
-                                toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
-                            }
-                        }, !1);
-                        return xhr;
-                    },
-                    beforeSend: function () {
-                        toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
-                    },
-                    dataType: "json",
-                    async: !0
-                })
+                if(navigator.onLine) {
+                    $.ajax({
+                        type: "POST",
+                        url: HOME + 'set',
+                        data: {
+                            lib: "entity",
+                            file: "up/entity",
+                            entity: entity,
+                            dados: convertEmptyArrayToNull(dadosSync)
+                        },
+                        success: function (data) {
+                            $(".toast").remove();
+                            toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
+                            if (data.response === 1 && typeof data.data === "object")
+                                resolve(data.data);
+                            resolve(0)
+                        },
+                        error: function () {
+                            $(".toast").remove();
+                            toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
+                            resolve(0)
+                        },
+                        xhr: function () {
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.addEventListener("progress", function (evt) {
+                                if (evt.lengthComputable) {
+                                    $(".toast").remove();
+                                    toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
+                                }
+                            }, !1);
+                            return xhr;
+                        },
+                        beforeSend: function () {
+                            toast("Sincronizando <b>" + entity + "</b>. " + dadosSync.length + " registros.", 1000000);
+                        },
+                        dataType: "json",
+                        async: !0
+                    })
+                } else {
+                    resolve(0);
+                }
             }).then(response => {
                 if (response === 0)
                     return 0;
@@ -421,11 +425,11 @@ const dbRemote = {
                     });
                     return syncData
                 });
-                return 1;
             })
         })
     }
 };
+
 var conn = {};
 const dbLocal = {
     conn(entity) {
