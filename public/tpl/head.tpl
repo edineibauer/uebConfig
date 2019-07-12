@@ -32,6 +32,7 @@
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
     const LIMITOFFLINE = '{$limitoffline}';
+    const USER = '{$user}';
     var AUTOSYNC = {$autosync};
 </script>
 
