@@ -32,7 +32,7 @@
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
     const LIMITOFFLINE = '{$limitoffline}';
-    const USER = '{$user}';
+    const USER = JSON.parse('{$user}');
     var AUTOSYNC = {$autosync};
 </script>
 
