@@ -1,6 +1,28 @@
 const VERSION = '';
 const HOME = '';
 
+self.addEventListener('push', function(event) {
+    console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
+    console.log(event.data);
+
+    const title = event.data.text();
+    const options = {
+        body: event.data.text(),
+        data: 'https://developers.google.com/web/',
+        icon: 'images/icon.png',
+        badge: 'images/badge.png'
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow(event.notification.data)
+    );
+});
+
 self.addEventListener('fetch', function (e) {
 
     let url = e.request.url.replace(HOME, '');
