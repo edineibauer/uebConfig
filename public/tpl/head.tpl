@@ -32,6 +32,7 @@
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
     const LIMITOFFLINE = '{$limitoffline}';
+    const PUSH_PUBLIC_KEY = '{$pushpublic}';
     const USER = JSON.parse('{$user}');
     var AUTOSYNC = {$autosync};
 </script>

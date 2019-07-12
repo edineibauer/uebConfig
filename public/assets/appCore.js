@@ -407,6 +407,63 @@ function setSidebarInfo() {
     document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
+var swRegistration = null;
+function urlB64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Set the initial subscription value
+function initialiseUI() {
+    swRegistration.pushManager.getSubscription()
+        .then(function(subscription) {
+            if (!(subscription === null))
+                $(".site-btn-push").remove();
+        });
+}
+
+function subscribeUser() {
+    if(PUSH_PUBLIC_KEY !== "") {
+        const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
+        swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        })
+            .then(function (subscription) {
+                updateSubscriptionOnServer(subscription);
+                $(".site-btn-push").remove();
+            })
+            .catch(function (err) {
+                toast("Erro ao tentar receber as notificações", 3500, "toast-warning");
+            });
+    } else {
+        toast("Chave pública do Push não definida", 3500, "toast-warning");
+    }
+}
+
+function updateSubscriptionOnServer(subscription) {
+    if(subscription) {
+        post('dashboard', 'push', {
+            "push": JSON.stringify(subscription),
+            'p1': navigator.appName,
+            'p2': navigator.appCodeName,
+            'p3': navigator.platform
+        }, function (g) {
+            toast("Agora você esta apto a receber notificações", 3500, "toast-success");
+        });
+    }
+}
+
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
@@ -418,8 +475,12 @@ window.onload = function () {
             })
         }).then(() => {
             menuHeader();
-            if ('serviceWorker' in navigator)
-                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
+            if ('serviceWorker' in navigator){
+                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function(swReg) {
+                    swRegistration = swReg;
+                    initialiseUI();
+                })
+            }
             let scriptCore = document.createElement('script');
             scriptCore.src = HOME + "assetsPublic/core.min.js";
             document.head.appendChild(scriptCore);
