@@ -24,6 +24,10 @@
         <span>Atualizar App</span>
     </div>
 
+    <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;">
+        <i class="material-icons">notifications_active</i>
+    </div>
+
     <div style="float:right;padding: 5px 8px;height: 42px;cursor: pointer;" id="login-aside">
         <i class="material-icons">exit_to_app</i>
     </div>
