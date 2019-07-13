@@ -21,7 +21,7 @@
 <div style="position: absolute;bottom: 0px;left: 0px;width: 250px;height: 50px;padding: 8px;background: #ffffff;box-shadow: 0px 9px 12px 0px;">
     <div onclick="updateCache();" class="theme theme-border-l update-site-btn">
         <i class="material-icons">refresh</i>
-        <span>Atualizar App</span>
+        <span>Atualizar</span>
     </div>
 
     <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;">
