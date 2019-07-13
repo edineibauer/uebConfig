@@ -445,7 +445,8 @@ function subscribeUser() {
     if (PUSH_PUBLIC_KEY !== "") {
         const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
         swRegistration.pushManager.subscribe({
-            applicationServerKey: applicationServerKey
+            applicationServerKey: applicationServerKey,
+            userVisibleOnly: !0,
         }).then(function (subscription) {
             updateSubscriptionOnServer(subscription);
             $(".site-btn-push").remove()
