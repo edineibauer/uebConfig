@@ -423,44 +423,50 @@ function urlB64ToUint8Array(base64String) {
     return outputArray;
 }
 
-// Set the initial subscription value
 function initialiseUI() {
-    swRegistration.pushManager.getSubscription()
-        .then(function(subscription) {
-            if (!(subscription === null))
-                $(".site-btn-push").remove();
-        });
+    //Remove botão de notificação caso já tenha tomado uma decisão ou caso não tenha uma chave
+    if (Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+        $(".site-btn-push").remove();
+}
+
+function pushNotification(title, body, url, image, icon) {
+    if(typeof icon === 'undefined' && typeof image !== "undefined")
+        icon = image;
+
+    swRegistration.showNotification(title, {
+        body: body || "",
+        icon: icon || "",
+        badge: image || "",
+        data: url || ""
+    });
 }
 
 function subscribeUser() {
-    if(PUSH_PUBLIC_KEY !== "") {
+    if (PUSH_PUBLIC_KEY !== "") {
         const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
         swRegistration.pushManager.subscribe({
-            userVisibleOnly: true,
             applicationServerKey: applicationServerKey
+        }).then(function (subscription) {
+            updateSubscriptionOnServer(subscription);
+            $(".site-btn-push").remove()
+        }).catch(function (err) {
+            toast("Erro ao tentar receber as notificações", 3500, "toast-warning")
         })
-            .then(function (subscription) {
-                updateSubscriptionOnServer(subscription);
-                $(".site-btn-push").remove();
-            })
-            .catch(function (err) {
-                toast("Erro ao tentar receber as notificações", 3500, "toast-warning");
-            });
     } else {
-        toast("Chave pública do Push não definida", 3500, "toast-warning");
+        toast("Chave pública do Push não definida", 3500, "toast-warning")
     }
 }
 
 function updateSubscriptionOnServer(subscription) {
-    if(subscription) {
+    if (subscription) {
         post('dashboard', 'push', {
             "push": JSON.stringify(subscription),
             'p1': navigator.appName,
             'p2': navigator.appCodeName,
             'p3': navigator.platform
         }, function (g) {
-            toast("Agora você esta apto a receber notificações", 3500, "toast-success");
-        });
+            toast("Agora você esta apto a receber notificações", 3500, "toast-success")
+        })
     }
 }
 
