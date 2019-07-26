@@ -119,7 +119,7 @@ function loadScreen() {
 }
 
 function updateVersion() {
-    return clearCache().then(() => {
+    return clearCacheLogin().then(() => {
         return new Promise(function (resolve, reject) {
             var xhttp = new XMLHttpRequest();
             xhttp.open("POST", HOME + "set");
