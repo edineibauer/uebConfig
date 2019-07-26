@@ -11,15 +11,26 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
 <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
+<link rel="icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png">
+<link rel="icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png">
 <link rel="icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png">
-<link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png">
-<meta name="msapplication-TileImage" content="{$home}assetsPublic/img/favicon.png">
+
+
+<link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-96.png">
+<link rel="apple-touch-icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png">
+<link rel="apple-touch-icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png">
+<link rel="apple-touch-icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png">
+<link rel="apple-touch-startup-image" href="{$home}assetsPublic/img/favicon-192.png">
+
+<meta name="msapplication-square96x96logo" content="{$home}assetsPublic/img/favicon-96.png">
+<meta name="msapplication-square192x192logo" content="{$home}assetsPublic/img/favicon-192.png">
 <meta name="msapplication-square256x256logo" content="{$home}assetsPublic/img/favicon-256.png">
+<meta name="msapplication-TileImage" content="{$home}assetsPublic/img/favicon.png">
 
 <meta name="theme-color" content="{{$theme}}">
 <meta name="msapplication-TileColor" content="{{$theme}}">
-<meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
 <meta name="msapplication-navbutton-color" content="{{$theme}}">
+<meta name="apple-mobile-web-app-status-bar-style" content="black"> {* options: black, black-translucent *}
 
 <link rel='stylesheet' href='{$home}assetsPublic/loadingScreen.min.css' type='text/css' media='all'/>
 <link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
