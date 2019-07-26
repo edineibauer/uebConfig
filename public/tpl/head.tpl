@@ -8,17 +8,21 @@
 <meta name="description" content="{$sitedesc}">
 <link rel="manifest" href="{$home}manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
 <meta name="apple-mobile-web-app-title" content="{$sitename}">
-<link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-96.png">
+
+<link rel="icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png">
+<link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png">
 <meta name="msapplication-TileImage" content="{$home}assetsPublic/img/favicon.png">
-<meta name="msapplication-TileColor" content="#2F3BA2">
-<link rel='stylesheet' href='{$home}assetsPublic/loadingScreen.min.css' type='text/css' media='all'/>
-<link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
+<meta name="msapplication-square256x256logo" content="{$home}assetsPublic/img/favicon-256.png">
 
 <meta name="theme-color" content="{{$theme}}">
+<meta name="msapplication-TileColor" content="{{$theme}}">
 <meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
 <meta name="msapplication-navbutton-color" content="{{$theme}}">
+
+<link rel='stylesheet' href='{$home}assetsPublic/loadingScreen.min.css' type='text/css' media='all'/>
+<link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
 
 <style type="text/css" id="core-style"></style>
 <script>
@@ -34,7 +38,7 @@
     const LIMITOFFLINE = '{$limitoffline}';
     const PUSH_PUBLIC_KEY = '{$pushpublic}';
     const USER = JSON.parse('{$user}');
-    var AUTOSYNC = {$autosync};
+    var AUTOSYNC = 1;
 </script>
 
 <script src='{$home}assetsPublic/jquery.min.js' defer></script>
