@@ -551,6 +551,8 @@ function checkSessao() {
          * Usuário Anônimo, garante que back esta deslogado
          * */
         post('login', 'logout', function (g) {});
+
+        return Promise.all([]);
     }
 }
 
