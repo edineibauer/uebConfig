@@ -133,8 +133,14 @@ function getAccessFile()
             Deny from all
         </Files>';
 }
-if(!empty($dados['base']))
+
+if(!empty($dados['base'])) {
+    $localhost = ($_SERVER['SERVER_NAME'] === "localhost" ? true : false);
+    $porta = $_SERVER['SERVER_PORT'];
+
     $configuracoes = json_decode(file_get_contents($dados['base'] . "/public/_config/config.json"), !0);
+    $configuracoes['dominio'] = ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : $porta) : explode('.', $_SERVER['SERVER_NAME'])[0]);
+}
 
 if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favicon']['name']))) {
 
@@ -208,6 +214,9 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
         copy('public/assets/dino.png', "../../../uploads/site/dino.png");
         copy('public/assets/image-not-found.png', "../../../uploads/site/image-not-found.png");
+
+        if(!empty($dados['base']))
+            unset($dados['base']);
 
         uploadFiles();
         Config\Config::createConfig($dados);
