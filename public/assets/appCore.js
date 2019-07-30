@@ -70,7 +70,6 @@ function getCookie(cname) {
     return ""
 }
 
-
 function clearCacheLogin() {
     return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
         let clear = [];
@@ -87,6 +86,7 @@ function clearCacheLogin() {
             clear.push(dbLocal.clear(k))
         }
         clear.push(dbLocal.clear('__historic'));
+        clear.push(dbLocal.clear('__allow'));
         clear.push(dbLocal.clear('__dicionario'));
         clear.push(dbLocal.clear('__info'));
         clear.push(dbLocal.clear('__menu'));
@@ -104,18 +104,12 @@ function clearCacheLogin() {
 }
 
 function loadScreen() {
-
     document.querySelector("#app").style.opacity = 0.7;
 
     let spin = '<div class="spinner">\n' +
         '  <div class="double-bounce1" style="background-color: ' + THEMETEXT + '"></div>\n' +
         '  <div class="double-bounce2" style="background-color: ' + THEMETEXT + '"></div>\n' +
         '</div>';
-
-    return pleaseWait({
-        logo: HOME + "assetsPublic/img/favicon-144.png",
-        loadingHtml: spin
-    })
 }
 
 function updateVersion() {
@@ -175,15 +169,17 @@ function updateCacheLogin() {
         }).then(() => {
             let gets = [];
             let creates = [];
+            gets.push(get("allow"));
             gets.push(get("dicionarios"));
             gets.push(get("info"));
             gets.push(get("menu"));
             gets.push(get("panel"));
             return Promise.all(gets).then(r => {
-                creates.push(dbLocal.exeCreate('__dicionario', r[0]));
-                creates.push(dbLocal.exeCreate('__info', r[1]));
-                creates.push(dbLocal.exeCreate('__menu', r[2]));
-                creates.push(dbLocal.exeCreate('__panel', r[3]));
+                creates.push(dbLocal.exeCreate('__allow', r[0]));
+                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+                creates.push(dbLocal.exeCreate('__info', r[2]));
+                creates.push(dbLocal.exeCreate('__menu', r[3]));
+                creates.push(dbLocal.exeCreate('__panel', r[4]));
                 return Promise.all(creates)
             })
         });
@@ -311,7 +307,7 @@ function updateCache() {
 }
 
 function setCookieAnonimo() {
-    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0,})
+    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0})
 }
 
 function setCookieUser(user) {
