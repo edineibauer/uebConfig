@@ -103,15 +103,6 @@ function clearCacheLogin() {
     })
 }
 
-function loadScreen() {
-    let $app = document.querySelector("#app");
-    let spin = document.createElement("div");
-    spin.classList.add("spinner");
-    spin.innerHTML = '<div class="double-bounce1" style="background-color: ' + THEMETEXT + '"></div>\n' + '  <div class="double-bounce2" style="background-color: ' + THEMETEXT + '"></div>';
-    $app.style.opacity = 0.7;
-    $app.appendChild(spin);
-}
-
 function updateVersion() {
     return updateCacheLogin().then(() => {
         return new Promise(function (resolve, reject) {
@@ -151,7 +142,7 @@ function checkUpdate() {
 
 function updateCacheLogin() {
     if (navigator.onLine) {
-        loadScreen();
+        app.setLoading();
         return clearCacheLogin().then(() => {
             return get("appView").then(g => {
                 return caches.open('view-v' + VERSION).then(cache => {
@@ -220,7 +211,6 @@ function clearCache() {
 
 function updateCache() {
     if (navigator.onLine) {
-        loadScreen();
         return navigator.serviceWorker.getRegistrations().then(function (registrations) {
             for (let registration of registrations)
                 registration.unregister()
