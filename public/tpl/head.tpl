@@ -30,9 +30,8 @@
 <meta name="theme-color" content="{{$theme}}">
 <meta name="msapplication-TileColor" content="{{$theme}}">
 <meta name="msapplication-navbutton-color" content="{{$theme}}">
-<meta name="apple-mobile-web-app-status-bar-style" content="black"> {* options: black, black-translucent *}
+{*<meta name="apple-mobile-web-app-status-bar-style" content="black"> *}{* options: black, black-translucent *}
 
-<link rel='stylesheet' href='{$home}assetsPublic/loadingScreen.min.css' type='text/css' media='all'/>
 <link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
 
 <style type="text/css" id="core-style"></style>
@@ -53,7 +52,6 @@
 </script>
 
 <script src='{$home}assetsPublic/jquery.min.js' defer></script>
-<script src='{$home}assetsPublic/loadingScreen.min.js' defer></script>
 <script src='{$home}assetsPublic/idb.min.js' defer></script>
 <script src='{$home}assetsPublic/indexedDB.min.js' defer></script>
 <script src='{$home}assetsPublic/appCore.min.js' defer></script>

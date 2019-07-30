@@ -310,50 +310,6 @@ function updateCache() {
     }
 }
 
-function menuHeader() {
-    dbLocal.exeRead("__template", 1).then(tpl => {
-        if (typeof tpl['menu-header-href'] === "undefined")
-            updateCache();
-        let menu = [];
-        if (getCookie("token") === "0") {
-            menu.push({href: HOME + 'login', text: 'login'})
-        } else {
-            menu.push({href: HOME + 'dashboard', text: 'painel'});
-            menu.push({funcao: 'logoutDashboard', text: 'sair'})
-        }
-        let content = "";
-        let contentSidebar = "";
-        for (let m in menu) {
-            if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
-                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
-                } else {
-                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
-                }
-            }
-        }
-        document.querySelector("#core-menu-custom").innerHTML = content;
-        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar
-    });
-    if (getCookie("token") === "0")
-        document.querySelector("#core-header-container").style.maxWidth = "1200px";
-    let btnLoginAside = document.querySelector("#login-aside");
-    if (getCookie("setor") !== "0") {
-        btnLoginAside.onclick = function () {
-            logoutDashboard()
-        };
-        btnLoginAside.children[0].innerHTML = "exit_to_app"
-    } else {
-        btnLoginAside.onclick = function () {
-            app.loadView(HOME + "login");
-            closeSidebar()
-        };
-        btnLoginAside.children[0].innerHTML = "lock_open"
-    }
-}
-
 function setCookieAnonimo() {
     return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0,})
 }
@@ -406,7 +362,6 @@ function setSidebarInfo() {
     document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
-var swRegistration = null;
 function urlB64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -420,12 +375,6 @@ function urlB64ToUint8Array(base64String) {
         outputArray[i] = rawData.charCodeAt(i);
     }
     return outputArray;
-}
-
-function initialiseUI() {
-    //Remove botão de notificação caso já tenha tomado uma decisão ou caso não tenha uma chave
-    if (Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-        $(".site-btn-push").remove();
 }
 
 function pushNotification(title, body, url, image, icon) {
@@ -470,30 +419,201 @@ function updateSubscriptionOnServer(subscription) {
     }
 }
 
+function sidebarUserInfo() {
+    if (getCookie("token") === "0" || getCookie("imagem") === "") {
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
+    } else {
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
+    }
+    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("nome");
+    document.querySelector("#core-sidebar-edit").classList.add("hide")
+}
+
+function loginBtn() {
+    let btnLoginAside = document.querySelector("#login-aside");
+    if (getCookie("setor") !== "0") {
+        btnLoginAside.onclick = function () {
+            logoutDashboard()
+        };
+        btnLoginAside.children[0].innerHTML = "exit_to_app"
+    } else {
+        btnLoginAside.onclick = function () {
+            app.loadView(HOME + "login");
+            closeSidebar()
+        };
+        btnLoginAside.children[0].innerHTML = "person"
+    }
+}
+
+function menuHeader() {
+
+    loginBtn();
+    sidebarUserInfo();
+
+    return dbLocal.exeRead("__template", 1).then(tpl => {
+        let menu = [];
+        if (getCookie("token") !== "0") {
+            menu.push({href: HOME + 'dashboard', text: 'painel'});
+            menu.push({funcao: 'logoutDashboard', text: 'sair'})
+        }
+
+        let content = "";
+        let contentSidebar = "";
+        for (let m in menu) {
+            if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
+                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
+                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
+                } else {
+                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
+                }
+            }
+        }
+        document.querySelector("#core-menu-custom").innerHTML = content;
+        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
+    });
+}
+
+function downloadEntityData() {
+    let down = [];
+    let historic = {};
+    $.each(dicionarios, function (entity, meta) {
+        down.push(dbRemote.syncDownload(entity).then(h => {
+            if (h !== 0)
+                historic[entity] = h
+        }))
+    });
+
+    return Promise.all(down).then(() => {
+        return dbLocal.exeUpdate('__historic', historic, 1)
+    })
+}
+
+function isJson(str) {
+    if (typeof str !== "string")
+        return !1;
+    try {
+        if (typeof JSON.parse(str) !== "object")
+            return !1
+    } catch (e) {
+        return !1
+    }
+    return !0
+}
+
+function isEmpty(valor) {
+    if (typeof valor === "undefined" || valor === "" || valor === null)
+        return !0;
+    if ($.isArray(valor) && valor.length === 0)
+        return !0;
+    if (typeof valor === "object" && $.isEmptyObject(valor))
+        return !0;
+    return !1
+}
+
+function firstAccess() {
+    localStorage.accesscount = 0;
+
+    /**
+     * Seta usuário anônimo
+     * */
+    let user = {token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0};
+    setCookie("token", user.token);
+    setCookie("id", user.id);
+    setCookie("nome", user.nome);
+    setCookie("imagem", user.imagem);
+    setCookie("setor", user.setor);
+
+    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        /**
+         * Clear Caches and Data
+         * */
+        for (let registration of registrations)
+            registration.unregister();
+
+        return clearCache();
+
+    }).then(() => {
+
+        /**
+         * Load Data content
+         * */
+        if (navigator.onLine) {
+            let gets = [];
+            let creates = [];
+            gets.push(get("allow"));
+            gets.push(get("dicionarios"));
+            gets.push(get("info"));
+            gets.push(get("templates"));
+            gets.push(get("menu"));
+            return Promise.all(gets).then(r => {
+                creates.push(dbLocal.exeCreate('__allow', r[0]));
+                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+                creates.push(dbLocal.exeCreate('__info', r[2]));
+                creates.push(dbLocal.exeCreate('__template', r[3]));
+                creates.push(dbLocal.exeCreate('__menu', r[4]));
+
+                dicionarios = r[1];
+                creates.push(downloadEntityData());
+
+                return Promise.all(creates)
+            })
+        } else {
+            return 1;
+        }
+    });
+}
+
+function thenAccess() {
+    /**
+     * Verifica integridade
+     * */
+    if(getCookie("id") === "" || getCookie("token") === "" || getCookie("nome") === "" || getCookie("setor") === "")
+        return firstAccess();
+
+    /**
+     * Check Data content
+     * */
+    let gets = [];
+    gets.push(dbLocal.exeRead("__allow", 1));
+    gets.push(dbLocal.exeRead("__dicionario", 1));
+    gets.push(dbLocal.exeRead("__template", 1));
+    return Promise.all(gets).then(r => {
+        if(isEmpty(r[0]) || isEmpty(r[1]))
+            return firstAccess();
+
+        dicionarios = r[1];
+        localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
+
+        return downloadEntityData();
+    });
+}
+
+var dicionarios;
+var swRegistration = null;
+
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
         caches.open('core-v' + VERSION).then(function (cache) {
             return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
                 if (!response)
-                    return updateCache()
+                    return firstAccess()
                 else
-                    return checkSessao()
+                    return thenAccess()
             })
         }).then(() => {
             menuHeader();
-            if ('serviceWorker' in navigator){
-                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function(swReg) {
-                    swRegistration = swReg;
-                    initialiseUI();
-                })
-            }
+
+        }).then(() => {
             let scriptCore = document.createElement('script');
             scriptCore.src = HOME + "assetsPublic/core.min.js";
             document.head.appendChild(scriptCore);
+
             let styleFont = document.createElement('link');
             styleFont.rel = "stylesheet";
             styleFont.href = HOME + "assetsPublic/fonts.min.css";
-            document.head.appendChild(styleFont)
+            document.head.appendChild(styleFont);
         })
     } else {
         let scriptCore = document.createElement('script');
