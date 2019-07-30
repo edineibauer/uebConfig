@@ -181,26 +181,24 @@ function updateCacheLogin() {
 }
 
 function clearCache() {
-    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
-        let clear = [];
-        for (var k in dicionarios) {
-            clear.push(dbLocal.clear("sync_" + k));
-            clear.push(dbLocal.clear(k))
-        }
-        clear.push(dbLocal.clear('__historic'));
-        clear.push(dbLocal.clear('__dicionario'));
-        clear.push(dbLocal.clear('__info'));
-        clear.push(dbLocal.clear('__allow'));
-        clear.push(dbLocal.clear('__general'));
-        clear.push(dbLocal.clear('__react'));
-        clear.push(dbLocal.clear('__reactOnline'));
-        clear.push(dbLocal.clear('__relevant'));
-        clear.push(dbLocal.clear('__template'));
-        clear.push(dbLocal.clear('__user'));
-        clear.push(dbLocal.clear('__menu'));
-        clear.push(dbLocal.clear('__panel'));
-        return Promise.all(clear)
-    }).then(() => {
+    let clear = [];
+    for (var k in dicionarios)
+        clear.push(dbLocal.clear(k));
+
+    clear.push(dbLocal.clear('__historic'));
+    clear.push(dbLocal.clear('__dicionario'));
+    clear.push(dbLocal.clear('__info'));
+    clear.push(dbLocal.clear('__allow'));
+    clear.push(dbLocal.clear('__general'));
+    clear.push(dbLocal.clear('__react'));
+    clear.push(dbLocal.clear('__reactOnline'));
+    clear.push(dbLocal.clear('__relevant'));
+    clear.push(dbLocal.clear('__template'));
+    clear.push(dbLocal.clear('__user'));
+    clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__panel'));
+
+    return Promise.all(clear).then(() => {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName)
@@ -211,9 +209,24 @@ function clearCache() {
 
 function updateCache() {
     if (navigator.onLine) {
+        app.setLoading();
         return navigator.serviceWorker.getRegistrations().then(function (registrations) {
             for (let registration of registrations)
                 registration.unregister()
+
+        }).then(() => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+                    swRegistration = swReg;
+
+                    /**
+                     * Notificação btn
+                     * */
+                    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                        $(".site-btn-push").remove()
+                })
+            }
+
         }).then(() => {
             return clearCache().then(() => {
                 return get("currentFiles/" + window.location.pathname).then(g => {
@@ -245,6 +258,7 @@ function updateCache() {
                         })
                     })
                 })
+
             }).then(() => {
                 let gets = [];
                 let creates = [];
@@ -262,7 +276,7 @@ function updateCache() {
                     creates.push(dbLocal.exeCreate('__menu', r[4]));
                     creates.push(dbLocal.exeCreate('__panel', r[5]));
                     return Promise.all(creates)
-                })
+                });
             }).then(() => {
                 return new Promise(function (resolve, reject) {
                     if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
@@ -283,10 +297,6 @@ function updateCache() {
                         resolve(1);
                     }
                 });
-            }).then(() => {
-                return checkUpdate();
-            }).then(() => {
-                return checkSessao()
             }).then(() => {
                 window.location.reload(!0)
             })
