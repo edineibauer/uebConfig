@@ -468,7 +468,7 @@ function clearCache() {
 function updateCache() {
     if (navigator.onLine) {
         clearCache().then(() => {
-            location.reload(!0);
+            location.reload(1);
         })
     } else {
         toast("Sem Conexão", 1200);
@@ -674,7 +674,7 @@ function startCache() {
         })
     }).then(() => {
         return new Promise(function (resolve, reject) {
-            if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
+            if (app.route !== "updateSystem") {
                 var xhttp = new XMLHttpRequest();
                 xhttp.open("POST", HOME + "set");
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -840,7 +840,7 @@ var app = {
 };
 
 $(function() {
-    if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
+    if (location.href !== HOME + "updateSystem") {
 
         window.onpopstate = function () {
             app.loadView(document.location.href, !0)
@@ -896,6 +896,10 @@ $(function() {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
         document.head.appendChild(scriptCore);
-        clearCache()
+
+        return clearCache().then(() => {
+            setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
+            return app.loadView();
+        })
     }
 });
