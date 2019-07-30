@@ -184,12 +184,12 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
             if (empty($_FILES['favicon']['name']) && !empty($configuracoes['favicon'])) {
                 $dados['favicon'] = $configuracoes['favicon'];
-                copy($dados['base'] . "/public/_config/favicon.png", $dados['path_home'] . "uploads/site/favicon.png");
+                copy($dados['base'] . "/public/_config/favicon." . pathinfo($dados['favicon'])['extension'], $dados['path_home'] . "uploads/site/favicon." . pathinfo($dados['favicon'])['extension']);
             }
 
             if (empty($_FILES['logo']['name']) && !empty($configuracoes['logo'])) {
                 $dados['logo'] = $configuracoes['logo'];
-                copy($dados['base'] . "/public/_config/logo.png", $dados['path_home'] . "uploads/site/logo.png");
+                copy($dados['base'] . "/public/_config/logo." . pathinfo($dados['logo'])['extension'], $dados['path_home'] . "uploads/site/logo." . pathinfo($dados['logo'])['extension']);
             }
 
             foreach ($configuracoes as $field => $value) {
