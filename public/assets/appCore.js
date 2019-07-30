@@ -1,3 +1,58 @@
+/**
+ * Adiciona função para carregar e cachear Scripts
+ * */
+$.cachedScript = function (url, options) {
+    options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
+    return $.ajax(options)
+};
+
+function convertEmptyArrayToNull(param) {
+    if (typeof (param) === "object" && !$.isEmptyObject(param)) {
+        $.each(param, function (key, value) {
+            if ($.isArray(value))
+                param[key] = value.length > 0 ? value : ""; else if (typeof (value) === "object")
+                param[key] = !$.isEmptyObject(param) ? convertEmptyArrayToNull(value) : ""
+        })
+    }
+    return param
+}
+
+function post(lib, file, param, funcao) {
+    if (typeof funcao === "undefined" && typeof param !== 'object') {
+        funcao = param;
+        param = {lib: lib, file: file}
+    } else {
+        param.lib = lib;
+        param.file = file
+    }
+    $.ajax({
+        type: "POST", url: HOME + 'set', data: convertEmptyArrayToNull(param), success: function (data) {
+            if (data.response === 1) {
+                if (typeof (funcao) !== "undefined")
+                    funcao(data.data)
+            } else {
+                switch (data.response) {
+                    case 2:
+                        toast(data.error, 3000, "toast-warning");
+                        break;
+                    case 3:
+                        location.href = data.data;
+                        break;
+                    case 4:
+                        if(data.data === "no-network")
+                            toast("Sem Conexão", 1000, "toast-warning");
+                        else
+                            toast("Caminho não encontrado", "toast-warning");
+                        break
+                }
+
+                if (typeof (funcao) !== "undefined")
+                    funcao((data.data === "no-network" ? "no-network" : null));
+            }
+        }, dataType: "json"
+    })
+}
+
 function getRequest(url) {
     return new Promise(function (resolve, reject) {
         var req = new XMLHttpRequest();
@@ -47,6 +102,28 @@ function get(file) {
     })
 }
 
+function view(file, funcao) {
+    getJSON(HOME + "view/" + file).then(data => {
+        if (data.response === 1) {
+            funcao(data.data)
+        } else {
+            switch (data.response) {
+                case 2:
+                    toast(data.error, 3000, "warning");
+                    break;
+                case 3:
+                    location.href = data.data;
+                    break;
+                case 4:
+                    toast("Caminho não encontrado");
+            }
+
+            console.log(data);
+            funcao(null);
+        }
+    });
+}
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     exdays = typeof exdays === "undefined" ? 360 : exdays;
@@ -70,6 +147,41 @@ function getCookie(cname) {
     return ""
 }
 
+/**
+ * Verifica se parâmetro é um JSON object
+ * */
+function isJson(str) {
+    if (typeof str !== "string")
+        return false;
+
+    try {
+        if (typeof JSON.parse(str) !== "object")
+            return false;
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+function isEmpty(valor) {
+    //se o valor for vazio, retorna true
+    if(typeof valor === "undefined" || valor === "" || valor === null)
+        return true;
+
+    //array vazio
+    if($.isArray(valor) && valor.length === 0)
+        return true;
+
+    //objeto vazio
+    if(typeof valor === "object" && $.isEmptyObject(valor))
+        return true;
+
+    return false;
+}
+
+/**
+ * Notificação Push
+ * */
 function urlB64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -127,28 +239,6 @@ function updateSubscriptionOnServer(subscription) {
     }
 }
 
-function isJson(str) {
-    if (typeof str !== "string")
-        return !1;
-    try {
-        if (typeof JSON.parse(str) !== "object")
-            return !1
-    } catch (e) {
-        return !1
-    }
-    return !0
-}
-
-function isEmpty(valor) {
-    if (typeof valor === "undefined" || valor === "" || valor === null)
-        return !0;
-    if ($.isArray(valor) && valor.length === 0)
-        return !0;
-    if (typeof valor === "object" && $.isEmptyObject(valor))
-        return !0;
-    return !1
-}
-
 /*function updateVersion() {
     return updateCacheLogin().then(() => {
         return new Promise(function (resolve, reject) {
@@ -186,6 +276,56 @@ function isEmpty(valor) {
     });
 }*/
 
+/**
+ * Sidebar Functions
+ * */
+function closeSidebar() {
+    $("#core-overlay, #core-sidebar").removeClass("active");
+    toggleIcon($("#core-open-menu").find(".icon"), false);
+}
+
+function openSidebar() {
+    $("#core-applications").html($("#mySidebar").length ? $("#mySidebar").find(".bar-block").html() : "");
+    $("#core-overlay, #core-sidebar").addClass("active");
+    toggleIcon($("#core-open-menu").find(".icon"), true);
+}
+
+function toggleSidebar(action = 'toggle') {
+    if (action === 'toggle') {
+        if ($("#core-sidebar").hasClass("active"))
+            closeSidebar();
+        else
+            openSidebar()
+    } else if (action) {
+        openSidebar()
+    } else {
+        closeSidebar()
+    }
+}
+
+function toggleIcon($element, action = 'toggle') {
+    if (typeof $element === "string")
+        $element = $($element);
+    if (typeof ($element.attr("data-after")) !== "undefined"){
+        if(action === 'toggle'){
+            $element.toggleClass($element.attr("data-before")).toggleClass($element.attr("data-after"))
+        } else if (action){
+            $element.removeClass($element.attr("data-before")).addClass($element.attr("data-after"))
+        } else {
+            $element.addClass($element.attr("data-before")).removeClass($element.attr("data-after"))
+        }
+    }
+}
+
+function logoutDashboard() {
+    if(navigator.onLine) {
+        if(confirm("desconectar?"))
+            location.href = HOME + "logout";
+    } else {
+        toast("Sem Conexão", 1200);
+    }
+}
+
 function sidebarUserInfo() {
     if (getCookie("token") === "0" || getCookie("imagem") === "") {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
@@ -212,10 +352,17 @@ function loginBtn() {
     }
 }
 
+function spaceHeader() {
+    let $header = $("#core-header");
+    if ($header.css("position") === "fixed")
+        $("#core-content").css("margin-top", ($header.height() + parseInt($header.css("padding-top")) + parseInt($header.css("padding-bottom"))) + "px")
+}
+
 function menuHeader() {
 
     loginBtn();
     sidebarUserInfo();
+    spaceHeader();
 
     return dbLocal.exeRead("__template", 1).then(tpl => {
         let menu = [];
@@ -482,11 +629,238 @@ function downloadEntityData() {
     })
 }
 
+function startCache() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+            swRegistration = swReg;
+
+            /**
+             * Notificação btn
+             * */
+            if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                $(".site-btn-push").remove()
+        })
+    }
+
+    return get("currentFiles/" + window.location.pathname).then(g => {
+        return caches.open('core-v' + VERSION).then(cache => {
+            return cache.addAll(g.core)
+        }).then(() => {
+            return caches.open('fonts-v' + VERSION).then(cache => {
+                return cache.addAll(g.fonts)
+            })
+        }).then(() => {
+            return caches.open('images-v' + VERSION).then(cache => {
+                return cache.addAll(g.images)
+            })
+        }).then(() => {
+            return caches.open('viewJs-v' + VERSION).then(cache => {
+                return cache.addAll(g.viewJs)
+            })
+        }).then(() => {
+            return caches.open('viewCss-v' + VERSION).then(cache => {
+                return cache.addAll(g.viewCss)
+            })
+        }).then(() => {
+            return caches.open('view-v' + VERSION).then(cache => {
+                return cache.addAll(g.view)
+            })
+        }).then(() => {
+            return caches.open('midia-v' + VERSION).then(cache => {
+                return cache.addAll(g.midia)
+            })
+        })
+    }).then(() => {
+        return new Promise(function (resolve, reject) {
+            if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", HOME + "set");
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        let data = JSON.parse(this.responseText);
+                        if (data.data !== "no-network" && data.response === 1)
+                            setCookie("update", data.data);
+                        resolve(1)
+                    }
+                };
+                xhttp.send("lib=config&file=update")
+            } else {
+                resolve(1)
+            }
+        })
+    }).then(() => {
+        setTimeout(function () {
+            finishCache();
+        }, 500);
+    });
+}
+
+function finishCache() {
+    caches.open('misc-v' + VERSION).then(function (cache) {
+        return cache.match(HOME + "manifest.json").then(response => {
+            if (!response) {
+                return get("appFiles").then(g => {
+                    return caches.open('viewJs-v' + VERSION).then(cache => {
+                        return cache.addAll(g.viewJs)
+                    }).then(() => {
+                        return caches.open('viewCss-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewCss)
+                        })
+                    }).then(() => {
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.addAll(g.view)
+                        })
+                    }).then(() => {
+                        return caches.open('misc-v' + VERSION).then(cache => {
+                            return cache.addAll(g.misc)
+                        })
+                    })
+                }).then(() => {
+                    let gets = [];
+                    let creates = [];
+                    gets.push(get("react"));
+                    gets.push(get("relevant"));
+                    gets.push(get("general"));
+                    gets.push(get("user"));
+                    gets.push(get("reactOnline"));
+                    return Promise.all(gets).then(r => {
+                        creates.push(dbLocal.exeCreate('__react', r[0]));
+                        creates.push(dbLocal.exeCreate('__relevant', r[1]));
+                        creates.push(dbLocal.exeCreate('__general', r[2]));
+                        creates.push(dbLocal.exeCreate('__user', r[3]));
+                        creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
+                        return Promise.all(creates)
+                    })
+                })
+            }
+        })
+    });
+}
+
 var dicionarios;
 var swRegistration = null;
 
-window.onload = function () {
+/**
+ * app global de navegação do app
+ * */
+var app = {
+    route: "",
+    loading: !1,
+    removeLoading: function () {
+        app.loading = !1;
+        $("#core-loader").css("display", "none");
+        $("#core-content").css("opacity", "1")
+    },
+    setLoading: function () {
+        app.loading = !0;
+        $("#core-loader").css("display", "block");
+        $("#core-content").css("opacity", "0.7")
+    },
+    applyView: function (file) {
+        return view(file, function (g) {
+            if (g) {
+                if(app.haveAccessPermission(g.setor, g["!setor"])) {
+                    $("#core-style").html(g.css);
+                    $("#core-title").text(g.title);
+                    $("#core-content").html(g.content);
+                    if (g.js.length)
+                        $.cachedScript(g.js);
+                    app.removeLoading();
+                    if (g.font.length) {
+                        $.each(g.font, function (i, url) {
+                            if (!$("head").find("link[href='" + url + "']").length)
+                                $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').attr("data-assets", "core-assets").appendTo("head")
+                        })
+                    }
+                } else {
+                    app.applyView('403');
+                }
+
+            } else {
+                $("#core-content").html("");
+                app.removeLoading()
+            }
+        })
+    },
+    haveAccessPermission: function(setor, notSetor) {
+        let allow = !0;
+        let mySetor = getCookie("setor");
+        if(!isEmpty(setor)) {
+            allow = !1;
+            if(setor.constructor === Array) {
+                $.each(setor, function(i, seto) {
+                    if(typeof seto === "string" && seto === mySetor) {
+                        allow = !0;
+                        return !1;
+                    }
+                });
+            } else if(typeof setor === "string" && setor === mySetor) {
+                allow = !0;
+            }
+        } else if(!isEmpty(notSetor)) {
+            if(notSetor.constructor === Array) {
+                $.each(notSetor, function(i, seto) {
+                    if(typeof seto === "string" && seto === mySetor)
+                        return allow = !1;
+                });
+            } else if(typeof notSetor === "string" && notSetor === mySetor) {
+                allow = !1;
+            }
+        }
+
+        return allow;
+    },
+    loadView: function (route, nav) {
+        return new Promise((s, f) => {
+            let backform = new RegExp('#formulario$');
+            if (backform.test(route)) {
+                $(".btn-form-list").trigger("click");
+                return s(1)
+            } else {
+                route = typeof route === "string" ? route.replace(HOME, '') : location.href.replace(HOME, '');
+                if ((app.route === "" || app.route !== route) && !app.loading) {
+                    app.setLoading();
+                    if (typeof nav === "undefined" && app.route !== "")
+                        history.pushState(null, null, HOME + route);
+
+                    app.route = route || "/";
+                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                    return s(app.applyView(file))
+                } else if (app.route === route){
+                    location.reload(1);
+                } else {
+                    return s(1)
+                }
+            }
+        });
+    }
+};
+
+$(function() {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
+
+        window.onpopstate = function () {
+            app.loadView(document.location.href, !0)
+        };
+
+        $("body").off("click", "a").on("click", "a", function (e) {
+            let url = $(this).attr("href").replace(HOME, '');
+            let p = new RegExp(/^#/i);
+            let pjs = new RegExp(/^javascript/i);
+            if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+                e.preventDefault();
+                app.loadView($(this).attr("href"));
+                closeSidebar()
+            }
+        }).off("submit", "form").on("submit", "form", function (e) {
+            e.preventDefault()
+        });
+
+        $("#core-open-menu").off("click").on("click", function () {
+            toggleSidebar();
+        });
+
         checkSessao().then(() => {
             caches.open('core-v' + VERSION).then(function (cache) {
                 return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
@@ -507,12 +881,19 @@ window.onload = function () {
                 styleFont.rel = "stylesheet";
                 styleFont.href = HOME + "assetsPublic/fonts.min.css";
                 document.head.appendChild(styleFont);
-            })
+            }).then(() => {
+                return app.loadView();
+
+            }).then(() => {
+                if(localStorage.accesscount === "0")
+                    startCache();
+            });
         });
+
     } else {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
         document.head.appendChild(scriptCore);
         clearCache()
     }
-}
+});
