@@ -485,11 +485,6 @@ function setCookieUser(user) {
     if (navigator.onLine) {
 
         /**
-         * Loading Screen
-         * */
-        app.setLoading();
-
-        /**
          * Limpa dados de usuário
          * */
         return clearCacheUser().then(() => {
