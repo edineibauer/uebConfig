@@ -104,12 +104,12 @@ function clearCacheLogin() {
 }
 
 function loadScreen() {
-    document.querySelector("#app").style.opacity = 0.7;
-
-    let spin = '<div class="spinner">\n' +
-        '  <div class="double-bounce1" style="background-color: ' + THEMETEXT + '"></div>\n' +
-        '  <div class="double-bounce2" style="background-color: ' + THEMETEXT + '"></div>\n' +
-        '</div>';
+    let $app = document.querySelector("#app");
+    let spin = document.createElement("div");
+    spin.classList.add("spinner");
+    spin.innerHTML = '<div class="double-bounce1" style="background-color: ' + THEMETEXT + '"></div>\n' + '  <div class="double-bounce2" style="background-color: ' + THEMETEXT + '"></div>';
+    $app.style.opacity = 0.7;
+    $app.appendChild(spin);
 }
 
 function updateVersion() {
