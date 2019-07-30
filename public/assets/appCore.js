@@ -70,294 +70,6 @@ function getCookie(cname) {
     return ""
 }
 
-function clearCacheLogin() {
-    return dbLocal.exeRead("__dicionario", 1).then(dicionarios => {
-        let clear = [];
-        for (var k in dicionarios) {
-            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
-                if (d.length) {
-                    return dbRemote.sync(k).then(() => {
-                        return dbLocal.clear("sync_" + k)
-                    })
-                } else {
-                    return dbLocal.clear("sync_" + k)
-                }
-            }));
-            clear.push(dbLocal.clear(k))
-        }
-        clear.push(dbLocal.clear('__historic'));
-        clear.push(dbLocal.clear('__allow'));
-        clear.push(dbLocal.clear('__dicionario'));
-        clear.push(dbLocal.clear('__info'));
-        clear.push(dbLocal.clear('__menu'));
-        clear.push(dbLocal.clear('__panel'));
-        return Promise.all(clear)
-    }).then(() => {
-        return caches.keys().then(cacheNames => {
-            return Promise.all(cacheNames.map(cacheName => {
-                let versionOld = new RegExp("-v" + VERSION + "$", "i");
-                if (!versionOld.test(cacheName))
-                    return caches.delete(cacheName)
-            }))
-        })
-    })
-}
-
-function updateVersion() {
-    return updateCacheLogin().then(() => {
-        return new Promise(function (resolve, reject) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", HOME + "set");
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let data = JSON.parse(this.responseText);
-                    if (typeof data.data === "string" && data.response === 1)
-                        setCookie("update", data.data);
-                    location.reload(!0)
-                }
-            };
-            xhttp.send("lib=config&file=update&update=false")
-        })
-    })
-}
-
-function checkUpdate() {
-    return new Promise(function (resolve, reject) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set");
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                let data = JSON.parse(this.responseText);
-                if (data.response === 1 && data.data != getCookie("update"))
-                    updateVersion();
-                else
-                    resolve(1);
-            }
-        };
-        xhttp.send("lib=config&file=update&update=false");
-    });
-}
-
-function updateCacheLogin() {
-    if (navigator.onLine) {
-        app.setLoading();
-        return clearCacheLogin().then(() => {
-            return get("appView").then(g => {
-                return caches.open('view-v' + VERSION).then(cache => {
-                    let all = [];
-                    for (let i in g.view) {
-                        if (typeof g.view[i] === "string") {
-                            all.push(cache.delete(g.view[i]).then(() => {
-                                return cache.add(g.view[i])
-                            }))
-                        }
-                    }
-                    return Promise.all(all)
-                })
-            })
-        }).then(() => {
-            let gets = [];
-            let creates = [];
-            gets.push(get("allow"));
-            gets.push(get("dicionarios"));
-            gets.push(get("info"));
-            gets.push(get("menu"));
-            gets.push(get("panel"));
-            return Promise.all(gets).then(r => {
-                creates.push(dbLocal.exeCreate('__allow', r[0]));
-                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-                creates.push(dbLocal.exeCreate('__info', r[2]));
-                creates.push(dbLocal.exeCreate('__menu', r[3]));
-                creates.push(dbLocal.exeCreate('__panel', r[4]));
-                return Promise.all(creates)
-            })
-        });
-
-    } else {
-        toast("Sem Conexão", 1200);
-    }
-}
-
-function clearCache() {
-    let clear = [];
-    for (var k in dicionarios)
-        clear.push(dbLocal.clear(k));
-
-    clear.push(dbLocal.clear('__historic'));
-    clear.push(dbLocal.clear('__dicionario'));
-    clear.push(dbLocal.clear('__info'));
-    clear.push(dbLocal.clear('__allow'));
-    clear.push(dbLocal.clear('__general'));
-    clear.push(dbLocal.clear('__react'));
-    clear.push(dbLocal.clear('__reactOnline'));
-    clear.push(dbLocal.clear('__relevant'));
-    clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__user'));
-    clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__panel'));
-
-    return Promise.all(clear).then(() => {
-        return caches.keys().then(cacheNames => {
-            return Promise.all(cacheNames.map(cacheName => {
-                return caches.delete(cacheName)
-            }))
-        })
-    })
-}
-
-function updateCache() {
-    if (navigator.onLine) {
-        app.setLoading();
-        return navigator.serviceWorker.getRegistrations().then(function (registrations) {
-            for (let registration of registrations)
-                registration.unregister()
-
-        }).then(() => {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-                    swRegistration = swReg;
-
-                    /**
-                     * Notificação btn
-                     * */
-                    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                        $(".site-btn-push").remove()
-                })
-            }
-
-        }).then(() => {
-            return clearCache().then(() => {
-                return get("currentFiles/" + window.location.pathname).then(g => {
-                    return caches.open('core-v' + VERSION).then(cache => {
-                        return cache.addAll(g.core)
-                    }).then(() => {
-                        return caches.open('fonts-v' + VERSION).then(cache => {
-                            return cache.addAll(g.fonts)
-                        })
-                    }).then(() => {
-                        return caches.open('images-v' + VERSION).then(cache => {
-                            return cache.addAll(g.images)
-                        })
-                    }).then(() => {
-                        return caches.open('viewJs-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewJs)
-                        })
-                    }).then(() => {
-                        return caches.open('viewCss-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewCss)
-                        })
-                    }).then(() => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.addAll(g.view)
-                        })
-                    }).then(() => {
-                        return caches.open('midia-v' + VERSION).then(cache => {
-                            return cache.addAll(g.midia)
-                        })
-                    })
-                })
-
-            }).then(() => {
-                let gets = [];
-                let creates = [];
-                gets.push(get("allow"));
-                gets.push(get("dicionarios"));
-                gets.push(get("info"));
-                gets.push(get("templates"));
-                gets.push(get("menu"));
-                gets.push(get("panel"));
-                return Promise.all(gets).then(r => {
-                    creates.push(dbLocal.exeCreate('__allow', r[0]));
-                    creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-                    creates.push(dbLocal.exeCreate('__info', r[2]));
-                    creates.push(dbLocal.exeCreate('__template', r[3]));
-                    creates.push(dbLocal.exeCreate('__menu', r[4]));
-                    creates.push(dbLocal.exeCreate('__panel', r[5]));
-                    return Promise.all(creates)
-                });
-            }).then(() => {
-                return new Promise(function (resolve, reject) {
-                    if (app.route !== "updateSystem/force" && app.route !== "updateSystem") {
-                        var xhttp = new XMLHttpRequest();
-                        xhttp.open("POST", HOME + "set");
-                        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                        xhttp.onreadystatechange = function () {
-                            if (this.readyState === 4 && this.status === 200) {
-                                let data = JSON.parse(this.responseText);
-                                if (data.data !== "no-network" && data.response === 1)
-                                    setCookie("update", data.data);
-
-                                resolve(1);
-                            }
-                        };
-                        xhttp.send("lib=config&file=update")
-                    } else {
-                        resolve(1);
-                    }
-                });
-            }).then(() => {
-                window.location.reload(!0)
-            })
-        })
-    } else {
-        toast("Sem Conexão", 1200);
-    }
-}
-
-function setCookieAnonimo() {
-    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0})
-}
-
-function setCookieUser(user) {
-    setCookie("token", user.token);
-    setCookie("id", user.id);
-    setCookie("nome", user.nome);
-    setCookie("imagem", user.imagem);
-    setCookie("setor", user.setor);
-    return updateCacheLogin()
-}
-
-function checkSessao() {
-    return new Promise(function (resolve, reject) {
-        if (getCookie("token") === "") {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", HOME + "set");
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let data = JSON.parse(this.responseText);
-                    if (typeof data.data === "object" && data.response === 1) {
-                        resolve(setCookieUser(data.data).then(() => {
-                            window.location.href = HOME + "dashboard"
-                        }));
-                    } else {
-                        resolve(setCookieAnonimo().then(() => {
-                            window.location.href = HOME
-                        }));
-                    }
-                }
-            };
-            xhttp.send("lib=route&file=sessao");
-        } else {
-            checkUpdate();
-            setSidebarInfo();
-            resolve(1);
-        }
-    });
-}
-
-function setSidebarInfo() {
-    if (getCookie("token") === "0" || getCookie("imagem") === "") {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
-    } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
-    }
-    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("nome");
-    document.querySelector("#core-sidebar-edit").classList.add("hide")
-}
-
 function urlB64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -374,7 +86,7 @@ function urlB64ToUint8Array(base64String) {
 }
 
 function pushNotification(title, body, url, image, icon) {
-    if(typeof icon === 'undefined' && typeof image !== "undefined")
+    if (typeof icon === 'undefined' && typeof image !== "undefined")
         icon = image;
 
     swRegistration.showNotification(title, {
@@ -414,6 +126,65 @@ function updateSubscriptionOnServer(subscription) {
         })
     }
 }
+
+function isJson(str) {
+    if (typeof str !== "string")
+        return !1;
+    try {
+        if (typeof JSON.parse(str) !== "object")
+            return !1
+    } catch (e) {
+        return !1
+    }
+    return !0
+}
+
+function isEmpty(valor) {
+    if (typeof valor === "undefined" || valor === "" || valor === null)
+        return !0;
+    if ($.isArray(valor) && valor.length === 0)
+        return !0;
+    if (typeof valor === "object" && $.isEmptyObject(valor))
+        return !0;
+    return !1
+}
+
+/*function updateVersion() {
+    return updateCacheLogin().then(() => {
+        return new Promise(function (resolve, reject) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", HOME + "set");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+                    if (typeof data.data === "string" && data.response === 1)
+                        setCookie("update", data.data);
+                    location.reload(!0)
+                }
+            };
+            xhttp.send("lib=config&file=update&update=false")
+        })
+    })
+}*/
+
+/*function checkUpdate() {
+    return new Promise(function (resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", HOME + "set");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let data = JSON.parse(this.responseText);
+                if (data.response === 1 && data.data != getCookie("update"))
+                    updateVersion();
+                else
+                    resolve(1);
+            }
+        };
+        xhttp.send("lib=config&file=update&update=false");
+    });
+}*/
 
 function sidebarUserInfo() {
     if (getCookie("token") === "0" || getCookie("imagem") === "") {
@@ -471,6 +242,231 @@ function menuHeader() {
     });
 }
 
+function clearCacheUser() {
+    /**
+     * Remove cookies
+     * */
+    setCookie("token", '', -1);
+    setCookie("id", '', -1);
+    setCookie("nome", '', -1);
+    setCookie("imagem", '', -1);
+    setCookie("setor", '', -1);
+
+    return dbLocal.exeRead("__dicionario", 1).then(dd => {
+        let clear = [];
+        for (var k in dd) {
+            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
+                if (d.length) {
+                    return dbRemote.sync(k).then(() => {
+                        return dbLocal.clear("sync_" + k)
+                    })
+                } else {
+                    return dbLocal.clear("sync_" + k)
+                }
+            }));
+            clear.push(dbLocal.clear(k));
+        }
+        clear.push(dbLocal.clear('__historic'));
+        clear.push(dbLocal.clear('__allow'));
+        clear.push(dbLocal.clear('__dicionario'));
+        clear.push(dbLocal.clear('__info'));
+        clear.push(dbLocal.clear('__menu'));
+        clear.push(dbLocal.clear('__panel'));
+        return Promise.all(clear);
+    })
+}
+
+function clearCache() {
+
+    setCookie('update', 0, -1);
+
+    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        /**
+         * Clear Caches and Data
+         * */
+        for (let registration of registrations)
+            registration.unregister();
+
+    }).then(() => {
+
+        return dbLocal.exeRead('__dicionario', 1).then(dicion => {
+            let clear = [];
+            for (var k in dicion)
+                clear.push(dbLocal.clear(k));
+
+            clear.push(dbLocal.clear('__historic'));
+            clear.push(dbLocal.clear('__dicionario'));
+            clear.push(dbLocal.clear('__info'));
+            clear.push(dbLocal.clear('__allow'));
+            clear.push(dbLocal.clear('__general'));
+            clear.push(dbLocal.clear('__react'));
+            clear.push(dbLocal.clear('__reactOnline'));
+            clear.push(dbLocal.clear('__relevant'));
+            clear.push(dbLocal.clear('__template'));
+            clear.push(dbLocal.clear('__user'));
+            clear.push(dbLocal.clear('__menu'));
+            clear.push(dbLocal.clear('__panel'));
+
+            return Promise.all(clear);
+        }).then(() => {
+            return caches.keys().then(cacheNames => {
+                return Promise.all(cacheNames.map(cacheName => {
+                    return caches.delete(cacheName)
+                }))
+            })
+        })
+    });
+}
+
+function updateCache() {
+    if (navigator.onLine) {
+        clearCache().then(() => {
+            location.reload(!0);
+        })
+    } else {
+        toast("Sem Conexão", 1200);
+    }
+}
+
+function setCookieAnonimo() {
+    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
+        post('login', 'logout', function (g) {});
+    })
+}
+
+function setCookieUser(user) {
+    if (navigator.onLine) {
+
+        /**
+         * Loading Screen
+         * */
+        app.setLoading();
+
+        /**
+         * Limpa dados de usuário
+         * */
+        return clearCacheUser().then(() => {
+
+            /**
+             * Seta usuário
+             * */
+            setCookie("token", user.token);
+            setCookie("id", user.id);
+            setCookie("nome", user.nome);
+            setCookie("imagem", user.imagem);
+            setCookie("setor", user.setor);
+
+            /**
+             * Obtém novos dados de usuário
+             * */
+            loadCacheUser();
+        });
+
+    } else {
+        toast("Sem Conexão", 1200);
+    }
+}
+
+function checkSessao() {
+    /**
+     * Verifica integridade
+     * */
+    if (getCookie("id") === "" || getCookie("token") === "" || getCookie("nome") === "" || getCookie("setor") === "") {
+        return setCookieAnonimo();
+
+    } else if (getCookie("token") !== "0") {
+
+        /**
+         * Verifica se o token atual é válido
+         * */
+        return new Promise(function (resolve, reject) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", HOME + "set");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+
+                    /**
+                     * Se retorno for 0, então token não validou no back
+                     * */
+                    if (data.response === 1 && typeof data.data == "0")
+                        resolve(setCookieAnonimo());
+
+                    resolve(1);
+                }
+            };
+            xhttp.send("lib=route&file=sessao");
+        });
+    } else {
+
+        /**
+         * Usuário Anônimo, garante que back esta deslogado
+         * */
+        post('login', 'logout', function (g) {});
+    }
+}
+
+function updateCacheUser() {
+    return clearCacheUser().then(() => {
+        return loadCacheUser();
+    })
+}
+
+function loadCacheUser() {
+    /**
+     * Load User Data content
+     * */
+    if (navigator.onLine) {
+        let gets = [];
+        let creates = [];
+        gets.push(get("allow"));
+        gets.push(get("dicionarios"));
+        gets.push(get("info"));
+        gets.push(get("templates"));
+        gets.push(get("menu"));
+        return Promise.all(gets).then(r => {
+            creates.push(dbLocal.exeCreate('__allow', r[0]));
+            creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+            creates.push(dbLocal.exeCreate('__info', r[2]));
+            creates.push(dbLocal.exeCreate('__template', r[3]));
+            creates.push(dbLocal.exeCreate('__menu', r[4]));
+
+            dicionarios = r[1];
+            creates.push(downloadEntityData());
+
+            return Promise.all(creates)
+        })
+    } else {
+        return Promise.all([]);
+    }
+}
+
+function firstAccess() {
+    localStorage.accesscount = 0;
+    return updateCacheUser();
+}
+
+function thenAccess() {
+    /**
+     * Check Data content
+     * */
+    let gets = [];
+    gets.push(dbLocal.exeRead("__allow", 1));
+    gets.push(dbLocal.exeRead("__dicionario", 1));
+    gets.push(dbLocal.exeRead("__template", 1));
+    localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
+
+    return Promise.all(gets).then(r => {
+        if (isEmpty(r[0]) || isEmpty(r[1])) {
+            return updateCacheUser();
+        } else {
+            dicionarios = r[1];
+            return downloadEntityData();
+        }
+    });
+}
+
 function downloadEntityData() {
     let down = [];
     let historic = {};
@@ -486,131 +482,33 @@ function downloadEntityData() {
     })
 }
 
-function isJson(str) {
-    if (typeof str !== "string")
-        return !1;
-    try {
-        if (typeof JSON.parse(str) !== "object")
-            return !1
-    } catch (e) {
-        return !1
-    }
-    return !0
-}
-
-function isEmpty(valor) {
-    if (typeof valor === "undefined" || valor === "" || valor === null)
-        return !0;
-    if ($.isArray(valor) && valor.length === 0)
-        return !0;
-    if (typeof valor === "object" && $.isEmptyObject(valor))
-        return !0;
-    return !1
-}
-
-function firstAccess() {
-    localStorage.accesscount = 0;
-
-    /**
-     * Seta usuário anônimo
-     * */
-    let user = {token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0};
-    setCookie("token", user.token);
-    setCookie("id", user.id);
-    setCookie("nome", user.nome);
-    setCookie("imagem", user.imagem);
-    setCookie("setor", user.setor);
-
-    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        /**
-         * Clear Caches and Data
-         * */
-        for (let registration of registrations)
-            registration.unregister();
-
-        return clearCache();
-
-    }).then(() => {
-
-        /**
-         * Load Data content
-         * */
-        if (navigator.onLine) {
-            let gets = [];
-            let creates = [];
-            gets.push(get("allow"));
-            gets.push(get("dicionarios"));
-            gets.push(get("info"));
-            gets.push(get("templates"));
-            gets.push(get("menu"));
-            return Promise.all(gets).then(r => {
-                creates.push(dbLocal.exeCreate('__allow', r[0]));
-                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-                creates.push(dbLocal.exeCreate('__info', r[2]));
-                creates.push(dbLocal.exeCreate('__template', r[3]));
-                creates.push(dbLocal.exeCreate('__menu', r[4]));
-
-                dicionarios = r[1];
-                creates.push(downloadEntityData());
-
-                return Promise.all(creates)
-            })
-        } else {
-            return 1;
-        }
-    });
-}
-
-function thenAccess() {
-    /**
-     * Verifica integridade
-     * */
-    if(getCookie("id") === "" || getCookie("token") === "" || getCookie("nome") === "" || getCookie("setor") === "")
-        return firstAccess();
-
-    /**
-     * Check Data content
-     * */
-    let gets = [];
-    gets.push(dbLocal.exeRead("__allow", 1));
-    gets.push(dbLocal.exeRead("__dicionario", 1));
-    gets.push(dbLocal.exeRead("__template", 1));
-    return Promise.all(gets).then(r => {
-        if(isEmpty(r[0]) || isEmpty(r[1]))
-            return firstAccess();
-
-        dicionarios = r[1];
-        localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
-
-        return downloadEntityData();
-    });
-}
-
 var dicionarios;
 var swRegistration = null;
 
 window.onload = function () {
     if (location.href !== HOME + "updateSystem" && location.href !== HOME + "updateSystem/force") {
-        caches.open('core-v' + VERSION).then(function (cache) {
-            return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
-                if (!response)
-                    return firstAccess()
-                else
-                    return thenAccess()
+        checkSessao().then(() => {
+            caches.open('core-v' + VERSION).then(function (cache) {
+                return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
+                    if (!response)
+                        return firstAccess()
+                    else
+                        return thenAccess()
+                })
+            }).then(() => {
+                menuHeader();
+
+            }).then(() => {
+                let scriptCore = document.createElement('script');
+                scriptCore.src = HOME + "assetsPublic/core.min.js";
+                document.head.appendChild(scriptCore);
+
+                let styleFont = document.createElement('link');
+                styleFont.rel = "stylesheet";
+                styleFont.href = HOME + "assetsPublic/fonts.min.css";
+                document.head.appendChild(styleFont);
             })
-        }).then(() => {
-            menuHeader();
-
-        }).then(() => {
-            let scriptCore = document.createElement('script');
-            scriptCore.src = HOME + "assetsPublic/core.min.js";
-            document.head.appendChild(scriptCore);
-
-            let styleFont = document.createElement('link');
-            styleFont.rel = "stylesheet";
-            styleFont.href = HOME + "assetsPublic/fonts.min.css";
-            document.head.appendChild(styleFont);
-        })
+        });
     } else {
         let scriptCore = document.createElement('script');
         scriptCore.src = HOME + "assetsPublic/core.min.js";
