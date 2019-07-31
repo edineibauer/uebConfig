@@ -116,15 +116,17 @@ self.addEventListener('fetch', function (e) {
 
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
-                return cache.match(HOME + 'set').then(response => {
-                    return fetch(e.request).then(networkResponse => {
+                return fetch(e.request).then(networkResponse => {
 
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            return networkResponse;
+                    if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                        return networkResponse;
 
+                    return cache.match(HOME + 'set').then(response => {
                         return response;
+                    });
 
-                    }).catch(error => {
+                }).catch(error => {
+                    return cache.match(HOME + 'set').then(response => {
                         return response;
                     });
                 });
