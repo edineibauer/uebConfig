@@ -896,8 +896,15 @@ $(function() {
                 return app.loadView();
 
             }).then(() => {
-                if(localStorage.accesscount === "0")
+                if(localStorage.accesscount === "0") {
                     startCache();
+                } else {
+                    /**
+                     * Notificação btn
+                     * */
+                    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                        $(".site-btn-push").remove()
+                }
             });
         });
 
