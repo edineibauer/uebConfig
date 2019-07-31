@@ -424,16 +424,6 @@ function clearCacheUser() {
                     return caches.delete(cacheName)
             }))
         });
-    }).then(() => {
-
-        /**
-         * Read views user
-         * */
-        return get("appFilesView/" + window.location.pathname).then(g => {
-            return caches.open('view-v' + VERSION).then(cache => {
-                return cache.addAll(g.view)
-            })
-        })
     })
 }
 
@@ -568,6 +558,14 @@ function checkSessao() {
 function updateCacheUser() {
     return clearCacheUser().then(() => {
         return loadCacheUser();
+    })
+}
+
+function loadUserViews() {
+    return get("appFilesView/" + window.location.pathname).then(g => {
+        return caches.open('view-v' + VERSION).then(cache => {
+            return cache.addAll(g.view)
+        })
     })
 }
 
