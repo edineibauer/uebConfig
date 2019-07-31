@@ -546,12 +546,8 @@ function checkSessao() {
                     /**
                      * Se retorno for 0, então token não validou no back
                      * */
-                    if (data.response === 1 && data.data === 0) {
-                        toast("Sessão Expirada!", 1500, "toast-warnig");
-                        setTimeout(function () {
-                            location.href = HOME + "logout";
-                        }, 1500);
-                    }
+                    if (data.response === 1 && data.data === 0)
+                        location.href = HOME + "logout";
 
                     resolve(1);
                 }
