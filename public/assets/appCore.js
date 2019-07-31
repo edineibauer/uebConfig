@@ -480,9 +480,7 @@ function updateCache() {
 }
 
 function setCookieAnonimo() {
-    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
-        post('login', 'logout', function (g) {});
-    })
+    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
 }
 
 function setCookieUser(user) {
