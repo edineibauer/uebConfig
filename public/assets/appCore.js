@@ -534,8 +534,13 @@ function checkSessao() {
                     /**
                      * Se retorno for 0, então token não validou no back
                      * */
-                    if (data.response === 1 && data.data === 0)
-                        location.href = HOME + "logout";
+                    if (data.response === 1 && data.data === 0) {
+                        toast("Token inválido. Desconectado!", 3000);
+
+                        setCookieAnonimo().then(() => {
+                            location.reload();
+                        });
+                    }
 
                     resolve(1);
                 }
