@@ -170,15 +170,6 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "assetsPublic/appCore.min.js"))
             unlink(PATH_HOME . "assetsPublic/appCore.min.js");
 
-        if (file_exists(PATH_HOME . "assetsPublic/idb.min.js"))
-            unlink(PATH_HOME . "assetsPublic/idb.min.js");
-
-        if (file_exists(PATH_HOME . "assetsPublic/indexedDB.min.js"))
-            unlink(PATH_HOME . "assetsPublic/indexedDB.min.js");
-
-        if (file_exists(PATH_HOME . "assetsPublic/jquery.min.js"))
-            unlink(PATH_HOME . "assetsPublic/jquery.min.js");
-
         if (file_exists(PATH_HOME . "assetsPublic/tableCore.min.js"))
             unlink(PATH_HOME . "assetsPublic/tableCore.min.js");
 
@@ -210,17 +201,14 @@ class UpdateSystem
         $this->createCoreFont($f['font'], $f['icon'], 'fonts');
         $this->createCoreImages();
 
-        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
+        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/hammer.min.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/idb.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
-
-        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/idb.js");
-        $m->minify(PATH_HOME . "assetsPublic/idb.min.js");
-
-        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
-        $m->minify(PATH_HOME . "assetsPublic/indexedDB.min.js");
-
-        //copy jquery
-        copy(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js", PATH_HOME . "assetsPublic/jquery.min.js");
 
         //table js & css
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {

@@ -51,7 +51,4 @@
     var AUTOSYNC = 1;
 </script>
 
-<script src='{$home}assetsPublic/jquery.min.js' defer></script>
-<script src='{$home}assetsPublic/idb.min.js' defer></script>
-<script src='{$home}assetsPublic/indexedDB.min.js' defer></script>
 <script src='{$home}assetsPublic/appCore.min.js' defer></script>

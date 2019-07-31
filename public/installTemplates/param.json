@@ -1,19 +1,13 @@
 {
   "title": "{$sitename}",
   "js": [
-    "hammer",
     "mustache",
-    "toast",
-    "chart",
-    "chartFunction",
     "draggable",
     "helpers",
     "mask",
     "grid",
     "form",
-    "formValidate",
-    "app",
-    "header"
+    "formValidate"
   ],
   "css": [
     "normalize",
