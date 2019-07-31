@@ -338,7 +338,7 @@ function sidebarUserInfo() {
 
 function loginBtn() {
     let btnLoginAside = document.querySelector("#login-aside");
-    if (getCookie("setor") !== "0") {
+    if (getCookie("setor") !== "" && getCookie("setor") !== "0") {
         btnLoginAside.onclick = function () {
             logoutDashboard()
         };
@@ -366,7 +366,7 @@ function menuHeader() {
 
     return dbLocal.exeRead("__template", 1).then(tpl => {
         let menu = [];
-        if (getCookie("token") !== "0") {
+        if (getCookie("token") !== "" && getCookie("token") !== "0") {
             menu.push({href: HOME + 'dashboard', text: 'painel'});
             menu.push({funcao: 'logoutDashboard', text: 'sair'})
         }
@@ -389,16 +389,8 @@ function menuHeader() {
     });
 }
 
-function clearCacheUser() {
-    /**
-     * Remove cookies
-     * */
-    setCookie("token", '', -1);
-    setCookie("id", '', -1);
-    setCookie("nome", '', -1);
-    setCookie("imagem", '', -1);
-    setCookie("setor", '', -1);
 
+function clearCacheUser() {
     return dbLocal.exeRead("__dicionario", 1).then(dd => {
         let clear = [];
         for (var k in dd) {
@@ -411,7 +403,7 @@ function clearCacheUser() {
                     return dbLocal.clear("sync_" + k)
                 }
             }));
-            clear.push(dbLocal.clear(k));
+            clear.push(dbLocal.clear(k))
         }
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__allow'));
@@ -419,7 +411,29 @@ function clearCacheUser() {
         clear.push(dbLocal.clear('__info'));
         clear.push(dbLocal.clear('__menu'));
         clear.push(dbLocal.clear('__panel'));
-        return Promise.all(clear);
+        return Promise.all(clear)
+    }).then(() => {
+
+        /**
+         * Clear View user
+         * */
+        return caches.keys().then(cacheNames => {
+            return Promise.all(cacheNames.map(cacheName => {
+                let reg = new RegExp("^view-v");
+                if(reg.test(cacheName))
+                    return caches.delete(cacheName)
+            }))
+        });
+    }).then(() => {
+
+        /**
+         * Read views user
+         * */
+        return get("currentFilesView/" + window.location.pathname).then(g => {
+            return caches.open('view-v' + VERSION).then(cache => {
+                return cache.addAll(g.view)
+            })
+        })
     })
 }
 
