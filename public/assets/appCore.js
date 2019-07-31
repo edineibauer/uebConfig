@@ -538,7 +538,9 @@ function checkSessao() {
                         toast("Token inválido. Desconectado!", 3000);
 
                         setCookieAnonimo().then(() => {
-                            location.reload();
+                            setTimeout(function () {
+                                location.reload(1);
+                            },1500);
                         });
                     }
 
@@ -824,7 +826,8 @@ var app = {
                 $(".btn-form-list").trigger("click");
                 return s(1)
             } else {
-                route = typeof route === "string" ? route.replace(HOME, '') : location.href.replace(HOME, '');
+                let haveRoute = typeof route === "string";
+                route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
                 if ((app.route === "" || app.route !== route) && !app.loading) {
                     app.setLoading();
                     if (typeof nav === "undefined" && app.route !== "")
@@ -833,7 +836,7 @@ var app = {
                     app.route = route || "/";
                     let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
                     return s(app.applyView(file))
-                } else if (app.route === route){
+                } else if (haveRoute && app.route === route){
                     location.reload(1);
                 } else {
                     return s(1)
