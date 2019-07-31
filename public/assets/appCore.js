@@ -429,7 +429,7 @@ function clearCacheUser() {
         /**
          * Read views user
          * */
-        return get("currentFilesView/" + window.location.pathname).then(g => {
+        return get("appView/" + window.location.pathname).then(g => {
             return caches.open('view-v' + VERSION).then(cache => {
                 return cache.addAll(g.view)
             })
