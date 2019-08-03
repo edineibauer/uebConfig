@@ -586,6 +586,7 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__info', r[2]));
             creates.push(dbLocal.exeCreate('__template', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
+            creates.push(loadUserViews());
 
             dicionarios = r[1];
             creates.push(downloadEntityData());
@@ -613,7 +614,7 @@ function thenAccess() {
     localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
 
     return Promise.all(gets).then(r => {
-        if (isEmpty(r[0]) || isEmpty(r[1])) {
+        if (isEmpty(r[2])) {
             return updateCacheUser();
         } else {
             dicionarios = r[1];
