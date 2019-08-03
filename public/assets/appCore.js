@@ -823,6 +823,7 @@ var app = {
         return allow;
     },
     loadView: function (route, nav) {
+        closeSidebar();
         return new Promise((s, f) => {
             let backform = new RegExp('#formulario$');
             if (backform.test(route)) {
@@ -863,7 +864,6 @@ $(function() {
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
                 app.loadView($(this).attr("href"));
-                closeSidebar()
             }
         }).off("submit", "form").on("submit", "form", function (e) {
             e.preventDefault()
