@@ -346,7 +346,6 @@ function loginBtn() {
     } else {
         btnLoginAside.onclick = function () {
             app.loadView(HOME + "login");
-            closeSidebar()
         };
         btnLoginAside.children[0].innerHTML = "person"
     }
