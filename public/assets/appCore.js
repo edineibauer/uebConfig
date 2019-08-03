@@ -503,7 +503,7 @@ function setCookieUser(user) {
             /**
              * Obtém novos dados de usuário
              * */
-            loadCacheUser();
+            return loadCacheUser();
         });
 
     } else {
@@ -590,6 +590,8 @@ function loadCacheUser() {
 
             dicionarios = r[1];
             creates.push(downloadEntityData());
+
+            menuHeader();
 
             return Promise.all(creates)
         })
