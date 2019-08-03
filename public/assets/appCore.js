@@ -320,7 +320,7 @@ function toggleIcon($element, action = 'toggle') {
 function logoutDashboard() {
     if(navigator.onLine) {
         if(confirm("desconectar?"))
-            location.href = HOME + "logout";
+            app.loadView(HOME + "logout");
     } else {
         toast("Sem Conexão", 1200);
     }
