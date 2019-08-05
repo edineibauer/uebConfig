@@ -146,8 +146,25 @@ function CSV(array, comma) {
     // Add the rows
     array.forEach(function(obj){
         keys.forEach(function(k, ix){
-            if (ix) result += comma;
-            result += obj[k];
+            if (ix)
+                result += comma;
+
+            let v = "";
+            if (Array.isArray(obj[k])) {
+                $.each(obj[k], function(i, o) {
+                    if(v !== "")
+                        v += ", ";
+
+                    if(typeof o.url === "string")
+                        v += o.url;
+                });
+            } else if (typeof obj[k] === "object") {
+                v = JSON.stringify(obj[k]);
+            } else {
+                v = obj[k];
+            }
+
+            result += v;
         });
         result += "\n";
     });
