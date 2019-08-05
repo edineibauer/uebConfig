@@ -157,6 +157,11 @@ function CSV(array, comma) {
 
                     if(typeof o.url === "string")
                         v += o.url;
+                    else if (typeof obj[k] === "object")
+                        v += JSON.stringify(obj[k]);
+                    else if(typeof o === "string")
+                        v += o;
+
                 });
             } else if (typeof obj[k] === "object") {
                 v = JSON.stringify(obj[k]);
