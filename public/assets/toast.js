@@ -117,3 +117,11 @@ function toast(message, duration, className, completeCallback) {
         return $toast;
     }
 };
+
+function clearToast() {
+    let $toasts = $(".toast");
+    $toasts.fadeOut(300);
+    setTimeout(function () {
+        $toasts.remove();
+    }, 300);
+}
