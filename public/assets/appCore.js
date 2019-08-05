@@ -135,6 +135,26 @@ function download(filename, text) {
     document.body.removeChild(element)
 }
 
+function CSV(array, comma) {
+    // Use first element to choose the keys and the order
+    var keys = Object.keys(array[0]);
+    comma = (typeof comma === "undefined" ? ";" : comma);
+
+    // Build header
+    var result = keys.join(comma) + "\n";
+
+    // Add the rows
+    array.forEach(function(obj){
+        keys.forEach(function(k, ix){
+            if (ix) result += comma;
+            result += obj[k];
+        });
+        result += "\n";
+    });
+
+    return result;
+}
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     exdays = typeof exdays === "undefined" ? 360 : exdays;
