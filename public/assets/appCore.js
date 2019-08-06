@@ -693,18 +693,6 @@ function downloadEntityData() {
 }
 
 function startCache() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-            swRegistration = swReg;
-
-            /**
-             * Notificação btn
-             * */
-            if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                $(".site-btn-push").remove()
-        })
-    }
-
     return get("currentFiles/" + window.location.pathname).then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
             return cache.addAll(g.core)
@@ -949,15 +937,20 @@ $(function() {
                 return app.loadView();
 
             }).then(() => {
-                if(localStorage.accesscount === "0") {
-                    startCache();
-                } else {
-                    /**
-                     * Notificação btn
-                     * */
-                    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                        $(".site-btn-push").remove()
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+                        swRegistration = swReg;
+
+                        /**
+                         * Notificação btn
+                         * */
+                        if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                            $(".site-btn-push").remove()
+                    })
                 }
+
+                if(localStorage.accesscount === "0")
+                    startCache();
             });
         });
 
