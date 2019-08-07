@@ -57,7 +57,7 @@ if(!empty($options))
             <div class="file-field input-field col s12 m6">
                 <div class="btn">
                     <span>Logo</span>
-                    <input type="file" name="logo" accept="image/*">
+                    <input type="file" name="logo" accept=".jpeg, .jpg, .png">
                 </div>
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text">
@@ -67,7 +67,7 @@ if(!empty($options))
             <div class="file-field input-field col s12 m6">
                 <div class="btn">
                     <span>Favicon</span>
-                    <input type="file" name="favicon" accept="image/*">
+                    <input type="file" name="favicon" accept=".jpeg, .jpg, .png">
                 </div>
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text">
