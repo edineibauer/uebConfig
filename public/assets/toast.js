@@ -5,6 +5,7 @@
     Version: 1.0.0
 */
 function toast(message, duration, className, completeCallback) {
+    clearToast();
     // Settings
 	if(typeof className === "undefined" && typeof duration === "string") {
 		className = duration;
