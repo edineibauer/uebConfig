@@ -311,7 +311,7 @@ function updateSubscriptionOnServer(subscription) {
     })
 }*/
 
-/*function checkUpdate() {
+function checkUpdate() {
     return new Promise(function (resolve, reject) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", HOME + "set");
@@ -320,14 +320,12 @@ function updateSubscriptionOnServer(subscription) {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && data.data != getCookie("update"))
-                    updateVersion();
-                else
-                    resolve(1);
+                    updateCache();
             }
         };
         xhttp.send("lib=config&file=update&update=false");
     });
-}*/
+}
 
 /**
  * Sidebar Functions
@@ -523,8 +521,9 @@ function clearCache() {
 
 function updateCache() {
     if (navigator.onLine) {
+        toast("Atualizando Aplicativo", 3000, "toast-success");
         clearCache().then(() => {
-            location.reload(1);
+            location.reload();
         })
     } else {
         toast("Sem Conexão", 1200);
@@ -869,6 +868,9 @@ var app = {
             if (backform.test(route)) {
                 $(".btn-form-list").trigger("click");
                 return s(1)
+            } else if(route === HOME + "dashboard" || route === HOME + "dashboard/") {
+                $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").trigger("click");
+                return s(1);
             } else {
                 let haveRoute = typeof route === "string";
                 route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
@@ -950,7 +952,12 @@ $(function() {
                 }
 
                 if(localStorage.accesscount === "0")
-                    startCache();
+                    return startCache();
+
+            }).then(() => {
+                setInterval(function () {
+                    checkUpdate();
+                }, 5000);
             });
         });
 
