@@ -319,8 +319,10 @@ function checkUpdate() {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                if (data.response === 1 && data.data != getCookie("update"))
+                if (data.response === 1 && data.data != getCookie("update")) {
+                    clearInterval(checkUpdateInt);
                     toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius theme' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
+                }
             }
         };
         xhttp.send("lib=config&file=update&update=false");
@@ -892,6 +894,7 @@ var app = {
     }
 };
 
+var checkUpdateInt = null;
 $(function() {
     if (location.href !== HOME + "updateSystem") {
 
@@ -955,7 +958,7 @@ $(function() {
                     return startCache();
 
             }).then(() => {
-                setInterval(function () {
+                checkUpdateInt = setInterval(function () {
                     checkUpdate();
                 }, 5000);
             });
