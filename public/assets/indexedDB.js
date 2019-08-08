@@ -607,7 +607,7 @@ function getDefaultValue(meta, value) {
         if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
             value = "";
         else if (meta.type === "json")
-            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : "");
+            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ((typeof value === 'number' || typeof value === 'string') && value !== "" ? JSON.parse("[" + value + "]") : ""));
         else if (meta.group === "date")
             value = value.replace(" ", "T");
         switch (meta.format) {
