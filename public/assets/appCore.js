@@ -868,7 +868,7 @@ var app = {
             if (backform.test(route)) {
                 $(".btn-form-list").trigger("click");
                 return s(1)
-            } else if(route === HOME + "dashboard" || route === HOME + "dashboard/") {
+            } else if((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
                 $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").trigger("click");
                 return s(1);
             } else {
