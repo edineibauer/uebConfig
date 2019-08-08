@@ -241,7 +241,5 @@ class Config
         $f = fopen(PATH_HOME . "_config/updates/update.txt", "w+");
         fwrite($f, $update);
         fclose($f);
-
-        setcookie("token", '', -1);
     }
 }
