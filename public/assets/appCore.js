@@ -320,7 +320,7 @@ function checkUpdate() {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && data.data != getCookie("update"))
-                    updateCache();
+                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius theme' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
             }
         };
         xhttp.send("lib=config&file=update&update=false");
