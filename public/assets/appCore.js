@@ -292,27 +292,23 @@ function updateSubscriptionOnServer(subscription) {
     }
 }
 
-/*function updateVersion() {
-    return updateCacheLogin().then(() => {
-        return new Promise(function (resolve, reject) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", HOME + "set");
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let data = JSON.parse(this.responseText);
-                    if (typeof data.data === "string" && data.response === 1)
-                        setCookie("update", data.data);
-                    location.reload(!0)
-                }
-            };
-            xhttp.send("lib=config&file=update&update=false")
-        })
-    })
-}*/
+function updateVersionNumber() {
+    clearInterval(checkUpdateInt);
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("POST", HOME + "set");
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let data = JSON.parse(this.responseText);
+            if (data.data !== "no-network" && data.response === 1)
+                setCookie("update", data.data);
+        }
+    };
+    xhttp.send("lib=config&file=update");
+}
 
 function checkUpdate() {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, r) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", HOME + "set");
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -321,8 +317,9 @@ function checkUpdate() {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && data.data != getCookie("update")) {
                     clearInterval(checkUpdateInt);
-                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius theme' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
+                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
                 }
+                resolve(1);
             }
         };
         xhttp.send("lib=config&file=update&update=false");
