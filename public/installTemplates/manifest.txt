@@ -30,7 +30,7 @@
     "sizes": "256x256",
     "type": "image/png"
   }],
-  "start_url": "./",
+  "start_url": "./dashboard",
   "display": "standalone",
   "background_color": "{$theme}",
   "theme_color": "{$theme}"
