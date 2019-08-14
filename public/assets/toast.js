@@ -60,6 +60,7 @@ function toast(message, duration, className, completeCallback) {
                         settings.completeCallback();
                     // Remove toast after it times out
                     $toast.remove();
+                    $("#toast-container").remove();
                 }
             });
             clearInterval(counterInterval);
