@@ -50,7 +50,7 @@ function toast(message, duration, className, completeCallback) {
 
         if (settings.displayLength <= 0) {
             // Animate toast out
-            $toast.animate({ "opacity": 0, marginTop: '-40px' }, {
+            $toast.animate({ "opacity": 0}, {
                 duration: 375,
                 specialEasing: { top: 'easeOutExpo', left: 'linear' },
                 queue: false,
