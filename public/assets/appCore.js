@@ -455,9 +455,9 @@ function menuHeader() {
         for (let m in menu) {
             if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
                 if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
                 } else {
-                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
                 }
             }
         }
