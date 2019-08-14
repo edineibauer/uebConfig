@@ -906,8 +906,7 @@ var app = {
                 $(".btn-form-list").trigger("click");
                 return s(1)
             } else if((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").trigger("click");
-                return s(1);
+                return s(app.applyView("dashboard"));
             } else {
                 let haveRoute = typeof route === "string";
                 route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
