@@ -331,13 +331,13 @@ function checkUpdate() {
  * */
 function closeSidebar() {
     $("#core-overlay, #core-sidebar").removeClass("active");
-    toggleIcon($("#core-open-menu").find(".icon"), false);
+    toggleIcon($(".core-open-menu").find(".icon"), false);
 }
 
 function openSidebar() {
     $("#core-applications").html($("#mySidebar").length ? $("#mySidebar").find(".bar-block").html() : "");
     $("#core-overlay, #core-sidebar").addClass("active");
-    toggleIcon($("#core-open-menu").find(".icon"), true);
+    toggleIcon($(".core-open-menu").find(".icon"), true);
 }
 
 function toggleSidebar(action = 'toggle') {
@@ -911,7 +911,7 @@ $(function() {
             e.preventDefault()
         });
 
-        $("#core-open-menu").off("click").on("click", function () {
+        $(".core-open-menu").off("click").on("click", function () {
             toggleSidebar();
         });
 

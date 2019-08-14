@@ -6,7 +6,7 @@
                 <h1 style='font-size:0'>{$sitename}</h1>
             {else}
                 <img src='{$home}assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'>
-                <h1 id='core-header-title' class='theme-text-aux'>{$sitename}</h1>
+                <h1 id='core-header-title' class='theme-text-aux s-hide'>{$sitename}</h1>
             {/if}
         </a>
     </header>
@@ -14,8 +14,19 @@
     <nav role="navigation">
         <ul id="core-header-nav">
             <div id="core-menu-custom"></div>
+            <div class="theme-hover-d core-open-menu s-hide">
+                <div class="theme-text-aux menu icon" data-before="menu" data-after="remove"></div>
+            </div>
+        </ul>
+    </nav>
+</div>
 
-            <div id="core-open-menu" class="theme-hover-d">
+<div class="hide s-show" style="position: fixed;bottom:0;left:0;width: 100%; padding: 0">
+    <nav role="navigation">
+        <ul id="core-header-nav">
+            <div id="core-menu-custom"></div>
+
+            <div class="theme-hover-d core-open-menu">
                 <div class="theme-text-aux menu icon" data-before="menu" data-after="remove"></div>
             </div>
         </ul>
