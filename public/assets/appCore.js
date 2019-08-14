@@ -920,7 +920,8 @@ var app = {
                     let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
                     return s(app.applyView(file))
                 } else if (haveRoute && app.route === route){
-                    location.reload(1);
+                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                    return s(app.applyView(file))
                 } else {
                     return s(1)
                 }
