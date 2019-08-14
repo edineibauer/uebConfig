@@ -317,7 +317,7 @@ function checkUpdate() {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && data.data != getCookie("update")) {
                     clearInterval(checkUpdateInt);
-                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
+                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius-circle color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
                 }
                 resolve(1);
             }
