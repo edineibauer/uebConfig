@@ -21,9 +21,9 @@
     </nav>
 </div>
 
-<div class="hide s-show" style="position: fixed;bottom:0;left:0;width: 100%; padding: 0">
+<div class="hide s-show" id="core-header-nav-bottom">
     <nav role="navigation">
-        <ul id="core-header-nav">
+        <ul class="core-class-container">
             <div id="core-menu-custom"></div>
 
             <div class="theme-hover-d core-open-menu">
