@@ -23,11 +23,11 @@
 
 <div class="hide s-show" id="core-header-nav-bottom">
     <nav role="navigation">
-        <ul class="core-class-container">
+        <ul class="core-class-container" style="padding:0">
             <div id="core-menu-custom"></div>
 
-            <div class="theme-hover-d core-open-menu">
-                <div class="theme-text-aux core-menu-icon"></div>
+            <div class="core-open-menu">
+                <div class="core-menu-icon"></div>
             </div>
         </ul>
     </nav>
