@@ -407,33 +407,33 @@ function spaceHeader() {
         $("#core-content").css("margin-top", ($header.height() + parseInt($header.css("padding-top")) + parseInt($header.css("padding-bottom"))) + "px")
 }
 
-
-
 function menuBottom(tpl) {
     let menu = [];
-
-    if(!HOMEPAGE)
-        menu.push({href: HOME, text: "<i class='material-icons left'>home</i>"});
-
+    if (!HOMEPAGE)
+        menu.push({href: HOME, rel: '/', text: "<i class='material-icons left'>home</i>"});
     if (getCookie("token") !== "" && getCookie("token") !== "0")
-        menu.push({href: HOME + 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
-
+        menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
     if (getCookie("setor") === "admin") {
-        menu.push({href: HOME + 'UIDev', text: "<i class='material-icons left'>settings</i>"});
-        menu.push({href: HOME + 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
+        menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+        menu.push({href: HOME + 'UIEntidades', rel: 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"})
     }
-
     let content = "";
     for (let m in menu) {
         if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
             if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux")
             } else {
-                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux")
             }
         }
     }
     document.querySelector("#core-menu-custom-bottom").innerHTML = content;
+
+    /* Divide menu bottom igualmente */
+    let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length + 1));
+    $(".core-open-menu").css("width", widthBottomMenu + "%");
+    $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%");
+    $("#core-menu-custom-bottom").css("width", (100 - widthBottomMenu) + "%");
 }
 
 function menuHeader() {
@@ -444,11 +444,11 @@ function menuHeader() {
         menuBottom(tpl);
         let menu = [];
         if (getCookie("token") !== "" && getCookie("token") !== "0") {
-            menu.push({href: HOME + 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
+            menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
 
             if (getCookie("setor") === "admin") {
-                menu.push({href: HOME + 'UIDev', text: "<i class='material-icons left'>settings</i>"});
-                menu.push({href: HOME + 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
+                menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+                menu.push({href: HOME + 'UIEntidades', rel: 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
             }
         }
         let content = "";
@@ -814,6 +814,13 @@ function finishCache() {
     });
 }
 
+function checkMenuActive() {
+    $("#core-menu-custom-bottom > li").removeClass("active");
+    $("#core-menu-custom-bottom > li[rel='" + app.route + "']").addClass("active");
+    $("#core-menu-custom > li").removeClass("active theme-l1");
+    $("#core-menu-custom > li[rel='" + app.route + "']").addClass("active theme-l1");
+}
+
 var dicionarios;
 var swRegistration = null;
 
@@ -834,6 +841,10 @@ var app = {
         $("#core-content").css("opacity", "0.7")
     },
     applyView: function (file) {
+
+        /* MENU ACTIVE */
+        checkMenuActive();
+
         return view(file, function (g) {
             if (g) {
                 if(app.haveAccessPermission(g.setor, g["!setor"])) {
@@ -946,12 +957,12 @@ $(function() {
             caches.open('core-v' + VERSION).then(function (cache) {
                 return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
                     if (!response)
-                        return firstAccess()
+                        return firstAccess();
                     else
                         return thenAccess()
                 })
             }).then(() => {
-                menuHeader();
+                return menuHeader();
 
             }).then(() => {
                 let scriptCore = document.createElement('script');
