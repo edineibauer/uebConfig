@@ -1,4 +1,4 @@
-if(HOMEPAGE) {
+if(HOMEPAGE === "1") {
     if (getCookie("token") !== "" && getCookie("token") !== "0") {
         app.loadView("dashboard");
     } else {

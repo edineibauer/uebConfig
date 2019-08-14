@@ -409,7 +409,7 @@ function spaceHeader() {
 
 function menuBottom(tpl) {
     let menu = [];
-    if (!HOMEPAGE)
+    if (HOMEPAGE === "0")
         menu.push({href: HOME, rel: '/', text: "<i class='material-icons left'>home</i>"});
     if (getCookie("token") !== "" && getCookie("token") !== "0")
         menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
