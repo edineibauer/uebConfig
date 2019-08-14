@@ -15,7 +15,7 @@
         <ul id="core-header-nav">
             <div id="core-menu-custom"></div>
             <div class="theme-hover-d core-open-menu s-hide">
-                <div class="theme-text-aux menu icon" data-before="menu" data-after="remove"></div>
+                <div class="theme-text-aux core-menu-icon"></div>
             </div>
         </ul>
     </nav>
@@ -27,7 +27,7 @@
             <div id="core-menu-custom"></div>
 
             <div class="theme-hover-d core-open-menu">
-                <div class="theme-text-aux menu icon" data-before="menu" data-after="remove"></div>
+                <div class="theme-text-aux core-menu-icon"></div>
             </div>
         </ul>
     </nav>
