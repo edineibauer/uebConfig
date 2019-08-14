@@ -17,6 +17,17 @@
     {include 'loading.tpl'}
 
     <section id="core-content" class="core-class-container"></section>
+
+    <div class="hide s-show" id="core-header-nav-bottom">
+        <nav role="navigation">
+            <ul class="core-class-container" style="padding:0">
+                <div class="core-open-menu">
+                    <div class="core-menu-icon color-text-gray-dark"></div>
+                </div>
+                <div id="core-menu-custom-bottom" class="left"></div>
+            </ul>
+        </nav>
+    </div>
 </div>
 {include 'analytics.tpl'}
 

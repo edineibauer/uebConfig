@@ -317,7 +317,7 @@ function checkUpdate() {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && data.data != getCookie("update")) {
                     clearInterval(checkUpdateInt);
-                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius-circle color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
+                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius-jumbo color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
                 }
                 resolve(1);
             }
@@ -407,35 +407,62 @@ function spaceHeader() {
         $("#core-content").css("margin-top", ($header.height() + parseInt($header.css("padding-top")) + parseInt($header.css("padding-bottom"))) + "px")
 }
 
-function menuHeader() {
 
+
+function menuBottom(tpl) {
+    let menu = [];
+
+    if(!HOMEPAGE)
+        menu.push({href: HOME, text: "<i class='material-icons left'>home</i>"});
+
+    if (getCookie("token") !== "" && getCookie("token") !== "0")
+        menu.push({href: HOME + 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
+
+    if (getCookie("setor") === "admin") {
+        menu.push({href: HOME + 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+        menu.push({href: HOME + 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
+    }
+
+    let content = "";
+    for (let m in menu) {
+        if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
+            if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
+                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+            } else {
+                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+            }
+        }
+    }
+    document.querySelector("#core-menu-custom-bottom").innerHTML = content;
+}
+
+function menuHeader() {
     loginBtn();
     sidebarUserInfo();
     spaceHeader();
-
     return dbLocal.exeRead("__template", 1).then(tpl => {
+        menuBottom(tpl);
         let menu = [];
         if (getCookie("token") !== "" && getCookie("token") !== "0") {
-            menu.push({href: HOME + 'dashboard', text: 'painel'});
-            menu.push({funcao: 'logoutDashboard', text: 'sair'})
-        }
+            menu.push({href: HOME + 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
 
+            if (getCookie("setor") === "admin") {
+                menu.push({href: HOME + 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+                menu.push({href: HOME + 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
+            }
+        }
         let content = "";
-        let contentSidebar = "";
         for (let m in menu) {
             if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
                 if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
                     content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
                 } else {
                     content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
-                    contentSidebar += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text upper")
                 }
             }
         }
         document.querySelector("#core-menu-custom").innerHTML = content;
-        document.querySelector("#core-sidebar-menu").innerHTML = contentSidebar;
-    });
+    })
 }
 
 
