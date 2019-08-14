@@ -40,6 +40,7 @@
     const DOMINIO = '{$dominio}';
     const VERSION = {$version};
     const VENDOR = '{$vendor}';
+    const HOMEPAGE = '{$homepage}';
     const THEME = '{$theme}';
     const THEMETEXT = '{$themeColor}';
     const TITLE = '{$title}';

@@ -1,0 +1,7 @@
+if(HOMEPAGE) {
+    if (getCookie("token") !== "" && getCookie("token") !== "0") {
+        app.loadView("dashboard");
+    } else {
+        app.loadView("login");
+    }
+}

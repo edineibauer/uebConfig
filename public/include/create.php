@@ -1,5 +1,7 @@
 <?php
 
+use Config\Config;
+
 /**
  * @param array $dados
  * @return array
@@ -234,6 +236,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.txt"));
         Config\Config::writeFile("public/view/index.php", file_get_contents("public/installTemplates/viewIndex.txt"));
         Config\Config::writeFile("public/param/index.json", file_get_contents("public/installTemplates/viewIndexParam.txt"));
+        Config\Config::writeFile("public/assets/index.js", file_get_contents("public/installTemplates/viewIndexJs.txt"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
         Config\Config::writeFile("public/entity/-entity.json", '{"1":[],"2":[],"3":[],"0":[], "20":[]}');
         Config\Config::writeFile("public/dash/-menu.json", '{"1":[],"2":[],"3":[]}');

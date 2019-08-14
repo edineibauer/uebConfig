@@ -232,6 +232,9 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
 
+        if(!file_exists(PATH_HOME . "public/assets/index.js"))
+            Config::writeFile("public/assets/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));
+
         //Bloqueios por .htaccess
         Config::writeFile("_config/.htaccess", "Deny from all");
         Config::writeFile("entity/.htaccess", "Deny from all");
