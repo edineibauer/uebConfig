@@ -121,10 +121,10 @@ function toast(message, duration, className, completeCallback) {
 };
 
 function clearToast() {
+    $("#toast-container").remove();
     let $toasts = $(".toast");
     $toasts.fadeOut(300);
     setTimeout(function () {
         $toasts.remove();
-        $("#toast-container").remove();
     }, 300);
 }
