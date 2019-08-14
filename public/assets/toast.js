@@ -69,7 +69,7 @@ function toast(message, duration, className, completeCallback) {
     function createToast(html) {
 
         // Create toast
-        var $toast = $('<div class="toast ' + settings.className + '" style="top: 35px; opacity: 0">' + html + '</div>');
+        var $toast = $('<div class="toast ' + settings.className + '" style="top: -75px; opacity: 0">' + html + '</div>');
 
         // Bind hammer
         if ($.isFunction(Hammer))
