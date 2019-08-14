@@ -14,7 +14,7 @@
     <nav role="navigation">
         <ul id="core-header-nav">
             <div id="core-menu-custom"></div>
-            <div class="theme-hover-d core-open-menu s-hide opacity hover-opacity-off" style="padding-top: 12px;height: 50px">
+            <div class="theme-hover-d core-open-menu s-hide opacity hover-opacity-off" style="padding-top: 14px;height: 50px; padding-left: 8px;">
                 <div class="theme-text-aux core-menu-icon"></div>
             </div>
         </ul>

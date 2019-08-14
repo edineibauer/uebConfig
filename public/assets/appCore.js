@@ -431,7 +431,7 @@ function menuBottom(tpl) {
 
     /* Divide menu bottom igualmente */
     let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length + 1));
-    $(".core-open-menu").css("width", widthBottomMenu + "%");
+    $("#core-header-nav-bottom .core-open-menu").css("width", widthBottomMenu + "%");
     $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%");
     $("#core-menu-custom-bottom").css("width", (100 - widthBottomMenu) + "%");
 }
