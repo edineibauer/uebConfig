@@ -331,13 +331,13 @@ function checkUpdate() {
  * */
 function closeSidebar() {
     $("#core-overlay, #core-sidebar").removeClass("active");
-    toggleIcon($(".core-open-menu").find(".icon"), false);
+    // toggleIcon($(".core-open-menu").find(".icon"), false);
 }
 
 function openSidebar() {
     $("#core-applications").html($("#mySidebar").length ? $("#mySidebar").find(".bar-block").html() : "");
     $("#core-overlay, #core-sidebar").addClass("active");
-    toggleIcon($(".core-open-menu").find(".icon"), true);
+    // toggleIcon($(".core-open-menu").find(".icon"), true);
 }
 
 function toggleSidebar(action = 'toggle') {
@@ -353,7 +353,7 @@ function toggleSidebar(action = 'toggle') {
     }
 }
 
-function toggleIcon($element, action = 'toggle') {
+/*function toggleIcon($element, action = 'toggle') {
     if (typeof $element === "string")
         $element = $($element);
     if (typeof ($element.attr("data-after")) !== "undefined"){
@@ -365,7 +365,7 @@ function toggleIcon($element, action = 'toggle') {
             $element.addClass($element.attr("data-before")).removeClass($element.attr("data-after"))
         }
     }
-}
+}*/
 
 function logoutDashboard() {
     if(navigator.onLine) {

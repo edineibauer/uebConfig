@@ -12,7 +12,6 @@
   "css": [
     "normalize",
     "toast",
-    "cssIcon",
     "app",
     "header"
   ],
