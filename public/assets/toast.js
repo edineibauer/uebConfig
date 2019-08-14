@@ -99,6 +99,7 @@ function toast(message, duration, className, completeCallback) {
                               settings.completeCallback();
   
                           $toast.remove();
+                          $("#toast-container").remove();
                       }
                   });
               }
@@ -124,5 +125,6 @@ function clearToast() {
     $toasts.fadeOut(300);
     setTimeout(function () {
         $toasts.remove();
+        $("#toast-container").remove();
     }, 300);
 }
