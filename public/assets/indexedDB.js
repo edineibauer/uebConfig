@@ -374,7 +374,7 @@ const dbRemote = {
                     let fail = 0;
                     let react = dbLocal.exeRead("__reactOnline");
 
-                    $("#core-upload-progress").css("height", "5px");
+                    $("#core-upload-progress").addClass("active");
                     toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
 
                     $.each(dadosSync, function (i, d) {
@@ -451,7 +451,7 @@ const dbRemote = {
                     Promise.all(promises).then(() => {
                         let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity: "Erro no registro para " + entity));
                         toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
-                        $("#core-upload-progress").css("height", 0);
+                        $("#core-upload-progress").removeClass("active");
                         setTimeout(function () {
                             $("#core-upload-progress-bar").css("width", 0);
                         },600);
