@@ -30,9 +30,9 @@
 <meta name="theme-color" content="{{$theme}}">
 <meta name="msapplication-TileColor" content="{{$theme}}">
 <meta name="msapplication-navbutton-color" content="{{$theme}}">
-{*<meta name="apple-mobile-web-app-status-bar-style" content="black"> *}{* options: black, black-translucent *}
 
 <link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
+<link rel='stylesheet' href='{$home}assetsPublic/fonts.min.css'>
 
 <style type="text/css" id="core-style"></style>
 <script>

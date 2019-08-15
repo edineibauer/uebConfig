@@ -984,11 +984,6 @@ $(function() {
                 let scriptCore = document.createElement('script');
                 scriptCore.src = HOME + "assetsPublic/core.min.js";
                 document.head.appendChild(scriptCore);
-
-                let styleFont = document.createElement('link');
-                styleFont.rel = "stylesheet";
-                styleFont.href = HOME + "assetsPublic/fonts.min.css";
-                document.head.appendChild(styleFont);
             }).then(() => {
                 return app.loadView();
 
