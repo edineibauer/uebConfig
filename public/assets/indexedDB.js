@@ -280,16 +280,17 @@ const db = {
     }
 };
 const dbRemote = {
-    sync(entity) {
+    sync(entity, feedback) {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
+                feedback = typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1);
                 return dbRemote.syncDownload(entity).then(down => {
                     if (down !== 0) {
                         let historic = {};
                         historic[entity] = down;
-                        dbLocal.exeUpdate('__historic', historic, 1);
+                        dbLocal.exeUpdate('__historic', historic, 1)
                     }
-                    return dbRemote.syncPost(entity).then(d => {
+                    return dbRemote.syncPost(entity, feedback).then(d => {
                         return down === 0 ? d : 1
                     })
                 })
@@ -357,82 +358,109 @@ const dbRemote = {
                 return response;
             })
         })
-    }, syncPost(entity) {
+    }, syncPost(entity, feedback) {
+        feedback = (typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1));
         return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
             if (!dadosSync.length)
                 return 0;
-
             return new Promise(function (resolve, reject) {
-                if(navigator.onLine) {
-                    $.ajax({
-                        type: "POST",
-                        url: HOME + 'set',
-                        data: {
-                            lib: "entity",
-                            file: "up/entity",
-                            entity: entity,
-                            dados: convertEmptyArrayToNull(dadosSync)
-                        },
-                        success: function (data) {
-                            $(".toast").remove();
+                if (navigator.onLine) {
+                    let promises = [];
+                    let dadosRetorno = [];
+                    let total = dadosSync.length;
+                    let totalParte = (100 / total);
+                    let progress = 0.00;
+                    let count = 0;
+                    let fail = 0;
+                    let react = dbLocal.exeRead("__reactOnline");
 
-                            if(dadosSync.length > 1)
-                                toast(dadosSync.length + " registros de " + entity + " sincronizados!", 2000, "toast-success");
-                            if (data.response === 1 && typeof data.data === "object")
-                                resolve(data.data);
-                            resolve(0)
-                        },
-                        error: function () {
-                            $(".toast").remove();
+                    $("#core-upload-progress").css("height", "5px");
+                    toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
 
-                            if(dadosSync.length > 1)
-                                toast("Erro ao sincronizar <b>" + entity + "</b>!", 2000, "toast-error");
+                    $.each(dadosSync, function (i, d) {
+                        let dataToSend = [];
+                        dataToSend.push(d);
 
-                            resolve(0)
-                        },
-                        xhr: function () {
-                            var xhr = new window.XMLHttpRequest();
-                            xhr.addEventListener("progress", function (evt) {
-                                if (evt.lengthComputable) {
-                                    $(".toast").remove();
+                        promises.push(new Promise(function (s, f) {
+                            $.ajax({
+                                type: "POST",
+                                url: HOME + 'set',
+                                data: {
+                                    lib: "entity",
+                                    file: "up/entity",
+                                    entity: entity,
+                                    dados: convertEmptyArrayToNull(dataToSend)
+                                },
+                                success: function (data) {
+                                    if (data.response === 1 && typeof data.data === "object") {
+                                        count++;
 
-                                    if(dadosSync.length > 1)
-                                        toast("<b>" + entity + ":</b> " + ((evt.loaded / evt.total) * 100) + "%", 1000000);
-                                }
-                            }, !1);
-                            return xhr;
-                        },
-                        beforeSend: function () {
-                            if(dadosSync.length > 1)
-                                toast("Sincronizando " + dadosSync.length + " registros de " + entity, 1000000);
-                        },
-                        dataType: "json",
-                        async: !0
-                    })
-                } else {
-                    resolve(0);
-                }
-            }).then(response => {
-                if (response === 0)
-                    return 0;
-                if (response.error > 0)
-                    toast((response.error === 1 ? "1 registro com erro" : response.error + " registros possuem erros"), 4000, "toast-error");
-                dbLocal.clear('sync_' + entity);
-                let historicData = {};
-                historicData[entity] = response.historic;
-                dbLocal.exeUpdate("__historic", historicData, 1);
-                let syncData = moveSyncDataToDb(entity, response.data);
-                let react = dbLocal.exeRead("__reactOnline");
-                return Promise.all([syncData, react]).then(r => {
-                    syncData = r[0];
-                    react = r[1];
-                    $.each(syncData, function (i, syncD) {
-                        let dados = Object.assign({}, syncD);
-                        if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                            eval(react[0][entity][dados.db_action])
+                                        if($("#core-count-progress").length)
+                                            $("#core-count-progress").html(count);
+                                        else
+                                            toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
+
+                                    } else {
+                                        fail++;
+                                    }
+                                },
+                                error: function () {
+                                    fail++;
+                                },
+                                complete: function (dd) {
+                                    dd = JSON.parse(dd.responseText);
+                                    console.log(dataToSend[0]);
+                                    if(dd.response === 1) {
+                                        dbLocal.exeDelete('sync_' + entity, dataToSend[0].id);
+
+                                        if (dd.data.error === 0) {
+
+                                            let historicData = {};
+                                            historicData[entity] = dd.data.historic;
+                                            dbLocal.exeUpdate("__historic", historicData, 1);
+
+                                            let syncData = moveSyncDataToDb(entity, dd.data.data);
+                                            s(Promise.all([syncData, react]).then(r => {
+                                                syncData = r[0];
+                                                react = r[1];
+                                                $.each(syncData, function (i, syncD) {
+                                                    let dados = Object.assign({}, syncD);
+                                                    if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
+                                                        eval(react[0][entity][dados.db_action])
+                                                });
+                                                return syncData;
+                                            }));
+                                        } else {
+                                            fail++;
+                                        }
+                                    } else {
+                                        fail++;
+                                    }
+
+                                    progress += totalParte;
+                                    $("#core-upload-progress-bar").css("width", progress + "%");
+                                    s(1);
+
+                                },
+                                dataType: "json",
+                                async: !0
+                            });
+                        }));
                     });
-                    return syncData
-                });
+
+                    Promise.all(promises).then(() => {
+                        let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity: "Erro no registro para " + entity));
+                        toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
+                        $("#core-upload-progress").css("height", 0);
+                        setTimeout(function () {
+                            $("#core-upload-progress-bar").css("width", 0);
+                        },600);
+
+                        resolve(1);
+                    });
+                } else {
+                    resolve(1);
+                }
             })
         })
     }
@@ -714,7 +742,7 @@ function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if(navigator.onLine) {
-        dbRemote.sync(entity).then(isUpdated => {
+        dbRemote.sync(entity, 1).then(isUpdated => {
             if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
                 $.each(grids, function (i, e) {
                     if (typeof entity === "undefined" || e.entity === entity)

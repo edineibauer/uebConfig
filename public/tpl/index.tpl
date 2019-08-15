@@ -18,6 +18,7 @@
 
     <section id="core-content" class="core-class-container"></section>
 
+    <div id="core-upload-progress"><div id="core-upload-progress-bar"></div></div>
     <div class="hide s-show" id="core-header-nav-bottom">
         <nav role="navigation">
             <ul class="core-class-container" style="padding:0">
