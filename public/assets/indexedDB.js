@@ -366,7 +366,6 @@ const dbRemote = {
             return new Promise(function (resolve, reject) {
                 if (navigator.onLine) {
                     let promises = [];
-                    let dadosRetorno = [];
                     let total = dadosSync.length;
                     let totalParte = (100 / total);
                     let progress = 0.00;
@@ -374,8 +373,10 @@ const dbRemote = {
                     let fail = 0;
                     let react = dbLocal.exeRead("__reactOnline");
 
-                    $("#core-upload-progress").addClass("active");
-                    toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
+                    if(feedback) {
+                        $("#core-upload-progress").addClass("active");
+                        toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
+                    }
 
                     $.each(dadosSync, function (i, d) {
                         let dataToSend = [];
@@ -392,24 +393,26 @@ const dbRemote = {
                                     dados: convertEmptyArrayToNull(dataToSend)
                                 },
                                 success: function (data) {
-                                    if (data.response === 1 && typeof data.data === "object") {
-                                        count++;
+                                    if(feedback) {
+                                        if (data.response === 1 && typeof data.data === "object") {
+                                            count++;
 
-                                        if($("#core-count-progress").length)
-                                            $("#core-count-progress").html(count);
-                                        else
-                                            toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
+                                            if($("#core-count-progress").length)
+                                                $("#core-count-progress").html(count);
+                                            else
+                                                toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
 
-                                    } else {
-                                        fail++;
+                                        } else if(feedback) {
+                                            fail++;
+                                        }
                                     }
                                 },
                                 error: function () {
-                                    fail++;
+                                    if(feedback)
+                                        fail++;
                                 },
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
-                                    console.log(dataToSend[0]);
                                     if(dd.response === 1) {
                                         dbLocal.exeDelete('sync_' + entity, dataToSend[0].id);
 
@@ -430,15 +433,17 @@ const dbRemote = {
                                                 });
                                                 return syncData;
                                             }));
-                                        } else {
+                                        } else if(feedback) {
                                             fail++;
                                         }
-                                    } else {
+                                    } else if(feedback) {
                                         fail++;
                                     }
 
-                                    progress += totalParte;
-                                    $("#core-upload-progress-bar").css("width", progress + "%");
+                                    if(feedback) {
+                                        progress += totalParte;
+                                        $("#core-upload-progress-bar").css("width", progress + "%");
+                                    }
                                     s(1);
 
                                 },
@@ -449,12 +454,14 @@ const dbRemote = {
                     });
 
                     Promise.all(promises).then(() => {
-                        let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity: "Erro no registro para " + entity));
-                        toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
-                        $("#core-upload-progress").removeClass("active");
-                        setTimeout(function () {
-                            $("#core-upload-progress-bar").css("width", 0);
-                        },600);
+                        if(feedback) {
+                            let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity : "Erro no registro para " + entity));
+                            toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
+                            $("#core-upload-progress").removeClass("active");
+                            setTimeout(function () {
+                                $("#core-upload-progress-bar").css("width", 0);
+                            }, 600);
+                        }
 
                         resolve(1);
                     });
