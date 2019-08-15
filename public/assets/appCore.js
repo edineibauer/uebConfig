@@ -821,6 +821,20 @@ function checkMenuActive() {
     $("#core-menu-custom > li[rel='" + app.route + "']").addClass("active theme-l1");
 }
 
+function checkFormNotSaved() {
+    if(typeof forms !== "undefined" && forms.constructor === Array) {
+        for(let ff in forms) {
+            if(typeof forms[ff] === "object" && forms[ff].id === "") {
+                if(!confirm("Excluir o cadastro em aberto?"))
+                    return !1;
+            }
+            clearForm();
+            break;
+        }
+    }
+    return !0;
+}
+
 var dicionarios;
 var swRegistration = null;
 
@@ -901,28 +915,30 @@ var app = {
     loadView: function (route, nav) {
         closeSidebar();
         return new Promise((s, f) => {
-            let backform = new RegExp('#formulario$');
-            if (backform.test(route)) {
-                $(".btn-form-list").trigger("click");
-                return s(1)
-            } else if((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                return s(app.applyView("dashboard"));
-            } else {
-                let haveRoute = typeof route === "string";
-                route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
-                if ((app.route === "" || app.route !== route) && !app.loading) {
-                    app.setLoading();
-                    if (typeof nav === "undefined" && app.route !== "")
-                        history.pushState(null, null, HOME + route);
-
-                    app.route = route || "/";
-                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                    return s(app.applyView(file))
-                } else if (haveRoute && app.route === route){
-                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                    return s(app.applyView(file))
-                } else {
+            if(checkFormNotSaved()) {
+                let backform = new RegExp('#formulario$');
+                if (backform.test(route)) {
+                    $(".btn-form-list").trigger("click");
                     return s(1)
+                } else if((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
+                    return s(app.applyView("dashboard"));
+                } else {
+                    let haveRoute = typeof route === "string";
+                    route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
+                    if ((app.route === "" || app.route !== route) && !app.loading) {
+                        app.setLoading();
+                        if (typeof nav === "undefined" && app.route !== "")
+                            history.pushState(null, null, HOME + route);
+
+                        app.route = route || "/";
+                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                        return s(app.applyView(file))
+                    } else if (haveRoute && app.route === route){
+                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                        return s(app.applyView(file))
+                    } else {
+                        return s(1)
+                    }
                 }
             }
         });
