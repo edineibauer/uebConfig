@@ -414,7 +414,14 @@ const dbRemote = {
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
                                     if(dd.response === 1) {
-                                        dbLocal.exeDelete('sync_' + entity, dataToSend[0].id);
+                                        if(typeof dataToSend[0].id === "object" && dataToSend[0].id.constructor === Array && dataToSend[0].id.lenght) {
+                                            $.each(dataToSend[0].id, function(i, did) {
+                                                if(typeof did !== "undefined" && !isNaN(did))
+                                                    dbLocal.exeDelete('sync_' + entity, did);
+                                            })
+                                        } else if(typeof dataToSend[0].id !== "undefined" && !isNaN(dataToSend[0].id)) {
+                                            dbLocal.exeDelete('sync_' + entity, dataToSend[0].id);
+                                        }
 
                                         if (dd.data.error === 0) {
 
