@@ -1,7 +1,5 @@
 <?php
 
-use Config\Config;
-
 /**
  * @param array $dados
  * @return array
