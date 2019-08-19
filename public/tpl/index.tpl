@@ -22,9 +22,6 @@
     <div class="hide s-show" id="core-header-nav-bottom">
         <nav role="navigation">
             <ul class="core-class-container" style="padding:0">
-                <div class="core-open-menu">
-                    <div class="core-menu-icon color-text-gray"></div>
-                </div>
                 <div id="core-menu-custom-bottom" class="left"></div>
             </ul>
         </nav>
