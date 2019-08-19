@@ -105,11 +105,7 @@ function get(file) {
 function view(file, funcao) {
     getJSON(HOME + "view/" + file).then(data => {
         if (data.response === 1) {
-
-            lastPositionScroll = 0;
-            sentidoScrollDown = !1;
-            $("#core-header").css({"position": "fixed", "top": 0});
-
+            clearHeaderScrollPosition();
             funcao(data.data)
         } else {
             switch (data.response) {
@@ -849,6 +845,12 @@ function checkFormNotSaved() {
     return !0;
 }
 
+function clearHeaderScrollPosition() {
+    lastPositionScroll = 0;
+    sentidoScrollDown = !1;
+    $("#core-header").css({"position": "fixed", "top": 0});
+}
+
 var dicionarios;
 var swRegistration = null;
 
@@ -930,10 +932,7 @@ var app = {
         closeSidebar();
         return new Promise((s, f) => {
             if (checkFormNotSaved()) {
-
-                lastPositionScroll = 0;
-                sentidoScrollDown = !1;
-                $("#core-header").css({"position": "fixed", "top": 0});
+                clearHeaderScrollPosition();
 
                 let backform = new RegExp('#formulario$');
                 if (backform.test(route)) {
