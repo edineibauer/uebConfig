@@ -39,7 +39,7 @@ function post(lib, file, param, funcao) {
                         location.href = data.data;
                         break;
                     case 4:
-                        if(data.data === "no-network")
+                        if (data.data === "no-network")
                             toast("Sem Conexão", 1000, "toast-warning");
                         else
                             toast("Caminho não encontrado", "toast-warning");
@@ -144,22 +144,22 @@ function CSV(array, comma) {
     var result = keys.join(comma) + "\n";
 
     // Add the rows
-    array.forEach(function(obj){
-        keys.forEach(function(k, ix){
+    array.forEach(function (obj) {
+        keys.forEach(function (k, ix) {
             if (ix)
                 result += comma;
 
             let v = "";
             if (Array.isArray(obj[k])) {
-                $.each(obj[k], function(i, o) {
-                    if(v !== "")
+                $.each(obj[k], function (i, o) {
+                    if (v !== "")
                         v += ", ";
 
-                    if(typeof o.url === "string")
+                    if (typeof o.url === "string")
                         v += o.url;
                     else if (typeof obj[k] === "object")
                         v += JSON.stringify(obj[k]);
-                    else if(typeof o === "string")
+                    else if (typeof o === "string")
                         v += o;
 
                 });
@@ -218,15 +218,15 @@ function isJson(str) {
 
 function isEmpty(valor) {
     //se o valor for vazio, retorna true
-    if(typeof valor === "undefined" || valor === "" || valor === null)
+    if (typeof valor === "undefined" || valor === "" || valor === null)
         return true;
 
     //array vazio
-    if($.isArray(valor) && valor.length === 0)
+    if ($.isArray(valor) && valor.length === 0)
         return true;
 
     //objeto vazio
-    if(typeof valor === "object" && $.isEmptyObject(valor))
+    if (typeof valor === "object" && $.isEmptyObject(valor))
         return true;
 
     return false;
@@ -368,8 +368,8 @@ function toggleSidebar(action = 'toggle') {
 }*/
 
 function logoutDashboard() {
-    if(navigator.onLine) {
-        if(confirm("desconectar?"))
+    if (navigator.onLine) {
+        if (confirm("desconectar?"))
             app.loadView(HOME + "logout");
     } else {
         toast("Sem Conexão", 1200);
@@ -415,7 +415,11 @@ function menuBottom(tpl) {
         menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
     if (getCookie("setor") === "admin") {
         menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
-        menu.push({href: HOME + 'UIEntidades', rel: 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"})
+        menu.push({
+            rel: '',
+            funcao: 'toggleSidebar',
+            text: "<i class='material-icons left'>perm_identity</i>"
+        })
     }
     let content = "";
     for (let m in menu) {
@@ -430,10 +434,8 @@ function menuBottom(tpl) {
     document.querySelector("#core-menu-custom-bottom").innerHTML = content;
 
     /* Divide menu bottom igualmente */
-    let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length + 1));
-    $("#core-header-nav-bottom .core-open-menu").css("width", widthBottomMenu + "%");
+    let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
     $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%");
-    $("#core-menu-custom-bottom").css("width", (100 - widthBottomMenu) + "%");
 }
 
 function menuHeader() {
@@ -444,11 +446,19 @@ function menuHeader() {
         menuBottom(tpl);
         let menu = [];
         if (getCookie("token") !== "" && getCookie("token") !== "0") {
-            menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
+            menu.push({
+                href: HOME + 'dashboard',
+                rel: 'dashboard',
+                text: "<i class='material-icons left'>dashboard</i>"
+            });
 
             if (getCookie("setor") === "admin") {
                 menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
-                menu.push({href: HOME + 'UIEntidades', rel: 'UIEntidades', text: "<i class='material-icons left'>accessibility_new</i>"});
+                menu.push({
+                    href: HOME + 'UIEntidades',
+                    rel: 'UIEntidades',
+                    text: "<i class='material-icons left'>accessibility_new</i>"
+                });
             }
         }
         let content = "";
@@ -496,7 +506,7 @@ function clearCacheUser() {
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 let reg = new RegExp("^view-v");
-                if(reg.test(cacheName))
+                if (reg.test(cacheName))
                     return caches.delete(cacheName)
             }))
         });
@@ -617,7 +627,7 @@ function checkSessao() {
                         setCookieAnonimo().then(() => {
                             setTimeout(function () {
                                 location.reload(1);
-                            },1500);
+                            }, 1500);
                         });
                     }
 
@@ -819,13 +829,16 @@ function checkMenuActive() {
     $("#core-menu-custom-bottom > li[rel='" + app.route + "']").addClass("active");
     $("#core-menu-custom > li").removeClass("active theme-l1");
     $("#core-menu-custom > li[rel='" + app.route + "']").addClass("active theme-l1");
+    lastPositionScroll = 0;
+    sentidoScrollDown = !1;
+    $("#core-header").css({"position": "fixed", "top": 0});
 }
 
 function checkFormNotSaved() {
-    if(typeof forms !== "undefined" && forms.constructor === Array) {
-        for(let ff in forms) {
-            if(typeof forms[ff] === "object" && forms[ff].id === "") {
-                if(!confirm("Excluir o cadastro em aberto?"))
+    if (typeof forms !== "undefined" && forms.constructor === Array) {
+        for (let ff in forms) {
+            if (typeof forms[ff] === "object" && forms[ff].id === "") {
+                if (!confirm("Excluir o cadastro em aberto?"))
                     return !1;
             }
             clearForm();
@@ -861,7 +874,7 @@ var app = {
 
         return view(file, function (g) {
             if (g) {
-                if(app.haveAccessPermission(g.setor, g["!setor"])) {
+                if (app.haveAccessPermission(g.setor, g["!setor"])) {
                     $("#core-style").html(g.css);
                     $("#core-title").text(g.title);
                     $("#core-content").html(g.content);
@@ -884,28 +897,28 @@ var app = {
             }
         })
     },
-    haveAccessPermission: function(setor, notSetor) {
+    haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
         let mySetor = getCookie("setor");
-        if(!isEmpty(setor)) {
+        if (!isEmpty(setor)) {
             allow = !1;
-            if(setor.constructor === Array) {
-                $.each(setor, function(i, seto) {
-                    if(typeof seto === "string" && seto === mySetor) {
+            if (setor.constructor === Array) {
+                $.each(setor, function (i, seto) {
+                    if (typeof seto === "string" && seto === mySetor) {
                         allow = !0;
                         return !1;
                     }
                 });
-            } else if(typeof setor === "string" && setor === mySetor) {
+            } else if (typeof setor === "string" && setor === mySetor) {
                 allow = !0;
             }
-        } else if(!isEmpty(notSetor)) {
-            if(notSetor.constructor === Array) {
-                $.each(notSetor, function(i, seto) {
-                    if(typeof seto === "string" && seto === mySetor)
+        } else if (!isEmpty(notSetor)) {
+            if (notSetor.constructor === Array) {
+                $.each(notSetor, function (i, seto) {
+                    if (typeof seto === "string" && seto === mySetor)
                         return allow = !1;
                 });
-            } else if(typeof notSetor === "string" && notSetor === mySetor) {
+            } else if (typeof notSetor === "string" && notSetor === mySetor) {
                 allow = !1;
             }
         }
@@ -915,12 +928,12 @@ var app = {
     loadView: function (route, nav) {
         closeSidebar();
         return new Promise((s, f) => {
-            if(checkFormNotSaved()) {
+            if (checkFormNotSaved()) {
                 let backform = new RegExp('#formulario$');
                 if (backform.test(route)) {
                     $(".btn-form-list").trigger("click");
                     return s(1)
-                } else if((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
+                } else if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
                     return s(app.applyView("dashboard"));
                 } else {
                     let haveRoute = typeof route === "string";
@@ -933,7 +946,7 @@ var app = {
                         app.route = route || "/";
                         let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
                         return s(app.applyView(file))
-                    } else if (haveRoute && app.route === route){
+                    } else if (haveRoute && app.route === route) {
                         let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
                         return s(app.applyView(file))
                     } else {
@@ -946,7 +959,9 @@ var app = {
 };
 
 var checkUpdateInt = null;
-$(function() {
+var lastPositionScroll = 0;
+var sentidoScrollDown = !1;
+$(function () {
     if (location.href !== HOME + "updateSystem") {
 
         window.onpopstate = function () {
@@ -1000,7 +1015,7 @@ $(function() {
                     })
                 }
 
-                if(localStorage.accesscount === "0")
+                if (localStorage.accesscount === "0")
                     return startCache();
 
             }).then(() => {
@@ -1020,4 +1035,31 @@ $(function() {
             return app.loadView();
         })
     }
+
+    /**
+     * Header menu hide on scroll down and show when scroll up
+     * */
+    window.onscroll = function () {
+        if (window.innerWidth < 994) {
+            if (lastPositionScroll < $(window).scrollTop()) {
+                if (!sentidoScrollDown) {
+                    sentidoScrollDown = !0;
+                    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
+                    let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
+                    $("#core-header").css({"position": "absolute", "top": t + "px"});
+                }
+            } else {
+                if (sentidoScrollDown) {
+                    sentidoScrollDown = !1;
+                    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
+                    let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
+                    $("#core-header").css("top", t + "px");
+                } else {
+                    if (document.getElementById("core-header").getBoundingClientRect().top > 0)
+                        $("#core-header").css({"position": "fixed", "top": 0});
+                }
+            }
+            lastPositionScroll = $(window).scrollTop();
+        }
+    };
 });
