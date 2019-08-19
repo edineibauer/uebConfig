@@ -105,6 +105,11 @@ function get(file) {
 function view(file, funcao) {
     getJSON(HOME + "view/" + file).then(data => {
         if (data.response === 1) {
+
+            lastPositionScroll = 0;
+            sentidoScrollDown = !1;
+            $("#core-header").css({"position": "fixed", "top": 0});
+
             funcao(data.data)
         } else {
             switch (data.response) {
