@@ -843,7 +843,6 @@ function checkFormNotSaved() {
                 if (!confirm("Excluir o cadastro em aberto?"))
                     return !1;
             }
-            clearForm();
             break;
         }
     }
@@ -1046,24 +1045,25 @@ $(function () {
     /**
      * Header menu hide on scroll down and show when scroll up
      * */
+    function headerScrollFixed(sentidoScroll) {
+        sentidoScrollDown = sentidoScroll;
+        let elTop = document.getElementById("core-header").getBoundingClientRect().top;
+        let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
+        $("#core-header").css("top", t + "px");
+    }
+
     window.onscroll = function () {
         if (window.innerWidth < 994) {
             if (lastPositionScroll < $(window).scrollTop()) {
                 if (!sentidoScrollDown) {
-                    sentidoScrollDown = !0;
-                    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-                    let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
-                    $("#core-header").css({"position": "absolute", "top": t + "px"});
+                    headerScrollFixed(!0);
+                    $("#core-header").css("position", "absolute");
                 }
             } else {
                 if (sentidoScrollDown) {
-                    sentidoScrollDown = !1;
-                    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-                    let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
-                    $("#core-header").css("top", t + "px");
-                } else {
-                    if (document.getElementById("core-header").getBoundingClientRect().top > 0)
-                        $("#core-header").css({"position": "fixed", "top": 0});
+                    headerScrollFixed(!1);
+                } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
+                    $("#core-header").css({"position": "fixed", "top": 0});
                 }
             }
             lastPositionScroll = $(window).scrollTop();
