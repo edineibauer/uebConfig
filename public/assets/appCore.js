@@ -829,9 +829,6 @@ function checkMenuActive() {
     $("#core-menu-custom-bottom > li[rel='" + app.route + "']").addClass("active");
     $("#core-menu-custom > li").removeClass("active theme-l1");
     $("#core-menu-custom > li[rel='" + app.route + "']").addClass("active theme-l1");
-    lastPositionScroll = 0;
-    sentidoScrollDown = !1;
-    $("#core-header").css({"position": "fixed", "top": 0});
 }
 
 function checkFormNotSaved() {
@@ -929,6 +926,11 @@ var app = {
         closeSidebar();
         return new Promise((s, f) => {
             if (checkFormNotSaved()) {
+
+                lastPositionScroll = 0;
+                sentidoScrollDown = !1;
+                $("#core-header").css({"position": "fixed", "top": 0});
+
                 let backform = new RegExp('#formulario$');
                 if (backform.test(route)) {
                     $(".btn-form-list").trigger("click");
