@@ -231,7 +231,7 @@ const db = {
                 return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
                     if (AUTOSYNC)
                         return dbRemote.syncPost(entity);
-                    return dados.id;
+                    return dados;
                 });
             })
         })
@@ -414,14 +414,9 @@ const dbRemote = {
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
                                     if(dd.response === 1) {
-                                        if(typeof dataToSend[0].id === "object" && dataToSend[0].id.constructor === Array && dataToSend[0].id.lenght) {
-                                            $.each(dataToSend[0].id, function(i, did) {
-                                                if(typeof did !== "undefined" && !isNaN(did))
-                                                    dbLocal.exeDelete('sync_' + entity, did);
-                                            })
-                                        } else if(typeof dataToSend[0].id !== "undefined" && !isNaN(dataToSend[0].id)) {
-                                            dbLocal.exeDelete('sync_' + entity, dataToSend[0].id);
-                                        }
+
+                                        if(!isNaN(d.id))
+                                            dbLocal.exeDelete('sync_' + entity, d.id);
 
                                         if (dd.data.error === 0) {
 
@@ -431,13 +426,13 @@ const dbRemote = {
 
                                             let syncData = moveSyncDataToDb(entity, dd.data.data);
                                             s(Promise.all([syncData, react]).then(r => {
-                                                syncData = r[0];
+                                                syncData = r[0][0];
                                                 react = r[1];
-                                                $.each(syncData, function (i, syncD) {
-                                                    let dados = Object.assign({}, syncD);
-                                                    if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                                                        eval(react[0][entity][dados.db_action])
-                                                });
+                                                let dados = Object.assign({}, syncData);
+
+                                                if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
+                                                    eval(react[0][entity][dados.db_action]);
+
                                                 return syncData;
                                             }));
                                         } else if(feedback) {
@@ -460,7 +455,7 @@ const dbRemote = {
                         }));
                     });
 
-                    Promise.all(promises).then(() => {
+                    Promise.all(promises).then(p => {
                         if(feedback) {
                             let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity : "Erro no registro para " + entity));
                             toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
@@ -470,10 +465,12 @@ const dbRemote = {
                             }, 600);
                         }
 
-                        resolve(1);
+                        dbLocal.clear("sync_" + entity);
+
+                        resolve(p);
                     });
                 } else {
-                    resolve(1);
+                    resolve(0);
                 }
             })
         })
