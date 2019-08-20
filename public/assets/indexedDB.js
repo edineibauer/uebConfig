@@ -256,10 +256,12 @@ const db = {
                 }
 
                 return Promise.all(allDelete).then(() => {
-                    return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
-                        if (AUTOSYNC)
-                            dbRemote.syncPost(entity)
-                    })
+                    if(ids.length) {
+                        return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
+                            if (AUTOSYNC)
+                                dbRemote.syncPost(entity)
+                        })
+                    }
                 })
             } else if (!isNaN(id) && id > 0) {
                 id = parseInt(id);
