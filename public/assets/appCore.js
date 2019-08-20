@@ -1052,20 +1052,18 @@ $(function () {
     }
 
     window.onscroll = function () {
-        if (window.innerWidth < 994) {
-            if (lastPositionScroll < $(window).scrollTop()) {
-                if (!sentidoScrollDown) {
-                    headerScrollFixed(!0);
-                    $("#core-header").css("position", "absolute");
-                }
-            } else {
-                if (sentidoScrollDown) {
-                    headerScrollFixed(!1);
-                } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
-                    $("#core-header").css({"position": "fixed", "top": 0});
-                }
+        if (lastPositionScroll < $(window).scrollTop()) {
+            if (!sentidoScrollDown) {
+                headerScrollFixed(!0);
+                $("#core-header").css("position", "absolute");
             }
-            lastPositionScroll = $(window).scrollTop();
+        } else {
+            if (sentidoScrollDown) {
+                headerScrollFixed(!1);
+            } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
+                $("#core-header").css({"position": "fixed", "top": 0});
+            }
         }
+        lastPositionScroll = $(window).scrollTop();
     };
 });
