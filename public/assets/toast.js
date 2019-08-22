@@ -1,9 +1,4 @@
-/*
-    Materialize's toast redone for standalone jQuery
-    
-    Author: André Luiz Rabêllo
-    Version: 1.0.0
-*/
+var toastTime = null;
 function toast(message, duration, className, completeCallback) {
     clearToast();
     // Settings
@@ -39,10 +34,10 @@ function toast(message, duration, className, completeCallback) {
     });
 
     // Allows timer to be pause while being panned
-    var counterInterval = setInterval(function () {
+    toastTime = setInterval(function () {
 
         if (!$toast.parent().length)
-            clearInterval(counterInterval);
+            clearInterval(toastTime);
 
         // If toast is not being dragged, decrease its time remaining
         if (!$toast.is('.panning'))
@@ -63,7 +58,7 @@ function toast(message, duration, className, completeCallback) {
                     $("#toast-container").remove();
                 }
             });
-            clearInterval(counterInterval);
+            clearInterval(toastTime);
         }
     }, 20);
 
@@ -96,6 +91,7 @@ function toast(message, duration, className, completeCallback) {
                       specialEasing: { top: 'easeOutExpo', left: 'linear' },
                       queue: false,
                       complete: function () {
+                          clearTimeout(toastTime);
                           if ($.isFunction(settings.completeCallback))
                               settings.completeCallback();
   
@@ -122,6 +118,7 @@ function toast(message, duration, className, completeCallback) {
 };
 
 function clearToast() {
+    clearTimeout(toastTime);
     $("#toast-container").remove();
     let $toasts = $(".toast");
     $toasts.fadeOut(300);
