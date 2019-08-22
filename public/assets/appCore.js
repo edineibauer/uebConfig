@@ -308,7 +308,12 @@ function updateVersionNumber() {
     xhttp.send("lib=config&file=update");
 }
 
+var msgOffline = !navigator.onLine;
 function checkUpdate() {
+    if(!navigator.onLine && !msgOffline) {
+        msgOffline = !0;
+        toast("Você esta OFFLINE", 3000, "toast-warning");
+    }
     return new Promise(function (resolve, r) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", HOME + "set");
