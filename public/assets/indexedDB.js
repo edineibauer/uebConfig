@@ -100,8 +100,8 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
 
                                 let contRemoved = 0;
-                                for(let t in dados.data) {
-                                    if(typeof dados.data[t] === "object") {
+                                for (let t in dados.data) {
+                                    if (typeof dados.data[t] === "object") {
                                         dbLocal.exeDelete(entity, dados.data[t].id);
                                         contRemoved++;
                                     }
@@ -126,7 +126,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
                         }
                     },
-                    error: function(e) {
+                    error: function (e) {
                         toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
                         resolve(readOffline(data, filter, order, reverse, limit, offset));
                     },
@@ -178,6 +178,25 @@ function readOffline(data, filter, order, reverse, limit, offset) {
     result.lenght = result.data.length;
 
     return result;
+}
+
+var syncGridCheck = [];
+
+function checkToUpdateDbLocal(entity) {
+    let Reg = new RegExp('^(sync_|__)', 'i');
+    if (typeof syncGridCheck[entity] === "undefined" && !Reg.test(entity)) {
+        syncGridCheck[entity] = 1;
+        return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
+            let syncLocal = [];
+            if (dadosSync.length) {
+                $.each(dadosSync, function (i, e) {
+                    syncLocal.push(moveSyncDataToDb(entity, e));
+                });
+            }
+            return Promise.all(syncLocal);
+        })
+    }
+    return Promise.all([]);
 }
 
 const db = {
@@ -256,7 +275,7 @@ const db = {
                 }
 
                 return Promise.all(allDelete).then(() => {
-                    if(ids.length) {
+                    if (ids.length) {
                         return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
                             if (AUTOSYNC)
                                 dbRemote.syncPost(entity)
@@ -375,7 +394,7 @@ const dbRemote = {
                     let fail = 0;
                     let react = dbLocal.exeRead("__reactOnline");
 
-                    if(feedback) {
+                    if (feedback) {
                         $("#core-upload-progress").addClass("active");
                         toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
                     }
@@ -395,29 +414,29 @@ const dbRemote = {
                                     dados: convertEmptyArrayToNull(dataToSend)
                                 },
                                 success: function (data) {
-                                    if(feedback) {
+                                    if (feedback) {
                                         if (data.response === 1 && typeof data.data === "object") {
                                             count++;
 
-                                            if($("#core-count-progress").length)
+                                            if ($("#core-count-progress").length)
                                                 $("#core-count-progress").html(count);
                                             else
                                                 toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
 
-                                        } else if(feedback) {
+                                        } else if (feedback) {
                                             fail++;
                                         }
                                     }
                                 },
                                 error: function () {
-                                    if(feedback)
+                                    if (feedback)
                                         fail++;
                                 },
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
-                                    if(dd.response === 1) {
+                                    if (dd.response === 1) {
 
-                                        if(!isNaN(d.id))
+                                        if (!isNaN(d.id))
                                             dbLocal.exeDelete('sync_' + entity, d.id);
 
                                         if (dd.data.error === 0) {
@@ -437,14 +456,14 @@ const dbRemote = {
 
                                                 return syncData;
                                             }));
-                                        } else if(feedback) {
+                                        } else if (feedback) {
                                             fail++;
                                         }
-                                    } else if(feedback) {
+                                    } else if (feedback) {
                                         fail++;
                                     }
 
-                                    if(feedback) {
+                                    if (feedback) {
                                         progress += totalParte;
                                         $("#core-upload-progress-bar").css("width", progress + "%");
                                     }
@@ -458,7 +477,7 @@ const dbRemote = {
                     });
 
                     Promise.all(promises).then(p => {
-                        if(feedback) {
+                        if (feedback) {
                             let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity : "Erro no registro para " + entity));
                             toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
                             $("#core-upload-progress").removeClass("active");
@@ -497,33 +516,40 @@ const dbLocal = {
                     return {};
                 });
             } else {
-                return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
-                    return (typeof v !== "undefined" ? v : {})
-                }).catch(err => {
-                    toast((err.message === "Maximum IPC message size exceeded." ? "Lendo registros grandes" : err.messsage), 3000, "toast-warning");
+                return checkToUpdateDbLocal(entity).then(() => {
+                    return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
+                        return (typeof v !== "undefined" ? v : {})
+                    }).catch(err => {
+                        navigator.webkitTemporaryStorage.queryUsageAndQuota ((usedBytes, grantedBytes) => {
+                            toast((err.message === "Maximum IPC message size exceeded." ? "Isso pode demorar, carregando " + (usedBytes / 1000000).toFixed(0) + " MB" : err.messsage), 10000, "toast-warning");
+                        });
 
-                    let data = [];
-                    const tx = dbLocalTmp.transaction(entity);
-                    const store = tx.objectStore(entity);
-                    (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
-                        if (!cursor)
-                            return;
+                        let data = [];
+                        const tx = dbLocalTmp.transaction(entity);
+                        const store = tx.objectStore(entity);
+                        (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
+                            if (!cursor)
+                                return;
 
-                        data.push(
-                            store.get(cursor.key).then(v => {
-                                return (typeof v !== "undefined" ? v : {})
-                            }).catch(c => {
-                                return {};
+                            data.push(
+                                store.get(cursor.key).then(v => {
+                                    return (typeof v !== "undefined" ? v : {})
+                                }).catch(c => {
+                                    return {};
+                                })
+                            );
+
+                            cursor.continue()
+                        });
+
+                        return tx.complete.then(() => {
+                            return Promise.all(data).then(d => {
+                                setTimeout(function() {
+                                    clearToast();
+                                },1000);
+                                return d;
                             })
-                        );
-
-                        cursor.continue()
-                    });
-
-                    return tx.complete.then(() => {
-                        return Promise.all(data).then(d => {
-                            return d;
-                        })
+                        });
                     });
                 });
             }
@@ -593,7 +619,7 @@ function getIdAction(entity, id) {
         })
     } else {
         return db.exeRead("sync_" + entity, id).then(d => {
-            if(isEmpty(d)) {
+            if (isEmpty(d)) {
                 return db.exeRead(entity, id).then(d => {
                     return [parseInt(id), (isEmpty(d) ? 'create' : 'update')]
                 })
@@ -782,7 +808,7 @@ function getDefaultValue(meta, value) {
 function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
-    if(navigator.onLine) {
+    if (navigator.onLine) {
         dbRemote.sync(entity, 1).then(isUpdated => {
             if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
                 $.each(grids, function (i, e) {
