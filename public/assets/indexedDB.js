@@ -433,6 +433,8 @@ const dbRemote = {
                                     failNetwork = !0;
                                     if (feedback)
                                         fail++;
+
+                                    s(Promise.all([]));
                                 },
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
@@ -469,7 +471,7 @@ const dbRemote = {
                                         progress += totalParte;
                                         $("#core-upload-progress-bar").css("width", progress + "%");
                                     }
-                                    s(1);
+                                    s(Promise.all([]));
 
                                 },
                                 dataType: "json",
