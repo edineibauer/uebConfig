@@ -482,8 +482,8 @@ const dbRemote = {
 
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " registro para " + entity : "Erro no registro para " + entity));
-                            toast(msg, 3000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
+                            let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " envios para " + entity : "Erro no registro para " + entity));
+                            toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
                             $("#core-upload-progress").removeClass("active");
                             setTimeout(function () {
                                 $("#core-upload-progress-bar").css("width", 0);
