@@ -190,7 +190,7 @@ function checkToUpdateDbLocal(entity) {
             let syncLocal = [];
             if (dadosSync.length) {
                 $.each(dadosSync, function (i, e) {
-                    syncLocal.push(moveSyncDataToDb(entity, e));
+                    syncLocal.push(moveSyncDataToDb(entity, e, !1));
                 });
             }
             return Promise.all(syncLocal);
@@ -240,6 +240,7 @@ const db = {
         let react = dbLocal.exeRead("__react");
         return Promise.all([idAction, react]).then(r => {
             dados.id = r[0][0];
+            dados.db_status = !1;
             let action = r[0][1];
             react = r[1];
             return dbLocal.exeCreate(entity, dados).then(() => {
@@ -639,7 +640,8 @@ function getIdAction(entity, id) {
     }
 }
 
-function moveSyncDataToDb(entity, dados) {
+function moveSyncDataToDb(entity, dados, db_status) {
+    db_status = typeof db_status === "undefined" ? !0 : db_status;
     if (dados.constructor === Object) {
         let dd = dados;
         dados = [];
@@ -665,6 +667,7 @@ function moveSyncDataToDb(entity, dados) {
                     for (let col in d)
                         d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
                     d.id = id;
+                    d.db_status = db_status;
                     if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(getCookie("id"))) {
                         movedAsync.push(dbLocal.exeDelete(entity, d.id))
                     } else {
@@ -818,7 +821,7 @@ function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if (navigator.onLine) {
-        dbRemote.sync(entity, 1).then(isUpdated => {
+        dbRemote.sync(entity, null, !0).then(isUpdated => {
             if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
                 $.each(grids, function (i, e) {
                     if (typeof entity === "undefined" || e.entity === entity)
