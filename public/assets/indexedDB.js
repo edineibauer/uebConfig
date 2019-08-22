@@ -301,17 +301,18 @@ const db = {
     }
 };
 const dbRemote = {
-    sync(entity, feedback) {
+    sync(entity, id, feedback) {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 feedback = typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1);
+                id = typeof id === "undefined" ? null : id;
                 return dbRemote.syncDownload(entity).then(down => {
                     if (down !== 0) {
                         let historic = {};
                         historic[entity] = down;
                         dbLocal.exeUpdate('__historic', historic, 1)
                     }
-                    return dbRemote.syncPost(entity, feedback).then(d => {
+                    return dbRemote.syncPost(entity, id, feedback).then(d => {
                         return down === 0 ? d : 1
                     })
                 })
@@ -379,11 +380,17 @@ const dbRemote = {
                 return response;
             })
         })
-    }, syncPost(entity, feedback) {
+    }, syncPost(entity, id, feedback) {
         feedback = (typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1));
-        return dbLocal.exeRead('sync_' + entity).then(dadosSync => {
+        id = (typeof id === "undefined" ? null : id);
+        let readData = (id ? dbLocal.exeRead('sync_' + entity, id) : dbLocal.exeRead('sync_' + entity));
+
+        return Promise.all([readData]).then(dadosSync => {
+            dadosSync = (typeof id === "number" ? dadosSync : dadosSync[0]);
+
             if (!dadosSync.length)
                 return 0;
+
             return new Promise(function (resolve, reject) {
                 if (navigator.onLine) {
                     let promises = [];
@@ -490,7 +497,7 @@ const dbRemote = {
                             }, 600);
                         }
 
-                        if(navigator.onLine && !failNetwork)
+                        if(navigator.onLine && !failNetwork && !id)
                             dbLocal.clear("sync_" + entity);
 
                         resolve(p);
