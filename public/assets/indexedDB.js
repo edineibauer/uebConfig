@@ -521,7 +521,7 @@ const dbLocal = {
                         return (typeof v !== "undefined" ? v : {})
                     }).catch(err => {
                         navigator.webkitTemporaryStorage.queryUsageAndQuota ((usedBytes, grantedBytes) => {
-                            toast((err.message === "Maximum IPC message size exceeded." ? "Isso pode demorar, carregando " + (usedBytes / 1000000).toFixed(0) + " MB" : err.messsage), 10000, "toast-warning");
+                            toast((err.message === "Maximum IPC message size exceeded." ? "Isso pode demorar, carregando " + (usedBytes / 1000000).toFixed(0) + " MB" : err.messsage), 4000, "toast-warning");
                         });
 
                         let data = [];
@@ -544,9 +544,6 @@ const dbLocal = {
 
                         return tx.complete.then(() => {
                             return Promise.all(data).then(d => {
-                                setTimeout(function() {
-                                    clearToast();
-                                },1000);
                                 return d;
                             })
                         });
