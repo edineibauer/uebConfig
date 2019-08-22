@@ -499,8 +499,32 @@ const dbLocal = {
             } else {
                 return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
                     return (typeof v !== "undefined" ? v : {})
-                }).catch(c => {
-                    return {};
+                }).catch(err => {
+                    toast((err.message === "Maximum IPC message size exceeded." ? "Lendo registros grandes" : err.messsage), 3000, "toast-warning");
+
+                    let data = [];
+                    const tx = dbLocalTmp.transaction(entity);
+                    const store = tx.objectStore(entity);
+                    (store.iterateKeyCursor || store.iterateCursor).call(store, cursor => {
+                        if (!cursor)
+                            return;
+
+                        data.push(
+                            store.get(cursor.key).then(v => {
+                                return (typeof v !== "undefined" ? v : {})
+                            }).catch(c => {
+                                return {};
+                            })
+                        );
+
+                        cursor.continue()
+                    });
+
+                    return tx.complete.then(() => {
+                        return Promise.all(data).then(d => {
+                            return d;
+                        })
+                    });
                 });
             }
         })
