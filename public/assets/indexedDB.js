@@ -392,6 +392,7 @@ const dbRemote = {
                     let progress = 0.00;
                     let count = 0;
                     let fail = 0;
+                    let failNetwork = !1;
                     let react = dbLocal.exeRead("__reactOnline");
 
                     if (feedback) {
@@ -429,6 +430,7 @@ const dbRemote = {
                                     }
                                 },
                                 error: function () {
+                                    failNetwork = !0;
                                     if (feedback)
                                         fail++;
                                 },
@@ -486,7 +488,8 @@ const dbRemote = {
                             }, 600);
                         }
 
-                        dbLocal.clear("sync_" + entity);
+                        if(navigator.onLine && !failNetwork)
+                            dbLocal.clear("sync_" + entity);
 
                         resolve(p);
                     });
