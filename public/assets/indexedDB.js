@@ -494,29 +494,13 @@ const dbLocal = {
                 return dbLocalTmp.transaction(entity).objectStore(entity).get(key).then(v => {
                     return (typeof v !== "undefined" ? v : {})
                 }).catch(c => {
-                    if(typeof entity === "string"){
-                        return dbLocalTmp.transaction(entity).objectStore(entity).get(key).then(v => {
-                            return (typeof v !== "undefined" ? v : {})
-                        }).catch(d => {
-                            return {};
-                        })
-                    } else {
-                        return {};
-                    }
+                    return {};
                 });
             } else {
                 return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
                     return (typeof v !== "undefined" ? v : {})
                 }).catch(c => {
-                    if(typeof entity === "string"){
-                        return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
-                            return (typeof v !== "undefined" ? v : {})
-                        }).catch(c => {
-                            return {};
-                        })
-                    } else {
-                        return {};
-                    }
+                    return {};
                 });
             }
         })
