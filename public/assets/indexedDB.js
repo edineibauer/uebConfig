@@ -364,6 +364,7 @@ const dbRemote = {
                                     for (let col in response.data[k])
                                         response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
                                     response.data[k].id = id;
+                                    response.data[k].db_status = !0;
                                     cc.push(dbLocal.exeCreate(entity, response.data[k]));
                                 }
                             }
@@ -450,6 +451,9 @@ const dbRemote = {
 
                                         if (!isNaN(d.id))
                                             dbLocal.exeDelete('sync_' + entity, d.id);
+
+                                        if (dd.data.data.db_action === "create" && parseInt(dd.data.data.id_old) !== parseInt(dd.data.data.id))
+                                            dbLocal.exeDelete(entity, dd.data.data.id_old);
 
                                         if (dd.data.error === 0) {
 
