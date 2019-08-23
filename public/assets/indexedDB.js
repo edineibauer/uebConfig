@@ -235,7 +235,8 @@ const db = {
             }
             return dbLocal.exeRead(entity, key)
         })
-    }, exeCreate(entity, dados) {
+    }, exeCreate(entity, dados, sync) {
+        sync = typeof sync === "undefined" ? !0 : sync;
         let idAction = getIdAction(entity, dados.id);
         let react = dbLocal.exeRead("__react");
         return Promise.all([idAction, react]).then(r => {
@@ -249,8 +250,8 @@ const db = {
             }).then(() => {
                 dados.db_action = action;
                 return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
-                    if (AUTOSYNC)
-                        return dbRemote.syncPost(entity);
+                    if (AUTOSYNC && sync)
+                        return dbRemote.syncPost(entity, dados.id);
                     return dados;
                 });
             })
@@ -383,13 +384,11 @@ const dbRemote = {
             })
         })
     }, syncPost(entity, id, feedback) {
-        feedback = (typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1));
+        feedback = (typeof feedback === "undefined" ? !1 : ([!0, 1, "1", "true"].indexOf(feedback) > -1));
         id = (typeof id === "undefined" ? null : id);
         let readData = (id ? dbLocal.exeRead('sync_' + entity, id) : dbLocal.exeRead('sync_' + entity));
-
         return Promise.all([readData]).then(dadosSync => {
             dadosSync = (typeof id === "number" ? dadosSync : dadosSync[0]);
-
             if (!dadosSync.length)
                 return 0;
 
@@ -402,17 +401,13 @@ const dbRemote = {
                     let count = 0;
                     let fail = 0;
                     let failNetwork = !1;
-                    let react = dbLocal.exeRead("__reactOnline");
-
                     if (feedback) {
                         $("#core-upload-progress").addClass("active");
-                        toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
+                        toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
                     }
-
                     $.each(dadosSync, function (i, d) {
                         let dataToSend = [];
                         dataToSend.push(d);
-
                         promises.push(new Promise(function (s, f) {
                             $.ajax({
                                 type: "POST",
@@ -427,14 +422,10 @@ const dbRemote = {
                                     if (feedback) {
                                         if (data.response === 1 && typeof data.data === "object") {
                                             count++;
-
                                             if ($("#core-count-progress").length)
-                                                $("#core-count-progress").html(count);
-                                            else
-                                                toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress");
-
+                                                $("#core-count-progress").html(count); else toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
                                         } else if (feedback) {
-                                            fail++;
+                                            fail++
                                         }
                                     }
                                 },
@@ -442,73 +433,89 @@ const dbRemote = {
                                     failNetwork = !0;
                                     if (feedback)
                                         fail++;
-
-                                    s(Promise.all([]));
+                                    s(Promise.all([]))
                                 },
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
                                     if (dd.response === 1) {
 
+                                        /**
+                                         * Atualização realizada, remove sync desta atualização
+                                         * */
                                         if (!isNaN(d.id))
                                             dbLocal.exeDelete('sync_' + entity, d.id);
 
-                                        if (dd.data.data.db_action === "create" && parseInt(dd.data.data.id_old) !== parseInt(dd.data.data.id))
-                                            dbLocal.exeDelete(entity, dd.data.data.id_old);
+                                        let promessas = [];
+                                        $.each(dd.data.data, function(i, a) {
+                                            if (a.db_action === "create" && !isNaN(a.id_old) && parseInt(a.id_old) !== parseInt(a.id)) {
 
-                                        if (dd.data.error === 0) {
+                                                /**
+                                                 * Já existe uma sincronia pendênte com o mesmo id, realoca sincronia pendente para novo registro
+                                                 * */
+                                                dbLocal.exeDelete(entity, a.id_old);
 
-                                            let historicData = {};
-                                            historicData[entity] = dd.data.historic;
-                                            dbLocal.exeUpdate("__historic", historicData, 1);
+                                                if (dd.data.error === 0) {
+                                                    promessas.push(dbLocal.exeRead("sync_" + entity, parseInt(a.id)).then(d => {
+                                                        let allP = [];
+                                                        if(!isEmpty(d)) {
+                                                            /**
+                                                             * Delete sync existente no mesmo ID para atualizar ID
+                                                             * */
+                                                            delete d.id;
+                                                            allP.push(dbLocal.exeDelete("sync_" + entity, a.id).then(() => {
+                                                                return db.exeCreate(entity, d, !1)
+                                                            }));
+                                                        }
+                                                        allP.push(moveSyncDataToDb(entity, a));
 
-                                            let syncData = moveSyncDataToDb(entity, dd.data.data);
-                                            s(Promise.all([syncData, react]).then(r => {
-                                                syncData = r[0][0];
-                                                react = r[1];
-                                                let dados = Object.assign({}, syncData);
+                                                        return Promise.all(allP);
+                                                    }));
+                                                }
+                                            } else if (dd.data.error === 0) {
+                                                promessas.push(moveSyncDataToDb(entity, dd.data.data));
+                                            }
 
-                                                if (typeof dados === "object" && typeof dados.db_action !== "undefined" && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][dados.db_action] !== "undefined")
-                                                    eval(react[0][entity][dados.db_action]);
+                                            /**
+                                             * Atualiza histórico
+                                             * */
+                                            if (dd.data.error === 0) {
+                                                let historicData = {};
+                                                historicData[entity] = dd.data.historic;
+                                                dbLocal.exeUpdate("__historic", historicData, 1);
+                                            }
+                                        });
 
-                                                return syncData;
-                                            }));
-                                        } else if (feedback) {
-                                            fail++;
-                                        }
+                                        s(Promise.all(promessas));
+
                                     } else if (feedback) {
-                                        fail++;
+                                        fail++
                                     }
-
                                     if (feedback) {
                                         progress += totalParte;
-                                        $("#core-upload-progress-bar").css("width", progress + "%");
+                                        $("#core-upload-progress-bar").css("width", progress + "%")
                                     }
-                                    s(Promise.all([]));
-
+                                    s(Promise.all([]))
                                 },
                                 dataType: "json",
                                 async: !0
-                            });
-                        }));
+                            })
+                        }))
                     });
-
                     Promise.all(promises).then(p => {
                         if (feedback) {
                             let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " envios para " + entity : "Erro no registro para " + entity));
                             toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
                             $("#core-upload-progress").removeClass("active");
                             setTimeout(function () {
-                                $("#core-upload-progress-bar").css("width", 0);
-                            }, 600);
+                                $("#core-upload-progress-bar").css("width", 0)
+                            }, 600)
                         }
-
-                        if(navigator.onLine && !failNetwork && !id)
+                        if (navigator.onLine && !failNetwork && !id)
                             dbLocal.clear("sync_" + entity);
-
-                        resolve(p);
-                    });
+                        resolve(p)
+                    })
                 } else {
-                    resolve(0);
+                    resolve(0)
                 }
             })
         })
