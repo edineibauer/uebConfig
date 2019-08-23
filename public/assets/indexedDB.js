@@ -503,7 +503,13 @@ const dbRemote = {
                     });
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            let msg = (fail === 0 ? "Registros de " + entity + " enviados!" : (total > 1 ? "Erro em " + fail + " dos " + total + " envios para " + entity : "Erro no registro para " + entity));
+                            let msg = "Registro atualizado";
+                            if(fail === 0) {
+                                msg = (total > 1 ? "Registros atualizados" : "Registro atualizado");
+                            } else {
+                                msg = (total > 1 ? "Erro ao atualizar: " + fail + " de " + total : "Erro ao atualizar");
+                            }
+
                             toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
                             $("#core-upload-progress").removeClass("active");
                             setTimeout(function () {
