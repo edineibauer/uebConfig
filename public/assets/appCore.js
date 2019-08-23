@@ -880,6 +880,9 @@ var app = {
         /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
         downloadEntityData();
 
+        /* VERIFICA SE PRECISA ATUALIZA SISTEMA */
+        checkUpdate();
+
         return view(file, function (g) {
             if (g) {
                 if (app.haveAccessPermission(g.setor, g["!setor"])) {
@@ -1028,10 +1031,6 @@ $(function () {
                 if (localStorage.accesscount === "0")
                     return startCache();
 
-            }).then(() => {
-                checkUpdateInt = setInterval(function () {
-                    checkUpdate();
-                }, 5000);
             });
         });
 
