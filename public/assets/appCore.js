@@ -703,18 +703,15 @@ function thenAccess() {
      * Check Data content
      * */
     let gets = [];
-    gets.push(dbLocal.exeRead("__allow", 1));
     gets.push(dbLocal.exeRead("__dicionario", 1));
     gets.push(dbLocal.exeRead("__template", 1));
     localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
 
     return Promise.all(gets).then(r => {
-        if (isEmpty(r[2])) {
+        if (isEmpty(r[1]))
             return updateCacheUser();
-        } else {
-            dicionarios = r[1];
-            return downloadEntityData();
-        }
+        else
+            dicionarios = r[0];
     });
 }
 
@@ -879,6 +876,9 @@ var app = {
 
         /* MENU ACTIVE */
         checkMenuActive();
+
+        /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
+        downloadEntityData();
 
         return view(file, function (g) {
             if (g) {
