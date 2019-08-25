@@ -944,26 +944,28 @@ var app = {
     },
     loadView: function (route, nav) {
         return new Promise((s, f) => {
-            clearPage();
+            if (checkFormNotSaved()) {
+                clearPage();
 
-            if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                s(app.applyView("dashboard"));
-            } else {
-                let haveRoute = typeof route === "string";
-                route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
-                if ((app.route === "" || app.route !== route) && !app.loading) {
-                    app.setLoading();
-                    if (typeof nav === "undefined" && app.route !== "")
-                        history.pushState(null, null, HOME + route);
-
-                    app.route = route || "/";
-                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                    s(app.applyView(file))
-                } else if (haveRoute && app.route === route) {
-                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                    s(app.applyView(file))
+                if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
+                    s(app.applyView("dashboard"));
                 } else {
-                    s(1)
+                    let haveRoute = typeof route === "string";
+                    route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
+                    if ((app.route === "" || app.route !== route) && !app.loading) {
+                        app.setLoading();
+                        if (typeof nav === "undefined" && app.route !== "")
+                            history.pushState(null, null, HOME + route);
+
+                        app.route = route || "/";
+                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                        s(app.applyView(file))
+                    } else if (haveRoute && app.route === route) {
+                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                        s(app.applyView(file))
+                    } else {
+                        s(1)
+                    }
                 }
             }
         });
