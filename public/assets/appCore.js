@@ -855,6 +855,13 @@ function clearHeaderScrollPosition() {
     $("#core-header").css({"position": "fixed", "top": 0});
 }
 
+function clearPage() {
+    forms = [];
+    grids = [];
+    closeSidebar();
+    clearHeaderScrollPosition();
+}
+
 var dicionarios;
 var swRegistration = null;
 
@@ -881,9 +888,6 @@ var app = {
 
         /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
         downloadEntityData();
-
-        /* VERIFICA SE PRECISA ATUALIZA SISTEMA */
-        checkUpdate();
 
         return view(file, function (g) {
             if (g) {
@@ -939,34 +943,27 @@ var app = {
         return allow;
     },
     loadView: function (route, nav) {
-        closeSidebar();
         return new Promise((s, f) => {
-            if (checkFormNotSaved()) {
-                clearHeaderScrollPosition();
+            clearPage();
 
-                let backform = new RegExp('#formulario$');
-                if (backform.test(route)) {
-                    $(".btn-form-list").trigger("click");
-                    return s(1)
-                } else if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                    return s(app.applyView("dashboard"));
+            if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
+                s(app.applyView("dashboard"));
+            } else {
+                let haveRoute = typeof route === "string";
+                route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
+                if ((app.route === "" || app.route !== route) && !app.loading) {
+                    app.setLoading();
+                    if (typeof nav === "undefined" && app.route !== "")
+                        history.pushState(null, null, HOME + route);
+
+                    app.route = route || "/";
+                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                    s(app.applyView(file))
+                } else if (haveRoute && app.route === route) {
+                    let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
+                    s(app.applyView(file))
                 } else {
-                    let haveRoute = typeof route === "string";
-                    route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
-                    if ((app.route === "" || app.route !== route) && !app.loading) {
-                        app.setLoading();
-                        if (typeof nav === "undefined" && app.route !== "")
-                            history.pushState(null, null, HOME + route);
-
-                        app.route = route || "/";
-                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        return s(app.applyView(file))
-                    } else if (haveRoute && app.route === route) {
-                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        return s(app.applyView(file))
-                    } else {
-                        return s(1)
-                    }
+                    s(1)
                 }
             }
         });
@@ -980,7 +977,16 @@ $(function () {
     if (location.href !== HOME + "updateSystem") {
 
         window.onpopstate = function () {
-            app.loadView(document.location.href, !0)
+            if (checkFormNotSaved()) {
+                closeSidebar();
+                clearHeaderScrollPosition();
+                let backform = new RegExp('#formulario$');
+                if (backform.test(document.location.href)) {
+                    $(".btn-form-list").trigger("click");
+                } else {
+                    app.loadView(document.location.href, !0)
+                }
+            }
         };
 
         $("body").off("click", "a").on("click", "a", function (e) {
@@ -1033,6 +1039,8 @@ $(function () {
                 if (localStorage.accesscount === "0")
                     return startCache();
 
+            }).then(() => {
+                checkUpdate();
             });
         });
 
