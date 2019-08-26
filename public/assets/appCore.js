@@ -694,7 +694,7 @@ function loadCacheUser() {
 }
 
 function firstAccess() {
-    localStorage.accesscount = 0;
+    setCookie('accesscount', 0);
     return updateCacheUser();
 }
 
@@ -705,7 +705,8 @@ function thenAccess() {
     let gets = [];
     gets.push(dbLocal.exeRead("__dicionario", 1));
     gets.push(dbLocal.exeRead("__template", 1));
-    localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
+
+    setCookie('accesscount', parseInt(getCookie('accesscount')) + 1);
 
     return Promise.all(gets).then(r => {
         if (isEmpty(r[1]))
@@ -778,6 +779,28 @@ function startCache() {
                 resolve(1)
             }
         })
+    }).then(() => {
+
+        /**
+         * Check support to webp
+         * */
+        async function WebpIsSupported() {
+            // If the browser doesn't has the method createImageBitmap, you can't display webp format
+            if (!self.createImageBitmap) return !1;
+
+            // Base64 representation of a white point image
+            const webpData = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=';
+
+            // Retrieve the Image in Blob Format
+            const blob = await fetch(webpData).then(r => r.blob());
+
+            // If the createImageBitmap method succeeds, return true, otherwise false
+            return createImageBitmap(blob).then(() => !0, () => !1);
+        }
+
+        (async () => {
+            setCookie("webp", await WebpIsSupported());
+        })();
     }).then(() => {
         setTimeout(function () {
             finishCache();
@@ -1038,7 +1061,7 @@ $(function () {
                     })
                 }
 
-                if (localStorage.accesscount === "0")
+                if (getCookie('accesscount') === "0")
                     return startCache();
 
             }).then(() => {
