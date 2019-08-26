@@ -383,10 +383,13 @@ class UpdateSystem
         $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/dino.webp", PATH_HOME . "assetsPublic/img/dino.webp");
+        copy(PATH_HOME . VENDOR . "config/public/assets/file.webp", PATH_HOME . "assetsPublic/img/file.webp");
+        copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.webp", PATH_HOME . "assetsPublic/img/img.webp");
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.webp", PATH_HOME . "assetsPublic/img/loading.webp");
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/file_type.svg", PATH_HOME . "assetsPublic/img/file_type.svg");
-        copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
 
         if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png")))
         copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
