@@ -731,6 +731,10 @@ function downloadEntityData() {
     })
 }
 
+function webp(extension) {
+    return (getCookie('webp') === "true" ? 'webp' : extension);
+}
+
 function startCache() {
     return get("currentFiles/" + window.location.pathname).then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
