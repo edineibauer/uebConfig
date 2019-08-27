@@ -251,11 +251,12 @@ function urlB64ToUint8Array(base64String) {
     return outputArray;
 }
 
-function pushNotification(title, body, url, image) {
+function pushNotification(title, body, url, image, background) {
     swRegistration.showNotification(title, {
         body: body || "",
         data: url || "",
         icon: image || "",
+        image: background || "",
         badge: HOME + FAVICON
     });
 }
