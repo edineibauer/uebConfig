@@ -850,8 +850,6 @@ function checkFormNotSaved() {
             if (typeof forms[ff] === "object" && forms[ff].id === "") {
                 if (!confirm("Excluir o cadastro em aberto?"))
                     return !1;
-                else
-                    forms = [];
             }
             break;
         }
