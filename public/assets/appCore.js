@@ -251,15 +251,12 @@ function urlB64ToUint8Array(base64String) {
     return outputArray;
 }
 
-function pushNotification(title, body, url, image, icon) {
-    if (typeof icon === 'undefined' && typeof image !== "undefined")
-        icon = image;
-
+function pushNotification(title, body, url, image) {
     swRegistration.showNotification(title, {
         body: body || "",
-        icon: icon || "",
-        badge: image || "",
-        data: url || ""
+        data: url || "",
+        icon: image || "",
+        badge: HOME + FAVICON
     });
 }
 
