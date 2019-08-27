@@ -263,14 +263,15 @@ function pushNotification(title, body, url, image, icon) {
     });
 }
 
-function subscribeUser() {
+function subscribeUser(showMessageSuccess) {
     if (PUSH_PUBLIC_KEY !== "") {
+        showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
         const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
         swRegistration.pushManager.subscribe({
             applicationServerKey: applicationServerKey,
             userVisibleOnly: !0,
         }).then(function (subscription) {
-            updateSubscriptionOnServer(subscription);
+            updateSubscriptionOnServer(subscription, showMessageSuccess);
             $(".site-btn-push").remove()
         }).catch(function (err) {
             toast("Erro ao tentar receber as notificações", 3500, "toast-warning")
@@ -280,15 +281,16 @@ function subscribeUser() {
     }
 }
 
-function updateSubscriptionOnServer(subscription) {
+function updateSubscriptionOnServer(subscription, showMessageSuccess) {
     if (subscription) {
         post('dashboard', 'push', {
             "push": JSON.stringify(subscription),
             'p1': navigator.appName,
             'p2': navigator.appCodeName,
             'p3': navigator.platform
-        }, function (g) {
-            toast("Agora você esta apto a receber notificações", 3500, "toast-success")
+        }, function () {
+            if(!showMessageSuccess)
+                pushNotification("Parabéns " + getCookie("nome"), "A partir de agora, você receberá notificações importantes!");
         })
     }
 }
@@ -407,12 +409,6 @@ function loginBtn() {
     }
 }
 
-function spaceHeader() {
-    let $header = $("#core-header");
-    if ($header.css("position") === "fixed")
-        $("#core-content").css("margin-top", ($header.height() + parseInt($header.css("padding-top")) + parseInt($header.css("padding-bottom"))) + "px")
-}
-
 function menuBottom(tpl) {
     let menu = [];
     if (HOMEPAGE === "0")
@@ -447,7 +443,6 @@ function menuBottom(tpl) {
 function menuHeader() {
     loginBtn();
     sidebarUserInfo();
-    spaceHeader();
     return dbLocal.exeRead("__template", 1).then(tpl => {
         menuBottom(tpl);
         let menu = [];
@@ -523,40 +518,30 @@ function clearCache() {
 
     setCookie('update', 0, -1);
 
-    return navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        /**
-         * Clear Caches and Data
-         * */
-        for (let registration of registrations)
-            registration.unregister();
+    return dbLocal.exeRead('__dicionario', 1).then(dicion => {
+        let clear = [];
+        for (var k in dicion)
+            clear.push(dbLocal.clear(k));
 
+        clear.push(dbLocal.clear('__historic'));
+        clear.push(dbLocal.clear('__dicionario'));
+        clear.push(dbLocal.clear('__info'));
+        clear.push(dbLocal.clear('__allow'));
+        clear.push(dbLocal.clear('__general'));
+        clear.push(dbLocal.clear('__react'));
+        clear.push(dbLocal.clear('__reactOnline'));
+        clear.push(dbLocal.clear('__relevant'));
+        clear.push(dbLocal.clear('__template'));
+        clear.push(dbLocal.clear('__user'));
+        clear.push(dbLocal.clear('__menu'));
+        clear.push(dbLocal.clear('__panel'));
+
+        return Promise.all(clear);
     }).then(() => {
-
-        return dbLocal.exeRead('__dicionario', 1).then(dicion => {
-            let clear = [];
-            for (var k in dicion)
-                clear.push(dbLocal.clear(k));
-
-            clear.push(dbLocal.clear('__historic'));
-            clear.push(dbLocal.clear('__dicionario'));
-            clear.push(dbLocal.clear('__info'));
-            clear.push(dbLocal.clear('__allow'));
-            clear.push(dbLocal.clear('__general'));
-            clear.push(dbLocal.clear('__react'));
-            clear.push(dbLocal.clear('__reactOnline'));
-            clear.push(dbLocal.clear('__relevant'));
-            clear.push(dbLocal.clear('__template'));
-            clear.push(dbLocal.clear('__user'));
-            clear.push(dbLocal.clear('__menu'));
-            clear.push(dbLocal.clear('__panel'));
-
-            return Promise.all(clear);
-        }).then(() => {
-            return caches.keys().then(cacheNames => {
-                return Promise.all(cacheNames.map(cacheName => {
-                    return caches.delete(cacheName)
-                }))
-            })
+        return caches.keys().then(cacheNames => {
+            return Promise.all(cacheNames.map(cacheName => {
+                return caches.delete(cacheName)
+            }))
         })
     });
 }
@@ -1002,6 +987,26 @@ var app = {
 var checkUpdateInt = null;
 var lastPositionScroll = 0;
 var sentidoScrollDown = !1;
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+        swRegistration = swReg;
+
+        swRegistration.pushManager.getSubscription().then(function(subscription) {
+
+            /**
+             * Check if have permission to send notification but not is registered on service worker
+             * */
+            if (subscription === null) {
+                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                    if(p === "granted")
+                        return subscribeUser(1);
+                });
+            }
+        });
+    })
+}
+
 $(function () {
     if (location.href !== HOME + "updateSystem") {
 
@@ -1053,17 +1058,12 @@ $(function () {
                 return app.loadView();
 
             }).then(() => {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-                        swRegistration = swReg;
 
-                        /**
-                         * Notificação btn
-                         * */
-                        if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                            $(".site-btn-push").remove()
-                    })
-                }
+                /**
+                 * Notificação btn
+                 * */
+                if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                    $(".site-btn-push").remove();
 
                 if (getCookie('accesscount') === "0")
                     return startCache();
