@@ -20,12 +20,13 @@ self.addEventListener('push', function(event) {
     if(isJson(event.data.text())) {
         options = JSON.parse(event.data.text());
         title = options.title;
-        options.badge = options.badge || (HOME + FAVICON);
         delete options.title;
     } else {
         title = event.data.text();
-        options.badge = HOME + FAVICON;
     }
+    options.badge = options.badge || (HOME + FAVICON);
+    options.icon = options.icon || (HOME + FAVICON);
+    options.data = options.data || HOME;
 
     if(typeof title === "string" && title.length > 2)
         event.waitUntil(self.registration.showNotification(title, options));
