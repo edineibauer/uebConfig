@@ -32,6 +32,8 @@
   }],
   "start_url": "./",
   "display": "standalone",
+  "lang" : "Portuguese",
+  "orientation" : "any",
   "background_color": "{$theme}",
   "theme_color": "{$theme}"
 }

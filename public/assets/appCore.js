@@ -989,14 +989,21 @@ var lastPositionScroll = 0;
 var sentidoScrollDown = !1;
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-        swRegistration = swReg;
-
+    Promise.all([]).then(() => {
+        if(navigator.serviceWorker.controller) {
+            return navigator.serviceWorker.ready.then(function (swReg) {
+                swRegistration = swReg;
+            });
+        } else {
+            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+                swRegistration = swReg;
+            });
+        }
+    }).then(() => {
+        /**
+         * Check if have permission to send notification but not is registered on service worker
+         * */
         swRegistration.pushManager.getSubscription().then(function(subscription) {
-
-            /**
-             * Check if have permission to send notification but not is registered on service worker
-             * */
             if (subscription === null) {
                 return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
                     if(p === "granted")
@@ -1004,7 +1011,7 @@ if ('serviceWorker' in navigator) {
                 });
             }
         });
-    })
+    });
 }
 
 $(function () {
