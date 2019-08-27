@@ -1,19 +1,34 @@
 const VERSION = '';
 const HOME = '';
+const FAVICON = '';
+
+function isJson(str) {
+    if (typeof str !== "string")
+        return !1;
+    try {
+        if (typeof JSON.parse(str) !== "object")
+            return !1
+    } catch (e) {
+        return !1
+    }
+    return !0
+}
 
 self.addEventListener('push', function(event) {
-    console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
-    console.log(event.data);
+    let title = "";
+    let options = {};
+    if(isJson(event.data.text())) {
+        options = JSON.parse(event.data.text());
+        title = options.title;
+        options.badge = options.badge || (HOME + FAVICON);
+        delete options.title;
+    } else {
+        title = event.data.text();
+        options.badge = HOME + FAVICON;
+    }
 
-    const title = event.data.text();
-    const options = {
-        body: event.data.text(),
-        data: 'https://developers.google.com/web/',
-        icon: 'images/icon.png',
-        badge: 'images/badge.png'
-    };
-
-    event.waitUntil(self.registration.showNotification(title, options));
+    if(typeof title === "string" && title.length > 2)
+        event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', function(event) {
