@@ -1134,7 +1134,7 @@ $(function () {
                 if (backform.test(document.location.href)) {
                     $(".btn-form-list").trigger("click");
                 } else {
-                    app.loadView(document.location.href, undefined, !0);
+                    app.loadView(document.location.href, animateBack("#core-content"), !0);
                 }
             }
         };
