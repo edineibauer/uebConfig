@@ -880,7 +880,8 @@ function defaultPageTransitionPosition(direction, $element) {
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
-        "left": left + "px"
+        "left": left + "px",
+        "overflow": "hidden"
     });
 
     let $aux = $element.clone().css({
