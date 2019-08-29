@@ -974,7 +974,7 @@ function animateFade(id) {
             animateTimeout($element, $aux)
         });
     }
-    $element.animate({opacity: 0, left: '100%'}, 400);
+    $element.animate({opacity: 0, left: '100%'}, 200);
 
     return $aux;
 }
