@@ -893,7 +893,7 @@ function defaultPageTransitionPosition(direction, $element) {
         if(window.innerWidth < 900)
             $aux.animate({left: '100%', opacity: 1}, 0);
         else
-            $aux.animate({left: (left + 300) + 'px', opacity: 0}, 0);
+            $aux.animate({left: (left + 200) + 'px', opacity: 0}, 0);
 
         $element.animate({opacity: 1}, 0);
 
@@ -901,7 +901,7 @@ function defaultPageTransitionPosition(direction, $element) {
         if(window.innerWidth < 900)
             $aux.animate({left: '-100%', opacity: 1}, 0);
         else
-            $aux.animate({left: (left - 300) + 'px', opacity: 0}, 0);
+            $aux.animate({left: (left - 200) + 'px', opacity: 0}, 0);
 
         $element.animate({opacity: 1}, 0);
 
@@ -933,8 +933,8 @@ function animateForward(id) {
         $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
         $element.animate({left: '-100%'}, 400);
     } else {
-        $aux.animate({left: left + "px", opacity: 1}, 400, () => { animateTimeout($element, $aux) });
-        $element.animate({opacity: 0}, 250);
+        $aux.animate({left: left + "px", opacity: 1}, 300, () => { animateTimeout($element, $aux) });
+        $element.animate({opacity: 0}, 200);
     }
     return $aux;
 }
@@ -951,8 +951,8 @@ function animateBack(id) {
         $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
         $element.animate({left: '100%'}, 400);
     } else {
-        $aux.animate({left: left + 'px', opacity: 1}, 400, () => { animateTimeout($element, $aux) });
-        $element.animate({opacity: 0}, 250);
+        $aux.animate({left: left + 'px', opacity: 1}, 300, () => { animateTimeout($element, $aux) });
+        $element.animate({opacity: 0}, 200);
     }
 
     return $aux;
@@ -965,7 +965,15 @@ function animateFade(id) {
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
 
-    $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => { animateTimeout($element, $aux) });
+    if(window.innerWidth < 900) {
+        $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
+            animateTimeout($element, $aux)
+        });
+    } else {
+        $aux.animate({left: 0}, 0).animate({opacity: 1}, 300, () => {
+            animateTimeout($element, $aux)
+        });
+    }
     $element.animate({opacity: 0, left: '100%'}, 400);
 
     return $aux;
