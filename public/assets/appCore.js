@@ -1079,8 +1079,7 @@ var app = {
                         let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
                         s(app.applyView(file, $div))
                     } else if (haveRoute && app.route === route) {
-                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        s(app.applyView(file, $div))
+                        location.reload();
                     } else {
                         s(1)
                     }
