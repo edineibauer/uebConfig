@@ -901,7 +901,7 @@ function defaultPageTransitionPosition(direction, $element) {
         if(window.innerWidth < 900)
             $aux.animate({left: '-100%', opacity: 1}, 0);
         else
-            $aux.animate({left: (left - 200) + 'px', opacity: 0}, 0);
+            $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
 
         $element.animate({opacity: 1}, 0);
 
@@ -951,8 +951,8 @@ function animateBack(id) {
         $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
         $element.animate({left: '100%'}, 400);
     } else {
-        $aux.animate({left: left + 'px', opacity: 1}, 300, () => { animateTimeout($element, $aux) });
-        $element.animate({opacity: 0}, 200);
+        $aux.animate({left: left + 'px', opacity: 1}, 200, () => { animateTimeout($element, $aux) });
+        $element.animate({opacity: 0}, 150);
     }
 
     return $aux;
