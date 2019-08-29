@@ -1135,7 +1135,7 @@ $(function () {
                 let backform = new RegExp('#formulario$');
                 if (backform.test(document.location.href)) {
                     $(".btn-form-list").trigger("click");
-                } else if (checkFormNotSaved()) {
+                } else {
                     app.loadView(document.location.href, animateBack("#core-content"), !0);
                 }
             }
@@ -1147,7 +1147,9 @@ $(function () {
             let pjs = new RegExp(/^javascript/i);
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
-                app.loadView($(this).attr("href"), animateForward("#core-content"));
+
+                if (checkFormNotSaved())
+                    app.loadView($(this).attr("href"), animateForward("#core-content"));
             }
         }).off("submit", "form").on("submit", "form", function (e) {
             e.preventDefault()
