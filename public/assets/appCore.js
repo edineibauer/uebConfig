@@ -1138,6 +1138,7 @@ $(function () {
 
         $("body").off("click", "a").on("click", "a", function (e) {
             let url = $(this).attr("href").replace(HOME, '');
+            let animation = $(this).attr("data-animation") || "forward";
             let p = new RegExp(/^#/i);
             let pjs = new RegExp(/^javascript/i);
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
@@ -1145,7 +1146,7 @@ $(function () {
 
                 if (checkFormNotSaved()) {
                     forms = [];
-                    app.loadView($(this).attr("href"), animateForward("#core-content"));
+                    app.loadView($(this).attr("href"), window["animate" + ucFirst(animation)]("#core-content"))
                 }
             }
         }).off("submit", "form").on("submit", "form", function (e) {
