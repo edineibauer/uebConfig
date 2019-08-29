@@ -1133,7 +1133,7 @@ $(function () {
                 let backform = new RegExp('#formulario$');
                 if (backform.test(document.location.href)) {
                     $(".btn-form-list").trigger("click");
-                } else {
+                } else if (checkFormNotSaved()) {
                     app.loadView(document.location.href, animateBack("#core-content"), !0);
                 }
             }
