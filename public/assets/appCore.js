@@ -870,8 +870,110 @@ function clearPage() {
     clearHeaderScrollPosition();
 }
 
+function defaultPageTransitionPosition(direction, $element) {
+    aniTransitionPage = $element;
+    let left = $element[0].getBoundingClientRect().left;
+
+    $element.css({
+        "min-height": (window.innerHeight - 120) + "px",
+        "max-width": window.innerWidth + "px",
+        "position": "fixed",
+        "top": $element[0].getBoundingClientRect().top + "px",
+        "width": $element[0].clientWidth + "px",
+        "left": left + "px"
+    });
+
+    let $aux = $element.clone().css({
+        "top": "70px"
+    }).removeAttr("id").html("").insertAfter($element);
+
+    $element.css("margin-top", 0);
+
+    if (direction === 'forward') {
+        if(window.innerWidth < 900)
+            $aux.animate({left: '100%', opacity: 1}, 0);
+        else
+            $aux.animate({left: (left + 300) + 'px', opacity: 0}, 0);
+
+        $element.animate({opacity: 1}, 0);
+
+    } else if (direction === 'back') {
+        if(window.innerWidth < 900)
+            $aux.animate({left: '-100%', opacity: 1}, 0);
+        else
+            $aux.animate({left: (left - 300) + 'px', opacity: 0}, 0);
+
+        $element.animate({opacity: 1}, 0);
+
+    } else if (direction === 'fade') {
+        $aux.animate({opacity: 0}, 0);
+        $element.animate({opacity: 0}, 0);
+    }
+
+    return $aux;
+}
+
+function animateTimeout($element, $aux) {
+    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left" : "initial"});
+    $element.remove();
+    aniTransitionPage = null;
+    clearHeaderScrollPosition();
+    $("html")[0].scrollTop = 0;
+}
+
+function animateForward(id) {
+    if(aniTransitionPage)
+        return aniTransitionPage;
+
+    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
+    let $aux = defaultPageTransitionPosition('forward', $element);
+    let left = $element[0].getBoundingClientRect().left;
+
+    if(window.innerWidth < 900) {
+        $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
+        $element.animate({left: '-100%'}, 400);
+    } else {
+        $aux.animate({left: left + "px", opacity: 1}, 400, () => { animateTimeout($element, $aux) });
+        $element.animate({opacity: 0}, 250);
+    }
+    return $aux;
+}
+
+function animateBack(id) {
+    if(aniTransitionPage)
+        return aniTransitionPage;
+
+    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
+    let $aux = defaultPageTransitionPosition('back', $element);
+    let left = $element[0].getBoundingClientRect().left;
+
+    if(window.innerWidth < 900) {
+        $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
+        $element.animate({left: '100%'}, 400);
+    } else {
+        $aux.animate({left: left + 'px', opacity: 1}, 400, () => { animateTimeout($element, $aux) });
+        $element.animate({opacity: 0}, 250);
+    }
+
+    return $aux;
+}
+
+function animateFade(id) {
+    if(aniTransitionPage)
+        return aniTransitionPage;
+
+    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
+    let $aux = defaultPageTransitionPosition('fade', $element);
+
+    $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => { animateTimeout($element, $aux) });
+    $element.animate({opacity: 0, left: '100%'}, 400);
+
+    return $aux;
+}
+
 var dicionarios;
 var swRegistration = null;
+var aniTransitionPage = null;
 
 /**
  * app global de navegação do app
@@ -879,17 +981,21 @@ var swRegistration = null;
 var app = {
     route: "",
     loading: !1,
-    removeLoading: function () {
+    removeLoading: function ($div) {
         app.loading = !1;
         $("#core-loader").css("display", "none");
-        $("#core-content").css("opacity", "1")
+        $div.css("opacity", "1")
     },
-    setLoading: function () {
+    setLoading: function ($div) {
         app.loading = !0;
         $("#core-loader").css("display", "block");
-        $("#core-content").css("opacity", "0.7")
+        $div.css("opacity", "0.7")
     },
-    applyView: function (file) {
+    applyView: function (file, $div) {
+        $div = typeof $div === "undefined" ? $("#core-content") : $div;
+
+        /* SET LOADING */
+        app.setLoading($div);
 
         /* MENU ACTIVE */
         checkMenuActive();
@@ -902,10 +1008,10 @@ var app = {
                 if (app.haveAccessPermission(g.setor, g["!setor"])) {
                     $("#core-style").html(g.css);
                     $("#core-title").text(g.title);
-                    $("#core-content").html(g.content);
+                    $div.html(g.content);
                     if (g.js.length)
                         $.cachedScript(g.js);
-                    app.removeLoading();
+                    app.removeLoading($div);
                     if (g.font.length) {
                         $.each(g.font, function (i, url) {
                             if (!$("head").find("link[href='" + url + "']").length)
@@ -917,8 +1023,8 @@ var app = {
                 }
 
             } else {
-                $("#core-content").html("");
-                app.removeLoading()
+                $div.html("");
+                app.removeLoading($div)
             }
         })
     },
@@ -950,27 +1056,26 @@ var app = {
 
         return allow;
     },
-    loadView: function (route, nav) {
+    loadView: function (route, $div, nav) {
         return new Promise((s, f) => {
             if (checkFormNotSaved()) {
                 clearPage();
 
                 if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                    s(app.applyView("dashboard"));
+                    s(app.applyView("dashboard", $div));
                 } else {
                     let haveRoute = typeof route === "string";
                     route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
                     if ((app.route === "" || app.route !== route) && !app.loading) {
-                        app.setLoading();
                         if (typeof nav === "undefined" && app.route !== "")
                             history.pushState(null, null, HOME + route);
 
                         app.route = route || "/";
                         let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        s(app.applyView(file))
+                        s(app.applyView(file, $div))
                     } else if (haveRoute && app.route === route) {
                         let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        s(app.applyView(file))
+                        s(app.applyView(file, $div))
                     } else {
                         s(1)
                     }
@@ -1021,7 +1126,7 @@ $(function () {
                 if (backform.test(document.location.href)) {
                     $(".btn-form-list").trigger("click");
                 } else {
-                    app.loadView(document.location.href, !0)
+                    app.loadView(document.location.href, undefined, !0);
                 }
             }
         };
@@ -1032,7 +1137,7 @@ $(function () {
             let pjs = new RegExp(/^javascript/i);
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
-                app.loadView($(this).attr("href"));
+                app.loadView($(this).attr("href"), animateForward("#core-content"));
             }
         }).off("submit", "form").on("submit", "form", function (e) {
             e.preventDefault()
