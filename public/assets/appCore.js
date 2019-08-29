@@ -376,7 +376,7 @@ function toggleSidebar(action = 'toggle') {
 function logoutDashboard() {
     if (navigator.onLine) {
         if (confirm("desconectar?"))
-            app.loadView(HOME + "logout");
+            app.loadView(HOME + "logout", animateForward("#core-content"), !0);
     } else {
         toast("Sem Conexão", 1200);
     }
@@ -401,7 +401,7 @@ function loginBtn() {
         btnLoginAside.children[0].innerHTML = "exit_to_app"
     } else {
         btnLoginAside.onclick = function () {
-            app.loadView(HOME + "login");
+            app.loadView(HOME + "login", animateForward("#core-content"), !0);
         };
         btnLoginAside.children[0].innerHTML = "person"
     }
@@ -415,12 +415,13 @@ function menuBottom(tpl) {
         menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
     if (getCookie("setor") === "admin") {
         menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
-        menu.push({
-            rel: '',
-            funcao: 'toggleSidebar',
-            text: "<i class='material-icons left'>perm_identity</i>"
-        })
     }
+    menu.push({
+        rel: '',
+        funcao: 'toggleSidebar',
+        text: "<i class='material-icons left'>perm_identity</i>"
+    });
+
     let content = "";
     for (let m in menu) {
         if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
