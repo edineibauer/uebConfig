@@ -321,7 +321,7 @@ function checkUpdate() {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                if (data.response === 1 && data.data != getCookie("update")) {
+                if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update")) {
                     clearInterval(checkUpdateInt);
                     toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius-jumbo color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
                 }
@@ -1148,8 +1148,10 @@ $(function () {
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
 
-                if (checkFormNotSaved())
+                if (checkFormNotSaved()) {
+                    forms = [];
                     app.loadView($(this).attr("href"), animateForward("#core-content"));
+                }
             }
         }).off("submit", "form").on("submit", "form", function (e) {
             e.preventDefault()
