@@ -1163,7 +1163,7 @@ $(function () {
                 scriptCore.src = HOME + "assetsPublic/core.min.js";
                 document.head.appendChild(scriptCore);
             }).then(() => {
-                return app.loadView();
+                return app.loadView(undefined, animateFade())
 
             }).then(() => {
 
@@ -1188,7 +1188,7 @@ $(function () {
 
         return clearCache().then(() => {
             setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
-            return app.loadView();
+            return app.loadView(undefined, animateFade())
         })
     }
 
