@@ -1208,24 +1208,24 @@ $(function () {
         sentidoScrollDown = sentidoScroll;
         let elTop = document.getElementById("core-header").getBoundingClientRect().top;
         let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
-        $("#core-header").css("top", t + "px");
+        $("#core-header").css("top", t + "px")
     }
 
     window.onscroll = function () {
         if (window.innerWidth < 994) {
-            if (lastPositionScroll < $(window).scrollTop()) {
+            let top = $(window).scrollTop();
+            if (lastPositionScroll < top) {
                 if (!sentidoScrollDown) {
                     headerScrollFixed(!0);
-                    $("#core-header").css("position", "absolute");
+                    $("#core-header").stop().css("position", "absolute")
                 }
-            } else {
-                if (sentidoScrollDown) {
-                    headerScrollFixed(!1);
-                } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
-                    $("#core-header").css({"position": "fixed", "top": 0});
-                }
+            } else if (sentidoScrollDown) {
+                headerScrollFixed(!1);
+                $("#core-header")
+                    .css({"position": "fixed", "top": document.getElementById("core-header").getBoundingClientRect().top + "px"})
+                    .animate({"top": 0}, 150);
             }
-            lastPositionScroll = $(window).scrollTop();
+            lastPositionScroll = top;
         }
-    };
+    }
 });
