@@ -6,6 +6,10 @@ $.cachedScript = function (url, options) {
     return $.ajax(options)
 };
 
+function ucFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 function convertEmptyArrayToNull(param) {
     if (typeof (param) === "object" && !$.isEmptyObject(param)) {
         $.each(param, function (key, value) {
