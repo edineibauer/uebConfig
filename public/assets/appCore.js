@@ -291,7 +291,7 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
             'p2': navigator.appCodeName,
             'p3': navigator.platform
         }, function () {
-            if(!showMessageSuccess)
+            if (!showMessageSuccess)
                 pushNotification("Parabéns " + getCookie("nome"), "A partir de agora, você receberá notificações importantes!");
         })
     }
@@ -870,10 +870,10 @@ function clearPage() {
     clearHeaderScrollPosition();
 }
 
+
 function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
-
     $element.css({
         "min-height": (window.innerHeight - 120) + "px",
         "max-width": window.innerWidth + "px",
@@ -883,124 +883,141 @@ function defaultPageTransitionPosition(direction, $element) {
         "left": left + "px",
         "overflow": "hidden"
     });
-
-    let $aux = $element.clone().css({
-        "top": "70px"
-    }).removeAttr("id").html("").insertAfter($element);
-
+    let $aux = $element.clone().css({"top": "70px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertAfter($element);
     $element.css("margin-top", 0);
-
     if (direction === 'forward') {
-        if(window.innerWidth < 900)
-            $aux.animate({left: '100%', opacity: 1}, 0);
-        else
-            $aux.animate({left: (left + 200) + 'px', opacity: 0}, 0);
-
-        $element.animate({opacity: 1}, 0);
-
+        if (window.innerWidth < 900)
+            $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 200) + 'px', opacity: 0}, 0);
+        $element.animate({opacity: 1}, 0)
     } else if (direction === 'back') {
-        if(window.innerWidth < 900)
-            $aux.animate({left: '-100%', opacity: 1}, 0);
-        else
-            $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
-
-        $element.animate({opacity: 1}, 0);
-
+        if (window.innerWidth < 900)
+            $aux.animate({left: '-100%', opacity: 1}, 0); else $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
+        $element.animate({opacity: 1}, 0)
     } else if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
-        $element.animate({opacity: 0}, 0);
+        $element.animate({opacity: 0}, 0)
     }
-
-    return $aux;
+    return $aux
 }
 
-function animateTimeout($element, $aux) {
-    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left" : "initial"});
+function animateTimeout($element, $aux, scroll) {
+    $(".core-style:not(:last-of-type)").remove();
+    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial"});
     $element.remove();
     aniTransitionPage = null;
+    window.scrollTo(0, scroll);
     clearHeaderScrollPosition();
-    $("html")[0].scrollTop = 0;
 }
 
-function animateForward(id) {
-    if(aniTransitionPage)
+function animateForward(id, scroll) {
+    if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('forward', $element);
     let left = $element[0].getBoundingClientRect().left;
 
-    if(window.innerWidth < 900) {
-        $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
-        $element.animate({left: '-100%'}, 400);
-    } else {
-        $aux.animate({left: left + "px", opacity: 1}, 300, () => { animateTimeout($element, $aux) });
-        $element.animate({opacity: 0}, 200);
-    }
-    return $aux;
+    let t = setInterval(function () {
+        if ($aux.html() !== "") {
+            clearInterval(t);
+
+            $aux.animate({top: -(scroll - 70) + "px"}, 0);
+            if (window.innerWidth < 900) {
+                $aux.animate({left: '0'}, 300, () => {
+                    animateTimeout($element, $aux, scroll)
+                });
+                $element.animate({left: '-100%'}, 300)
+            } else {
+                $aux.animate({left: left + "px", opacity: 1}, 300, () => {
+                    animateTimeout($element, $aux, scroll)
+                });
+                $element.animate({left: "-100%", opacity: 0}, 200)
+            }
+        }
+    }, 50);
+
+    return $aux
 }
 
-function animateBack(id) {
-    if(aniTransitionPage)
+function animateBack(id, scroll) {
+    if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('back', $element);
     let left = $element[0].getBoundingClientRect().left;
 
-    if(window.innerWidth < 900) {
-        $aux.animate({left: '0'}, 400, () => { animateTimeout($element, $aux) });
-        $element.animate({left: '100%'}, 400);
-    } else {
-        $aux.animate({left: left + 'px', opacity: 1}, 200, () => { animateTimeout($element, $aux) });
-        $element.animate({opacity: 0}, 150);
-    }
+    let t = setInterval(function () {
+        if (!app.loading) {
+            clearInterval(t);
 
-    return $aux;
+            $aux.animate({top: -(scroll - 70) + "px"}, 0);
+            if (window.innerWidth < 900) {
+                $aux.animate({left: '0'}, 300, () => {
+                    animateTimeout($element, $aux, scroll);
+                });
+                $element.animate({left: '100%'}, 300)
+            } else {
+                $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
+                    animateTimeout($element, $aux, scroll)
+                });
+                $element.animate({opacity: 0}, 200);
+            }
+        }
+    }, 100);
+
+    return $aux
 }
 
-function animateFade(id) {
-    if(aniTransitionPage)
+function animateFade(id, scroll) {
+    if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
 
-    if(window.innerWidth < 900) {
-        $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
-            animateTimeout($element, $aux)
-        });
-    } else {
-        $aux.animate({left: 0}, 0).animate({opacity: 1}, 300, () => {
-            animateTimeout($element, $aux)
-        });
-    }
-    $element.animate({opacity: 0, left: '100%'}, 200);
+    let t = setInterval(function () {
+        if (!app.loading) {
+            clearInterval(t);
+            scroll = typeof scroll !== "undefined" ? scroll : 0;
+            $aux.animate({top: -(scroll - 70) + "px"}, 0);
+            if (window.innerWidth < 900) {
+                $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
+                    animateTimeout($element, $aux, scroll)
+                })
+            } else {
+                $aux.animate({left: 0}, 0).animate({opacity: 1}, 300, () => {
+                    animateTimeout($element, $aux, scroll)
+                })
+            }
 
-    return $aux;
+            $element.animate({opacity: 0, left: '100%'}, 0);
+        }
+    }, 100);
+    return $aux
 }
 
 var dicionarios;
 var swRegistration = null;
 var aniTransitionPage = null;
+var checkUpdateInt = null;
+var lastPositionScroll = 0;
+var sentidoScrollDown = !1;
 
 /**
  * app global de navegação do app
  * */
 var app = {
+    file: "",
     route: "",
     loading: !1,
     removeLoading: function ($div) {
         app.loading = !1;
         $("#core-loader").css("display", "none");
-        $div.css("opacity", "1")
-    },
-    setLoading: function ($div) {
+    }, setLoading: function ($div) {
         app.loading = !0;
         $("#core-loader").css("display", "block");
-        $div.css("opacity", "0.7")
-    },
-    applyView: function (file, $div) {
+    }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
         /* SET LOADING */
@@ -1015,12 +1032,17 @@ var app = {
         return view(file, function (g) {
             if (g) {
                 if (app.haveAccessPermission(g.setor, g["!setor"])) {
-                    $("#core-style").html(g.css);
+                    $("<style class='core-style'>" + g.css + "</style>").appendTo("head");
                     $("#core-title").text(g.title);
                     $div.html(g.content);
-                    if (g.js.length)
-                        $.cachedScript(g.js);
-                    app.removeLoading($div);
+
+                    if (g.js.length) {
+                        $.cachedScript(g.js).then(() => {
+                            app.removeLoading($div);
+                        })
+                    } else {
+                        app.removeLoading($div);
+                    }
                     if (g.font.length) {
                         $.each(g.font, function (i, url) {
                             if (!$("head").find("link[href='" + url + "']").length)
@@ -1028,16 +1050,14 @@ var app = {
                         })
                     }
                 } else {
-                    app.applyView('403');
+                    app.applyView('403')
                 }
-
             } else {
                 $div.html("");
                 app.removeLoading($div)
             }
         })
-    },
-    haveAccessPermission: function (setor, notSetor) {
+    }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
         let mySetor = getCookie("setor");
         if (!isEmpty(setor)) {
@@ -1046,60 +1066,114 @@ var app = {
                 $.each(setor, function (i, seto) {
                     if (typeof seto === "string" && seto === mySetor) {
                         allow = !0;
-                        return !1;
+                        return !1
                     }
-                });
+                })
             } else if (typeof setor === "string" && setor === mySetor) {
-                allow = !0;
+                allow = !0
             }
         } else if (!isEmpty(notSetor)) {
             if (notSetor.constructor === Array) {
                 $.each(notSetor, function (i, seto) {
                     if (typeof seto === "string" && seto === mySetor)
-                        return allow = !1;
-                });
+                        return allow = !1
+                })
             } else if (typeof notSetor === "string" && notSetor === mySetor) {
-                allow = !1;
+                allow = !1
             }
         }
-
         return allow;
-    },
-    loadView: function (route, $div, nav) {
-        return new Promise((s, f) => {
-            if (checkFormNotSaved()) {
-                clearPage();
-
-                if ((route === HOME + "dashboard" || route === HOME + "dashboard/") && $(".menu-li[data-atributo='panel'][data-action='page'][data-lib='dashboard']").length) {
-                    s(app.applyView("dashboard", $div));
-                } else {
-                    let haveRoute = typeof route === "string";
-                    route = haveRoute ? route.replace(HOME, '') : location.href.replace(HOME, '');
-                    if ((app.route === "" || app.route !== route) && !app.loading) {
-                        if (typeof nav === "undefined" && app.route !== "")
-                            history.pushState(null, null, HOME + route);
-
-                        app.route = route || "/";
-                        let file = route === HOME || route + "/" === HOME || route === "" || route === "/" ? "index" : route.replace(HOME, "");
-                        s(app.applyView(file, $div))
-                    } else if (haveRoute && app.route === route) {
-                        location.reload();
-                    } else {
-                        s(1)
-                    }
-                }
-            }
-        });
+    }, loadView: function (route, $div, nav) {
+        return pageTransition(route, 'route', (typeof route === "undefined" ? 'fade' : 'forward'), $div, "", undefined, nav);
     }
 };
 
-var checkUpdateInt = null;
-var lastPositionScroll = 0;
-var sentidoScrollDown = !1;
+/**
+ *
+ * @param route
+ * @param type
+ * @param animation
+ * @param target
+ * @param param
+ * @param scroll
+ * @param setHistory
+ * @returns {Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>}
+ */
+function pageTransition(route, type, animation, target, param, scroll, setHistory) {
+
+    let reload = typeof route === "undefined";
+    route = (typeof route === "string" ? route : location.href).replace(HOME, '');
+    route = route === "/" ? "" : route;
+    type = typeof type === "string" ? type : "route";
+    animation = typeof animation === "string" ? animation : "forward";
+    target = typeof target === "string" ? target : "#core-content";
+    param = (typeof param === "object" && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
+    scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
+    setHistory = typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1;
+    let file = route === "" ? "index" : route;
+    let isNewPage = (app.route === "" || app.route !== route);
+
+    /**
+     * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
+     * */
+    if (checkFormNotSaved() && !app.loading) {
+
+        /**
+         * Limpa dados, seta padrão de carregamento de nova página
+         * */
+        clearPage();
+
+        app.route = route;
+        app.file = file;
+
+        /**
+         * Seta ou atualiza histórico atual com scroll Position
+         * */
+        if(history.state === null)
+            history.replaceState({route: app.route, type: "route", target: "#core-content", param: "", scroll: scroll}, null, HOME + app.route);
+        else if(setHistory)
+            history.replaceState({route: history.state.route, type: history.state.type, target: history.state.target, param: history.state.param, scroll: scroll}, null, HOME + history.state.route);
+
+        /**
+         * Seta histórico da transação para poder voltar
+         * */
+        console.log(setHistory);
+        console.log(reload);
+        if (setHistory && !reload) {
+            history.pushState({route: route, type: type, target: target, param: param, scroll: 0}, null, HOME + route);
+            console.log(route);
+        }
+        /**
+         * Carrega conteúdo
+         * */
+        return Promise.all([]).then(() => {
+
+            if(file === "dashboard" && $(target).find("#dashboard").length) {
+                file = "panel";
+                target = "#dashboard";
+            }
+
+            /**
+             * Anima Transação
+             * */
+            let $page = window["animate" + ucFirst(animation)](target, scroll);
+
+            if(type === 'route') {
+                return app.applyView(file, $page);
+            } else if(type === 'grid') {
+                $page.grid(history.state.route);
+            } else if(type === 'form') {
+                $page.form(history.state.route, history.state.param || undefined);
+            } else if(type === 'funcao') {
+                window[history.state.funcao](history.state.param !== ""? history.state.param : undefined);
+            }
+        });
+    }
+}
 
 if ('serviceWorker' in navigator) {
     Promise.all([]).then(() => {
-        if(navigator.serviceWorker.controller) {
+        if (navigator.serviceWorker.controller) {
             return navigator.serviceWorker.ready.then(function (swReg) {
                 swRegistration = swReg;
             });
@@ -1112,10 +1186,10 @@ if ('serviceWorker' in navigator) {
         /**
          * Check if have permission to send notification but not is registered on service worker
          * */
-        swRegistration.pushManager.getSubscription().then(function(subscription) {
+        swRegistration.pushManager.getSubscription().then(function (subscription) {
             if (subscription === null) {
                 return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if(p === "granted" && PUSH_PUBLIC_KEY !== "" && PUSH_PRIVATE_KEY !== "")
+                    if (p === "granted" && PUSH_PUBLIC_KEY !== "" && PUSH_PRIVATE_KEY !== "")
                         return subscribeUser(1);
                 });
             }
@@ -1126,30 +1200,28 @@ if ('serviceWorker' in navigator) {
 $(function () {
     if (location.href !== HOME + "updateSystem") {
 
-        window.onpopstate = function () {
-            if (checkFormNotSaved()) {
-                closeSidebar();
-                clearHeaderScrollPosition();
-                let backform = new RegExp('#formulario$');
-                if (backform.test(document.location.href)) {
-                    $(".btn-form-list").trigger("click");
-                } else {
-                    app.loadView(document.location.href, animateBack("#core-content"), !0);
-                }
+        window.onpopstate = function (event) {
+            if(event.state) {
+                /**
+                 * Carrega página da navegação solicitada
+                 * */
+                pageTransition(event.state.route, event.state.type, "back", event.state.target, event.state.param, event.state.scroll, !1);
             }
         };
 
         $("body").off("click", "a").on("click", "a", function (e) {
             let url = $(this).attr("href").replace(HOME, '');
-            let animation = $(this).attr("data-animation") || "forward";
-            let p = new RegExp(/^#/i);
-            let pjs = new RegExp(/^javascript/i);
-            if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
-                e.preventDefault();
 
-                if (checkFormNotSaved()) {
-                    forms = [];
-                    app.loadView($(this).attr("href"), window["animate" + ucFirst(animation)]("#core-content"))
+            if(url === "#back"){
+                e.preventDefault();
+                history.back();
+            } else {
+                let animation = $(this).attr("data-animation") || "forward";
+                let p = new RegExp(/^#/i);
+                let pjs = new RegExp(/^javascript/i);
+                if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+                    e.preventDefault();
+                    pageTransition(url, 'route', animation);
                 }
             }
         }).off("submit", "form").on("submit", "form", function (e) {
@@ -1176,7 +1248,7 @@ $(function () {
                 scriptCore.src = HOME + "assetsPublic/core.min.js";
                 document.head.appendChild(scriptCore);
             }).then(() => {
-                return app.loadView(undefined, animateFade())
+                return app.loadView()
 
             }).then(() => {
 
@@ -1201,7 +1273,7 @@ $(function () {
 
         return clearCache().then(() => {
             setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
-            return app.loadView(undefined, animateFade())
+            return app.loadView()
         })
     }
 
@@ -1226,7 +1298,10 @@ $(function () {
             } else if (sentidoScrollDown) {
                 headerScrollFixed(!1);
                 $("#core-header")
-                    .css({"position": "fixed", "top": document.getElementById("core-header").getBoundingClientRect().top + "px"})
+                    .css({
+                        "position": "fixed",
+                        "top": document.getElementById("core-header").getBoundingClientRect().top + "px"
+                    })
                     .animate({"top": 0}, 150);
             }
             lastPositionScroll = top;
