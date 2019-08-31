@@ -1066,9 +1066,6 @@ var app = {
         /* SET LOADING */
         app.setLoading($div);
 
-        /* MENU ACTIVE */
-        checkMenuActive();
-
         /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
         downloadEntityData();
 
@@ -1093,7 +1090,7 @@ var app = {
                         })
                     }
                 } else {
-                    app.applyView('403')
+                    pageTransition('403', 'route', 'fade');
                 }
             } else {
                 $div.html("");
@@ -1250,6 +1247,8 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 window[history.state.funcao](history.state.param !== "" ? history.state.param : undefined);
             }
         }).then(() => {
+            checkMenuActive();
+
             /**
              * Se tiver requisição de página específica, busca
              * */
