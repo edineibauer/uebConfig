@@ -881,7 +881,7 @@ function defaultPageTransitionPosition(direction, $element) {
         "left": left + "px",
         "overflow": "hidden"
     });
-    let $aux = $element.clone().css({"top": "70px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertAfter($element);
+    let $aux = $element.clone().css({"top": "70px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertBefore($element);
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
