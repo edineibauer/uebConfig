@@ -640,6 +640,14 @@ class UpdateSystem
 
         $mjs->minify(PATH_HOME . "assetsPublic/view/{$nameView}.min.js");
         $mcss->minify(PATH_HOME . "assetsPublic/view/{$nameView}.min.css");
+
+        //Ajusta diretório dos assets
+        $file = str_replace("../", "", file_get_contents(PATH_HOME . "assetsPublic/view/{$nameView}.min.css"));
+        $file = $this->getPrefixedCss($file, ".r-" . $nameView);
+
+        $f = fopen(PATH_HOME . "assetsPublic/view/{$nameView}.min.css", "w");
+        fwrite($f, $file);
+        fclose($f);
     }
 
     /**
@@ -679,6 +687,75 @@ class UpdateSystem
                 }
             }
         }
+    }
+
+    private function getPrefixedCss($css,$prefix)
+    {
+        # Wipe all block comments
+        $css = preg_replace('!/\*.*?\*/!s', '', $css);
+
+        $parts = explode('}', $css);
+        $keyframeStarted = false;
+        $mediaQueryStarted = false;
+
+        foreach($parts as &$part)
+        {
+            $part = trim($part); # Wht not trim immediately .. ?
+            if(empty($part)) {
+                $keyframeStarted = false;
+                continue;
+            }
+            else # This else is also required
+            {
+                $partDetails = explode('{', $part);
+
+                if (strpos($part, 'keyframes') !== false) {
+                    $keyframeStarted = true;
+                    continue;
+                }
+
+                if($keyframeStarted) {
+                    continue;
+                }
+
+                if(substr_count($part, "{")==2)
+                {
+                    $mediaQuery = $partDetails[0]."{";
+                    $partDetails[0] = $partDetails[1];
+                    $mediaQueryStarted = true;
+                }
+
+                $subParts = explode(',', $partDetails[0]);
+                foreach($subParts as &$subPart)
+                {
+                    if(trim($subPart)==="@font-face") continue;
+                    else $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . trim($subPart));
+                }
+
+                if(substr_count($part,"{")==2)
+                {
+                    $part = $mediaQuery."\n".implode(', ', $subParts)."{".$partDetails[2];
+                }
+                elseif(empty($part[0]) && $mediaQueryStarted)
+                {
+                    $mediaQueryStarted = false;
+                    $part = implode(', ', $subParts)."{".$partDetails[2]."}\n"; //finish media query
+                }
+                else
+                {
+                    if(isset($partDetails[1]))
+                    {   # Sometimes, without this check,
+                        # there is an error-notice, we don't need that..
+                        $part = implode(', ', $subParts)."{".$partDetails[1];
+                    }
+                }
+
+                unset($partDetails, $mediaQuery, $subParts); # Kill those three ..
+            }   unset($part); # Kill this one as well
+        }
+
+        # Finish with the whole new prefixed string/file in one line
+        return(preg_replace('/\s+/',' ',implode("} ", $parts)));
     }
 
     private function generateInfo(array $metadados): array
