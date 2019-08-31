@@ -874,7 +874,7 @@ function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
     $element.css({
-        "min-height": (window.innerHeight - 120) + "px",
+        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 ? 50 : 0)) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
