@@ -898,16 +898,9 @@ function defaultPageTransitionPosition(direction, $element) {
     return $aux
 }
 
-function animateTimeout($element, $aux, scroll, css) {
+function animateTimeout($element, $aux, scroll) {
     $(".core-style:not(:last-of-type)").remove();
     $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"});
-
-    if (typeof css === "object" && css.constructor === Array) {
-        $.each(css, function (i, e) {
-            $aux.css(e);
-        });
-    }
-
     $element.remove();
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
@@ -921,9 +914,6 @@ function animateForward(id, scroll) {
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('forward', $element);
     let left = $element[0].getBoundingClientRect().left;
-    let css = [];
-    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
-    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if ($aux.html() !== "") {
@@ -932,12 +922,12 @@ function animateForward(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll, css)
+                    animateTimeout($element, $aux, scroll)
                 });
                 $element.animate({left: '-100%'}, 300)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 150, () => {
-                    animateTimeout($element, $aux, scroll, css)
+                    animateTimeout($element, $aux, scroll)
                 });
                 $element.animate({left: (left - 100) + "px", opacity: 0}, 100)
             }
@@ -954,9 +944,6 @@ function animateBack(id, scroll) {
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('back', $element);
     let left = $element[0].getBoundingClientRect().left;
-    let css = [];
-    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
-    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -965,12 +952,12 @@ function animateBack(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll, css);
+                    animateTimeout($element, $aux, scroll);
                 });
                 $element.animate({left: '100%'}, 300)
             } else {
                 $aux.animate({left: left + 'px', opacity: 1}, 150, () => {
-                    animateTimeout($element, $aux, scroll, css)
+                    animateTimeout($element, $aux, scroll)
                 });
                 $element.animate({opacity: 0}, 100);
             }
@@ -986,9 +973,6 @@ function animateFade(id, scroll) {
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
-    let css = [];
-    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
-    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -998,11 +982,11 @@ function animateFade(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
-                    animateTimeout($element, $aux, scroll, css)
+                    animateTimeout($element, $aux, scroll)
                 })
             } else {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll, css)
+                    animateTimeout($element, $aux, scroll)
                 })
             }
 
@@ -1019,9 +1003,6 @@ function animateNone(id, scroll) {
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
-    let css = [];
-    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
-    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -1029,7 +1010,7 @@ function animateNone(id, scroll) {
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
             $aux.animate({top: -(scroll - 70) + "px", left: 0, opacity: 1}, 0, () => {
-                animateTimeout($element, $aux, scroll, css)
+                animateTimeout($element, $aux, scroll)
             });
             $element.animate({opacity: 0, left: '100%'}, 0);
         }
