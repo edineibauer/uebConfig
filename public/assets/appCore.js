@@ -875,7 +875,6 @@ function defaultPageTransitionPosition(direction, $element) {
     let left = $element[0].getBoundingClientRect().left;
     $element.css({
         "min-height": (window.innerHeight - 120) + "px",
-        "max-width": window.innerWidth + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
@@ -899,9 +898,16 @@ function defaultPageTransitionPosition(direction, $element) {
     return $aux
 }
 
-function animateTimeout($element, $aux, scroll) {
+function animateTimeout($element, $aux, scroll, css) {
     $(".core-style:not(:last-of-type)").remove();
-    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial"});
+    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"});
+
+    if (typeof css === "object" && css.constructor === Array) {
+        $.each(css, function (i, e) {
+            $aux.css(e);
+        });
+    }
+
     $element.remove();
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
@@ -915,6 +921,9 @@ function animateForward(id, scroll) {
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('forward', $element);
     let left = $element[0].getBoundingClientRect().left;
+    let css = [];
+    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
+    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if ($aux.html() !== "") {
@@ -923,14 +932,14 @@ function animateForward(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll)
+                    animateTimeout($element, $aux, scroll, css)
                 });
                 $element.animate({left: '-100%'}, 300)
             } else {
-                $aux.animate({left: left + "px", opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll)
+                $aux.animate({left: left + "px", opacity: 1}, 150, () => {
+                    animateTimeout($element, $aux, scroll, css)
                 });
-                $element.animate({left: (left - 100) + "px", opacity: 0}, 200)
+                $element.animate({left: (left - 100) + "px", opacity: 0}, 100)
             }
         }
     }, 50);
@@ -945,6 +954,9 @@ function animateBack(id, scroll) {
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('back', $element);
     let left = $element[0].getBoundingClientRect().left;
+    let css = [];
+    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
+    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -953,14 +965,14 @@ function animateBack(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll);
+                    animateTimeout($element, $aux, scroll, css);
                 });
                 $element.animate({left: '100%'}, 300)
             } else {
-                $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll)
+                $aux.animate({left: left + 'px', opacity: 1}, 150, () => {
+                    animateTimeout($element, $aux, scroll, css)
                 });
-                $element.animate({opacity: 0}, 200);
+                $element.animate({opacity: 0}, 100);
             }
         }
     }, 50);
@@ -974,6 +986,9 @@ function animateFade(id, scroll) {
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
+    let css = [];
+    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
+    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -983,11 +998,11 @@ function animateFade(id, scroll) {
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
-                    animateTimeout($element, $aux, scroll)
+                    animateTimeout($element, $aux, scroll, css)
                 })
             } else {
-                $aux.animate({left: 0}, 0).animate({opacity: 1}, 300, () => {
-                    animateTimeout($element, $aux, scroll)
+                $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
+                    animateTimeout($element, $aux, scroll, css)
                 })
             }
 
@@ -1004,6 +1019,9 @@ function animateNone(id, scroll) {
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
     let $aux = defaultPageTransitionPosition('fade', $element);
+    let css = [];
+    css.push({'max-width': Math.round(parseFloat($element.css("max-width"))) > Math.round(parseFloat($element.css("width"))) ? $element.css("max-width") : (Math.round(parseFloat($element.css("width"))) < Math.round(parseFloat($element.parent().css("width"))) ? $element.css("width") : "100%")});
+    css.push({'overflow': $element.css("overflow")});
 
     let t = setInterval(function () {
         if (!app.loading) {
@@ -1011,7 +1029,7 @@ function animateNone(id, scroll) {
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
             $aux.animate({top: -(scroll - 70) + "px", left: 0, opacity: 1}, 0, () => {
-                animateTimeout($element, $aux, scroll)
+                animateTimeout($element, $aux, scroll, css)
             });
             $element.animate({opacity: 0, left: '100%'}, 0);
         }
@@ -1112,7 +1130,6 @@ var app = {
         return pageTransition(route, 'route', (typeof route === "undefined" ? 'fade' : 'forward'), $div, "", undefined, nav);
     }
 };
-
 
 /**
  *
@@ -1215,7 +1232,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 target = "#dashboard";
             }
 
-            if(historyReqPosition)
+            if (historyReqPosition)
                 animation = "none";
 
             /**
@@ -1236,14 +1253,14 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
             /**
              * Se tiver requisição de página específica, busca
              * */
-            if(historyReqPosition) {
+            if (historyReqPosition) {
                 let t = setInterval(function () {
-                    if(!aniTransitionPage) {
+                    if (!aniTransitionPage) {
                         /**
                          * Aguarda animação da página terminar para requisitar página desejável
                          * */
                         clearInterval(t);
-                        historyPosition = history.state.id + 1;
+                        historyPosition = -9;
                         history.go(historyReqPosition);
                         historyReqPosition = 0;
                     }
@@ -1297,7 +1314,7 @@ $(function () {
                      * Carrega página da navegação solicitada
                      * */
                     clearPage();
-                    let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : "forward");
+                    let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
                     pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
 
                 } else {
@@ -1356,7 +1373,7 @@ $(function () {
                 scriptCore.src = HOME + "assetsPublic/core.min.js";
                 document.head.appendChild(scriptCore);
             }).then(() => {
-                return app.loadView()
+                readRouteState();
 
             }).then(() => {
 
@@ -1381,7 +1398,7 @@ $(function () {
 
         return clearCache().then(() => {
             setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
-            return app.loadView()
+            readRouteState();
         })
     }
 
