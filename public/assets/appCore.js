@@ -886,7 +886,7 @@ function defaultPageTransitionPosition(direction, $element) {
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
-            $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 200) + 'px', opacity: 0}, 0);
+            $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 100) + 'px', opacity: 0}, 0);
         $element.animate({opacity: 1}, 0)
     } else if (direction === 'back') {
         if (window.innerWidth < 900)
@@ -927,10 +927,10 @@ function animateForward(id, scroll) {
                 });
                 $element.animate({left: '-100%'}, 300)
             } else {
-                $aux.animate({left: left + "px", opacity: 1}, 300, () => {
+                $aux.animate({left: left + "px", opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
                 });
-                $element.animate({left: "-100%", opacity: 0}, 200)
+                $element.animate({left: "-100px", opacity: 0}, 200)
             }
         }
     }, 50);
