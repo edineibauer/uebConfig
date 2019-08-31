@@ -930,7 +930,7 @@ function animateForward(id, scroll) {
                 $aux.animate({left: left + "px", opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
                 });
-                $element.animate({left: "-100px", opacity: 0}, 200)
+                $element.animate({left: (left - 100) + "px", opacity: 0}, 200)
             }
         }
     }, 50);
