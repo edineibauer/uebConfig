@@ -1426,7 +1426,7 @@ $(function () {
                         "position": "fixed",
                         "top": document.getElementById("core-header").getBoundingClientRect().top + "px"
                     })
-                    .animate({"top": 0}, 150);
+                    .animate({"top": 0}, 250);
             }
             lastPositionScroll = top;
         }
