@@ -409,7 +409,7 @@ function loginBtn() {
 function menuBottom(tpl) {
     let menu = [];
     if (HOMEPAGE === "0")
-        menu.push({href: HOME, rel: '/', text: "<i class='material-icons left'>home</i>"});
+        menu.push({href: HOME, rel: 'index', text: "<i class='material-icons left'>home</i>"});
     if (getCookie("token") !== "" && getCookie("token") !== "0")
         menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
     if (getCookie("setor") === "admin") {
@@ -839,9 +839,9 @@ function finishCache() {
 
 function checkMenuActive() {
     $("#core-menu-custom-bottom > li").removeClass("active");
-    $("#core-menu-custom-bottom > li[rel='" + app.route + "']").addClass("active");
+    $("#core-menu-custom-bottom > li[rel='" + app.file + "']").addClass("active");
     $("#core-menu-custom > li").removeClass("active theme-l1");
-    $("#core-menu-custom > li[rel='" + app.route + "']").addClass("active theme-l1");
+    $("#core-menu-custom > li[rel='" + app.file + "']").addClass("active theme-l1");
 }
 
 function checkFormNotSaved() {
