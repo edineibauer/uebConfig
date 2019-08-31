@@ -34,7 +34,6 @@
 <link rel='stylesheet' href='{$home}assetsPublic/core.min.css'>
 <link rel='stylesheet' href='{$home}assetsPublic/fonts.min.css'>
 
-<style type="text/css" id="core-style"></style>
 <script>
     const HOME = '{$home}';
     const DOMINIO = '{$dominio}';
