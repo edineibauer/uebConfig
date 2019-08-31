@@ -1135,8 +1135,9 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     target = typeof target === "string" ? target : "#core-content";
     param = (typeof param === "object" && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
+    setHistory = typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1;
     let file = route === "" ? "index" : route;
-    setHistory = (typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1) && ((route !== app.route && type === "route") || reload);
+    let novaRota = type !== "route" || route !== app.route;
 
     /**
      * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
@@ -1190,7 +1191,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         /**
          * Seta histórico da transação para poder voltar
          * */
-        if (setHistory)
+        if (setHistory && !reload && novaRota)
             history.pushState({
                 id: historyPosition++,
                 route: route,
