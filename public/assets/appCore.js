@@ -1137,12 +1137,8 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         /**
          * Seta histórico da transação para poder voltar
          * */
-        console.log(setHistory);
-        console.log(reload);
-        if (setHistory && !reload) {
+        if (setHistory && !reload)
             history.pushState({route: route, type: type, target: target, param: param, scroll: 0}, null, HOME + route);
-            console.log(route);
-        }
         /**
          * Carrega conteúdo
          * */
