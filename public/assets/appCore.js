@@ -870,7 +870,6 @@ function clearPage() {
     clearHeaderScrollPosition();
 }
 
-
 function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
@@ -964,7 +963,7 @@ function animateBack(id, scroll) {
                 $element.animate({opacity: 0}, 200);
             }
         }
-    }, 100);
+    }, 50);
 
     return $aux
 }
@@ -979,6 +978,7 @@ function animateFade(id, scroll) {
     let t = setInterval(function () {
         if (!app.loading) {
             clearInterval(t);
+
             scroll = typeof scroll !== "undefined" ? scroll : 0;
             $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
@@ -993,7 +993,30 @@ function animateFade(id, scroll) {
 
             $element.animate({opacity: 0, left: '100%'}, 0);
         }
-    }, 100);
+    }, 50);
+
+    return $aux
+}
+
+function animateNone(id, scroll) {
+    if (aniTransitionPage)
+        return aniTransitionPage;
+
+    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
+    let $aux = defaultPageTransitionPosition('fade', $element);
+
+    let t = setInterval(function () {
+        if (!app.loading) {
+            clearInterval(t);
+
+            scroll = typeof scroll !== "undefined" ? scroll : 0;
+            $aux.animate({top: -(scroll - 70) + "px", left: 0, opacity: 1}, 0, () => {
+                animateTimeout($element, $aux, scroll)
+            });
+            $element.animate({opacity: 0, left: '100%'}, 0);
+        }
+    }, 50);
+
     return $aux
 }
 
@@ -1003,6 +1026,8 @@ var aniTransitionPage = null;
 var checkUpdateInt = null;
 var lastPositionScroll = 0;
 var sentidoScrollDown = !1;
+var historyPosition = 1;
+var historyReqPosition = 0;
 
 /**
  * app global de navegação do app
@@ -1088,6 +1113,7 @@ var app = {
     }
 };
 
+
 /**
  *
  * @param route
@@ -1111,7 +1137,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1;
     let file = route === "" ? "index" : route;
-    let isNewPage = (app.route === "" || app.route !== route);
 
     /**
      * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
@@ -1127,88 +1152,174 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         app.file = file;
 
         /**
+         * Check if target exist
+         * */
+        if (!$(target).length) {
+
+            /**
+             * Busca última rota do tipo view (type = route)
+             * */
+            historyReqPosition++;
+            historyPosition = -2;
+            history.back();
+            return;
+        }
+
+        /**
          * Seta ou atualiza histórico atual com scroll Position
          * */
-        if(history.state === null)
-            history.replaceState({route: app.route, type: "route", target: "#core-content", param: "", scroll: scroll}, null, HOME + app.route);
-        else if(setHistory)
-            history.replaceState({route: history.state.route, type: history.state.type, target: history.state.target, param: history.state.param, scroll: scroll}, null, HOME + history.state.route);
+        if (history.length === 1)
+            history.replaceState({
+                id: 0,
+                route: app.route,
+                type: "route",
+                target: "#core-content",
+                param: "",
+                scroll: scroll
+            }, null, HOME + app.route);
+        else if (setHistory)
+            history.replaceState({
+                id: history.state.id,
+                route: history.state.route,
+                type: history.state.type,
+                target: history.state.target,
+                param: history.state.param,
+                scroll: scroll
+            }, null, HOME + history.state.route);
 
         /**
          * Seta histórico da transação para poder voltar
          * */
         if (setHistory && !reload)
-            history.pushState({route: route, type: type, target: target, param: param, scroll: 0}, null, HOME + route);
+            history.pushState({
+                id: historyPosition++,
+                route: route,
+                type: type,
+                target: target,
+                param: param,
+                scroll: 0
+            }, null, HOME + route);
+
         /**
          * Carrega conteúdo
          * */
         return Promise.all([]).then(() => {
 
-            if(file === "dashboard" && $(target).find("#dashboard").length) {
+            /**
+             * Em vez de recarregar a dashboard, recarrega somente o panel da dashboard
+             * código específico para melhorar a usabilidade da dashboard (navigation back)
+             * */
+            if (file === "dashboard" && $(target).find("#dashboard").length) {
                 file = "panel";
                 target = "#dashboard";
             }
+
+            if(historyReqPosition)
+                animation = "none";
 
             /**
              * Anima Transação
              * */
             let $page = window["animate" + ucFirst(animation)](target, scroll);
 
-            if(type === 'route') {
+            if (type === 'route') {
                 return app.applyView(file, $page);
-            } else if(type === 'grid') {
+            } else if (type === 'grid') {
                 $page.grid(history.state.route);
-            } else if(type === 'form') {
+            } else if (type === 'form') {
                 $page.form(history.state.route, history.state.param || undefined);
-            } else if(type === 'funcao') {
-                window[history.state.funcao](history.state.param !== ""? history.state.param : undefined);
+            } else if (type === 'funcao') {
+                window[history.state.funcao](history.state.param !== "" ? history.state.param : undefined);
+            }
+        }).then(() => {
+            /**
+             * Se tiver requisição de página específica, busca
+             * */
+            if(historyReqPosition) {
+                let t = setInterval(function () {
+                    if(!aniTransitionPage) {
+                        /**
+                         * Aguarda animação da página terminar para requisitar página desejável
+                         * */
+                        clearInterval(t);
+                        historyPosition = history.state.id + 1;
+                        history.go(historyReqPosition);
+                        historyReqPosition = 0;
+                    }
+                }, 50);
             }
         });
     }
 }
 
-if ('serviceWorker' in navigator) {
-    Promise.all([]).then(() => {
-        if (navigator.serviceWorker.controller) {
-            return navigator.serviceWorker.ready.then(function (swReg) {
-                swRegistration = swReg;
-            });
+/**
+ * Função para ler history state atual independente dos parâmetros
+ * caso a página não seja uma rota, retorna até encontrar rota
+ * e depois avança até a rota requisitada (historyReqPosition)
+ * */
+function readRouteState() {
+    if (history.state) {
+        if (history.state.type === "route") {
+            return pageTransition(history.state.route, history.state.type, "fade", history.state.target, history.state.param, history.state.scroll, !1);
         } else {
-            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-                swRegistration = swReg;
-            });
+
+            /**
+             * Seta valor que faz o navigation back cair nessa mesma função (recursivo)
+             * */
+            historyReqPosition++;
+            historyPosition = -2;
+            history.back();
         }
-    }).then(() => {
-        /**
-         * Check if have permission to send notification but not is registered on service worker
-         * */
-        swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription === null) {
-                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted" && PUSH_PUBLIC_KEY !== "" && PUSH_PRIVATE_KEY !== "")
-                        return subscribeUser(1);
-                });
-            }
-        });
-    });
+    } else {
+        return app.loadView()
+    }
 }
 
 $(function () {
     if (location.href !== HOME + "updateSystem") {
-
         window.onpopstate = function (event) {
-            if(event.state) {
-                /**
-                 * Carrega página da navegação solicitada
-                 * */
-                pageTransition(event.state.route, event.state.type, "back", event.state.target, event.state.param, event.state.scroll, !1);
+            if (event.state) {
+
+                if (historyPosition === -2) {
+                    /**
+                     * Busca última rota de view (type = route)
+                     * */
+                    readRouteState();
+
+                } else if (historyPosition === -1) {
+                    /**
+                     * Somente atualiza historyPosition
+                     * */
+
+                } else if (checkFormNotSaved()) {
+                    /**
+                     * Carrega página da navegação solicitada
+                     * */
+                    clearPage();
+                    let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : "forward");
+                    pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
+
+                } else {
+                    /**
+                     * navegação cancelada, volta state do history que já foi aplicado
+                     * */
+                    if (historyPosition < event.state.id)
+                        history.back();
+                    else
+                        history.forward();
+
+                    historyPosition = -1;
+                    return;
+                }
+
+                historyPosition = event.state.id + 1;
             }
         };
 
         $("body").off("click", "a").on("click", "a", function (e) {
             let url = $(this).attr("href").replace(HOME, '');
 
-            if(url === "#back"){
+            if (url === "#back") {
                 e.preventDefault();
                 history.back();
             } else {
