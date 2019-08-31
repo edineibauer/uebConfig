@@ -1136,7 +1136,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     param = (typeof param === "object" && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     let file = route === "" ? "index" : route;
-    setHistory = (typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1) && (route !== app.route || reload);
+    setHistory = (typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1) && ((route !== app.route && type === "route") || reload);
 
     /**
      * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
