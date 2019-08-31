@@ -1186,7 +1186,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         /**
          * Seta ou atualiza histórico atual com scroll Position
          * */
-        if (history.length === 1)
+        if (history.length === 1 || !history.state)
             history.replaceState({
                 id: 0,
                 route: app.route,
