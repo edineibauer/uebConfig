@@ -1019,6 +1019,32 @@ function animateNone(id, scroll) {
     return $aux
 }
 
+if ('serviceWorker' in navigator) {
+    Promise.all([]).then(() => {
+        if (navigator.serviceWorker.controller) {
+            return navigator.serviceWorker.ready.then(function (swReg) {
+                swRegistration = swReg;
+            });
+        } else {
+            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+                swRegistration = swReg;
+            });
+        }
+    }).then(() => {
+        /**
+         * Check if have permission to send notification but not is registered on service worker
+         * */
+        swRegistration.pushManager.getSubscription().then(function (subscription) {
+            if (subscription === null) {
+                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                    if (p === "granted" && PUSH_PUBLIC_KEY !== "" && PUSH_PRIVATE_KEY !== "")
+                        return subscribeUser(1);
+                });
+            }
+        });
+    });
+}
+
 var dicionarios;
 var swRegistration = null;
 var aniTransitionPage = null;
