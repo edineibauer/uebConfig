@@ -874,6 +874,7 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
         $fav = \WideImage\WideImage::load(PATH_HOME . str_replace($dados['home'], '', $dados['favicon']));
+        $fav->resize(512, 512, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-512.png");
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
         $fav->resize(152, 152, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-152.png");
