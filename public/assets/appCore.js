@@ -1037,7 +1037,7 @@ if ('serviceWorker' in navigator) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
             if (subscription === null) {
                 return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted" && PUSH_PUBLIC_KEY !== "" && PUSH_PRIVATE_KEY !== "")
+                    if (p === "granted" && PUSH_PUBLIC_KEY !== "")
                         return subscribeUser(1);
                 });
             }
