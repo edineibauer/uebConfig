@@ -416,9 +416,10 @@ function menuBottom(tpl) {
     }
 
     if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
-        $("#core-header-nav-bottom").remove();
+        $("#core-header-nav-bottom").removeClass('s-show');
         return;
     }
+    $("#core-header-nav-bottom").addClass('s-show');
 
     let content = "";
     for (let m in menu) {
@@ -877,13 +878,19 @@ function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
     $element.css({
-        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 && $("#core-menu-custom-bottom").length ? 50 : 0)) + "px",
+        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
         "left": left + "px",
         "overflow": "hidden"
     });
+
+    if(window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show"))
+        $("#core-content").addClass("mb-50");
+    else
+        $("#core-content").removeClass("mb-50");
+
     let $aux = $element.clone().css({"top": "70px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertBefore($element);
     $element.css("margin-top", 0);
     if (direction === 'forward') {
