@@ -1,3 +1,3 @@
-<li rel="{{rel}}">
-    <a href="{{href}}" class="{{class}}">{{text}}</a>
+<li rel="{{rel}}" class="{{class}}">
+    <a href="{{href}}" class="{{class}}">{{{text}}}</a>
 </li>

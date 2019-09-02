@@ -340,7 +340,6 @@ function closeSidebar() {
 }
 
 function openSidebar() {
-    $("#core-applications").html($("#mySidebar").length ? $("#mySidebar").find(".bar-block").html() : "");
     $("#core-overlay, #core-sidebar").addClass("active");
     // toggleIcon($(".core-open-menu").find(".icon"), true);
 }
@@ -375,9 +374,9 @@ function toggleSidebar(action = 'toggle') {
 function logoutDashboard() {
     if (navigator.onLine) {
         if (confirm("desconectar?"))
-            app.loadView(HOME + "logout", animateForward("#core-content"), !0);
+            pageTransition("logout", "route", 'back', "#core-content", null, null, !1);
     } else {
-        toast("Sem Conexão", 1200);
+        toast("Sem Conexão", 1200)
     }
 }
 
@@ -387,7 +386,7 @@ function sidebarUserInfo() {
     } else {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
-    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("nome");
+    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
     document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
@@ -400,9 +399,9 @@ function loginBtn() {
         btnLoginAside.children[0].innerHTML = "exit_to_app"
     } else {
         btnLoginAside.onclick = function () {
-            app.loadView(HOME + "login", animateForward("#core-content"), !0);
+            pageTransition("login", "route", "forward", "#core-content", null, null, !1);
         };
-        btnLoginAside.children[0].innerHTML = "person"
+        btnLoginAside.children[0].innerHTML = "input"
     }
 }
 
@@ -415,19 +414,19 @@ function menuBottom(tpl) {
     if (getCookie("setor") === "admin") {
         menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
     }
-    menu.push({
-        rel: '',
-        funcao: 'toggleSidebar',
-        text: "<i class='material-icons left'>perm_identity</i>"
-    });
+
+    if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
+        $("#core-header-nav-bottom").remove();
+        return;
+    }
 
     let content = "";
     for (let m in menu) {
         if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
             if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux")
+                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
             } else {
-                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux")
+                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
             }
         }
     }
@@ -448,25 +447,29 @@ function menuHeader() {
             menu.push({
                 href: HOME + 'dashboard',
                 rel: 'dashboard',
+                class: 's-hide',
                 text: "<i class='material-icons left'>dashboard</i>"
             });
 
             if (getCookie("setor") === "admin") {
-                menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+                menu.push({href: HOME + 'UIDev', rel: 'UIDev', class: 's-hide', text: "<i class='material-icons left'>settings</i>"});
                 menu.push({
                     href: HOME + 'UIEntidades',
+                    class: 's-hide',
                     rel: 'UIEntidades',
                     text: "<i class='material-icons left'>accessibility_new</i>"
                 });
             }
         }
+        menu.push({rel: '', funcao: 'toggleSidebar', text: (getCookie("imagem") !== "" ? "<img src='" + getCookie("imagem") + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons left'>perm_identity</i>")});
+
         let content = "";
         for (let m in menu) {
             if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
                 if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
                 } else {
-                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{text}}", menu[m].text).replace("{{class}}", "theme-text-aux");
+                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
                 }
             }
         }
@@ -874,7 +877,7 @@ function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
     $element.css({
-        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 ? 50 : 0)) + "px",
+        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 && $("#core-menu-custom-bottom").length ? 50 : 0)) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
@@ -893,7 +896,7 @@ function defaultPageTransitionPosition(direction, $element) {
         $element.animate({opacity: 1}, 0)
     } else if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
-        $element.animate({opacity: 0}, 0)
+        $element.animate({opacity: 1}, 0)
     }
     return $aux
 }
@@ -1154,7 +1157,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     type = typeof type === "string" ? type : "route";
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
-    param = (typeof param === "object" && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
+    param = (typeof param === "object" && param !== null && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1;
     let file = route === "" ? "index" : route;
@@ -1163,7 +1166,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     /**
      * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
      * */
-    if (checkFormNotSaved() && !app.loading) {
+    if (checkFormNotSaved() && !app.loading && !aniTransitionPage) {
 
         /**
          * Limpa dados, seta padrão de carregamento de nova página
@@ -1347,7 +1350,7 @@ $(function () {
                 e.preventDefault();
                 history.back();
             } else {
-                let animation = $(this).attr("data-animation") || "forward";
+                let animation = $(this).attr("data-animation") || "fade";
                 let p = new RegExp(/^#/i);
                 let pjs = new RegExp(/^javascript/i);
                 if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {

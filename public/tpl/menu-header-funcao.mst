@@ -1,3 +1,3 @@
-<li rel="{{rel}}">
-    <span onclick="{{funcao}}()" class="{{class}}">{{text}}</span>
+<li rel="{{rel}}" class="{{class}}">
+    <span onclick="{{funcao}}()" class="{{class}}">{{{text}}}</span>
 </li>
