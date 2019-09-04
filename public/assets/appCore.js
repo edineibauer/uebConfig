@@ -1157,59 +1157,36 @@ var app = {
  * @returns {Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>}
  */
 function pageTransition(route, type, animation, target, param, scroll, setHistory) {
-
     let reload = typeof route === "undefined";
     route = (typeof route === "string" ? route : location.href).replace(HOME, '');
     route = route === "/" ? "" : route;
     type = typeof type === "string" ? type : "route";
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
-    param = (typeof param === "object" && param !== null && param.constructor === Array ? param.join(', ') : typeof param === "string" ? param : "");
+    param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
-    setHistory = typeof setHistory === "undefined" || ["false", "0", 0, false].indexOf(setHistory) === -1;
+    setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
-
-    /**
-     * Verifica se a transição de página pode ser efetuada sem nenhuma pendência
-     * */
     if (checkFormNotSaved() && !app.loading && !aniTransitionPage) {
-
-        /**
-         * Limpa dados, seta padrão de carregamento de nova página
-         * */
         clearPage();
-
         app.route = route;
         app.file = file;
-
-        /**
-         * Check if target exist
-         * */
         if (!$(target).length) {
-
-            /**
-             * Busca última rota do tipo view (type = route)
-             * */
             historyReqPosition++;
             historyPosition = -2;
             history.back();
-            return;
+            return
         }
-
-        /**
-         * Seta ou atualiza histórico atual com scroll Position
-         * */
         if (history.length === 1 || !history.state)
             history.replaceState({
                 id: 0,
                 route: app.route,
                 type: "route",
                 target: "#core-content",
-                param: "",
+                param: {},
                 scroll: scroll
-            }, null, HOME + app.route);
-        else if (setHistory)
+            }, null, HOME + app.route); else if (setHistory)
             history.replaceState({
                 id: history.state.id,
                 route: history.state.route,
@@ -1218,10 +1195,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 param: history.state.param,
                 scroll: scroll
             }, null, HOME + history.state.route);
-
-        /**
-         * Seta histórico da transação para poder voltar
-         * */
         if (setHistory && !reload && novaRota)
             history.pushState({
                 id: historyPosition++,
@@ -1231,58 +1204,106 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 param: param,
                 scroll: 0
             }, null, HOME + route);
-
-        /**
-         * Carrega conteúdo
-         * */
         return Promise.all([]).then(() => {
-
-            /**
-             * Em vez de recarregar a dashboard, recarrega somente o panel da dashboard
-             * código específico para melhorar a usabilidade da dashboard (navigation back)
-             * */
             if (file === "dashboard" && $(target).find("#dashboard").length) {
                 file = "panel";
-                target = "#dashboard";
+                target = "#dashboard"
             }
-
             if (historyReqPosition)
                 animation = "none";
-
-            /**
-             * Anima Transação
-             * */
             let $page = window["animate" + ucFirst(animation)](target, scroll);
 
             if (type === 'route') {
-                return app.applyView(file, $page);
+                return app.applyView(file, $page)
             } else if (type === 'grid') {
-                $page.grid(history.state.route);
+                $page.grid(history.state.route)
             } else if (type === 'form') {
-                $page.form(history.state.route, history.state.param || undefined);
-            } else if (type === 'funcao') {
-                window[history.state.funcao](history.state.param !== "" ? history.state.param : undefined);
+
+                let id = typeof param === "object" && typeof param.id !== "undefined" && !isNaN(param.id) ? parseInt(param.id) : "";
+                let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
+                let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
+                let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
+                let data = (typeof param === "object" && typeof param.data === "object" ? Object.assign({id: id}, param.data) : null );
+
+                /**
+                 * ## Identificador ##
+                 * Recebe identificador por parâmetro
+                 * Busca identificador no history, ou cria um novo
+                 * */
+                let identificador = "";
+                if(typeof param === "object" && typeof param.identificador === "string") {
+                    identificador = param.identificador;
+                    history.state.param.identificador = identificador;
+                    history.replaceState(history.state, null, HOME + app.route);
+
+                } else if(typeof history.state.param === "object" && typeof history.state.param.identificador !== "undefined") {
+                    identificador = history.state.param.identificador;
+
+                } else {
+                    identificador = Math.floor((Math.random() * 1000)) + "" + Date.now();
+                    history.state.param.identificador = identificador;
+                    history.replaceState(history.state, null, HOME + app.route);
+                }
+
+                /**
+                 * Dados do formulário relacional recebido,
+                 * atualiza history com os novos dados
+                 * */
+                if(!isEmpty(form) && form.saved && isEmpty(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador) {
+                    //form foi salvo, não tem erros e é o correto
+
+                    //caso a coluna relacional não seja um array, cria array
+                    if(typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
+                        data[history.state.param.openForm.column] = [];
+
+                    //atualiza ou cria registro dentro da coluna relacional
+                    let isUpdate = !1;
+                    if(data[history.state.param.openForm.column].length) {
+                        $.each(data[history.state.param.openForm.column], function(i, e) {
+                            if(isUpdate = e.id == form.data.id) {
+                                data[history.state.param.openForm.column].pushTo(form.data, i);
+                                return !1;
+                            }
+                        });
+                    }
+
+                    if(!isUpdate)
+                        data[history.state.param.openForm.column].push(form.data);
+
+                    //adiciona valor do formulário relacional e atualiza history
+                    delete history.state.param.openForm;
+                    history.state.param.data = data;
+                    history.replaceState(history.state, null, HOME + app.route);
+                }
+
+                /**
+                 * Gera formulário
+                 * */
+                form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
+
+                if(data) {
+                    form.setData(data);
+                    id = "";
+                }
+
+                form.show(id);
+
+                // } else if (type === 'funcao') {
+                //     window[history.state.funcao](history.state.param !== "" ? history.state.param : undefined)
             }
         }).then(() => {
             checkMenuActive();
-
-            /**
-             * Se tiver requisição de página específica, busca
-             * */
             if (historyReqPosition) {
                 let t = setInterval(function () {
                     if (!aniTransitionPage) {
-                        /**
-                         * Aguarda animação da página terminar para requisitar página desejável
-                         * */
                         clearInterval(t);
                         historyPosition = -9;
                         history.go(historyReqPosition);
-                        historyReqPosition = 0;
+                        historyReqPosition = 0
                     }
-                }, 50);
+                }, 50)
             }
-        });
+        })
     }
 }
 
