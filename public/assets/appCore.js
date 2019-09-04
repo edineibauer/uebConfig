@@ -909,7 +909,9 @@ function defaultPageTransitionPosition(direction, $element) {
 }
 
 function animateTimeout($element, $aux, scroll) {
-    $(".core-style:not(:last-of-type)").remove();
+    if($(".core-style").length > 1)
+        $(".core-style:not(:last-of-type)").remove();
+
     $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"});
     $element.remove();
     aniTransitionPage = null;
