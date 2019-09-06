@@ -1076,9 +1076,11 @@ var app = {
     removeLoading: function ($div) {
         app.loading = !1;
         $("#core-loader").css("display", "none");
+        $("#core-content").animate({"opacity": 1}, 200);
     }, setLoading: function ($div) {
         app.loading = !0;
         $("#core-loader").css("display", "block");
+        $("#core-content").animate({"opacity": .5}, 200);
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
