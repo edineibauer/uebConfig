@@ -931,7 +931,6 @@ function animateForward(id, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            $aux.animate({top: -(scroll - 70) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, scroll)
