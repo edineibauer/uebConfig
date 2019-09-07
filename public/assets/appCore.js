@@ -1454,22 +1454,19 @@ $(function () {
 
     window.onscroll = function () {
         if (window.innerWidth < 994) {
-            let top = $(window).scrollTop();
-            if (lastPositionScroll < top) {
+            if (lastPositionScroll < $(window).scrollTop()) {
                 if (!sentidoScrollDown) {
                     headerScrollFixed(!0);
-                    $("#core-header").stop().css("position", "absolute")
+                    $("#core-header").css("position", "absolute");
                 }
-            } else if (sentidoScrollDown) {
-                headerScrollFixed(!1);
-                $("#core-header")
-                    .css({
-                        "position": "fixed",
-                        "top": document.getElementById("core-header").getBoundingClientRect().top + "px"
-                    })
-                    .animate({"top": 0}, 250);
+            } else {
+                if (sentidoScrollDown) {
+                    headerScrollFixed(!1);
+                } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
+                    $("#core-header").css({"position": "fixed", "top": 0});
+                }
             }
-            lastPositionScroll = top;
+            lastPositionScroll = $(window).scrollTop();
         }
     }
 });
