@@ -862,16 +862,11 @@ function checkMenuActive() {
 }
 
 function checkFormNotSaved() {
-    if (typeof forms !== "undefined" && forms.constructor === Array) {
-        for (let ff in forms) {
-            if (typeof forms[ff] === "object" && forms[ff].id === "") {
-                if (!confirm("Excluir o cadastro em aberto?"))
-                    return !1;
-            }
-            break;
-        }
+    if (typeof form === "object" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Formulário não salvo! sair mesmo assim?")) {
+        checkformSaved = !0;
+        return !1;
     }
-    return !0;
+    return !0
 }
 
 function clearHeaderScrollPosition() {
