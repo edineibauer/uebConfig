@@ -21,6 +21,19 @@ function convertEmptyArrayToNull(param) {
     return param
 }
 
+function readFile(file) {
+    return new Promise((s, f) => {
+        if (!file)
+            return;
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            s(e.target.result);
+        };
+        reader.readAsText(file);
+    });
+}
+
 function post(lib, file, param, funcao) {
     if (typeof funcao === "undefined" && typeof param !== 'object') {
         funcao = param;
