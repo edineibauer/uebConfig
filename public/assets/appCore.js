@@ -862,7 +862,7 @@ function checkMenuActive() {
 }
 
 function checkFormNotSaved() {
-    if (typeof form === "object" && typeof checkformSaved !== "undefined" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Alterações não Salvas! Sair mesmo assim?")) {
+    if (typeof form === "object" && typeof checkformSaved !== "undefined" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Alterações não salvas. Sair mesmo assim?")) {
         return !1
     }
     checkformSaved = !0;
