@@ -322,7 +322,7 @@ function checkUpdate() {
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update")) {
                     clearInterval(checkUpdateInt);
-                    toast("<div class='left'>Nova versão</div><button class='right btn btn-small radius-jumbo color-gray-dark' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
+                    toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
                 }
                 resolve(1);
             }
