@@ -506,7 +506,7 @@ const dbRemote = {
                             let msg = "Registro atualizado";
                             if(fail === 0 && total > 1) {
                                 msg = "Todos os registros atualizados";
-                            } else {
+                            } else if(fail !== 0) {
                                 msg = (total > 1 ? "Erro ao atualizar: " + fail + " de " + total : "Erro ao atualizar");
                             }
 
