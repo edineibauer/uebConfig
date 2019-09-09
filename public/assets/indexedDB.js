@@ -403,7 +403,7 @@ const dbRemote = {
                     let failNetwork = !1;
                     if (feedback) {
                         $("#core-upload-progress").addClass("active");
-                        toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>0</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
+                        toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>0</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
                     }
                     $.each(dadosSync, function (i, d) {
                         let dataToSend = [];
@@ -423,7 +423,7 @@ const dbRemote = {
                                         if (data.response === 1 && typeof data.data === "object") {
                                             count++;
                                             if ($("#core-count-progress").length)
-                                                $("#core-count-progress").html(count); else toast("<div class='left'><div class='left'>Enviando</div><div id='core-count-progress' class='left'>" + count + "</div><div class='left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
+                                                $("#core-count-progress").html(count); else toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>" + count + "</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
                                         } else if (feedback) {
                                             fail++
                                         }
