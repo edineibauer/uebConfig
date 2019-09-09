@@ -862,10 +862,10 @@ function checkMenuActive() {
 }
 
 function checkFormNotSaved() {
-    if (typeof form === "object" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Formulário não salvo! sair mesmo assim?")) {
-        checkformSaved = !0;
-        return !1;
+    if (typeof form === "object" && typeof checkformSaved !== "undefined" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Alterações não Salvas! Sair mesmo assim?")) {
+        return !1
     }
+    checkformSaved = !0;
     return !0
 }
 
