@@ -143,8 +143,10 @@ function view(file, funcao) {
 }
 
 function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    let element = document.createElement('a');
+    let blobData = new Blob(['\ufeff'+text], { type: 'application/vnd.ms-excel' });
+    let url = window.URL.createObjectURL(blobData);
+    element.setAttribute('href', url);
     element.setAttribute('download', filename);
     element.setAttribute('target', '_blank');
     element.style.display = 'none';
