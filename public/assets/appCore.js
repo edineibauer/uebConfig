@@ -933,12 +933,12 @@ function animateForward(id, scroll) {
 
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll)
+                    animateTimeout($element, $aux, 0)
                 });
                 $element.animate({left: '-100%'}, 300)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 150, () => {
-                    animateTimeout($element, $aux, scroll)
+                    animateTimeout($element, $aux, 0)
                 });
                 $element.animate({left: (left - 100) + "px", opacity: 0}, 100)
             }
