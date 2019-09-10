@@ -64,6 +64,24 @@ function exeReadApplyFilter(data, filter) {
     return dataFiltered;
 }
 
+function moveSyncInfoToDb(entity, id) {
+    id = typeof id === "undefined" || isNaN(a) ? null : id;
+
+    let readData = (id ? dbLocal.exeRead('sync_' + entity, id) : dbLocal.exeRead('sync_' + entity));
+    return Promise.all([readData]).then(dadosSync => {
+        dadosSync = (typeof id === "number" ? dadosSync : dadosSync[0]);
+
+        if (!dadosSync.length)
+            return;
+
+        $.each(dadosSync, function (i, d) {
+            moveSyncDataToDb(entity, d, !1);
+        });
+
+        return dadosSync;
+    });
+}
+
 function exeRead(entity, filter, order, reverse, limit, offset) {
     filter = typeof filter === "object" ? filter : {};
     order = typeof order === "string" ? order : "id";
@@ -115,11 +133,14 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             }
 
                             moveSyncDataToDb(entity, dados.data).then(() => {
-                                resolve({
-                                    data: dados.data,
-                                    lenght: dados.data.length,
-                                    total: dados.total,
-                                });
+                                if(offset === -1) {
+                                    moveSyncInfoToDb(entity).then(syncD => {
+                                        let dd = syncD.concat(dados.data);
+                                        resolve({data: dd, lenght: dd.length, total: dados.total})
+                                    })
+                                } else {
+                                    resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
+                                }
                             });
                         } else {
                             toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
