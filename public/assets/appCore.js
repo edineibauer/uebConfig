@@ -1181,7 +1181,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
-    if (checkFormNotSaved() && !app.loading && !aniTransitionPage) {
+    if (!app.loading && !aniTransitionPage) {
         clearPage();
         app.route = route;
         app.file = file;
