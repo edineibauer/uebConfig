@@ -135,7 +135,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             moveSyncDataToDb(entity, dados.data).then(() => {
                                 if(offset === -1) {
                                     moveSyncInfoToDb(entity).then(syncD => {
-                                        let dd = syncD.concat(dados.data);
+                                        let dd = (syncD ? syncD.concat(dados.data) : dados.data);
                                         resolve({data: dd, lenght: dd.length, total: dados.total})
                                     })
                                 } else {
