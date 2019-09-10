@@ -305,8 +305,7 @@ const db = {
                 return Promise.all(allDelete).then(() => {
                     if (ids.length) {
                         return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
-                            if (AUTOSYNC)
-                                dbRemote.syncPost(entity)
+                            // dbRemote.syncPost(entity)
                         })
                     }
                 })
@@ -320,8 +319,7 @@ const db = {
                             return dbLocal.exeDelete("sync_" + entity, id)
                         }
                     }).then(() => {
-                        if (AUTOSYNC)
-                            dbRemote.syncPost(entity);
+                        // dbRemote.syncPost(entity);
                     })
                 });
             }
