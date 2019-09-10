@@ -842,7 +842,7 @@ function syncDataBtn(entity) {
             if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
                 $.each(grids, function (i, e) {
                     if (typeof entity === "undefined" || e.entity === entity)
-                        e.reload(1);
+                        e.reload();
                 })
             }
         })
