@@ -645,7 +645,7 @@ function getIdAction(entity, id) {
             return [key, 'create']
         })
     } else {
-        return db.exeRead("sync_" + entity, id).then(d => {
+        return dbLocal.exeRead("sync_" + entity, id).then(d => {
             if (isEmpty(d)) {
                 return db.exeRead(entity, id).then(d => {
                     return [parseInt(id), (isEmpty(d) ? 'create' : 'update')]
