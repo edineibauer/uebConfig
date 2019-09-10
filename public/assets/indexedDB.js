@@ -201,6 +201,11 @@ function checkToUpdateDbLocal(entity) {
 
 const db = {
     exeRead(entity, key) {
+        let Reg = new RegExp('^(sync_|__)', 'i');
+        if(Reg.test(entity)) {
+            toast("[Erro de programação] não é possível LER registros Sync Online.", 5000, "toast-error");
+            return;
+        }
         key = typeof key === "string" ? parseInt(key) : key;
         return dbLocal.exeRead('__historic', 1).then(hist => {
             if (typeof hist[entity] === "undefined") {
