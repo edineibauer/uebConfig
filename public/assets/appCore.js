@@ -1284,7 +1284,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                                 }));
                                 return !1
                             }
-                        })
+                        });
                     }
                 }
 
@@ -1307,6 +1307,9 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                         id = ""
                     }
                     form.show(id);
+
+                    if(haveFormRelation)
+                        form.saved = !1;
                 });
             }
         }).then(() => {
