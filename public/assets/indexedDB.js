@@ -232,15 +232,13 @@ const db = {
             if (typeof hist[entity] === "undefined") {
                 return this.exeReadOnline(entity, key)
             } else {
-                if (AUTOSYNC) {
-                    dbRemote.syncDownload(entity).then(h => {
-                        if (h !== 0) {
-                            let historic = {};
-                            historic[entity] = h;
-                            dbLocal.exeUpdate('__historic', historic, 1);
-                        }
-                    });
-                }
+                dbRemote.syncDownload(entity).then(h => {
+                    if (h !== 0) {
+                        let historic = {};
+                        historic[entity] = h;
+                        dbLocal.exeUpdate('__historic', historic, 1);
+                    }
+                });
                 return dbLocal.exeRead(entity, key).then(d => {
                     if (d.length === 0) {
                         delete (hist[entity]);
@@ -276,7 +274,7 @@ const db = {
             }).then(() => {
                 dados.db_action = action;
                 return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
-                    if (AUTOSYNC && sync)
+                    if (sync)
                         return dbRemote.syncPost(entity, dados.id);
                     return dados;
                 });
@@ -400,8 +398,21 @@ const dbRemote = {
                     })
                 } else {
                     return moveSyncDataToDb(entity, response.data).then(() => {
-                        return response.historic;
-                    })
+                        let promisses = [];
+                        $.each(response.data, function(i, e) {
+                            promisses.push(dbLocal.exeRead("sync_" + entity, parseInt(e.id)).then(s => {
+                                if(!isEmpty(s)) {
+                                    return dbLocal.exeDelete("sync_" + entity, s.id).then(() => {
+                                        delete s.id;
+                                        return db.exeCreate(entity, s, !1);
+                                    })
+                                }
+                            }));
+                        });
+                        return Promise.all(promisses).then(() => {
+                            return response.historic
+                        });
+                    });
                 }
             }).then(response => {
                 return response;
