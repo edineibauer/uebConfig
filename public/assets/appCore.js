@@ -1262,47 +1262,52 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                  * Dados do formulário relacional recebido,
                  * atualiza history com os novos dados
                  * */
-                if(!isEmpty(form) && form.saved && isEmpty(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador) {
-                    //form foi salvo, não tem erros e é o correto
+                let promisses = [];
+                let haveFormRelation = (!isEmpty(form) && form.saved && formNotHaveError(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador);
+                let isUpdateFormRelation = !1;
 
-                    //caso a coluna relacional não seja um array, cria array
-                    if(typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
+                if (haveFormRelation) {
+                    if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
                         data[history.state.param.openForm.column] = [];
 
-                    //atualiza ou cria registro dentro da coluna relacional
-                    let isUpdate = !1;
-                    if(data[history.state.param.openForm.column].length) {
-                        $.each(data[history.state.param.openForm.column], function(i, e) {
-                            if(isUpdate = e.id == form.data.id) {
-                                data[history.state.param.openForm.column].pushTo(form.data, i);
-                                return !1;
+                    if (data[history.state.param.openForm.column].length) {
+                        $.each(data[history.state.param.openForm.column], function (i, e) {
+                            if (isUpdateFormRelation = (e.id == form.data.id)) {
+
+                                promisses.push(getRelevantTitle(form.entity, form.data).then(title => {
+                                    form.data.columnTituloExtend = title;
+                                    form.data.columnName = history.state.param.openForm.column;
+                                    form.data.columnRelation = history.state.param.openForm.entity;
+                                    form.data.columnStatus = {column: '', have: !1, value: !1}
+
+                                    data[history.state.param.openForm.column].pushTo(form.data, i);
+                                }));
+                                return !1
                             }
-                        });
+                        })
+                    }
+                }
+
+                Promise.all(promisses).then(() => {
+                    if(haveFormRelation) {
+                        if (!isUpdateFormRelation)
+                            data[history.state.param.openForm.column].push(form.data);
+
+                        delete history.state.param.openForm;
+                        history.state.param.data = data;
+                        history.replaceState(history.state, null, HOME + app.route)
                     }
 
-                    if(!isUpdate)
-                        data[history.state.param.openForm.column].push(form.data);
-
-                    //adiciona valor do formulário relacional e atualiza history
-                    delete history.state.param.openForm;
-                    history.state.param.data = data;
-                    history.replaceState(history.state, null, HOME + app.route);
-                }
-
-                /**
-                 * Gera formulário
-                 * */
-                form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
-
-                if(data) {
-                    form.setData(data);
-                    id = "";
-                }
-
-                form.show(id);
-
-                // } else if (type === 'funcao') {
-                //     window[history.state.funcao](history.state.param !== "" ? history.state.param : undefined)
+                    /**
+                     * Gera formulário
+                     * */
+                    form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
+                    if (data) {
+                        form.setData(data);
+                        id = ""
+                    }
+                    form.show(id);
+                });
             }
         }).then(() => {
             checkMenuActive();
