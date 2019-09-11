@@ -404,7 +404,12 @@ const dbRemote = {
                                 if(!isEmpty(s)) {
                                     return dbLocal.exeDelete("sync_" + entity, s.id).then(() => {
                                         delete s.id;
-                                        return db.exeCreate(entity, s, !1);
+                                        return db.exeCreate(entity, s, !1).then(syncData => {
+                                            if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length) {
+                                                //erro
+                                                dbLocal.exeCreate("error_" + entity, s);
+                                            }
+                                        });
                                     })
                                 }
                             }));
