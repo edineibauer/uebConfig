@@ -863,11 +863,13 @@ function syncDataBtn(entity) {
 
     if (navigator.onLine) {
         dbRemote.sync(entity, null, !0).then(isUpdated => {
-            if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined" && grids.length) {
-                $.each(grids, function (i, e) {
-                    if (typeof entity === "undefined" || e.entity === entity)
-                        e.reload();
-                })
+            if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined") {
+                for(let i in grids) {
+                    if(typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
+                        grids[i].reload();
+                        break;
+                    }
+                }
             }
         })
     } else {
