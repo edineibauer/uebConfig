@@ -90,75 +90,77 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     limit = limit > parseInt(LIMITOFFLINE) ? parseInt(LIMITOFFLINE) : limit;
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
-    return dbLocal.exeRead(entity).then(data => {
-        if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
-            return new Promise(function (resolve, reject) {
-                //online
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {
-                        lib: "entity",
-                        file: "load/entity",
-                        entity: entity,
-                        filter: filter,
-                        order: order,
-                        reverse: reverse,
-                        limit: limit,
-                        offset: offset,
-                        historic: null
-                    },
-                    success: function (dados) {
-                        if (dados.response === 1 && dados.data.historic !== 0) {
-                            dados = dados.data;
-                            let hist = {};
-                            hist[entity] = dados.historic;
-                            dbLocal.exeUpdate("__historic", hist, 1);
+    return dbRemote.syncDownload(entity).then(() => {
+        return dbLocal.exeRead(entity).then(data => {
+            if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
+                return new Promise(function (resolve, reject) {
+                    //online
+                    $.ajax({
+                        type: "POST",
+                        url: HOME + 'set',
+                        data: {
+                            lib: "entity",
+                            file: "load/entity",
+                            entity: entity,
+                            filter: filter,
+                            order: order,
+                            reverse: reverse,
+                            limit: limit,
+                            offset: offset,
+                            historic: null
+                        },
+                        success: function (dados) {
+                            if (dados.response === 1 && dados.data.historic !== 0) {
+                                dados = dados.data;
+                                let hist = {};
+                                hist[entity] = dados.historic;
+                                dbLocal.exeUpdate("__historic", hist, 1);
 
-                            if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
+                                if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
 
-                                let contRemoved = 0;
-                                for (let t in dados.data) {
-                                    if (typeof dados.data[t] === "object") {
-                                        dbLocal.exeDelete(entity, dados.data[t].id);
-                                        contRemoved++;
+                                    let contRemoved = 0;
+                                    for (let t in dados.data) {
+                                        if (typeof dados.data[t] === "object") {
+                                            dbLocal.exeDelete(entity, dados.data[t].id);
+                                            contRemoved++;
+                                        }
+                                    }
+
+                                    let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length - contRemoved;
+                                    for (let i = 0; i < delNum; i++) {
+                                        if (typeof data[i] === "object")
+                                            dbLocal.exeDelete(entity, data[i].id)
                                     }
                                 }
 
-                                let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length - contRemoved;
-                                for (let i = 0; i < delNum; i++) {
-                                    if (typeof data[i] === "object")
-                                        dbLocal.exeDelete(entity, data[i].id)
-                                }
+                                moveSyncDataToDb(entity, dados.data).then(() => {
+                                    if(offset === -1) {
+                                        moveSyncInfoToDb(entity).then(syncD => {
+                                            let dd = (syncD ? syncD.concat(dados.data) : dados.data);
+                                            resolve({data: dd, lenght: dd.length, total: dados.total})
+                                        })
+                                    } else {
+                                        resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
+                                    }
+                                });
+                            } else {
+                                toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
+                                resolve(readOffline(data, filter, order, reverse, limit, offset));
                             }
-
-                            moveSyncDataToDb(entity, dados.data).then(() => {
-                                if(offset === -1) {
-                                    moveSyncInfoToDb(entity).then(syncD => {
-                                        let dd = (syncD ? syncD.concat(dados.data) : dados.data);
-                                        resolve({data: dd, lenght: dd.length, total: dados.total})
-                                    })
-                                } else {
-                                    resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
-                                }
-                            });
-                        } else {
+                        },
+                        error: function (e) {
                             toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
-                        }
-                    },
-                    error: function (e) {
-                        toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
-                        resolve(readOffline(data, filter, order, reverse, limit, offset));
-                    },
-                    dataType: "json",
-                });
-            })
+                        },
+                        dataType: "json",
+                    });
+                })
 
-        } else {
-            //offline
-            return readOffline(data, filter, order, reverse, limit, offset);
-        }
+            } else {
+                //offline
+                return readOffline(data, filter, order, reverse, limit, offset);
+            }
+        });
     });
 }
 
