@@ -311,8 +311,8 @@ const db = {
                     if (idSync.length) {
                         allDelete = [];
                         $.each(idSync, function (i, ii) {
-                            allDelete.push(dbLocal.exeCreate("sync_" + entity, {'id': ii, 'db_action': 'delete'}).then(() => {
-                                dbRemote.syncPost(entity, ii);
+                            allDelete.push(dbLocal.exeCreate("sync_" + entity, {'id': ii, 'db_action': 'delete'}).then(id => {
+                                dbRemote.syncPost(entity, id);
                             }));
                         });
 
