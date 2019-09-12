@@ -283,43 +283,42 @@ const db = {
     }, exeDelete(entity, id) {
         return dbLocal.exeRead("__react").then(react => {
             let allDelete = [];
-            if (id.constructor === Array) {
-                let ids = [];
-                for (let k in id) {
-                    if (!isNaN(id[k]) && id[k] > 0) {
-                        let idU = parseInt(id[k]);
+            let ids = [];
+            let idSync = [];
+
+            //Aceita id sendo número ou array
+            if(typeof id !== "undefined" && !isNaN(id) && id > 0)
+                ids.push(id);
+            else if(typeof id === "object" && id !== null && id.constructor === Array)
+                ids = id;
+
+            if(ids.length) {
+                for (let k in ids) {
+                    if (!isNaN(ids[k]) && ids[k] > 0) {
+                        let idU = parseInt(ids[k]);
                         allDelete.push(deleteDB(entity, idU, react).then(() => {
                             return dbLocal.exeRead("sync_" + entity, idU).then(d => {
                                 if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === "update") {
-                                    ids.push(idU);
+                                    idSync.push(idU)
                                 } else if (d.db_action === "create") {
                                     return dbLocal.exeDelete("sync_" + entity, idU)
                                 }
                             })
-                        }));
+                        }))
                     }
                 }
-
                 return Promise.all(allDelete).then(() => {
-                    if (ids.length) {
-                        return dbLocal.exeCreate("sync_" + entity, {'id': ids, 'db_action': 'delete'}).then(() => {
-                            // dbRemote.syncPost(entity)
-                        })
+                    if (idSync.length) {
+                        allDelete = [];
+                        $.each(idSync, function (i, ii) {
+                            allDelete.push(dbLocal.exeCreate("sync_" + entity, {'id': ii, 'db_action': 'delete'}).then(() => {
+                                dbRemote.syncPost(entity, ii);
+                            }));
+                        });
+
+                        return Promise.all(allDelete);
                     }
                 })
-            } else if (!isNaN(id) && id > 0) {
-                id = parseInt(id);
-                return deleteDB(entity, id, react).then(() => {
-                    return dbLocal.exeRead("sync_" + entity, id).then(sync => {
-                        if ((Object.entries(sync).length === 0 && sync.constructor === Object) || d.db_action === "update") {
-                            return dbLocal.exeCreate("sync_" + entity, {'id': id, 'db_action': 'delete'})
-                        } else if (sync.db_action === "create") {
-                            return dbLocal.exeDelete("sync_" + entity, id)
-                        }
-                    }).then(() => {
-                        // dbRemote.syncPost(entity);
-                    })
-                });
             }
         })
     }
@@ -734,12 +733,8 @@ function moveSyncDataToDb(entity, dados, db_status) {
                     }
                     break;
                 case 'delete':
-                    if (typeof d.id !== "undefined" && d.id.constructor === Array) {
-                        for (let k in d.id) {
-                            if (!isNaN(d.id[k]) && d.id[k] > 0)
-                                movedAsync.push(dbLocal.exeDelete(entity, d.id[k]))
-                        }
-                    }
+                    if (!isNaN(d.id) && d.id > 0)
+                        movedAsync.push(dbLocal.exeDelete(entity, d.id));
                     break
             }
         }
