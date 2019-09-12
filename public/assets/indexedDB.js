@@ -405,10 +405,12 @@ const dbRemote = {
                                     let idS = s.id;
                                     delete s.id;
                                     return db.exeCreate(entity, s, !1).then(syncData => {
-                                        if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length)
+                                        if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length) {
                                             return dbLocal.exeDelete("sync_" + entity, idS);
-                                        else
+                                        } else {
+                                            moveSyncDataToDb(entity, s, !1);
                                             dbLocal.exeCreate("error_" + entity, s);
+                                        }
                                     })
                                 }
                             }));
