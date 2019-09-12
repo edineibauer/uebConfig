@@ -557,8 +557,7 @@ const dbRemote = {
                                 $("#core-upload-progress-bar").css("width", 0)
                             }, 600)
                         }
-                        if (navigator.onLine && !failNetwork && !id)
-                            dbLocal.clear("sync_" + entity);
+
                         resolve(p)
                     })
                 } else {
@@ -875,21 +874,13 @@ function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if (navigator.onLine) {
-        dbLocal.exeRead("sync_" + entity).then(r => {
-
-            let promessas = [];
-            $.each(r, function(i, e) {
-                promessas.push(dbRemote.sync(entity, parseInt(e.id), !0));
-            });
-
-            Promise.all(promessas).then(() => {
-                for (let i in grids) {
-                    if (typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
-                        grids[i].reload();
-                        break;
-                    }
+        dbRemote.sync(entity, null, !0).then(isUpdated => {
+            for(let i in grids) {
+                if(typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
+                    grids[i].reload();
+                    break;
                 }
-            });
+            }
         });
     } else {
         toast("Sem Conexão", 2000);
