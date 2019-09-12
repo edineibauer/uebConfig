@@ -399,17 +399,16 @@ const dbRemote = {
                 } else {
                     return moveSyncDataToDb(entity, response.data).then(() => {
                         let promisses = [];
-                        $.each(response.data, function(i, e) {
+                        $.each(response.data, function (i, e) {
                             promisses.push(dbLocal.exeRead("sync_" + entity, parseInt(e.id)).then(s => {
-                                if(!isEmpty(s)) {
-                                    return dbLocal.exeDelete("sync_" + entity, s.id).then(() => {
-                                        delete s.id;
-                                        return db.exeCreate(entity, s, !1).then(syncData => {
-                                            if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length) {
-                                                //erro
-                                                dbLocal.exeCreate("error_" + entity, s);
-                                            }
-                                        });
+                                if (!isEmpty(s)) {
+                                    let idS = s.id;
+                                    delete s.id;
+                                    return db.exeCreate(entity, s, !1).then(syncData => {
+                                        if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length)
+                                            return dbLocal.exeDelete("sync_" + entity, idS);
+                                        else
+                                            dbLocal.exeCreate("error_" + entity, s);
                                     })
                                 }
                             }));
@@ -478,11 +477,12 @@ const dbRemote = {
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
                                     if (dd.response === 1) {
+                                        fail += dd.data.error;
 
                                         /**
                                          * Atualização realizada, remove sync desta atualização
                                          * */
-                                        if (!isNaN(d.id))
+                                        if (!isNaN(d.id) && dd.data.error === 0)
                                             dbLocal.exeDelete('sync_' + entity, d.id);
 
                                         let promessas = [];
@@ -878,16 +878,22 @@ function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if (navigator.onLine) {
-        dbRemote.sync(entity, null, !0).then(isUpdated => {
-            if ((typeof entity === "undefined" || isUpdated) && typeof grids !== "undefined") {
-                for(let i in grids) {
-                    if(typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
+        dbLocal.exeRead("sync_" + entity).then(r => {
+
+            let promessas = [];
+            $.each(r, function(i, e) {
+                promessas.push(dbRemote.sync(entity, parseInt(e.id), !0));
+            });
+
+            Promise.all(promessas).then(() => {
+                for (let i in grids) {
+                    if (typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
                         grids[i].reload();
                         break;
                     }
                 }
-            }
-        })
+            });
+        });
     } else {
         toast("Sem Conexão", 2000);
     }
