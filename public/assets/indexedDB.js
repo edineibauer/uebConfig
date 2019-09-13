@@ -450,6 +450,7 @@ const dbRemote = {
                     $.each(dadosSync, function (i, d) {
                         let dataToSend = [];
                         dataToSend.push(d);
+                        let dataReturn = dataToSend;
                         promises.push(new Promise(function (s, f) {
                             $.ajax({
                                 type: "POST",
@@ -475,69 +476,68 @@ const dbRemote = {
                                     failNetwork = !0;
                                     if (feedback)
                                         fail++;
-                                    s(Promise.all([]))
                                 },
                                 complete: function (dd) {
                                     dd = JSON.parse(dd.responseText);
+                                    let allP = [];
+
                                     if (dd.response === 1) {
-                                        fail += dd.data.error;
+                                        if (dd.data.error === 0) {
+                                            dataReturn = dd.data.data;
 
-                                        /**
-                                         * Atualização realizada, remove sync desta atualização
-                                         * */
-                                        if (!isNaN(d.id) && dd.data.error === 0)
-                                            dbLocal.exeDelete('sync_' + entity, d.id);
+                                            /**
+                                             * Atualização realizada, remove sync desta atualização
+                                             * */
+                                            if (!isNaN(d.id) && dd.data.error === 0)
+                                                dbLocal.exeDelete('sync_' + entity, d.id);
 
-                                        let promessas = [];
-                                        $.each(dd.data.data, function(i, a) {
-                                            if (a.db_action === "create" && !isNaN(a.id_old) && parseInt(a.id_old) !== parseInt(a.id)) {
+                                            $.each(dd.data.data, function(i, a) {
+                                                if (a.db_action === "create" && !isNaN(a.id_old) && parseInt(a.id_old) !== parseInt(a.id)) {
 
-                                                /**
-                                                 * Já existe uma sincronia pendênte com o mesmo id, realoca sincronia pendente para novo registro
-                                                 * */
-                                                dbLocal.exeDelete(entity, a.id_old);
+                                                    /**
+                                                     * Já existe uma sincronia pendênte com o mesmo id, realoca sincronia pendente para novo registro
+                                                     * */
+                                                    dbLocal.exeDelete(entity, a.id_old);
 
-                                                if (dd.data.error === 0) {
-                                                    promessas.push(dbLocal.exeRead("sync_" + entity, parseInt(a.id)).then(d => {
-                                                        let allP = [];
+                                                    allP.push(dbLocal.exeRead("sync_" + entity, parseInt(a.id)).then(d => {
                                                         if(!isEmpty(d)) {
                                                             /**
                                                              * Delete sync existente no mesmo ID para atualizar ID
                                                              * */
                                                             delete d.id;
-                                                            allP.push(dbLocal.exeDelete("sync_" + entity, a.id).then(() => {
+                                                            return dbLocal.exeDelete("sync_" + entity, a.id).then(() => {
                                                                 return db.exeCreate(entity, d, !1)
-                                                            }));
+                                                            });
                                                         }
-                                                        allP.push(moveSyncDataToDb(entity, a));
-
-                                                        return Promise.all(allP);
                                                     }));
+                                                    allP.push(moveSyncDataToDb(entity, a));
+                                                } else {
+                                                    allP.push(moveSyncDataToDb(entity, a));
                                                 }
-                                            } else if (dd.data.error === 0) {
-                                                promessas.push(moveSyncDataToDb(entity, dd.data.data));
-                                            }
 
-                                            /**
-                                             * Atualiza histórico
-                                             * */
-                                            if (dd.data.error === 0) {
+                                                /**
+                                                 * Atualiza histórico
+                                                 * */
                                                 let historicData = {};
                                                 historicData[entity] = dd.data.historic;
                                                 dbLocal.exeUpdate("__historic", historicData, 1);
-                                            }
-                                        });
+                                            });
 
-                                        s(Promise.all(promessas));
-
+                                        } else {
+                                            fail += dd.data.error;
+                                        }
                                     } else if (feedback) {
                                         fail++
                                     }
+
                                     if (feedback) {
                                         progress += totalParte;
                                         $("#core-upload-progress-bar").css("width", progress + "%")
                                     }
-                                    s(Promise.all([]))
+
+                                    Promise.all(allP).then(() => {
+                                        s(dataReturn);
+                                    });
                                 },
                                 dataType: "json",
                                 async: !0
@@ -560,7 +560,7 @@ const dbRemote = {
                             }, 600)
                         }
 
-                        resolve(p)
+                        resolve(p[0]);
                     })
                 } else {
                     resolve(dadosSync)
