@@ -563,7 +563,7 @@ const dbRemote = {
                         resolve(p)
                     })
                 } else {
-                    resolve(0)
+                    resolve(dadosSync)
                 }
             })
         })
