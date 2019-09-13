@@ -177,15 +177,15 @@ function CSV(array, comma) {
 
                     if (typeof o.url === "string")
                         v += o.url;
-                    else if (typeof obj[k] === "object")
+                    else if (typeof obj[k] === "object" && obj[k] !== null)
                         v += JSON.stringify(obj[k]);
                     else if (typeof o === "string")
                         v += o;
 
                 });
-            } else if (typeof obj[k] === "object") {
+            } else if (typeof obj[k] === "object" && obj[k] !== null) {
                 v = JSON.stringify(obj[k]);
-            } else if(typeof obj[k] !== "undefined") {
+            } else if(typeof obj[k] !== "undefined" && obj[k] !== null) {
                 v = obj[k];
             }
 
