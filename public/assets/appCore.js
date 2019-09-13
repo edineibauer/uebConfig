@@ -185,7 +185,7 @@ function CSV(array, comma) {
                 });
             } else if (typeof obj[k] === "object") {
                 v = JSON.stringify(obj[k]);
-            } else {
+            } else if(typeof obj[k] !== "undefined") {
                 v = obj[k];
             }
 
