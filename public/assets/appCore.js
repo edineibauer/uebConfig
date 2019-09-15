@@ -1263,7 +1263,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                  * atualiza history com os novos dados
                  * */
                 let promisses = [];
-                let haveFormRelation = (!isEmpty(form) && form.saved && form.id !== "" && formNotHaveError(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador);
+                let haveFormRelation = (!isEmpty(form) && form.saved && form.modified && form.id !== "" && formNotHaveError(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador);
                 let isUpdateFormRelation = !1;
 
                 if (haveFormRelation) {
