@@ -514,11 +514,11 @@ const dbRemote = {
                     });
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            let msg = "Registro atualizado";
+                            let msg = "Registro enviado";
                             if(fail === 0 && total > 1) {
-                                msg = "Todos os registros atualizados";
+                                msg = "Todos os registros enviados";
                             } else if(fail !== 0) {
-                                msg = (total > 1 ? "Erro ao atualizar: " + fail + " de " + total : "Erro ao atualizar");
+                                msg = (total > 1 ? "Erro ao enviar: " + fail + " de " + total : "Erro ao enviar");
                             }
 
                             toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
