@@ -381,10 +381,12 @@ const dbRemote = {
                 if (response.tipo === 1) {
                     return dbLocal.clear(entity).then(() => {
                         let cc = [];
+                        let lastId = 0;
                         if (response.data.length) {
                             for (let k in response.data) {
                                 if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
+                                    lastId = id > lastId ? id : lastId;
                                     for (let col in response.data[k])
                                         response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
                                     response.data[k].id = id;
@@ -394,8 +396,36 @@ const dbRemote = {
                             }
                         }
                         return Promise.all(cc).then(() => {
-                            return response.historic;
-                        })
+                            return dbLocal.exeRead("sync_" + entity).then(sync => {
+                                let prom = [];
+                                $.each(sync, function (i, s) {
+                                    //depois de criar esse registro, verifica possível conflito com sync ID
+                                    prom.push(dbLocal.exeRead(entity, parseInt(s.id)).then(e => {
+                                        if (!isEmpty(e)) {
+                                            lastId++;
+                                            let idS = s.id;
+                                            s.id = lastId;
+
+                                            return db.exeCreate(entity, s, !1).then(syncData => {
+                                                if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Object) {
+                                                    console.log('ok');
+                                                    // moveSyncDataToDb(entity, s, !1);
+                                                    return dbLocal.exeCreate("error_" + entity, s)
+                                                } else {
+                                                    return dbLocal.exeDelete("sync_" + entity, idS)
+                                                }
+                                            });
+                                        } else {
+                                            moveSyncDataToDb(entity, s, !1);
+                                        }
+                                    }));
+                                });
+
+                                return Promise.all(prom);
+                            }).then(() => {
+                                return response.historic
+                            });
+                        });
                     })
                 } else {
                     return moveSyncDataToDb(entity, response.data).then(() => {
