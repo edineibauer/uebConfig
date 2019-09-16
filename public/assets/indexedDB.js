@@ -90,77 +90,75 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     limit = limit > parseInt(LIMITOFFLINE) ? parseInt(LIMITOFFLINE) : limit;
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
-    return dbRemote.syncDownload(entity).then(() => {
-        return dbLocal.exeRead(entity).then(data => {
-            if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
-                return new Promise(function (resolve, reject) {
-                    //online
-                    $.ajax({
-                        type: "POST",
-                        url: HOME + 'set',
-                        data: {
-                            lib: "entity",
-                            file: "load/entity",
-                            entity: entity,
-                            filter: filter,
-                            order: order,
-                            reverse: reverse,
-                            limit: limit,
-                            offset: offset,
-                            historic: null
-                        },
-                        success: function (dados) {
-                            if (dados.response === 1 && dados.data.historic !== 0) {
-                                dados = dados.data;
-                                let hist = {};
-                                hist[entity] = dados.historic;
-                                dbLocal.exeUpdate("__historic", hist, 1);
+    return db.exeRead(entity).then(data => {
+        if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
+            return new Promise(function (resolve, reject) {
+                //online
+                $.ajax({
+                    type: "POST",
+                    url: HOME + 'set',
+                    data: {
+                        lib: "entity",
+                        file: "load/entity",
+                        entity: entity,
+                        filter: filter,
+                        order: order,
+                        reverse: reverse,
+                        limit: limit,
+                        offset: offset,
+                        historic: null
+                    },
+                    success: function (dados) {
+                        if (dados.response === 1 && dados.data.historic !== 0) {
+                            dados = dados.data;
+                            let hist = {};
+                            hist[entity] = dados.historic;
+                            dbLocal.exeUpdate("__historic", hist, 1);
 
-                                if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
+                            if (typeof data !== "undefined" && typeof dados.data !== "undefined") {
 
-                                    let contRemoved = 0;
-                                    for (let t in dados.data) {
-                                        if (typeof dados.data[t] === "object") {
-                                            dbLocal.exeDelete(entity, dados.data[t].id);
-                                            contRemoved++;
-                                        }
-                                    }
-
-                                    let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length - contRemoved;
-                                    for (let i = 0; i < delNum; i++) {
-                                        if (typeof data[i] === "object")
-                                            dbLocal.exeDelete(entity, data[i].id)
+                                let contRemoved = 0;
+                                for (let t in dados.data) {
+                                    if (typeof dados.data[t] === "object") {
+                                        dbLocal.exeDelete(entity, dados.data[t].id);
+                                        contRemoved++;
                                     }
                                 }
 
-                                moveSyncDataToDb(entity, dados.data).then(() => {
-                                    if(offset === -1) {
-                                        moveSyncInfoToDb(entity).then(syncD => {
-                                            let dd = (syncD ? syncD.concat(dados.data) : dados.data);
-                                            resolve({data: dd, lenght: dd.length, total: dados.total})
-                                        })
-                                    } else {
-                                        resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
-                                    }
-                                });
-                            } else {
-                                toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
-                                resolve(readOffline(data, filter, order, reverse, limit, offset));
+                                let delNum = parseInt(data.length) - parseInt(LIMITOFFLINE) + dados.data.length - contRemoved;
+                                for (let i = 0; i < delNum; i++) {
+                                    if (typeof data[i] === "object")
+                                        dbLocal.exeDelete(entity, data[i].id)
+                                }
                             }
-                        },
-                        error: function (e) {
+
+                            moveSyncDataToDb(entity, dados.data).then(() => {
+                                if(offset === -1) {
+                                    moveSyncInfoToDb(entity).then(syncD => {
+                                        let dd = (syncD ? syncD.concat(dados.data) : dados.data);
+                                        resolve({data: dd, lenght: dd.length, total: dados.total})
+                                    })
+                                } else {
+                                    resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
+                                }
+                            });
+                        } else {
                             toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
-                        },
-                        dataType: "json",
-                    });
-                })
+                        }
+                    },
+                    error: function (e) {
+                        toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
+                        resolve(readOffline(data, filter, order, reverse, limit, offset));
+                    },
+                    dataType: "json",
+                });
+            })
 
-            } else {
-                //offline
-                return readOffline(data, filter, order, reverse, limit, offset);
-            }
-        });
+        } else {
+            //offline
+            return readOffline(data, filter, order, reverse, limit, offset);
+        }
     });
 }
 
@@ -230,37 +228,10 @@ const db = {
             return;
         }
         key = typeof key === "string" ? parseInt(key) : key;
-        return dbLocal.exeRead('__historic', 1).then(hist => {
-            if (typeof hist[entity] === "undefined") {
-                return this.exeReadOnline(entity, key)
-            } else {
-                dbRemote.syncDownload(entity).then(h => {
-                    if (h !== 0) {
-                        let historic = {};
-                        historic[entity] = h;
-                        dbLocal.exeUpdate('__historic', historic, 1);
-                    }
-                });
-                return dbLocal.exeRead(entity, key).then(d => {
-                    if (d.length === 0) {
-                        delete (hist[entity]);
-                        return dbLocal.exeCreate("__historic", hist).then(() => {
-                            return this.exeReadOnline(entity, key)
-                        })
-                    }
-                    return d
-                })
-            }
-        })
-    }, exeReadOnline(entity, key) {
-        return dbRemote.syncDownload(entity).then(h => {
-            if (h !== 0) {
-                let historic = {};
-                historic[entity] = h;
-                dbLocal.exeUpdate('__historic', historic, 1);
-            }
+
+        return dbRemote.syncDownload(entity).then(() => {
             return dbLocal.exeRead(entity, key)
-        })
+        });
     }, exeCreate(entity, dados, sync) {
         sync = typeof sync === "undefined" ? !0 : sync;
         let idAction = getIdAction(entity, dados.id);
@@ -332,11 +303,6 @@ const dbRemote = {
                 feedback = typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1);
                 id = typeof id === "undefined" ? null : id;
                 return dbRemote.syncDownload(entity).then(down => {
-                    if (down !== 0) {
-                        let historic = {};
-                        historic[entity] = down;
-                        dbLocal.exeUpdate('__historic', historic, 1)
-                    }
                     return dbRemote.syncPost(entity, id, feedback).then(d => {
                         return down === 0 ? d : 1
                     })
@@ -360,7 +326,6 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-
             return new Promise(function (resolve, reject) {
                 $.ajax({
                     type: "POST",
@@ -412,6 +377,7 @@ const dbRemote = {
                 let lastKey = dbLocal.newKey(entity);
                 let lastKeySync = dbLocal.newKey("sync_" + entity);
                 let sync = dbLocal.exeRead("sync_" + entity);
+
                 return Promise.all([sync, lastKey, lastKeySync]).then(r => {
                     let prom = [];
                     if(!isEmpty(r[0])) {
@@ -440,6 +406,10 @@ const dbRemote = {
                     }
 
                     return Promise.all(prom).then(() => {
+                        let historicData = {};
+                        historicData[entity] = response.historic;
+                        dbLocal.exeUpdate("__historic", historicData, 1);
+
                         return response.historic;
                     });
                 })
@@ -709,7 +679,7 @@ function getIdAction(entity, id) {
     } else {
         return dbLocal.exeRead("sync_" + entity, id).then(d => {
             if (isEmpty(d)) {
-                return db.exeRead(entity, id).then(d => {
+                return dbLocal.exeRead(entity, id).then(d => {
                     return [parseInt(id), (isEmpty(d) ? 'create' : 'update')]
                 })
             } else {
