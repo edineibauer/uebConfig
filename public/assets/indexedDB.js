@@ -360,6 +360,7 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
+
             return new Promise(function (resolve, reject) {
                 $.ajax({
                     type: "POST",
@@ -378,15 +379,14 @@ const dbRemote = {
             }).then(response => {
                 if (response === 0)
                     return 0;
+
                 if (response.tipo === 1) {
                     return dbLocal.clear(entity).then(() => {
                         let cc = [];
-                        let lastId = 0;
                         if (response.data.length) {
                             for (let k in response.data) {
                                 if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
-                                    lastId = id > lastId ? id : lastId;
                                     for (let col in response.data[k])
                                         response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
                                     response.data[k].id = id;
@@ -396,63 +396,53 @@ const dbRemote = {
                             }
                         }
                         return Promise.all(cc).then(() => {
-                            return dbLocal.exeRead("sync_" + entity).then(sync => {
-                                let prom = [];
-                                $.each(sync, function (i, s) {
-                                    //depois de criar esse registro, verifica possível conflito com sync ID
-                                    prom.push(dbLocal.exeRead(entity, parseInt(s.id)).then(e => {
-                                        if (!isEmpty(e)) {
-                                            lastId++;
-                                            let idS = s.id;
-                                            s.id = lastId;
-
-                                            return db.exeCreate(entity, s, !1).then(syncData => {
-                                                if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Object) {
-                                                    console.log('ok');
-                                                    // moveSyncDataToDb(entity, s, !1);
-                                                    return dbLocal.exeCreate("error_" + entity, s)
-                                                } else {
-                                                    return dbLocal.exeDelete("sync_" + entity, idS)
-                                                }
-                                            });
-                                        } else {
-                                            moveSyncDataToDb(entity, s, !1);
-                                        }
-                                    }));
-                                });
-
-                                return Promise.all(prom);
-                            }).then(() => {
-                                return response.historic
-                            });
-                        });
+                            return response;
+                        })
                     })
                 } else {
                     return moveSyncDataToDb(entity, response.data).then(() => {
-                        let promisses = [];
-                        $.each(response.data, function (i, e) {
-                            promisses.push(dbLocal.exeRead("sync_" + entity, parseInt(e.id)).then(s => {
-                                if (!isEmpty(s)) {
-                                    let idS = s.id;
-                                    delete s.id;
-                                    return db.exeCreate(entity, s, !1).then(syncData => {
-                                        if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Array || !syncData.length) {
-                                            return dbLocal.exeDelete("sync_" + entity, idS);
-                                        } else {
-                                            moveSyncDataToDb(entity, s, !1);
-                                            dbLocal.exeCreate("error_" + entity, s);
-                                        }
-                                    })
-                                }
-                            }));
-                        });
-                        return Promise.all(promisses).then(() => {
-                            return response.historic
-                        });
+                        return response
                     });
                 }
             }).then(response => {
-                return response;
+                if (response === 0)
+                    return 0;
+
+                //update registros com syncData
+                let lastKey = dbLocal.newKey(entity);
+                let lastKeySync = dbLocal.newKey("sync_" + entity);
+                let sync = dbLocal.exeRead("sync_" + entity);
+                return Promise.all([sync, lastKey, lastKeySync]).then(r => {
+                    let prom = [];
+                    if(!isEmpty(r[0])) {
+                        lastKey = r[1] > r[2] ? r[1] : r[2];
+                        $.each(r[0], function (i, s) {
+                            //depois de criar esse registro, verifica possível conflito com sync ID
+                            prom.push(dbLocal.exeRead(entity, parseInt(s.id)).then(e => {
+                                if (!isEmpty(e)) {
+                                    let idS = s.id;
+                                    s.id = lastKey;
+                                    lastKey++;
+
+                                    return db.exeCreate(entity, s, !1).then(syncData => {
+                                        if (typeof syncData === "undefined" || syncData === null || syncData.constructor !== Object) {
+                                            return dbLocal.exeCreate("error_" + entity, s)
+                                        } else {
+                                            return dbLocal.exeDelete("sync_" + entity, idS)
+                                        }
+                                    });
+
+                                } else if (response.tipo === 1) {
+                                    moveSyncDataToDb(entity, s, !1);
+                                }
+                            }));
+                        });
+                    }
+
+                    return Promise.all(prom).then(() => {
+                        return response.historic;
+                    });
+                })
             })
         })
     }, syncPost(entity, id, feedback) {
