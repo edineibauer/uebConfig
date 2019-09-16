@@ -478,32 +478,10 @@ const dbRemote = {
                                             /**
                                              * Atualização realizada, remove sync desta atualização
                                              * */
-                                            if (!isNaN(d.id) && dd.data.error === 0)
+                                            if (!isNaN(d.id) && dd.data.error === 0) {
                                                 dbLocal.exeDelete('sync_' + entity, d.id);
-
-                                            $.each(dd.data.data, function(i, a) {
-                                                if (a.db_action === "create" && !isNaN(a.id_old) && parseInt(a.id_old) !== parseInt(a.id)) {
-
-                                                    /**
-                                                     * Já existe uma sincronia pendênte com o mesmo id, realoca sincronia pendente para novo registro
-                                                     * */
-                                                    dbLocal.exeDelete(entity, a.id_old);
-
-                                                    allP.push(dbLocal.exeRead("sync_" + entity, parseInt(a.id)).then(d => {
-                                                        if(!isEmpty(d)) {
-                                                            /**
-                                                             * Delete sync existente no mesmo ID para atualizar ID
-                                                             * */
-                                                            delete d.id;
-                                                            return dbLocal.exeDelete("sync_" + entity, a.id).then(() => {
-                                                                return db.exeCreate(entity, d, !1)
-                                                            });
-                                                        }
-                                                    }));
-                                                    allP.push(moveSyncDataToDb(entity, a));
-                                                } else {
-                                                    allP.push(moveSyncDataToDb(entity, a));
-                                                }
+                                                dbLocal.exeDelete(entity, d.id);
+                                                allP.push(moveSyncDataToDb(entity, dd.data.data[0]));
 
                                                 /**
                                                  * Atualiza histórico
@@ -511,7 +489,7 @@ const dbRemote = {
                                                 let historicData = {};
                                                 historicData[entity] = dd.data.historic;
                                                 dbLocal.exeUpdate("__historic", historicData, 1);
-                                            });
+                                            }
 
                                         } else {
                                             fail += dd.data.error;
