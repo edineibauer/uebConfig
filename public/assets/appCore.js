@@ -156,11 +156,18 @@ function download(filename, text) {
 }
 
 function CSV(array, comma) {
-    // Use first element to choose the keys and the order
-    var keys = Object.keys(array[0]);
-    comma = (typeof comma === "undefined" ? ";" : comma);
+
+    //obtem o nome das colunas com base em todos os registros
+    let keys = [];
+    array.forEach(function (obj) {
+        Object.keys(obj).forEach(function(e) {
+            if(keys.indexOf(e) === -1)
+                keys.push(e);
+        })
+    });
 
     // Build header
+    comma = (typeof comma === "undefined" ? ";" : comma);
     var result = keys.join(comma) + "\n";
 
     // Add the rows
