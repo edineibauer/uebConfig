@@ -158,6 +158,9 @@ function download(filename, text) {
 function CSV(array, comma) {
 
     //obtem o nome das colunas com base em todos os registros
+    comma = (typeof comma === "undefined" ? ";" : comma);
+
+    //obtem o nome das colunas com base em todos os registros
     let keys = [];
     array.forEach(function (obj) {
         Object.keys(obj).forEach(function(e) {
@@ -166,8 +169,8 @@ function CSV(array, comma) {
         })
     });
 
-    // Build header
-    comma = (typeof comma === "undefined" ? ";" : comma);
+    let regExp = new RegExp(comma, "g");
+    let keyChange = "<:::>";
     var result = keys.join(comma) + "\n";
 
     // Add the rows
@@ -183,15 +186,15 @@ function CSV(array, comma) {
                         v += ", ";
 
                     if (typeof o.url === "string")
-                        v += o.url;
+                        v += o.url.replace(regExp, keyChange);
                     else if (typeof obj[k] === "object" && obj[k] !== null)
-                        v += JSON.stringify(obj[k]);
+                        v += JSON.stringify(obj[k]).replace(regExp, keyChange);
                     else if (typeof o === "string")
-                        v += o;
+                        v += o.replace(regExp, keyChange);
 
                 });
             } else if (typeof obj[k] === "object" && obj[k] !== null) {
-                v = JSON.stringify(obj[k]);
+                v = JSON.stringify(obj[k]).replace(regExp, keyChange);
             } else if(typeof obj[k] !== "undefined" && obj[k] !== null) {
                 v = obj[k];
             }
