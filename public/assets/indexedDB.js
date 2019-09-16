@@ -651,8 +651,10 @@ const dbLocal = {
 
 function getIdAction(entity, id) {
     if (isNaN(id) || id < 1) {
-        return dbLocal.newKey(entity).then(key => {
-            return [key, 'create']
+        let keyReg = dbLocal.newKey(entity);
+        let keySync = dbLocal.newKey("sync_" + entity);
+        return Promise.all([keyReg, keySync]).then(r => {
+            return [(r[0] > r[1] ? r[0] : r[1]), 'create']
         })
     } else {
         return dbLocal.exeRead("sync_" + entity, id).then(d => {
