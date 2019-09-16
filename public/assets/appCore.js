@@ -1308,7 +1308,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                     }
                     form.show(id);
 
-                    if(haveFormRelation)
+                    if (haveFormRelation || history.state.param.modified)
                         form.saved = !1;
                 });
             }
