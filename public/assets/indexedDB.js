@@ -481,7 +481,9 @@ const dbRemote = {
                                             if (!isNaN(d.id) && dd.data.error === 0) {
                                                 dbLocal.exeDelete('sync_' + entity, d.id);
                                                 dbLocal.exeDelete(entity, d.id);
-                                                allP.push(moveSyncDataToDb(entity, dd.data.data[0]));
+
+                                                if(d.db_action !== "delete")
+                                                    allP.push(moveSyncDataToDb(entity, dd.data.data[0]));
 
                                                 /**
                                                  * Atualiza histórico
