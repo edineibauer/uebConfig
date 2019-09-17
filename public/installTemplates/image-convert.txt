@@ -1,6 +1,5 @@
 <?php
 
-use Helpers\Check;
 use Helpers\Helper;
 
 require_once './_config/config.php';
@@ -8,10 +7,11 @@ require_once './_config/config.php';
 $format = explode('/', $_GET['data'])[0];
 $url = str_replace($format . '/', '', $_GET['data']);
 
-if(($format === 'bmp' || $format === "bitmap") && Check::image($url)) {
-    Helper::createFolderIfNoExist(PATH_HOME . "uploads/tmp");
-    $name = pathinfo($_GET['url'], PATHINFO_FILENAME);
+Helper::createFolderIfNoExist(PATH_HOME . "uploads/tmp");
+
+if(($format === 'bmp' || $format === "bitmap")) {
+    $name = pathinfo($url, PATHINFO_FILENAME);
     $im = imagecreatefromwebp($url);
-    imagebmp($im, PATH_HOME . "uploads/tmp/" . $name . '.bmp');
+    imagebmp($im, $name . '.bmp');
     imagedestroy($im);
 }
