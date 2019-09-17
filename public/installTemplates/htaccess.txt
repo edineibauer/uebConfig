@@ -7,6 +7,7 @@ RewriteRule ^get\/(.*)$ apiGet.php?data=$1 [L]
 RewriteRule ^set\/?$ apiSet.php [L]
 RewriteRule ^api\/(.*)$ apiApi.php?data=$1 [L]
 RewriteRule ^app\/(.*)$ apiApiPublic.php?data=$1 [L]
+RewriteRule ^imageoutput\/(.*)$ image-convert.php?data=$1 [L]
 {$rewriteDomain}
 
 RewriteCond %{SCRIPT_FILENAME} !-f

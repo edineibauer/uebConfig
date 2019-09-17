@@ -231,6 +231,7 @@ class UpdateSystem
         Config::writeFile("apiSet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiSet.txt"));
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
+        Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
 
         if(!file_exists(PATH_HOME . "public/assets/index.js"))
             Config::writeFile("public/assets/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));

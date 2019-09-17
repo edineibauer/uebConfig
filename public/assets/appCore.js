@@ -180,7 +180,8 @@ function CSV(array, comma) {
                 result += comma;
 
             let v = "";
-            if (Array.isArray(obj[k])) {
+
+            /*if (Array.isArray(obj[k])) {
                 v = "[";
                 $.each(obj[k], function (i, o) {
                     if (v !== "" && v !== "[")
@@ -193,7 +194,9 @@ function CSV(array, comma) {
                         v += o.replace(regExp, keyChange)
                 });
                 v += "]";
-            } else if (typeof obj[k] === "object" && obj[k] !== null) {
+            } else */
+
+            if (typeof obj[k] === "object" && obj[k] !== null) {
                 v = JSON.stringify(obj[k]).replace(regExp, keyChange);
             } else if(typeof obj[k] !== "undefined" && obj[k] !== null) {
                 v = obj[k];
