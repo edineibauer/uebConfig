@@ -187,8 +187,8 @@ function CSV(array, comma) {
 
                     if (typeof o.url === "string")
                         v += o.url.replace(regExp, keyChange);
-                    else if (typeof obj[k] === "object" && obj[k] !== null)
-                        v += JSON.stringify(obj[k]).replace(regExp, keyChange);
+                    else if (typeof o === "object" && o !== null)
+                        v += JSON.stringify(o).replace(regExp, keyChange);
                     else if (typeof o === "string")
                         v += o.replace(regExp, keyChange);
 
