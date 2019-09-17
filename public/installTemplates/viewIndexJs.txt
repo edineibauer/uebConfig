@@ -1,7 +1,7 @@
 if(HOMEPAGE === "1") {
     if (getCookie("token") !== "" && getCookie("token") !== "0") {
-        app.loadView("dashboard");
+        pageTransition("dashboard", "route", "forward", "#core-content", null, null, !1);
     } else {
-        app.loadView("login");
+        pageTransition("login", "route", "forward", "#core-content", null, null, !1);
     }
 }
