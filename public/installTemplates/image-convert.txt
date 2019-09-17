@@ -11,7 +11,8 @@ Helper::createFolderIfNoExist(PATH_HOME . "uploads/tmp");
 
 if(($format === 'bmp' || $format === "bitmap")) {
     $name = pathinfo($url, PATHINFO_FILENAME);
-    $im = imagecreatefromwebp($url);
-    imagebmp($im, $name . '.bmp');
+    $im = imagecreatefromwebp(PATH_HOME . str_replace(str_replace("//", "/", HOME), "", $url));
+    imagebmp($im, PATH_HOME . "uploads/tmp/" . $name . '.bmp');
     imagedestroy($im);
 }
+?><script>location.href="<?= HOME . "uploads/tmp/" . $name . '.bmp' ?>"</script>
