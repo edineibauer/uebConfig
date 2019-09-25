@@ -17,6 +17,7 @@
     {include 'loading.tpl'}
 
     <section id="core-content" class="core-class-container"></section>
+    <ul id="core-log"></ul>
 
     <div id="core-upload-progress"><div id="core-upload-progress-bar"></div></div>
     <div class="hide" id="core-header-nav-bottom">

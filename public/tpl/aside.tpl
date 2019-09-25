@@ -32,4 +32,8 @@
     <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;">
         <i class="material-icons">notifications_active</i>
     </div>
+
+    <div onclick="showLog();" style="padding: 5px 5px 0;margin-left: 2px;float: right;border-radius: 3px;">
+        <i class="material-icons">call_to_action</i>
+    </div>
 </div>

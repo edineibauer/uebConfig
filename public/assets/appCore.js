@@ -385,19 +385,22 @@ function toggleSidebar(action = 'toggle') {
     }
 }
 
-/*function toggleIcon($element, action = 'toggle') {
-    if (typeof $element === "string")
-        $element = $($element);
-    if (typeof ($element.attr("data-after")) !== "undefined"){
-        if(action === 'toggle'){
-            $element.toggleClass($element.attr("data-before")).toggleClass($element.attr("data-after"))
-        } else if (action){
-            $element.removeClass($element.attr("data-before")).addClass($element.attr("data-after"))
-        } else {
-            $element.addClass($element.attr("data-before")).removeClass($element.attr("data-after"))
-        }
-    }
-}*/
+function closeLog() {
+    $("#core-overlay, #core-log").removeClass("active")
+}
+
+function openLog() {
+    $("#core-log").html("");
+    $.each(console.logs, function(i, c) {
+        $("#core-log").append("<li>" + c + "</li>");
+    });
+    $("#core-overlay, #core-log").addClass("active");
+}
+
+function showLog() {
+    closeSidebar();
+    openLog();
+}
 
 function logoutDashboard() {
     if (navigator.onLine) {
