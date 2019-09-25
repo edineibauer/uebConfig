@@ -363,13 +363,11 @@ function checkUpdate() {
  * Sidebar Functions
  * */
 function closeSidebar() {
-    $("#core-overlay, #core-sidebar").removeClass("active");
-    // toggleIcon($(".core-open-menu").find(".icon"), false);
+    $("#core-overlay, #core-sidebar, #core-log").removeClass("active");
 }
 
 function openSidebar() {
     $("#core-overlay, #core-sidebar").addClass("active");
-    // toggleIcon($(".core-open-menu").find(".icon"), true);
 }
 
 function toggleSidebar(action = 'toggle') {
