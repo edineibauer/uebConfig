@@ -901,8 +901,9 @@ function clearPage() {
 function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
+    let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
-        "min-height": (window.innerHeight - 70 - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
+        "min-height": (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
@@ -915,7 +916,7 @@ function defaultPageTransitionPosition(direction, $element) {
     else
         $("#core-content").removeClass("mb-50");
 
-    let $aux = $element.clone().css({"top": "70px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertBefore($element);
+    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (app.file === "dashboard" ? "dashboard r-panel" : app.file)).attr("data-file", app.file).html("").insertBefore($element);
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
@@ -984,7 +985,8 @@ function animateBack(id, scroll) {
         if (!app.loading) {
             clearInterval(t);
 
-            $aux.animate({top: -(scroll - 70) + "px"}, 0);
+            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, scroll);
@@ -1014,7 +1016,8 @@ function animateFade(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            $aux.animate({top: -(scroll - 70) + "px"}, 0);
+            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
                     animateTimeout($element, $aux, scroll)
@@ -1044,7 +1047,8 @@ function animateNone(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            $aux.animate({top: -(scroll - 70) + "px", left: 0, opacity: 1}, 0, () => {
+            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            $aux.animate({top: -(scroll - topHeader) + "px", left: 0, opacity: 1}, 0, () => {
                 animateTimeout($element, $aux, scroll)
             });
             $element.animate({opacity: 0, left: '100%'}, 0);
@@ -1480,7 +1484,8 @@ $(function () {
     function headerScrollFixed(sentidoScroll) {
         sentidoScrollDown = sentidoScroll;
         let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-        let t = $(window).scrollTop() + (elTop < -70 ? -70 : elTop);
+        let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+        let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
         $("#core-header").css("top", t + "px")
     }
 
