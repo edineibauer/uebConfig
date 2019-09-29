@@ -1124,6 +1124,9 @@ var app = {
                     $("#core-title").text(g.title);
                     $div.html(g.content);
 
+                    let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+                    $div.css("min-height", (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px");
+
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
                             app.removeLoading($div);
