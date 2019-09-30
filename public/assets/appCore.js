@@ -1059,10 +1059,14 @@ function animateNone(id, scroll) {
 }
 
 function headerShow(show) {
+    $("#core-header").addClass("core-transition");
+    setTimeout(function () {
+        $("#core-header").removeClass("core-transition");
+    }, 300);
     if(show) {
-        $("#core-header").css({"transform": "translateY(0)", "opacity": 1});
+        $("#core-header").addClass("core-show-header-navbar");
     } else {
-        $("#core-header").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)", "opacity": 0});
+        $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
     }
 }
 
