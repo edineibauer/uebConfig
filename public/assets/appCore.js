@@ -901,7 +901,7 @@ function clearPage() {
 function defaultPageTransitionPosition(direction, $element) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
-    let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
         "min-height": (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
         "position": "fixed",
@@ -937,7 +937,7 @@ function animateTimeout($element, $aux, scroll) {
     if($(".core-style").length > 1)
         $(".core-style:not(:last-of-type)").remove();
 
-    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"});
+    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"}).removeClass("notop");
     $element.remove();
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
@@ -985,7 +985,7 @@ function animateBack(id, scroll) {
         if (!app.loading) {
             clearInterval(t);
 
-            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
@@ -1016,7 +1016,7 @@ function animateFade(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
@@ -1047,7 +1047,7 @@ function animateNone(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px", left: 0, opacity: 1}, 0, () => {
                 animateTimeout($element, $aux, scroll)
             });
@@ -1056,6 +1056,14 @@ function animateNone(id, scroll) {
     }, 50);
 
     return $aux
+}
+
+function headerShow(show) {
+    if(show) {
+        $("#core-header").css({"transform": "translateY(0)", "opacity": 1});
+    } else {
+        $("#core-header").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)", "opacity": 0});
+    }
 }
 
 if ('serviceWorker' in navigator) {
@@ -1103,11 +1111,11 @@ var app = {
     removeLoading: function ($div) {
         app.loading = !1;
         $("#core-loader").css("display", "none");
-        $("#core-content").animate({"opacity": 1}, 200);
+        $div.animate({"opacity": 1}, 200);
     }, setLoading: function ($div) {
         app.loading = !0;
         $("#core-loader").css("display", "block");
-        $("#core-content").animate({"opacity": .5}, 200);
+        $div.animate({"opacity": .5}, 200);
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
@@ -1120,12 +1128,16 @@ var app = {
         return view(file, function (g) {
             if (g) {
                 if (app.haveAccessPermission(g.setor, g["!setor"])) {
-                    $("<style class='core-style'>" + g.css + "</style>").appendTo("head");
+                    headerShow(g.header);
+                    $("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>").appendTo("head");
                     $("#core-title").text(g.title);
                     $div.html(g.content);
 
-                    let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
-                    $div.css("min-height", (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px");
+                    if(!g.header)
+                        $div.addClass("notop");
+
+                    let topHeader = g.header && $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+                    $div.css("min-height", (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px");
 
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
@@ -1487,7 +1499,7 @@ $(function () {
     function headerScrollFixed(sentidoScroll) {
         sentidoScrollDown = sentidoScroll;
         let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-        let topHeader = $("#core-header").css("display") !== "none" ? $("#core-header")[0].clientHeight : 0;
+        let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
         let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
         $("#core-header").css("top", t + "px")
     }

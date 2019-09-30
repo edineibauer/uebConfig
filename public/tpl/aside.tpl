@@ -33,7 +33,9 @@
         <i class="material-icons">notifications_active</i>
     </div>
 
-    <div onclick="showLog();" style="padding: 5px 5px 0;margin-left: 2px;float: right;border-radius: 3px;cursor:pointer">
-        <i class="material-icons">call_to_action</i>
-    </div>
+    {if ($isAdmin)}
+        <div onclick="showLog();" style="padding: 5px 5px 0;margin-left: 2px;float: right;border-radius: 3px;cursor:pointer">
+            <i class="material-icons">call_to_action</i>
+        </div>
+    {/if}
 </div>
