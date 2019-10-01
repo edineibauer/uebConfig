@@ -1145,9 +1145,9 @@ var app = {
                         $div.addClass("notop");
 
                     if(g.navbar)
-                        $("#core-header-nav-bottom").addClass("core-show-header-nav");
+                        $("#core-header-nav-bottom").addClass("core-show-header-navbar");
                     else
-                        $("#core-header-nav-bottom").removeClass("core-show-header-nav");
+                        $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
                     let topHeader = g.header ? $("#core-header")[0].clientHeight : 0;
                     $div.css("min-height", (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px");
