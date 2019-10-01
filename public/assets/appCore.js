@@ -986,7 +986,7 @@ function animateBack(id, scroll) {
     let left = $element[0].getBoundingClientRect().left;
 
     let t = setInterval(function () {
-        if (!app.loading) {
+        if ($aux.html() !== "") {
             clearInterval(t);
 
             let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
@@ -1016,7 +1016,7 @@ function animateFade(id, scroll) {
     let $aux = defaultPageTransitionPosition('fade', $element);
 
     let t = setInterval(function () {
-        if (!app.loading) {
+        if ($aux.html() !== "") {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
@@ -1047,7 +1047,7 @@ function animateNone(id, scroll) {
     let $aux = defaultPageTransitionPosition('fade', $element);
 
     let t = setInterval(function () {
-        if (!app.loading) {
+        if ($aux.html() !== "") {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
