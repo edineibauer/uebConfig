@@ -402,8 +402,12 @@ function showLog() {
 
 function logoutDashboard() {
     if (navigator.onLine) {
-        if (confirm("desconectar?"))
-            pageTransition("logout", "route", 'back', "#core-content", null, null, !1);
+        if (confirm("desconectar?")){
+            toast("Saindo...", 1500);
+            setCookieAnonimo().then(() => {
+                location.href = HOME + "login";
+            })
+        }
     } else {
         toast("Sem Conexão", 1200)
     }
