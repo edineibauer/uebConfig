@@ -1264,10 +1264,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 scroll: 0
             }, null, HOME + route);
         return Promise.all([]).then(() => {
-            if (file === "dashboard" && $(target).find("#dashboard").length) {
-                file = "panel";
-                target = "#dashboard"
-            }
+
             if (historyReqPosition)
                 animation = "none";
             let $page = window["animate" + ucFirst(animation)](target, scroll);
