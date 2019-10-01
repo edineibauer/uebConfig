@@ -1116,19 +1116,19 @@ var app = {
     file: "",
     route: "",
     loading: !1,
-    removeLoading: function ($div) {
+    removeLoading: function () {
         app.loading = !1;
         $("#core-loader").css("display", "none");
-        $div.animate({"opacity": 1}, 200);
-    }, setLoading: function ($div) {
+        $("html").css("opacity", 1);
+    }, setLoading: function () {
         app.loading = !0;
         $("#core-loader").css("display", "block");
-        $div.animate({"opacity": .5}, 200);
+        $("html").css("opacity", .9);
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
         /* SET LOADING */
-        app.setLoading($div);
+        app.setLoading();
 
         /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
         downloadEntityData();
@@ -1154,10 +1154,10 @@ var app = {
 
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
-                            app.removeLoading($div);
+                            app.removeLoading();
                         })
                     } else {
-                        app.removeLoading($div);
+                        app.removeLoading();
                     }
                     if (g.font.length) {
                         $.each(g.font, function (i, url) {
@@ -1170,7 +1170,7 @@ var app = {
                 }
             } else {
                 $div.html("");
-                app.removeLoading($div)
+                app.removeLoading()
             }
         })
     }, haveAccessPermission: function (setor, notSetor) {
