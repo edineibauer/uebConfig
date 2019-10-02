@@ -368,7 +368,11 @@ const db = {
                 }
             })
         } else {
-            return dbSendData(entity, {id: id}, 'delete');
+            let t = [];
+            $.each(id, function (i, e) {
+                t.push(dbSendData(entity, {id: parseInt(e)}, 'delete'));
+            });
+            return Promise.all(t);
         }
     }
 };
