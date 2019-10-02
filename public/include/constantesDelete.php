@@ -1,0 +1,3 @@
+<?php
+
+$contantes = ["autosync"];

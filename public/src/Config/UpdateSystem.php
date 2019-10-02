@@ -245,6 +245,19 @@ class UpdateSystem
             Config::createConfig($config);
         }
 
+        //CONSTANTES REMOVE
+        $contantes = [];
+        require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
+        if(!empty($contantes) && is_array($contantes)) {
+            $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+            foreach ($contantes as $contante => $value) {
+                if (isset($config[$contante]))
+                    unset($config[$contante]);
+            }
+            Config::createConfig($config);
+        }
+        unset($contantes);
+
         if(!file_exists(PATH_HOME . "public/assets/index.js"))
             Config::writeFile("public/assets/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));
 
