@@ -50,7 +50,6 @@
     const LIMITOFFLINE = '{$limitoffline}';
     const PUSH_PUBLIC_KEY = '{$pushpublic}';
     const USER = JSON.parse('{$user}');
-    var AUTOSYNC = 1;
 </script>
 
 <script src='{$home}assetsPublic/appCore.min.js' defer></script>

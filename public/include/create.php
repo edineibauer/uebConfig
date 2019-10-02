@@ -22,9 +22,8 @@ function getServerConstants(array $dados)
     $dados['vendor'] = "vendor/ueb/";
     $dados['version'] = "1.00";
     $dados['repositorio'] = "http://uebster.com/";
-    $dados['autosync'] = 1;
     $dados['homepage'] = 1;
-    $dados['limitoffline'] = 500;
+    $dados['limitoffline'] = 50;
     $dados['serviceworker'] = !0;
 
     return $dados;
@@ -189,7 +188,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             $dados['sitedesc'] = empty($dados['sitedesc']) ? $configuracoes['sitedesc'] : $dados['sitedesc'];
             $dados['sitesub'] = empty($dados['sitesub']) ? $configuracoes['sitesub'] : $dados['sitesub'];
             $dados['pre'] = $configuracoes['pre'];
-            $dados['autosync'] = $configuracoes['autosync'];
             $dados['homepage'] = $configuracoes['homepage'];
             $dados['dominio'] = $configuracoes['dominio'];
 
@@ -204,7 +202,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             }
 
             foreach ($configuracoes as $field => $value) {
-                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'autosync', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version', 'repositorio']))
+                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version', 'repositorio']))
                     $dados[$field] = $value;
             }
 
