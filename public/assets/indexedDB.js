@@ -247,8 +247,10 @@ function dbSendData(entity, dados, action) {
                 f(0);
             },
             success: function (dd) {
+                let allP = [];
                 if (dd.response === 1 && dd.data.error === 0) {
-                    s(dd.data.data);
+                    allP.push(dd.data.data);
+                    s(allP);
                 } else {
                     toast("Erro ao cadastrar: [" + dd.data.error + "]", 7000, "toast-error");
                     f(0);
@@ -278,10 +280,14 @@ const db = {
                 $.ajax({
                     type: "POST",
                     url: HOME + 'set',
-                    data: {lib: "entity", file: "load/entity", entity: entity, historic: null},
+                    data: {lib: "entity", file: "load/entity", entity: entity, id: key, historic: null},
                     success: function (data) {
-                        if (data.response === 1 && data.data.historic !== 0)
-                            resolve(data.data);
+                        if (data.response === 1 && data.data.historic !== 0){
+                            if(!isNaN(key) && key > 0)
+                                resolve(data.data.data[0]);
+                            else
+                                resolve(data.data);
+                        }
                         resolve(0)
                     },
                     error: function () {
