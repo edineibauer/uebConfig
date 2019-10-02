@@ -13,6 +13,9 @@ if (!empty($url)) {
         try {
             include_once $link->getRoute();
 
+            if($data['response'] == 3 && !empty($data['data']))
+                unset($data['error']);
+
             if (isset($data['error'])) {
                 $data["response"] = 2;
                 $data["data"] = "";
