@@ -233,6 +233,18 @@ class UpdateSystem
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
         Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
 
+        //CONSTANTES EM CONFIG
+        $contantes = [];
+        require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
+        if(!empty($contantes) && is_array($contantes)) {
+            $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+            foreach ($contantes as $contante => $value) {
+                if (!isset($config[$contante]))
+                    $config[$contante] = $value;
+            }
+            Config::createConfig($config);
+        }
+
         if(!file_exists(PATH_HOME . "public/assets/index.js"))
             Config::writeFile("public/assets/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));
 
