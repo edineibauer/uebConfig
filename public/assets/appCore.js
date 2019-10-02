@@ -92,7 +92,7 @@ function getRequest(url) {
 
 function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
-        toast("Sem na Conexão! Url " + url + " não recuperada!", 7000, "toast-error");
+        toast("Sem Conexão! Url " + url + " não recuperada!", 7000, "toast-error");
         throw err
     })
 }
