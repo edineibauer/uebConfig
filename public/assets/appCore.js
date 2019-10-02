@@ -502,7 +502,8 @@ function menuHeader() {
     })
 }
 
-const SERVICEWORKER = 'serviceWorker' in navigator;
+let isEdge = window.navigator.userAgent.indexOf("Edge") > -1 || /MSIE 10/i.test(navigator.userAgent) || /MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent);
+const SERVICEWORKER = 'serviceWorker' in navigator && !isEdge;
 
 function clearCacheUser() {
     if(SERVICEWORKER) {
