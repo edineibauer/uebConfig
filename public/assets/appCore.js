@@ -66,6 +66,8 @@ function post(lib, file, param, funcao) {
                 if (typeof (funcao) !== "undefined")
                     funcao((data.data === "no-network" ? "no-network" : null));
             }
+        }, fail: function() {
+            toast("Erro na Conexão", 1000, "toast-warning");
         }, dataType: "json"
     })
 }
@@ -90,8 +92,7 @@ function getRequest(url) {
 
 function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
-        toast("Sem Conexão");
-        console.log("getJSON failed for", url, err);
+        toast("Sem na Conexão! Url " + url + " não recuperada!", 7000, "toast-error");
         throw err
     })
 }
@@ -115,7 +116,14 @@ function get(file) {
                         toast("Caminho não encontrado", 1500, "toast-warning")
             }
         }
-        throw new TypeError("Request sem conexão e sem cache");
+        if(typeof retrying === "undefined") {
+            toast("Erro na Conexão! Tentando novamente...", 3000, "toast-warning");
+            setTimeout(function () {
+                return get(file, 1);
+            }, 2000);
+        } else {
+            toast("Erro na Conexão! arquivo " + file + " não recebido", 7000, "toast-error");
+        }
     })
 }
 
@@ -381,23 +389,6 @@ function toggleSidebar(action = 'toggle') {
     } else {
         closeSidebar()
     }
-}
-
-function closeLog() {
-    $("#core-overlay, #core-log").removeClass("active")
-}
-
-function openLog() {
-    $("#core-log").html("");
-    $.each(console.logs, function(i, c) {
-        $("#core-log").append("<li>" + c + "</li>");
-    });
-    $("#core-overlay, #core-log").addClass("active");
-}
-
-function showLog() {
-    closeSidebar();
-    openLog();
 }
 
 function logoutDashboard() {
@@ -785,7 +776,7 @@ function startCache() {
         t.push(get("currentFiles/" + window.location.pathname));
 
     return Promise.all(t).then(g => {
-        if(!SERVICEWORKER)
+        if(!SERVICEWORKER || !g)
             return Promise.all([]);
 
         g = g[0];
@@ -870,6 +861,9 @@ function finishCache() {
             return cache.match(HOME + "manifest.json").then(response => {
                 if (!response) {
                     return get("appFiles").then(g => {
+                        if(!g)
+                            return;
+
                         return caches.open('viewJs-v' + VERSION).then(cache => {
                             return cache.addAll(g.viewJs)
                         }).then(() => {
@@ -894,11 +888,16 @@ function finishCache() {
                         gets.push(get("user"));
                         gets.push(get("reactOnline"));
                         return Promise.all(gets).then(r => {
-                            creates.push(dbLocal.exeCreate('__react', r[0]));
-                            creates.push(dbLocal.exeCreate('__relevant', r[1]));
-                            creates.push(dbLocal.exeCreate('__general', r[2]));
-                            creates.push(dbLocal.exeCreate('__user', r[3]));
-                            creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
+                            if(!isEmpty(r[0]))
+                                creates.push(dbLocal.exeCreate('__react', r[0]));
+                            if(!isEmpty(r[1]))
+                                creates.push(dbLocal.exeCreate('__relevant', r[1]));
+                            if(!isEmpty(r[2]))
+                                creates.push(dbLocal.exeCreate('__general', r[2]));
+                            if(!isEmpty(r[3]))
+                                creates.push(dbLocal.exeCreate('__user', r[3]));
+                            if(!isEmpty(r[4]))
+                                creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
                             return Promise.all(creates)
                         })
                     })
@@ -916,11 +915,16 @@ function finishCache() {
                 gets.push(get("user"));
                 gets.push(get("reactOnline"));
                 return Promise.all(gets).then(r => {
-                    creates.push(dbLocal.exeCreate('__react', r[0]));
-                    creates.push(dbLocal.exeCreate('__relevant', r[1]));
-                    creates.push(dbLocal.exeCreate('__general', r[2]));
-                    creates.push(dbLocal.exeCreate('__user', r[3]));
-                    creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
+                    if(!isEmpty(r[0]))
+                        creates.push(dbLocal.exeCreate('__react', r[0]));
+                    if(!isEmpty(r[1]))
+                        creates.push(dbLocal.exeCreate('__relevant', r[1]));
+                    if(!isEmpty(r[2]))
+                        creates.push(dbLocal.exeCreate('__general', r[2]));
+                    if(!isEmpty(r[3]))
+                        creates.push(dbLocal.exeCreate('__user', r[3]));
+                    if(!isEmpty(r[4]))
+                        creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
                     return Promise.all(creates)
                 })
             }
