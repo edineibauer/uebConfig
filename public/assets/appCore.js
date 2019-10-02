@@ -781,30 +781,65 @@ function startCache() {
 
         g = g[0];
         return caches.open('core-v' + VERSION).then(cache => {
-            return cache.addAll(g.core)
+            return cache.addAll(g.core).catch(() => {
+                toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                setTimeout(function () {
+                    updateCache();
+                },3000);
+            })
         }).then(() => {
             return caches.open('fonts-v' + VERSION).then(cache => {
-                return cache.addAll(g.fonts)
+                return cache.addAll(g.fonts).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         }).then(() => {
             return caches.open('images-v' + VERSION).then(cache => {
-                return cache.addAll(g.images)
+                return cache.addAll(g.images).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         }).then(() => {
             return caches.open('viewJs-v' + VERSION).then(cache => {
-                return cache.addAll(g.viewJs)
+                return cache.addAll(g.viewJs).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         }).then(() => {
             return caches.open('viewCss-v' + VERSION).then(cache => {
-                return cache.addAll(g.viewCss)
+                return cache.addAll(g.viewCss).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         }).then(() => {
             return caches.open('view-v' + VERSION).then(cache => {
-                return cache.addAll(g.view)
+                return cache.addAll(g.view).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         }).then(() => {
             return caches.open('midia-v' + VERSION).then(cache => {
-                return cache.addAll(g.midia)
+                return cache.addAll(g.midia).catch(() => {
+                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
+                    setTimeout(function () {
+                        updateCache();
+                    },3000);
+                })
             })
         })
     }).then(() => {
