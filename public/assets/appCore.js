@@ -393,12 +393,10 @@ function toggleSidebar(action = 'toggle') {
 
 function logoutDashboard() {
     if (navigator.onLine) {
-        if (confirm("desconectar?")){
-            toast("Saindo...", 1500);
-            setCookieAnonimo().then(() => {
-                location.href = HOME + "login";
-            })
-        }
+        toast("Saindo...", 1500);
+        setCookieAnonimo().then(() => {
+            location.href = HOME + "login";
+        })
     } else {
         toast("Sem Conexão", 1200)
     }
