@@ -25,6 +25,7 @@ function getServerConstants(array $dados)
     $dados['autosync'] = 1;
     $dados['homepage'] = 1;
     $dados['limitoffline'] = 500;
+    $dados['serviceworker'] = !0;
 
     return $dados;
 }
