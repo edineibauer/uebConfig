@@ -228,7 +228,10 @@ function checkToUpdateDbLocal(entity) {
 
 function dbSendData(entity, dados, action) {
     dados.db_action = action;
-    dados.db_status = !0;
+    if(action === "create")
+        dados.id = 0;
+    let t = [];
+    t.push(dados);
     return new Promise(function (s, f) {
         $.ajax({
             type: "POST",
@@ -237,15 +240,13 @@ function dbSendData(entity, dados, action) {
                 lib: "entity",
                 file: "up/entity",
                 entity: entity,
-                dados: convertEmptyArrayToNull(dados)
+                dados: convertEmptyArrayToNull(t)
             },
             error: function () {
                 toast("Sem conexão! Tente mais tarde", 3500, "toast-error");
                 f(0);
             },
             success: function (dd) {
-                dd = JSON.parse(dd.responseText);
-                let allP = [];
                 if (dd.response === 1 && dd.data.error === 0) {
                     s(dd.data.data);
                 } else {
@@ -313,7 +314,7 @@ const db = {
                 })
             })
         } else {
-            return dbSendData(entity, dados, (isNaN(id) || id < 1 ? "update" : "create"));
+            return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
         }
     }, exeDelete(entity, id) {
         if(SERVICEWORKER) {
