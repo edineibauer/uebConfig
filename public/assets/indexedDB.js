@@ -249,7 +249,7 @@ function dbSendData(entity, dados, action) {
             success: function (dd) {
                 let allP = [];
                 if (dd.response === 1 && dd.data.error === 0) {
-                    allP.push(dd.data.data);
+                    allP.push(dd.data.data[0]);
                     s(allP);
                 } else {
                     toast("Erro ao cadastrar: [" + dd.data.error + "]", 7000, "toast-error");
