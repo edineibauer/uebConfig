@@ -511,22 +511,46 @@ function menuHeader() {
     })
 }
 
+const SERVICEWORKER = 'serviceWorker' in navigator;
 
 function clearCacheUser() {
-    return dbLocal.exeRead("__dicionario", 1).then(dd => {
-        let clear = [];
-        for (var k in dd) {
-            clear.push(dbLocal.exeRead("sync_" + k).then(d => {
-                if (d.length) {
-                    return dbRemote.sync(k).then(() => {
+    if(SERVICEWORKER) {
+        return dbLocal.exeRead("__dicionario", 1).then(dd => {
+            let clear = [];
+            for (var k in dd) {
+                clear.push(dbLocal.exeRead("sync_" + k).then(d => {
+                    if (d.length) {
+                        return dbRemote.sync(k).then(() => {
+                            return dbLocal.clear("sync_" + k)
+                        })
+                    } else {
                         return dbLocal.clear("sync_" + k)
-                    })
-                } else {
-                    return dbLocal.clear("sync_" + k)
-                }
-            }));
-            clear.push(dbLocal.clear(k))
-        }
+                    }
+                }));
+                clear.push(dbLocal.clear(k))
+            }
+            clear.push(dbLocal.clear('__historic'));
+            clear.push(dbLocal.clear('__allow'));
+            clear.push(dbLocal.clear('__dicionario'));
+            clear.push(dbLocal.clear('__info'));
+            clear.push(dbLocal.clear('__menu'));
+            clear.push(dbLocal.clear('__panel'));
+            return Promise.all(clear)
+        }).then(() => {
+
+            /**
+             * Clear View user
+             * */
+            return caches.keys().then(cacheNames => {
+                return Promise.all(cacheNames.map(cacheName => {
+                    let reg = new RegExp("^view-v");
+                    if (reg.test(cacheName))
+                        return caches.delete(cacheName)
+                }))
+            });
+        })
+    } else {
+        let clear = [];
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__allow'));
         clear.push(dbLocal.clear('__dicionario'));
@@ -534,19 +558,7 @@ function clearCacheUser() {
         clear.push(dbLocal.clear('__menu'));
         clear.push(dbLocal.clear('__panel'));
         return Promise.all(clear)
-    }).then(() => {
-
-        /**
-         * Clear View user
-         * */
-        return caches.keys().then(cacheNames => {
-            return Promise.all(cacheNames.map(cacheName => {
-                let reg = new RegExp("^view-v");
-                if (reg.test(cacheName))
-                    return caches.delete(cacheName)
-            }))
-        });
-    })
+    }
 }
 
 function clearCache() {
@@ -555,8 +567,11 @@ function clearCache() {
 
     return dbLocal.exeRead('__dicionario', 1).then(dicion => {
         let clear = [];
-        for (var k in dicion)
-            clear.push(dbLocal.clear(k));
+
+        if(SERVICEWORKER) {
+            for (var k in dicion)
+                clear.push(dbLocal.clear(k));
+        }
 
         clear.push(dbLocal.clear('__historic'));
         clear.push(dbLocal.clear('__dicionario'));
@@ -573,6 +588,9 @@ function clearCache() {
 
         return Promise.all(clear);
     }).then(() => {
+        if(!SERVICEWORKER)
+            return Promise.all([]);
+
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName)
@@ -674,6 +692,9 @@ function updateCacheUser() {
 }
 
 function loadUserViews() {
+    if(!SERVICEWORKER)
+        return Promise.all([]);
+
     return get("appFilesView/" + window.location.pathname).then(g => {
         return caches.open('view-v' + VERSION).then(cache => {
             return cache.addAll(g.view)
@@ -737,6 +758,9 @@ function thenAccess() {
 }
 
 function downloadEntityData() {
+    if(!SERVICEWORKER)
+        return Promise.all([]);
+
     let down = [];
     let historic = {};
     $.each(dicionarios, function (entity, meta) {
@@ -756,7 +780,15 @@ function webp(extension) {
 }
 
 function startCache() {
-    return get("currentFiles/" + window.location.pathname).then(g => {
+    let t = [];
+    if(SERVICEWORKER)
+        t.push(get("currentFiles/" + window.location.pathname));
+
+    return Promise.all(t).then(g => {
+        if(!SERVICEWORKER)
+            return Promise.all([]);
+
+        g = g[0];
         return caches.open('core-v' + VERSION).then(cache => {
             return cache.addAll(g.core)
         }).then(() => {
@@ -833,45 +865,67 @@ function startCache() {
 }
 
 function finishCache() {
-    caches.open('misc-v' + VERSION).then(function (cache) {
-        return cache.match(HOME + "manifest.json").then(response => {
-            if (!response) {
-                return get("appFiles").then(g => {
-                    return caches.open('viewJs-v' + VERSION).then(cache => {
-                        return cache.addAll(g.viewJs)
-                    }).then(() => {
-                        return caches.open('viewCss-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewCss)
+    if(SERVICEWORKER) {
+        caches.open('misc-v' + VERSION).then(function (cache) {
+            return cache.match(HOME + "manifest.json").then(response => {
+                if (!response) {
+                    return get("appFiles").then(g => {
+                        return caches.open('viewJs-v' + VERSION).then(cache => {
+                            return cache.addAll(g.viewJs)
+                        }).then(() => {
+                            return caches.open('viewCss-v' + VERSION).then(cache => {
+                                return cache.addAll(g.viewCss)
+                            })
+                        }).then(() => {
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.addAll(g.view)
+                            })
+                        }).then(() => {
+                            return caches.open('misc-v' + VERSION).then(cache => {
+                                return cache.addAll(g.misc)
+                            })
                         })
                     }).then(() => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.addAll(g.view)
-                        })
-                    }).then(() => {
-                        return caches.open('misc-v' + VERSION).then(cache => {
-                            return cache.addAll(g.misc)
+                        let gets = [];
+                        let creates = [];
+                        gets.push(get("react"));
+                        gets.push(get("relevant"));
+                        gets.push(get("general"));
+                        gets.push(get("user"));
+                        gets.push(get("reactOnline"));
+                        return Promise.all(gets).then(r => {
+                            creates.push(dbLocal.exeCreate('__react', r[0]));
+                            creates.push(dbLocal.exeCreate('__relevant', r[1]));
+                            creates.push(dbLocal.exeCreate('__general', r[2]));
+                            creates.push(dbLocal.exeCreate('__user', r[3]));
+                            creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
+                            return Promise.all(creates)
                         })
                     })
-                }).then(() => {
-                    let gets = [];
-                    let creates = [];
-                    gets.push(get("react"));
-                    gets.push(get("relevant"));
-                    gets.push(get("general"));
-                    gets.push(get("user"));
-                    gets.push(get("reactOnline"));
-                    return Promise.all(gets).then(r => {
-                        creates.push(dbLocal.exeCreate('__react', r[0]));
-                        creates.push(dbLocal.exeCreate('__relevant', r[1]));
-                        creates.push(dbLocal.exeCreate('__general', r[2]));
-                        creates.push(dbLocal.exeCreate('__user', r[3]));
-                        creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
-                        return Promise.all(creates)
-                    })
+                }
+            })
+        })
+    } else {
+        return dbLocal.exeRead("__relevant", 1).then(r => {
+            if(isEmpty(r)) {
+                let gets = [];
+                let creates = [];
+                gets.push(get("react"));
+                gets.push(get("relevant"));
+                gets.push(get("general"));
+                gets.push(get("user"));
+                gets.push(get("reactOnline"));
+                return Promise.all(gets).then(r => {
+                    creates.push(dbLocal.exeCreate('__react', r[0]));
+                    creates.push(dbLocal.exeCreate('__relevant', r[1]));
+                    creates.push(dbLocal.exeCreate('__general', r[2]));
+                    creates.push(dbLocal.exeCreate('__user', r[3]));
+                    creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
+                    return Promise.all(creates)
                 })
             }
-        })
-    });
+        });
+    }
 }
 
 function checkMenuActive() {
@@ -1074,7 +1128,7 @@ function headerShow(show) {
     }
 }
 
-if ('serviceWorker' in navigator) {
+if (SERVICEWORKER) {
     Promise.all([]).then(() => {
         if (navigator.serviceWorker.controller) {
             return navigator.serviceWorker.ready.then(function (swReg) {
@@ -1459,13 +1513,26 @@ $(function () {
         });
 
         checkSessao().then(() => {
-            caches.open('core-v' + VERSION).then(function (cache) {
-                return cache.match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
-                    if (!response)
-                        return firstAccess();
-                    else
-                        return thenAccess()
-                })
+            let t = [];
+            if(SERVICEWORKER)
+                t.push(caches.open('core-v' + VERSION));
+
+            return Promise.all(t).then(cache => {
+                if(!SERVICEWORKER) {
+                    return dbLocal.exeRead("__dicionarios", 1).then(d => {
+                        if(isEmpty(d))
+                            return firstAccess();
+                        else
+                            return thenAccess()
+                    });
+                } else {
+                    return cache[0].match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
+                        if (!response)
+                            return firstAccess();
+                        else
+                            return thenAccess()
+                    })
+                }
             }).then(() => {
                 return menuHeader();
 
