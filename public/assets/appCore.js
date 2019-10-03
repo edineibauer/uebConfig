@@ -10,6 +10,13 @@ function ucFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+/**
+ * Preenche com 2 zeros a esquerda caso tenha menos que 2 caracteres
+ * */
+function zeroEsquerda(n) {
+    return ("00" + n).slice(-2);
+}
+
 function convertEmptyArrayToNull(param) {
     if (typeof (param) === "object" && !$.isEmptyObject(param)) {
         $.each(param, function (key, value) {
@@ -19,6 +26,131 @@ function convertEmptyArrayToNull(param) {
         })
     }
     return param
+}
+
+/**
+ * Adiciona função remover item nas variáveis do tipo Array
+ * */
+Array.prototype.removeItem = function (name) {
+    if ($.inArray(name, this) > -1) {
+        this.splice($.inArray(name, this), 1)
+    }
+    return $.grep(this, function () {
+        return !0
+    })
+};
+
+Array.prototype.pushTo = function (item, index) {
+    this.splice(index, 1, item);
+};
+
+/**
+ * troca todas as ocorrências na string
+ * */
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+/**
+ * Adiciona funções aos elementos jQuery
+ * */
+$(function ($) {
+
+    /** Adiciona barra de loading no topo do elemento
+     * */
+    $.fn.loading = function () {
+        this.find(".loading").remove();
+        this.prepend('<ul class="loading"><li class="fl-left one"></li><li class="fl-left two"></li><li class="fl-left three"></li></ul>');
+        return this
+    };
+
+    /** Verifica se existe atributo
+     * */
+    $.fn.hasAttr = function (name) {
+        return typeof (this.attr(name)) !== "undefined"
+    }
+}(jQuery));
+
+/**
+ * trás valor de objeto com uso de string com ponto separando níveis. ex:"pessoa.contato.email"
+ * */
+function fetchFromObject(obj, prop) {
+
+    if (typeof obj === 'undefined') {
+        return false;
+    }
+
+    var _index = prop.indexOf('.')
+    if (_index > -1) {
+        return fetchFromObject(obj[prop.substring(0, _index)], prop.substr(_index + 1));
+    }
+
+    return obj[prop];
+}
+
+/**
+ * cria níveis de objeto com uso de string pontuada. ex:"pessoa.contato.email"
+ * */
+function fetchCreateObject(obj, prop) {
+
+    if (typeof obj === 'undefined')
+        return false;
+
+    var _index = prop.indexOf('.')
+    if (_index > -1) {
+        if (typeof obj[prop.substring(0, _index)] !== "object")
+            obj[prop.substring(0, _index)] = {};
+        return fetchCreateObject(obj[prop.substring(0, _index)], prop.substr(_index + 1));
+    } else {
+        if (typeof obj[prop] === "undefined")
+            obj[prop] = "";
+    }
+}
+
+function setUpdateVersion() {
+    $.ajax({
+        type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: function (data) {
+            if (data.data !== "no-network" && data.response === 1)
+                setCookie("update", data.data)
+        }, dataType: "json", async: !1
+    })
+}
+
+function checkUserOptions() {
+    $("." + getCookie("setor") + "Show").removeClass("hide");
+    $("." + getCookie("setor") + "Hide").addClass("hide");
+    $("." + getCookie("setor") + "Allow").removeAttr("disabled");
+    $("." + getCookie("setor") + "Disabled").attr("disabled", "disabled");
+}
+
+function slug(val, replaceBy) {
+    replaceBy = replaceBy || '-';
+    var mapaAcentosHex = {
+        a: /[\xE0-\xE6]/g,
+        A: /[\xC0-\xC6]/g,
+        e: /[\xE8-\xEB]/g,
+        E: /[\xC8-\xCB]/g,
+        i: /[\xEC-\xEF]/g,
+        I: /[\xCC-\xCF]/g,
+        o: /[\xF2-\xF6]/g,
+        O: /[\xD2-\xD6]/g,
+        u: /[\xF9-\xFC]/g,
+        U: /[\xD9-\xDC]/g,
+        c: /\xE7/g,
+        C: /\xC7/g,
+        n: /\xF1/g,
+        N: /\xD1/g,
+    };
+    for (var letra in mapaAcentosHex) {
+        var expressaoRegular = mapaAcentosHex[letra];
+        val = val.replace(expressaoRegular, letra)
+    }
+    val = val.toLowerCase();
+    val = val.replace(/[^a-z0-9\-]/g, " ");
+    val = val.replace(/ {2,}/g, " ");
+    val = val.trim();
+    return val.replace(/\s/g, replaceBy)
 }
 
 function readFile(file) {

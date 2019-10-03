@@ -3,7 +3,6 @@
   "js": [
     "mustache",
     "draggable",
-    "helpers",
     "mask",
     "grid",
     "form",
