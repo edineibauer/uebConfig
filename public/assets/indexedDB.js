@@ -146,12 +146,12 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                                 }
                             });
                         } else {
-                            toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
+                            toast("Sem Conexão! Conecte para ver todos os registros", 7000, "toast-warning");
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
                         }
                     },
                     error: function (e) {
-                        toast("Informações Limitadas. Sem Conexão!", 3000, "toast-warning");
+                        toast("Sem Conexão! Conecte para ver todos os registros", 7000, "toast-warning");
                         resolve(readOffline(data, filter, order, reverse, limit, offset));
                     },
                     dataType: "json",
