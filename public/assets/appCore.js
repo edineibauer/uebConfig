@@ -1136,7 +1136,7 @@ function defaultPageTransitionPosition(direction, $element) {
         "overflow": "hidden"
     });
 
-    if(window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("s-show"))
+    if(window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") === "1" && $("#core-header-nav-bottom").hasClass("s-show"))
         $("#core-content").addClass("mb-50");
     else
         $("#core-content").removeClass("mb-50");
