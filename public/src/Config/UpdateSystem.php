@@ -158,10 +158,10 @@ class UpdateSystem
 
     private function overloadTplConfig() {
         foreach (["analytics", "aside", "head", "header", "index", "loading"] as $item) {
-            if(file_exists(PATH_HOME . "public/overload/tpl/config/{$item}.tpl")) {
+            if(file_exists(PATH_HOME . "public/overload/config/tpl/{$item}.tpl")) {
                 Helper::createFolderIfNoExist(PATH_HOME . VENDOR . "config/public/tpl/overloaded");
                 copy(PATH_HOME . VENDOR . "config/public/tpl/{$item}.tpl", PATH_HOME . VENDOR . "config/public/tpl/overloaded/{$item}.tpl");
-                copy(PATH_HOME . "public/overload/tpl/config/{$item}.tpl", PATH_HOME . VENDOR . "config/public/tpl/{$item}.tpl");
+                copy(PATH_HOME . "public/overload/config/tpl/{$item}.tpl", PATH_HOME . VENDOR . "config/public/tpl/{$item}.tpl");
             }
         }
     }
