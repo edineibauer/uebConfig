@@ -744,11 +744,10 @@ function setCookieUser(user) {
             /**
              * Seta usuário
              * */
-            setCookie("token", user.token);
-            setCookie("id", user.id);
-            setCookie("nome", user.nome);
-            setCookie("imagem", user.imagem);
-            setCookie("setor", user.setor);
+            $.each(user, function (i, e) {
+                setCookie(i, e);
+                localStorage.setItem(i, e);
+            });
 
             /**
              * Obtém novos dados de usuário
