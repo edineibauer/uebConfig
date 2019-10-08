@@ -8,9 +8,15 @@ $setor = !empty($_SESSION['userlogin']) ? (!empty($_SESSION['userlogin']['setor'
 
 if (!empty($file) && !empty($lib)) {
 
-    $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $file . ".php";
-    if (!file_exists($include))
-        $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $setor . "/" . $file . ".php";
+    if($lib === DOMINIO) {
+        $include = PATH_HOME . "/public/set/" . $file . ".php";
+        if (!file_exists($include))
+            $include = PATH_HOME . "/public/set/" . $setor . "/" . $file . ".php";
+    } else {
+        $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $file . ".php";
+        if (!file_exists($include))
+            $include = PATH_HOME . VENDOR . $lib . "/public/set/" . $setor . "/" . $file . ".php";
+    }
 
     $result = "";
     if (file_exists($include)) {
