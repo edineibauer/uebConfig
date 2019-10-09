@@ -503,11 +503,19 @@ function checkUpdate() {
  * Sidebar Functions
  * */
 function closeSidebar() {
-    $("#core-overlay, #core-sidebar, #core-log").removeClass("active");
+    $("#core-sidebar").removeClass("active");
+    if(window.innerWidth > 899)
+        $("#core-sidebar").css("top", ($("#core-header")[0].clientHeight - 50) + "px");
+
+    setTimeout(function () {
+        $("#core-sidebar").addClass("hide")
+    }, 150);
 }
 
 function openSidebar() {
-    $("#core-overlay, #core-sidebar").addClass("active");
+    $("#core-sidebar").removeClass("hide").addClass("active");
+    if(window.innerWidth > 899)
+        $("#core-sidebar").css("top", $("#core-header")[0].clientHeight + "px");
 }
 
 function toggleSidebar(action = 'toggle') {
