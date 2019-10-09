@@ -254,7 +254,7 @@ function get(file, retrying) {
                 return get(file, typeof retrying === "undefined" ? 1 : 2);
             }, 2000);
         } else {
-            toast("Comunicação OFFLINE com o arquivo " + file, 7000, "toast-error");
+            toast("Comunicação OFFLINE com o arquivo '" + file + "'", 7000, "toast-error");
         }
     })
 }
