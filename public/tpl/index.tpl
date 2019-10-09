@@ -10,7 +10,7 @@
         {include 'header.tpl'}
     </div>
 
-    <aside id="core-sidebar" class="core-class-container">
+    <aside id="core-sidebar" class="core-class-container hide">
         {include 'aside.tpl'}
     </aside>
 
