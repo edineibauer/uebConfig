@@ -229,7 +229,7 @@ function getJSON(url) {
     })
 }
 
-function get(file) {
+function get(file, retrying) {
     return getJSON(HOME + "get/" + file).then(data => {
         if (data.response === 1) {
             if (typeof data.data.js === "undefined")
@@ -248,13 +248,13 @@ function get(file) {
                         toast("Caminho não encontrado", 1500, "toast-warning")
             }
         }
-        if(typeof retrying === "undefined") {
-            toast("Erro na Conexão! Tentando novamente...", 3000, "toast-warning");
+        if(typeof retrying === "undefined" || retrying === 1) {
+            toast("Comunicação perdida! Tentando novamente...", 3000, "toast-warning");
             setTimeout(function () {
-                return get(file, 1);
+                return get(file, typeof retrying === "undefined" ? 1 : 2);
             }, 2000);
         } else {
-            toast("Erro na Conexão! arquivo " + file + " não recebido", 7000, "toast-error");
+            toast("Comunicação OFFLINE com o arquivo " + file, 7000, "toast-error");
         }
     })
 }
