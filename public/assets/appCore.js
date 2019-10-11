@@ -1713,9 +1713,16 @@ $(function () {
                 return menuHeader();
 
             }).then(() => {
-                let scriptCore = document.createElement('script');
-                scriptCore.src = HOME + "assetsPublic/core.min.js";
-                document.head.appendChild(scriptCore);
+                return new Promise((resolve, reject) => {
+                    $.getScript(HOME + "assetsPublic/core.min.js", function (data, textStatus, jqxhr) {
+                        console.log('carregou');
+                        if (jqxhr.status === 200) {
+                            resolve(data);
+                        } else {
+                            reject(0);
+                        }
+                    });
+                });
             }).then(() => {
                 readRouteState();
 
