@@ -1715,12 +1715,10 @@ $(function () {
             }).then(() => {
                 return new Promise((resolve, reject) => {
                     $.getScript(HOME + "assetsPublic/core.min.js", function (data, textStatus, jqxhr) {
-                        console.log('carregou');
-                        if (jqxhr.status === 200) {
+                        if (jqxhr.status === 200)
                             resolve(data);
-                        } else {
+                        else
                             reject(0);
-                        }
                     });
                 });
             }).then(() => {
