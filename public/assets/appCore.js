@@ -1672,7 +1672,7 @@ $(function () {
                 e.preventDefault();
                 history.back();
             } else {
-                let animation = $(this).attr("data-animation") || "fade";
+                let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "fade";
                 let p = new RegExp(/^#/i);
                 let pjs = new RegExp(/^javascript/i);
                 if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
