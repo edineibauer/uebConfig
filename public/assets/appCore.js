@@ -1748,14 +1748,20 @@ $(function () {
         });
 
     } else {
-        let scriptCore = document.createElement('script');
-        scriptCore.src = HOME + "assetsPublic/core.min.js";
-        document.head.appendChild(scriptCore);
-
-        return clearCache().then(() => {
-            setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
-            readRouteState();
-        })
+        return new Promise((resolve, reject) => {
+            $.cachedScript(HOME + "assetsPublic/core.min.js?v=" + VERSION, {
+                success: function () {
+                    resolve(1);
+                }, fail: function () {
+                    reject(0);
+                }
+            });
+        }).then(() => {
+            return clearCache().then(() => {
+                setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
+                readRouteState();
+            })
+        });
     }
 
     /**
