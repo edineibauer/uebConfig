@@ -1720,11 +1720,12 @@ $(function () {
 
             }).then(() => {
                 return new Promise((resolve, reject) => {
-                    $.getScript(HOME + "assetsPublic/core.min.js", function (data, textStatus, jqxhr) {
-                        if (jqxhr.status === 200)
-                            resolve(data);
-                        else
+                    $.cachedScript(HOME + "assetsPublic/core.min.js?v=" + VERSION, {
+                        success: function () {
+                            resolve(1);
+                        }, fail: function () {
                             reject(0);
+                        }
                     });
                 });
             }).then(() => {
