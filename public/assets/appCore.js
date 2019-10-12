@@ -1720,7 +1720,7 @@ $(function () {
 
             }).then(() => {
                 return new Promise((resolve, reject) => {
-                    $.cachedScript(HOME + "assetsPublic/core.min.js?v=" + VERSION, {
+                    $.cachedScript(HOME + "assetsPublic/core.min.js", {
                         success: function () {
                             resolve(1);
                         }, fail: function () {
@@ -1749,7 +1749,7 @@ $(function () {
 
     } else {
         return new Promise((resolve, reject) => {
-            $.cachedScript(HOME + "assetsPublic/core.min.js?v=" + VERSION, {
+            $.cachedScript(HOME + "assetsPublic/core.min.js", {
                 success: function () {
                     resolve(1);
                 }, fail: function () {
