@@ -1338,6 +1338,7 @@ var lastPositionScroll = 0;
 var sentidoScrollDown = !1;
 var historyPosition = 1;
 var historyReqPosition = 0;
+var loadingEffect = null;
 
 /**
  * app global de navegação do app
@@ -1350,10 +1351,15 @@ var app = {
         app.loading = !1;
         $("#core-loader").css("display", "none");
         $("html").css("opacity", 1);
+        clearInterval(loadingEffect);
     }, setLoading: function () {
         app.loading = !0;
         $("#core-loader").css("display", "block");
         $("html").css("opacity", .9);
+
+        loadingEffect = setInterval(function () {
+            $("#core-header").loading();
+        }, 1900);
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
