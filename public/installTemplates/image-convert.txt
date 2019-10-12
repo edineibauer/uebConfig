@@ -10,7 +10,7 @@ $url = str_replace($format . '/', '', $_GET['data']);
 Helper::createFolderIfNoExist(PATH_HOME . "uploads/tmp");
 
 if(($format === 'bmp' || $format === "bitmap")) {
-    $name = pathinfo($url, PATHINFO_FILENAME);
+    $name = isset($_GET['title']) && !empty($_GET['title']) ? $_GET['title'] : pathinfo($url, PATHINFO_FILENAME);
     $im = imagecreatefromwebp(PATH_HOME . str_replace(str_replace("//", "/", HOME), "", $url));
     imagebmp($im, PATH_HOME . "uploads/tmp/" . $name . '.bmp');
     imagedestroy($im);
