@@ -570,73 +570,75 @@ function loginBtn() {
 function menuBottom(tpl) {
     let menu = [];
     if (HOMEPAGE === "0")
-        menu.push({href: HOME, rel: 'index', text: "<i class='material-icons left'>home</i>"});
+        menu.push({href: HOME, attr: 'rel="index"', html: "<i class='material-icons left'>home</i>"});
     if (getCookie("token") !== "" && getCookie("token") !== "0")
-        menu.push({href: HOME + 'dashboard', rel: 'dashboard', text: "<i class='material-icons left'>dashboard</i>"});
+        menu.push({
+            href: HOME + 'dashboard',
+            attr: 'rel="dashboard"',
+            html: "<i class='material-icons left'>dashboard</i>"
+        });
     if (getCookie("setor") === "admin") {
-        menu.push({href: HOME + 'UIDev', rel: 'UIDev', text: "<i class='material-icons left'>settings</i>"});
+        menu.push({href: HOME + 'UIDev', attr: 'rel="UIDev"', html: "<i class='material-icons left'>settings</i>"})
     }
-
     if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
         $("#core-header-nav-bottom").removeClass('s-show');
-        return;
+        return
     }
     $("#core-header-nav-bottom").addClass('s-show');
-
     let content = "";
     for (let m in menu) {
-        if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
-            if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
-            } else {
-                content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
-            }
-        }
+        if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
+            content += Mustache.render(tpl['menu-header'], menu[m])
     }
-    document.querySelector("#core-menu-custom-bottom").innerHTML = content;
-
-    /* Divide menu bottom igualmente */
+    $("#core-menu-custom-bottom").html(content);
     let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
-    $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%");
+    $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
 }
 
 function menuHeader() {
+    $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px");
     loginBtn();
-    sidebarUserInfo();
-    return dbLocal.exeRead("__template", 1).then(tpl => {
-        menuBottom(tpl);
-        let menu = [];
+    let templates = dbLocal.exeRead("__template", 1);
+    let menu = dbLocal.exeRead("__menu", 1);
+    return Promise.all([templates, menu]).then(r => {
+        let tpl = r[0];
+        let menu = r[1];
         if (getCookie("token") !== "" && getCookie("token") !== "0") {
-            menu.push({
-                href: HOME + 'dashboard',
-                rel: 'dashboard',
-                class: 's-hide',
-                text: "<i class='material-icons left'>dashboard</i>"
-            });
-
             if (getCookie("setor") === "admin") {
-                menu.push({href: HOME + 'UIDev', rel: 'UIDev', class: 's-hide', text: "<i class='material-icons left'>settings</i>"});
+                menu.push({
+                    href: HOME + 'UIDev',
+                    attr: 'rel="UIDev"',
+                    class: 's-hide',
+                    html: "<i class='material-icons left'>settings</i>"
+                });
                 menu.push({
                     href: HOME + 'UIEntidades',
                     class: 's-hide',
-                    rel: 'UIEntidades',
-                    text: "<i class='material-icons left'>accessibility_new</i>"
-                });
+                    attr: 'rel="UIEntidades"',
+                    html: "<i class='material-icons left'>accessibility_new</i>"
+                })
             }
+            menu.push({
+                rel: '',
+                funcao: '',
+                class: 'nomeHeader',
+                html: "<div class='core-class-container' style='font-weight: bold'><div class='perfil-name' style='float: right'></div><div style='float: right;padding-right: 5px'>Dr. </div></div><div class='core-class-container'><div style='float:right;font-weight:bold;font-size: 11px'><div style='padding-right: 5px'>CRM </div><div class='perfil-crm'></div></div><div style='float:right;padding-right:15px' class='perfil-address1'></div></div>"
+            })
         }
-        menu.push({rel: '', funcao: 'toggleSidebar', text: (getCookie("imagem") !== "" ? "<img src='" + getCookie("imagem") + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons left'>perm_identity</i>")});
-
+        menu.push({
+            rel: '',
+            funcao: 'toggleSidebar',
+            class: '',
+            html: "<img src='' class='perfil-photo_64' style='border-radius: 50%;margin: 5px 0 0 -30px; height: 44px;width: 44px' />"
+        });
+        console.log(menu);
+        menuBottom(tpl);
         let content = "";
         for (let m in menu) {
-            if (typeof menu[m].text === "string" && menu[m].text !== "undefined") {
-                if (typeof menu[m].href === "undefined" && typeof menu[m].funcao === "string") {
-                    content += tpl['menu-header-funcao'].replace("{{funcao}}", menu[m].funcao).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
-                } else {
-                    content += tpl['menu-header-href'].replace("{{href}}", menu[m].href).replace("{{rel}}", menu[m].rel).replace("{{{text}}}", menu[m].text).replace("{{class}}", menu[m].class).replace("{{class}}", menu[m].class + " theme-text-aux")
-                }
-            }
+            if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
+                content += Mustache.render(tpl['menu-header'], menu[m])
         }
-        document.querySelector("#core-menu-custom").innerHTML = content;
+        $("#core-menu-custom").html(content);
     })
 }
 

@@ -1,0 +1,8 @@
+<li class="menu-li {{li.class}}"  {{#li.style}}style="{{li.style}}" {{/li.style}}{{{li.attr}}} >
+    {{#funcao}}
+        <div onclick="{{funcao}}()" class="{{class}}" {{#style}}style="{{style}}"{{/style}} {{{attr}}}>{{{html}}}</div>
+    {{/funcao}}
+    {{#href}}
+        <a href="{{href}}" class="{{class}}" {{#style}}style="{{style}}" {{/style}}{{attr}}>{{{html}}}</a>
+    {{/href}}
+</li>
