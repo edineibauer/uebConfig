@@ -543,27 +543,28 @@ function logoutDashboard() {
 }
 
 function sidebarUserInfo() {
-    if (getCookie("token") === "0" || getCookie("imagem") === "") {
+    if (getCookie("token") === "0" || localStorage.imagem === "") {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
     } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(getCookie("imagem")) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(localStorage.imagem) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
     document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
 function loginBtn() {
+    sidebarUserInfo();
     let btnLoginAside = document.querySelector("#login-aside");
     if (getCookie("setor") !== "" && getCookie("setor") !== "0") {
         btnLoginAside.onclick = function () {
             logoutDashboard()
         };
-        btnLoginAside.children[0].innerHTML = "exit_to_app"
+        btnLoginAside.children[1].innerHTML = "exit_to_app"
     } else {
         btnLoginAside.onclick = function () {
-            pageTransition("login", "route", "forward", "#core-content", null, null, !1);
+            pageTransition("login", "route", "forward", "#core-content", null, null, !1)
         };
-        btnLoginAside.children[0].innerHTML = "input"
+        btnLoginAside.children[1].innerHTML = "input"
     }
 }
 
@@ -604,6 +605,12 @@ function menuHeader() {
         let tpl = r[0];
         let menu = r[1];
         if (getCookie("token") !== "" && getCookie("token") !== "0") {
+            menu.push({
+                href: HOME + 'dashboard',
+                attr: 'rel="dashboard"',
+                class: 's-hide',
+                html: "<i class='material-icons left'>dashboard</i>"
+            });
             if (getCookie("setor") === "admin") {
                 menu.push({
                     href: HOME + 'UIDev',
@@ -618,18 +625,10 @@ function menuHeader() {
                     html: "<i class='material-icons left'>accessibility_new</i>"
                 })
             }
-            menu.push({
-                rel: '',
-                funcao: '',
-                class: 'nomeHeader',
-                html: "<div class='core-class-container' style='font-weight: bold'><div class='perfil-name' style='float: right'></div><div style='float: right;padding-right: 5px'>Dr. </div></div><div class='core-class-container'><div style='float:right;font-weight:bold;font-size: 11px'><div style='padding-right: 5px'>CRM </div><div class='perfil-crm'></div></div><div style='float:right;padding-right:15px' class='perfil-address1'></div></div>"
-            })
         }
         menu.push({
-            rel: '',
             funcao: 'toggleSidebar',
-            class: '',
-            html: "<img src='' class='perfil-photo_64' style='border-radius: 50%;margin: 5px 0 0 -30px; height: 44px;width: 44px' />"
+            html: (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons' style='padding:8px'>perm_identity</i>")
         });
         console.log(menu);
         menuBottom(tpl);

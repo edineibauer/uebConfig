@@ -11,8 +11,7 @@
   "css": [
     "normalize",
     "toast",
-    "app",
-    "header"
+    "app"
   ],
   "font": [
     "roboto"

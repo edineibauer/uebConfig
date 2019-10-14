@@ -2,10 +2,6 @@
     <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
         <div class="left" id="core-sidebar-imagem"></div>
 
-        <div id="login-aside">
-            <i class="material-icons">exit_to_app</i>
-        </div>
-
         <div id="core-sidebar-perfil-name">
             <div class="core-class-container" id="core-header-name">
                 <strong id="core-sidebar-nome"></strong>
@@ -31,5 +27,9 @@
 
     <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;cursor:pointer">
         <i class="material-icons">notifications_active</i>
+    </div>
+
+    <div id="login-aside">
+        <i class="material-icons">exit_to_app</i>
     </div>
 </div>
