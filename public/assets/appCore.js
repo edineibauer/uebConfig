@@ -503,7 +503,7 @@ function checkUpdate() {
  * Sidebar Functions
  * */
 function closeSidebar() {
-    $("#core-sidebar").removeClass("active");
+    $("#core-sidebar, #core-overlay").removeClass("active");
     if(window.innerWidth > 899)
         $("#core-sidebar").css("top", ($("#core-header")[0].clientHeight - 50) + "px");
 
@@ -513,9 +513,18 @@ function closeSidebar() {
 }
 
 function openSidebar() {
-    $("#core-sidebar").removeClass("hide").addClass("active");
-    if(window.innerWidth > 899)
-        $("#core-sidebar").css("top", $("#core-header")[0].clientHeight + "px");
+    let $sidebar = $("#core-sidebar");
+    $sidebar.removeClass("hide").addClass("active");
+    if(window.innerWidth > 899) {
+        $sidebar.css("top", $("#core-header")[0].clientHeight + "px");
+
+        $(document).mouseup(function(e) {
+            if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
+                $sidebar.hide();
+        });
+    } else {
+        $("#core-overlay").addClass("active");
+    }
 }
 
 function toggleSidebar(action = 'toggle') {
