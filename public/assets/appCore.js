@@ -642,7 +642,6 @@ function menuHeader() {
             li: {class: 'not-menu-li'},
             html: (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>")
         });
-        console.log(menu);
         menuBottom(tpl);
         let content = "";
         for (let m in menu) {
