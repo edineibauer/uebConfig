@@ -520,7 +520,7 @@ function openSidebar() {
 
         $(document).mouseup(function(e) {
             if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
-                $sidebar.hide();
+                closeSidebar();
         });
     } else {
         $("#core-overlay").addClass("active");
