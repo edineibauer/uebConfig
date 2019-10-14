@@ -30,6 +30,7 @@
     </div>
 
     <div id="login-aside">
+        <div>sair</div>
         <i class="material-icons">exit_to_app</i>
     </div>
 </div>
