@@ -531,10 +531,8 @@ function openSidebar() {
 
 function toggleSidebar(action = 'toggle') {
     if (action === 'toggle') {
-        if ($("#core-sidebar").hasClass("active"))
-            closeSidebar();
-        else
-            openSidebar()
+        if (!$("#core-sidebar").hasClass("active"))
+            openSidebar();
     } else if (action) {
         openSidebar()
     } else {
