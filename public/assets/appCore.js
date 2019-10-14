@@ -554,7 +554,7 @@ function sidebarUserInfo() {
     if (getCookie("token") === "0" || localStorage.imagem === "") {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
     } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(localStorage.imagem) + "&h=120&w=120' height='80' width='100' id='core-sidebar-perfil-img'>"
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(localStorage.imagem) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
     document.querySelector("#core-sidebar-edit").classList.add("hide")
