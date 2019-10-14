@@ -518,9 +518,11 @@ function openSidebar() {
     if(window.innerWidth > 899) {
         $sidebar.css("top", $("#core-header")[0].clientHeight + "px");
 
-        $(document).mouseup(function(e) {
-            if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
+        $("#app").on("mouseup", function(e) {
+            if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0) {
                 closeSidebar();
+                $("#app").off("mouseup");
+            }
         });
     } else {
         $("#core-overlay").addClass("active");
