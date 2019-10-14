@@ -608,19 +608,19 @@ function menuHeader() {
             menu.push({
                 href: HOME + 'dashboard',
                 attr: 'rel="dashboard"',
-                class: 's-hide',
+                class: 's-hide theme-text-aux',
                 html: "<i class='material-icons left'>dashboard</i>"
             });
             if (getCookie("setor") === "admin") {
                 menu.push({
                     href: HOME + 'UIDev',
                     attr: 'rel="UIDev"',
-                    class: 's-hide',
+                    class: 's-hide theme-text-aux',
                     html: "<i class='material-icons left'>settings</i>"
                 });
                 menu.push({
                     href: HOME + 'UIEntidades',
-                    class: 's-hide',
+                    class: 's-hide theme-text-aux',
                     attr: 'rel="UIEntidades"',
                     html: "<i class='material-icons left'>accessibility_new</i>"
                 })
@@ -628,7 +628,7 @@ function menuHeader() {
         }
         menu.push({
             funcao: 'toggleSidebar',
-            html: (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons' style='padding:8px'>perm_identity</i>")
+            html: (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>")
         });
         console.log(menu);
         menuBottom(tpl);
