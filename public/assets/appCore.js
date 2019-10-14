@@ -518,14 +518,14 @@ function openSidebar() {
     $sidebar.removeClass("hide").addClass("active");
     if(window.innerWidth > 899) {
         $sidebar.css("top", $("#core-header")[0].clientHeight + "px");
-
-        $("#app").on("mouseup", function(e) {
-            if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
-                closeSidebar();
-        });
     } else {
         $("#core-overlay").addClass("active");
     }
+
+    $("#app").on("mouseup", function(e) {
+        if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
+            closeSidebar();
+    });
 }
 
 function toggleSidebar(action = 'toggle') {
