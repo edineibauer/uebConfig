@@ -1,14 +1,14 @@
 [
   {
-    "href": HOME + 'dashboard',
-    "attr": 'rel="dashboard"',
-    "class": 's-hide theme-text-aux',
+    "href": "dashboard",
+    "attr": "rel='dashboard'",
+    "class": "s-hide theme-text-aux",
     "html": "<i class='material-icons left'>dashboard</i>"
   },
   {
-    "funcao": 'toggleSidebar',
+    "funcao": "toggleSidebar",
     "li": {
-        class: 'not-menu-li'
+        "class": "not-menu-li"
     },
     "html": "<div id='core-header-perfil'></div>"
   }
