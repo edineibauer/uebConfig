@@ -5,4 +5,9 @@
     {{#href}}
         <a href="{{href}}" class="{{class}}" {{#style}}style="{{{style}}}" {{/style}}{{{attr}}}>{{{html}}}</a>
     {{/href}}
+    {{^funcao}}
+        {{^href}}
+            <div class="{{class}}" {{#style}}style="{{{style}}}"{{/style}} {{{attr}}}>{{{html}}}</div>
+        {{/href}}
+    {{/funcao}}
 </li>

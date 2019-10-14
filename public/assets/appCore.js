@@ -604,6 +604,11 @@ function menuBottom(tpl) {
     $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
 }
 
+function afterMenuHeader() {
+    let perfilImg = (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+    $("#core-header-perfil").html(perfilImg);
+}
+
 function menuHeader() {
     $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px");
     loginBtn();
@@ -612,33 +617,7 @@ function menuHeader() {
     return Promise.all([templates, menu]).then(r => {
         let tpl = r[0];
         let menu = r[1];
-        if (getCookie("token") !== "" && getCookie("token") !== "0") {
-            menu.push({
-                href: HOME + 'dashboard',
-                attr: 'rel="dashboard"',
-                class: 's-hide theme-text-aux',
-                html: "<i class='material-icons left'>dashboard</i>"
-            });
-            if (getCookie("setor") === "admin") {
-                menu.push({
-                    href: HOME + 'UIDev',
-                    attr: 'rel="UIDev"',
-                    class: 's-hide theme-text-aux',
-                    html: "<i class='material-icons left'>settings</i>"
-                });
-                menu.push({
-                    href: HOME + 'UIEntidades',
-                    class: 's-hide theme-text-aux',
-                    attr: 'rel="UIEntidades"',
-                    html: "<i class='material-icons left'>accessibility_new</i>"
-                })
-            }
-        }
-        menu.push({
-            funcao: 'toggleSidebar',
-            li: {class: 'not-menu-li'},
-            html: (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>")
-        });
+
         menuBottom(tpl);
         let content = "";
         for (let m in menu) {
@@ -646,6 +625,7 @@ function menuHeader() {
                 content += Mustache.render(tpl['menu-header'], menu[m])
         }
         $("#core-menu-custom").html(content);
+        afterMenuHeader();
     })
 }
 

@@ -237,6 +237,8 @@ class UpdateSystem
      */
     private function copyInstallTemplate()
     {
+        Helper::createFolderIfNoExist(PATH_HOME . "public/dash/admin");
+        Helper::createFolderIfNoExist(PATH_HOME . "public/overload");
         Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.txt"));
         Config::writeFile("apiView.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiView.txt"));
         Config::writeFile("apiGet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiGet.txt"));
@@ -244,6 +246,10 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
         Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
+        if(!file_exists(PATH_HOME . "public/dash/menu.json"))
+            Config::writeFile("public/dash/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/dash.txt"));
+        if(!file_exists(PATH_HOME . "public/dash/admin/menu.json"))
+            Config::writeFile("public/dash/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/dashAdmin.txt"));
 
         //CONSTANTES EM CONFIG
         $contantes = [];

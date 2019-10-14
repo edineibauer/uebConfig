@@ -172,11 +172,13 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("public/set");
         Config\Config::createDir("public/get");
         Config\Config::createDir("public/api");
+        Config\Config::createDir("public/overload");
         Config\Config::createDir("public/react");
         Config\Config::createDir("public/react/online");
         Config\Config::createDir("public/param");
         Config\Config::createDir("public/assets");
         Config\Config::createDir("public/dash");
+        Config\Config::createDir("public/dash/admin");
         Config\Config::createDir("public/tpl");
         Config\Config::createDir("public/cron");
         Config\Config::createDir("public/entity");

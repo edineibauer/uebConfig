@@ -1,0 +1,27 @@
+[
+  {
+    "href": HOME + 'dashboard',
+    "attr": 'rel="dashboard"',
+    "class": 's-hide theme-text-aux',
+    "html": "<i class='material-icons left'>dashboard</i>"
+  },
+  {
+    "href": HOME + 'UIDev',
+    "attr": 'rel="UIDev"',"
+    "class": 's-hide theme-text-aux',
+    "html": "<i class='material-icons left'>settings</i>"
+  },
+  {
+    "href": HOME + 'UIEntidades',
+    "class": 's-hide theme-text-aux',
+    "attr": 'rel="UIEntidades"',
+    "html": "<i class='material-icons left'>accessibility_new</i>"
+  },
+  {
+    "funcao": 'toggleSidebar',
+    "li": {
+        class: 'not-menu-li'
+    },
+    "html": "<div id='core-header-perfil'></div>"
+  }
+]
