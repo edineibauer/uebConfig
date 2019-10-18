@@ -214,6 +214,7 @@ class UpdateSystem
 
         $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/hammer.min.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/moment.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/mustache.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/idb.js");
