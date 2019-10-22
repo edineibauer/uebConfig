@@ -837,6 +837,9 @@ function getDefaultValue(meta, value) {
                 valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
                 break;
             case 'valor':
+                if(typeof value === "number")
+                    value = value.toString();
+
                 let f = "";
                 for (let i = 0; i < value.length; i++) {
                     if (!isNaN(value[i]))
