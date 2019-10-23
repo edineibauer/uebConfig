@@ -182,14 +182,14 @@ function post(lib, file, param, funcao) {
             } else {
                 switch (data.response) {
                     case 2:
-                        toast(data.error, 3000, "toast-warning");
+                        toast(data.error, 7000, "toast-warning");
                         break;
                     case 3:
                         location.href = data.data;
                         break;
                     case 4:
                         if (data.data === "no-network")
-                            toast("Sem Conexão", 1000, "toast-warning");
+                            toast("Sem Conexão", 3000, "toast-warning");
                         else
                             toast("Caminho não encontrado", "toast-warning");
                         break
@@ -199,7 +199,7 @@ function post(lib, file, param, funcao) {
                     funcao((data.data === "no-network" ? "no-network" : null));
             }
         }, fail: function() {
-            toast("Erro na Conexão", 1000, "toast-warning");
+            toast("Erro na Conexão", 3000, "toast-warning");
         }, dataType: "json"
     })
 }
@@ -234,7 +234,7 @@ function get(file, retrying) {
         if (data.response === 1) {
             if (typeof data.data.js === "undefined")
                 return data.data;
-            toast("sem conexão", 1500, "toast-warning")
+            toast("sem conexão", 2500, "toast-warning")
         } else {
             switch (data.response) {
                 case 2:
@@ -245,11 +245,11 @@ function get(file, retrying) {
                     break;
                 case 4:
                     if (data.data !== "no-network")
-                        toast("Caminho não encontrado", 1500, "toast-warning")
+                        toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
         if(typeof retrying === "undefined" || retrying === 1) {
-            toast("Comunicação perdida! Tentando novamente...", 3000, "toast-warning");
+            toast("Comunicação perdida! Tentando novamente...", 5000, "toast-warning");
             setTimeout(function () {
                 return get(file, typeof retrying === "undefined" ? 1 : 2);
             }, 2000);
@@ -267,7 +267,7 @@ function view(file, funcao) {
         } else {
             switch (data.response) {
                 case 2:
-                    toast(data.error, 3000, "warning");
+                    toast(data.error, 7000, "warning");
                     break;
                 case 3:
                     location.href = data.data;
@@ -444,10 +444,10 @@ function subscribeUser(showMessageSuccess) {
             updateSubscriptionOnServer(subscription, showMessageSuccess);
             $(".site-btn-push").remove()
         }).catch(function (err) {
-            toast("Erro ao tentar receber as notificações", 3500, "toast-warning")
+            toast("Erro ao tentar receber as notificações", 7500, "toast-warning")
         })
     } else {
-        toast("Chave pública do Push não definida", 3500, "toast-warning")
+        toast("Chave pública do Push não definida", 7500, "toast-warning")
     }
 }
 
@@ -541,7 +541,7 @@ function toggleSidebar(action = 'toggle') {
 
 function logoutDashboard() {
     if (navigator.onLine) {
-        toast("Saindo...", 1500);
+        toast("Saindo...", 2500);
         setCookieAnonimo().then(() => {
             location.href = HOME + "login";
         })
@@ -717,7 +717,7 @@ function clearCache() {
 
 function updateCache() {
     if (navigator.onLine) {
-        toast("Atualizando Aplicativo", 3000, "toast-success");
+        toast("Atualizando Aplicativo", 7000, "toast-success");
         clearCache().then(() => {
             location.reload();
         })
