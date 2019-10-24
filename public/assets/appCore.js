@@ -618,6 +618,9 @@ function menuHeader() {
         let tpl = r[0];
         let menu = r[1];
 
+        if(typeof menu !== "object" || menu.constructor !== Array || menu === null)
+            menu = [];
+
         menuBottom(tpl);
         let content = "";
         for (let m in menu) {
