@@ -595,7 +595,7 @@ function sidebarUserInfo() {
     if (getCookie("token") === "0" || localStorage.imagem === "") {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
     } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(localStorage.imagem) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(JSON.parse(localStorage.imagem)[0]['urls'][100]) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
     document.querySelector("#core-sidebar-edit").classList.add("hide")
@@ -646,7 +646,7 @@ function menuBottom(tpl) {
 }
 
 function afterMenuHeader() {
-    let perfilImg = (localStorage.imagem !== "" ? "<img src='" + localStorage.imagem + "' style='border-radius: 50%; height: 44px;width: 44px' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+    let perfilImg = (localStorage.imagem !== "" ? "<img src='" + JSON.parse(localStorage.imagem)[0]['urls'][100] + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
     $("#core-header-perfil").html(perfilImg);
 }
 
@@ -1551,7 +1551,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
                 let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
                 let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
-                let data = (typeof param === "object" && typeof param.data === "object" ? Object.assign({id: id}, param.data) : null );
+                let data = (typeof param === "object" && typeof param.data === "object" ? Object.assign({id: id}, param.data) : (!isEmpty(id) ? {id: id} : null));
 
                 /**
                  * ## Identificador ##
