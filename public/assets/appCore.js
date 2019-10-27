@@ -1,22 +1,37 @@
 /**
- * Adiciona função para carregar e cachear Scripts
- * */
+ * Adiciona script na página com cach
+ * @param url
+ * @param options
+ * @returns {*}
+ */
 $.cachedScript = function (url, options) {
     options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
     return $.ajax(options)
 };
 
+/**
+ * Primeiro caractere em caixa alta
+ * @param string
+ * @returns {string}
+ */
 function ucFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 /**
  * Preenche com 2 zeros a esquerda caso tenha menos que 2 caracteres
- * */
+ * @param n
+ * @returns {string}
+ */
 function zeroEsquerda(n) {
     return ("00" + n).slice(-2);
 }
 
+/**
+ * Padroniza valores nulos em Array
+ * @param param
+ * @returns {*}
+ */
 function convertEmptyArrayToNull(param) {
     if (typeof (param) === "object" && !$.isEmptyObject(param)) {
         $.each(param, function (key, value) {
@@ -29,27 +44,53 @@ function convertEmptyArrayToNull(param) {
 }
 
 /**
- * Adiciona função remover item nas variáveis do tipo Array
- * */
-Array.prototype.removeItem = function (name) {
-    if ($.inArray(name, this) > -1) {
-        this.splice($.inArray(name, this), 1)
-    }
-    return $.grep(this, function () {
-        return !0
-    })
-};
+ * Remove um valor do array através do nome
+ * @param array
+ * @param name
+ * @returns {*}
+ */
+function removeItemArray (array, name) {
+    if ($.inArray(name, array) > -1)
+        array.splice($.inArray(name, array), 1);
 
-Array.prototype.pushTo = function (item, index) {
-    this.splice(index, 1, item);
-};
+    return $.grep(array, function () {
+        return !0
+    });
+}
+
+/**
+ * Adicionar um valor ao array em uma posição específica
+ * @param array
+ * @param item
+ * @param index
+ */
+function pushToArrayIndex (array, item, index) {
+    array.splice(index, 1, item);
+}
 
 /**
  * troca todas as ocorrências na string
- * */
-String.prototype.replaceAll = function (search, replacement) {
+ * @param string
+ * @param search
+ * @param replacement
+ * @returns {void | string}
+ */
+function replaceAll (string, search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
+}
+
+/**
+ * Obtém o número de parametros do objeto
+ * @param obj
+ * @returns {number}
+ */
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
 };
 
 /**
@@ -81,7 +122,7 @@ function fetchFromObject(obj, prop) {
         return false;
     }
 
-    var _index = prop.indexOf('.')
+    var _index = prop.indexOf('.');
     if (_index > -1) {
         return fetchFromObject(obj[prop.substring(0, _index)], prop.substr(_index + 1));
     }
@@ -1549,9 +1590,9 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                                     form.data.columnTituloExtend = title;
                                     form.data.columnName = history.state.param.openForm.column;
                                     form.data.columnRelation = history.state.param.openForm.entity;
-                                    form.data.columnStatus = {column: '', have: !1, value: !1}
+                                    form.data.columnStatus = {column: '', have: !1, value: !1};
 
-                                    data[history.state.param.openForm.column].pushTo(form.data, i);
+                                    pushToArrayIndex(data[history.state.param.openForm.column], form.data, i);
                                 }));
                                 return !1
                             }
