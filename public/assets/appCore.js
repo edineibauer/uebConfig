@@ -594,7 +594,7 @@ function sidebarUserInfo() {
     if (getCookie("token") === "0" || localStorage.imagem === "" || localStorage.imagem === "null") {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
     } else {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(JSON.parse(localStorage.imagem)[0]['urls'][100]) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
     document.querySelector("#core-sidebar-edit").classList.add("hide")
@@ -645,7 +645,7 @@ function menuBottom(tpl) {
 }
 
 function afterMenuHeader() {
-    let perfilImg = (localStorage.imagem !== "" && localStorage.imagem !== "null" ? "<img src='" + JSON.parse(localStorage.imagem)[0]['urls'][100] + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+    let perfilImg = (localStorage.imagem !== "" && localStorage.imagem !== "null" ? "<img src='" + JSON.parse(localStorage.imagem)['urls'][100] + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
     $("#core-header-perfil").html(perfilImg);
 }
 
