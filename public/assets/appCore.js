@@ -786,6 +786,9 @@ function setCookieUser(user) {
              * Seta usuário
              * */
             $.each(user, function (i, e) {
+                if(typeof e === "object")
+                    e = JSON.stringify(e);
+
                 setCookie(i, e);
                 localStorage.setItem(i, e);
             });
