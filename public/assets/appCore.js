@@ -75,8 +75,7 @@ function pushToArrayIndex (array, item, index) {
  * @param replacement
  * @returns {void | string}
  */
-function replaceAll (string, search, replacement) {
-    var target = this;
+function replaceAll (target, search, replacement) {
     return target.replace(new RegExp(search, 'g'), replacement);
 }
 
