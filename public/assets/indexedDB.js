@@ -308,16 +308,18 @@ const db = {
                 let action = r[0][1];
                 react = r[1];
                 return dbLocal.exeCreate(entity, dados).then(() => {
-                    if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                        eval(react[0][entity][action])
-                }).then(() => {
                     dados.db_action = action;
                     return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
                         if (sync)
                             return dbRemote.syncPost(entity, dados.id);
                         return dados;
                     });
-                })
+                }).then(d => {
+                    dados = d[0];
+                    if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined") {
+                        eval(react[0][entity][action]);
+                    }
+                });
             })
         } else {
             return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
