@@ -1,8 +1,11 @@
 [
   {
     "href": "dashboard",
+    "li": {
+      "class": "s-hide"
+    },
     "attr": "rel='dashboard'",
-    "class": "s-hide theme-text-aux",
+    "class": "theme-text-aux",
     "html": "<i class='material-icons left'>dashboard</i>"
   },
   {
