@@ -22,8 +22,7 @@ function getAssetsMidias(string $path, array $dados, string $domain): array
                 $extension = explode('&', pathinfo($asset, PATHINFO_EXTENSION))[0];
 
                 if (in_array($extension, ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
-                    $dados['midia'][] = HOME . "{$path}/{$asset}";
-
+                    $dados['midia'][] = (preg_match("/^public\/assets/i", $path) ? str_replace("public/assets", PUBLICO . "assets", $path) : HOME . "{$path}") . "/{$asset}?v=" . VERSION;
             } else {
                 $dados = getAssetsMidias("{$path}/{$asset}", $dados, $domain);
             }

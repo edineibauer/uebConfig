@@ -21,7 +21,7 @@ function getAssets(string $path, array $dados): array
                 $extension = explode('&', pathinfo($asset, PATHINFO_EXTENSION))[0];
 
                 if (!in_array($extension, ["js", "css", "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"]))
-                    $dados['misc'][] = HOME . "{$path}/{$asset}";
+                    $dados['misc'][] = (preg_match("/^public\/assets/i", $path) ? str_replace("public/assets", PUBLICO . "assets", $path) : HOME . "{$path}") . "/{$asset}?v=" . VERSION;
 
             } else {
                 $dados = getAssets("{$path}/{$asset}", $dados);
@@ -40,15 +40,6 @@ function getAssets(string $path, array $dados): array
  */
 function getCachedContent(string $path, array $dados): array
 {
-    //components templates VUE
-    if (file_exists(PATH_HOME . "{$path}/components")) {
-        foreach (Helper::listFolder(PATH_HOME . "{$path}/components") as $tpl) {
-            $tplUrl = HOME . "{$path}/components/{$tpl}";
-            if (preg_match('/\.html/i', $tpl) && !in_array($tplUrl, $dados['misc']))
-                $dados['misc'][] = $tplUrl;
-        }
-    }
-
     //assets
     if (file_exists(PATH_HOME . "{$path}/assets"))
         $dados = getAssets("{$path}/assets", $dados);
@@ -68,10 +59,8 @@ function getCachedContent(string $path, array $dados): array
 
 // return values
 $data['data'] = [
-    "viewJs" => [],
-    "viewCss" => [],
     "view" => [],
-    "misc" => [HOME . "manifest.json"]
+    "misc" => [HOME . "manifest.json?v=" . VERSION]
 ];
 
 //CORE, create cache from all 'assetsPublic'

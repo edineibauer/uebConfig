@@ -2,10 +2,10 @@
     <header id="core-header-logo">
         <a href="{$home}{($homepage) ? "dashboard" : ""}" id="logo-href">
             {if $logo !== ""}
-                <img src='{$home}assetsPublic/img/logo.png' alt='logo do site {$title}' title='{$title}' height='39' id='core-header-img'>
+                <img src='{$home}assetsPublic/img/logo.png?v={$version}' alt='logo do site {$title}' title='{$title}' height='39' id='core-header-img'>
                 <h1 style='font-size:0'>{$sitename}</h1>
             {else}
-                <img src='{$home}assetsPublic/img/favicon-48.png' height='35' style='height: 35px;padding-right:5px' class='core-header-img'>
+                <img src='{$home}assetsPublic/img/favicon-48.png?v={$version}' height='35' style='height: 35px;padding-right:5px' class='core-header-img'>
                 <h1 id='core-header-title' class='theme-text-aux'>{$sitename}</h1>
             {/if}
         </a>

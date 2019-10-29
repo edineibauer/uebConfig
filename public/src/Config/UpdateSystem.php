@@ -261,6 +261,7 @@ class UpdateSystem
                 if (!isset($config[$contante]))
                     $config[$contante] = $value;
             }
+            $config['publico'] = $config['home'] . $config['vendor'] . $config['dominio'] . "/public/";
             Config::createConfig($config);
         }
 
@@ -385,7 +386,17 @@ class UpdateSystem
         if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
 
+            $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
+
+            $themeFile = file_get_contents(PATH_HOME . "public/assets/theme.min.css");
+            $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
+            $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
+            $theme = explode("!important", explode("background-color:", $theme)[1])[0];
+            $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
+
             $minifier = new Minify\CSS("");
+            $arrayReplace = ['{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
+                '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
 
             foreach ($cssList as $item) {
                 $datum = array_values(array_filter(array_map(function ($d) use ($item) {
@@ -395,7 +406,7 @@ class UpdateSystem
                 if (!empty($datum[0]) && !empty($datum[0]['arquivos'])) {
                     foreach ($datum[0]['arquivos'] as $file) {
                         if ($file['type'] === "text/css")
-                            $minifier->add($file['content']);
+                            $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file['content']));
                     }
                 }
             }
@@ -409,15 +420,15 @@ class UpdateSystem
             if(is_array($cssList) && !empty($cssList)) {
                 foreach ($cssList as $i => $css) {
                     if(file_exists(PATH_HOME . "public/assets/{$css}.css"))
-                        $minifier->add(PATH_HOME . "public/assets/{$css}.css");
+                        $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), file_get_contents(PATH_HOME . "public/assets/{$css}.css")));
                     elseif(file_exists(PATH_HOME . "public/assets/css/{$css}.css"))
-                        $minifier->add(PATH_HOME . "public/assets/css/{$css}.css");
+                        $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), file_get_contents(PATH_HOME . "public/assets/css/{$css}.css")));
                 }
             } elseif(is_string($cssList)) {
                 if(file_exists(PATH_HOME . "public/assets/{$cssList}.css"))
-                    $minifier->add(PATH_HOME . "public/assets/{$cssList}.css");
+                    $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), file_get_contents(PATH_HOME . "public/assets/{$cssList}.css")));
                 elseif(file_exists(PATH_HOME . "public/assets/css/{$cssList}.css"))
-                    $minifier->add(PATH_HOME . "public/assets/css/{$cssList}.css");
+                    $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), file_get_contents(PATH_HOME . "public/assets/css/{$cssList}.css")));
             }
 
             $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
@@ -770,7 +781,7 @@ class UpdateSystem
         $themed = explode("}", explode(".theme-d1{", $themeFile)[1])[0];
         $themeBack = explode("!important", explode("background-color:", $theme)[1])[0];
         $themeBackd = explode("!important", explode("background-color:", $themed)[1])[0];
-        $content = str_replace(['{$sitename}', '{$theme}', '{$themed}'], [$dados['sitename'], $themeBack, $themeBackd], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/manifest.txt"));
+        $content = str_replace(['{$sitename}', '{$theme}', '{$themed}', '{$version}'], [$dados['sitename'], $themeBack, $themeBackd, $dados['version']], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/manifest.txt"));
 
         $fp = fopen(PATH_HOME . "manifest.json", "w");
         fwrite($fp, $content);
@@ -845,6 +856,7 @@ class UpdateSystem
     {
         $data = "";
         try {
+            $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
             $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
             $data = @file_get_contents($urlOnline);
             foreach (explode('url(', $data) as $i => $u) {
@@ -857,14 +869,14 @@ class UpdateSystem
                             $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
                             fwrite($f, $urlData);
                             fclose($f);
-                            $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
+                            $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
                         } else {
                             $before = "@font-face" . explode("@font-face", $u[$i - 1])[1] . "url(";
                             $after = explode("}", $u)[0];
                             $data = str_replace($before . $after, "", $data);
                         }
                     } else {
-                        $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), $data);
+                        $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
                     }
                 }
             }
