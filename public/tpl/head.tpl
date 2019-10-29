@@ -38,7 +38,7 @@
     let isEdge = window.navigator.userAgent.indexOf("Edge") > -1 || /MSIE 10/i.test(navigator.userAgent) || /MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent);
     const SERVICEWORKER = {if ($serviceworker)}'serviceWorker' in navigator && !isEdge{else}!1{/if};
     const HOME = '{$home}';
-    const PUBLIC = '{$public}';
+    const PUBLICO = '{$publico}';
     const DOMINIO = '{$dominio}';
     const VERSION = {$version};
     const VENDOR = '{$vendor}';
