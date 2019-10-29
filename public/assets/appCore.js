@@ -1430,6 +1430,8 @@ var app = {
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
                             app.removeLoading();
+                        }).catch(() => {
+                            app.removeLoading();
                         })
                     } else {
                         app.removeLoading();
