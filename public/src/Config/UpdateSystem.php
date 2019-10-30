@@ -449,7 +449,8 @@ class UpdateSystem
 
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
 
-            $themeFile = file_get_contents(PATH_HOME . "public/assets/theme.min.css");
+            $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
+            $themeFile = file_get_contents($dirTheme);
             $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
             $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
             $theme = explode("!important", explode("background-color:", $theme)[1])[0];
