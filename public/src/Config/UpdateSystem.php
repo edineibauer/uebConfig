@@ -190,6 +190,7 @@ class UpdateSystem
 
         //backup libs
         Helper::createFolderIfNoExist(PATH_HOME . "_cdn/vendor");
+        $this->recurseDelete(PATH_HOME . "_cdn/vendor");
         $this->recurseCopy($libs, PATH_HOME . "_cdn/vendor");
 
         //delete libs
