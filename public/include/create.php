@@ -138,6 +138,56 @@ function getAccessFile()
         </Files>';
 }
 
+function recurseCopy($src,$dst) {
+    $dir = opendir($src);
+    @mkdir($dst);
+    while(false !== ( $file = readdir($dir)) ) {
+        if (( $file != '.' ) && ( $file != '..' )) {
+            if ( is_dir($src . '/' . $file) )
+                recurseCopy($src . '/' . $file,$dst . '/' . $file);
+            else
+                copy($src . '/' . $file,$dst . '/' . $file);
+        }
+    }
+    closedir($dir);
+}
+
+function listFolder($dir, $limit = 5000)
+{
+    $directory = array();
+    if (file_exists($dir)) {
+        $i = 0;
+        foreach (scandir($dir) as $b):
+            if ($b !== "." && $b !== ".." && $i < $limit):
+                $directory[] = $b;
+                $i++;
+            endif;
+        endforeach;
+    }
+
+    return $directory;
+}
+
+/**
+ * @param array $config
+ */
+function updateLibsDirectory(array $config)
+{
+    recurseCopy($config['path_home'] . "vendor", $config['path_home'] . explode("/", $config['vendor'])[0]);
+
+    //para cada lib, overload other lib
+    foreach (listFolder($config['path_home'] . $config['vendor']) as $pathOverload) {
+        if(file_exists($config['path_home'] . $config['vendor'] . $pathOverload . "/overload")){
+            foreach (listFolder($config['path_home'] . $config['vendor'] . $pathOverload . "/overload") as $libOverloaded) {
+                if(is_dir($config['path_home'] . $config['vendor'] . $pathOverload . "/overload/" . $libOverloaded) && file_exists($config['path_home'] . $config['vendor'] . $libOverloaded)) {
+                    $dirOverload = $config['path_home'] . $config['vendor'] . $pathOverload . "/overload/" . $libOverloaded . (file_exists($config['path_home'] . $config['vendor'] . $pathOverload . "/overload/" . $libOverloaded . "/public") ? "/public" : "");
+                    recurseCopy($dirOverload, $config['path_home'] . $config['vendor'] . $libOverloaded . "/public");
+                }
+            }
+        }
+    }
+}
+
 if(!empty($dados['base'])) {
     $localhost = ($_SERVER['SERVER_NAME'] === "localhost" ? true : false);
     $porta = $_SERVER['SERVER_PORT'];
@@ -167,6 +217,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("uploads/site");
         Config\Config::createDir("_config");
         Config\Config::createDir("_cdn");
+        Config\Config::createDir("_cdn/vendor");
         Config\Config::createDir("libs");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
@@ -253,6 +304,8 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("_cdn/.htaccess", "Deny from all");
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
         Config\Config::writeFile("vendor/.htaccess", getAccessFile());
+
+        updateLibsDirectory($dados);
 
         Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl']);
 
