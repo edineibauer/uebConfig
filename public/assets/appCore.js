@@ -556,7 +556,7 @@ function closeSidebar() {
 function openSidebar() {
     let $sidebar = $("#core-sidebar").removeClass("hide");
     if (window.innerWidth > 899) {
-        $sidebar.css("top", $("#core-header")[0].clientHeight + "px")
+        $sidebar.css("top", $("#core-header")[0].clientHeight + "px").addClass("active");
     } else {
         $("#core-overlay").addClass("active");
         $sidebar.css("top", 0);
