@@ -41,6 +41,7 @@
     const PUBLICO = '{$publico}';
     const DOMINIO = '{$dominio}';
     const VERSION = {$version};
+    const DEV = '{$dev}';
     const VENDOR = '{$vendor}';
     const HOMEPAGE = '{$homepage}';
     const THEME = '{$theme}';
