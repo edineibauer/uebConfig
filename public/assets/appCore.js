@@ -1232,6 +1232,9 @@ function animateForward(id, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            $aux.css("top", topHeader + "px");
+
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, 0)
@@ -1261,7 +1264,7 @@ function animateBack(id, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
@@ -1292,7 +1295,7 @@ function animateFade(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
@@ -1323,7 +1326,7 @@ function animateNone(id, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px", left: 0, opacity: 1}, 0, () => {
                 animateTimeout($element, $aux, scroll)
             });
