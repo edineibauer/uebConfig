@@ -554,18 +554,19 @@ function closeSidebar() {
 }
 
 function openSidebar() {
-    let $sidebar = $("#core-sidebar");
-    $sidebar.removeClass("hide").addClass("active");
-    if(window.innerWidth > 899) {
-        $sidebar.css("top", $("#core-header")[0].clientHeight + "px");
+    let $sidebar = $("#core-sidebar").removeClass("hide");
+    if (window.innerWidth > 899) {
+        $sidebar.css("top", $("#core-header")[0].clientHeight + "px")
     } else {
         $("#core-overlay").addClass("active");
+        setTimeout(function () {
+            $sidebar.addClass("active");
+        }, 50);
     }
-
-    $("#app").on("mouseup", function(e) {
+    $("#app").on("mouseup", function (e) {
         if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
-            closeSidebar();
-    });
+            closeSidebar()
+    })
 }
 
 function toggleSidebar(action = 'toggle') {
@@ -597,7 +598,6 @@ function sidebarUserInfo() {
         document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) + "' height='80' width='100' id='core-sidebar-perfil-img'>"
     }
     document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
-    document.querySelector("#core-sidebar-edit").classList.add("hide")
 }
 
 function loginBtn() {
