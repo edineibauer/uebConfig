@@ -21,6 +21,7 @@ function getServerConstants(array $dados)
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
     $dados['vendor'] = "libs/ueb/";
     $dados['version'] = "1.00";
+    $dados['dev'] = preg_match("/localhost\//i", $dados['home']);
     $dados['publico'] = $dados['home'] . $dados['vendor'] . $dados['dominio'] . "/public/";
     $dados['repositorio'] = "http://uebster.com/";
     $dados['homepage'] = 1;
