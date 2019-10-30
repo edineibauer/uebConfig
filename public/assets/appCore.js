@@ -559,6 +559,7 @@ function openSidebar() {
         $sidebar.css("top", $("#core-header")[0].clientHeight + "px")
     } else {
         $("#core-overlay").addClass("active");
+        $sidebar.css("top", 0);
         setTimeout(function () {
             $sidebar.addClass("active");
         }, 50);
