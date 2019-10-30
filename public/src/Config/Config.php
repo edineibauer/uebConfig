@@ -41,7 +41,7 @@ class Config
             self::writeFile("service-worker.js", $serviceWorker);
         }
 
-        $conf .= "\nrequire_once PATH_HOME . 'vendor/autoload.php';\nnew Route\Sessao();";
+        $conf .= "\nrequire_once PATH_HOME . '" . explode('/', $dados['vendor'])[0] . "/autoload.php';\nnew Route\Sessao();";
 
         self::writeFile("_config/config.php", $conf);
     }

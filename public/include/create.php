@@ -19,7 +19,7 @@ function getServerConstants(array $dados)
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
-    $dados['vendor'] = "vendor/ueb/";
+    $dados['vendor'] = "libs/ueb/";
     $dados['version'] = "1.00";
     $dados['repositorio'] = "http://uebster.com/";
     $dados['homepage'] = 1;
@@ -167,6 +167,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("uploads/site");
         Config\Config::createDir("_config");
         Config\Config::createDir("_cdn");
+        Config\Config::createDir("libs");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
         Config\Config::createDir("public/set");

@@ -125,6 +125,7 @@ class UpdateSystem
     {
         //cria/atualiza update log file
         Config::updateSite();
+        $this->updateLibsDirectory();
 
         if(empty($custom)) {
             $this->updateDependenciesEntity();
@@ -133,7 +134,6 @@ class UpdateSystem
             $this->createMinifyAssetsLib();
             $this->createManifest();
             $this->updateServiceWorker();
-            $this->overloadTplConfig();
 
         } elseif(is_array($custom)) {
 
@@ -156,12 +156,71 @@ class UpdateSystem
         $this->result = true;
     }
 
-    private function overloadTplConfig() {
-        foreach (["analytics", "aside", "head", "header", "index", "loading"] as $item) {
-            if(file_exists(PATH_HOME . "public/overload/config/tpl/{$item}.tpl")) {
-                Helper::createFolderIfNoExist(PATH_HOME . VENDOR . "config/public/tpl/overloaded");
-                copy(PATH_HOME . VENDOR . "config/public/tpl/{$item}.tpl", PATH_HOME . VENDOR . "config/public/tpl/overloaded/{$item}.tpl");
-                copy(PATH_HOME . "public/overload/config/tpl/{$item}.tpl", PATH_HOME . VENDOR . "config/public/tpl/{$item}.tpl");
+    private function recurseDelete($src) {
+        $dir = opendir($src);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) )
+                    $this->recurseDelete($src . '/' . $file);
+                else
+                    unlink($src . '/' . $file);
+            }
+        }
+        closedir($dir);
+        rmdir($src);
+    }
+
+    private function recurseCopy($src,$dst) {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) )
+                    $this->recurseCopy($src . '/' . $file,$dst . '/' . $file);
+                else
+                    copy($src . '/' . $file,$dst . '/' . $file);
+            }
+        }
+        closedir($dir);
+    }
+
+    private function updateLibsDirectory()
+    {
+        $libs = PATH_HOME . explode("/", VENDOR)[0];
+
+        //backup libs
+        Helper::createFolderIfNoExist(PATH_HOME . "_cdn/vendor");
+        $this->recurseCopy($libs, PATH_HOME . "_cdn/vendor");
+
+        //delete libs
+        $this->recurseDelete($libs);
+
+        //create libs
+        Helper::createFolderIfNoExist($libs);
+        $this->recurseCopy(PATH_HOME . "vendor", $libs);
+
+        $this->overloadLibs();
+    }
+
+    private function overloadLibs() {
+
+        //para cada lib overload other lib
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
+            if(file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload")){
+                foreach (Helper::listFolder(PATH_HOME . VENDOR . $pathOverload . "/overload") as $libOverloaded) {
+                    if(is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded)) {
+                        $dirOverload = PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded . (file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded . "/public") ? "/public" : "");
+                        $this->recurseCopy($dirOverload, PATH_HOME . VENDOR . $libOverloaded . "/public");
+                    }
+                }
+            }
+        }
+
+        //public (projeto atual) overload libs
+        foreach (Helper::listFolder(PATH_HOME . "public/overload") as $libOverloaded) {
+            if(is_dir(PATH_HOME . "public/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded)) {
+                $dirOverload = PATH_HOME . "public/overload/" . $libOverloaded . (file_exists(PATH_HOME . "public/overload/" . $libOverloaded . "/public") ? "/public" : "");
+                $this->recurseCopy($dirOverload, PATH_HOME . VENDOR . $libOverloaded . "/public");
             }
         }
     }
