@@ -607,12 +607,14 @@ function loginBtn() {
         btnLoginAside.onclick = function () {
             logoutDashboard()
         };
-        btnLoginAside.children[1].innerHTML = "exit_to_app"
+        btnLoginAside.children[0].innerHTML = "sair";
+        btnLoginAside.children[1].innerHTML = "exit_to_app";
     } else {
         btnLoginAside.onclick = function () {
             pageTransition("login", "route", "forward", "#core-content", null, null, !1)
         };
-        btnLoginAside.children[1].innerHTML = "input"
+        btnLoginAside.children[0].innerHTML = "login";
+        btnLoginAside.children[1].innerHTML = "lock_open";
     }
 }
 
