@@ -431,7 +431,10 @@ const dbRemote = {
                     return 0;
 
                 if (response.tipo === 1) {
-                    return dbLocal.clear(entity).then(() => {
+                    let dic = dbLocal.exeRead("__dicionario", 1);
+                    let clear = dbLocal.clear(entity);
+                    return Promise.all([dic, clear]).then(r => {
+                        dicionarios = r[0];
                         let cc = [];
                         if (response.data.length) {
                             for (let k in response.data) {
@@ -518,6 +521,7 @@ const dbRemote = {
                     let count = 0;
                     let fail = 0;
                     let failNetwork = !1;
+                    let msg = "Registro enviado";
                     if (feedback) {
                         $("#core-upload-progress").addClass("active");
                         toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>0</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
@@ -580,6 +584,8 @@ const dbRemote = {
 
                                         } else {
                                             fail += dd.data.error;
+                                            if(typeof dd.data.data[0].db_error[entity] === "object")
+                                                msg = Object.keys(dd.data.data[0].db_error[entity])[0] + ": " + Object.values(dd.data.data[0].db_error[entity])[0];
                                         }
                                     } else if (feedback) {
                                         fail++
@@ -601,11 +607,10 @@ const dbRemote = {
                     });
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            let msg = "Registro enviado";
                             if(fail === 0 && total > 1) {
                                 msg = "Todos os registros enviados";
                             } else if(fail !== 0) {
-                                msg = (total > 1 ? "Erro ao enviar: " + fail + " de " + total : "Erro ao enviar");
+                                msg = (total > 1 ? "Erro ao enviar: " + fail + " de " + total : msg)
                             }
 
                             toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
@@ -830,26 +835,28 @@ function getDefaultValue(meta, value) {
         else if (meta.group === "date")
             value = value.replace(" ", "T");
 
-        if(meta.key === "relation") {
-            $.each(value, function (i, e) {
-                if(typeof e.columnTituloExtend !== "string") {
-                    value[i].id = Date.now();
-                    value[i].columnTituloExtend = "";
-                    promessas.push(getRelevantTitle(meta.relation, value[i]).then(title => {
-                        value[i].columnTituloExtend = title;
-                    }));
-                    value[i].columnName = meta.column;
-                    value[i].columnRelation = meta.relation;
-                    value[i].columnStatus = {column: '', have: !1, value: !1}
-                }
-            });
+        if(typeof value === "object" && value.constructor === Array) {
+            if(meta.key === "relation") {
+                $.each(value, function (i, e) {
+                    if(typeof e.columnTituloExtend !== "string") {
+                        value[i].id = Date.now();
+                        value[i].columnTituloExtend = "";
+                        promessas.push(getRelevantTitle(meta.relation, value[i]).then(title => {
+                            value[i].columnTituloExtend = title;
+                        }));
+                        value[i].columnName = meta.column;
+                        value[i].columnRelation = meta.relation;
+                        value[i].columnStatus = {column: '', have: !1, value: !1}
+                    }
+                });
 
-        } else if(meta.key === "source") {
-            let reg = new RegExp("^image", "i");
-            $.each(value, function (i, e) {
-                if(typeof e.isImage === "undefined")
-                    value[i].isImage = reg.test(e.fileType);
-            })
+            } else if(meta.key === "source") {
+                let reg = new RegExp("^image", "i");
+                $.each(value, function (i, e) {
+                    if(typeof e.isImage === "undefined")
+                        value[i].isImage = reg.test(e.fileType);
+                })
+            }
         }
 
         switch (meta.format) {
