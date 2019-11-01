@@ -843,6 +843,13 @@ function getDefaultValue(meta, value) {
                     value[i].columnStatus = {column: '', have: !1, value: !1}
                 }
             });
+
+        } else if(meta.key === "source") {
+            let reg = new RegExp("^image", "i");
+            $.each(value, function (i, e) {
+                if(typeof e.isImage === "undefined")
+                    value[i].isImage = reg.test(e.fileType);
+            })
         }
 
         switch (meta.format) {
