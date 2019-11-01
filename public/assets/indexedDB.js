@@ -829,6 +829,22 @@ function getDefaultValue(meta, value) {
             value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ((typeof value === 'number' || typeof value === 'string') && value !== "" ? JSON.parse("[" + value + "]") : ""));
         else if (meta.group === "date")
             value = value.replace(" ", "T");
+
+        if(meta.key === "relation") {
+            $.each(value, function (i, e) {
+                if(typeof e.columnTituloExtend !== "string") {
+                    value[i].id = Date.now();
+                    value[i].columnTituloExtend = "";
+                    promessas.push(getRelevantTitle(meta.relation, value[i]).then(title => {
+                        value[i].columnTituloExtend = title;
+                    }));
+                    value[i].columnName = meta.column;
+                    value[i].columnRelation = meta.relation;
+                    value[i].columnStatus = {column: '', have: !1, value: !1}
+                }
+            });
+        }
+
         switch (meta.format) {
             case 'boolean':
             case 'status':
