@@ -841,9 +841,9 @@ function getDefaultValue(meta, value) {
                     if(typeof e.columnTituloExtend !== "string") {
                         value[i].id = Date.now();
                         value[i].columnTituloExtend = "";
-                        promessas.push(getRelevantTitle(meta.relation, value[i]).then(title => {
+                        getRelevantTitle(meta.relation, value[i]).then(title => {
                             value[i].columnTituloExtend = title;
-                        }));
+                        });
                         value[i].columnName = meta.column;
                         value[i].columnRelation = meta.relation;
                         value[i].columnStatus = {column: '', have: !1, value: !1}
