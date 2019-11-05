@@ -320,10 +320,7 @@ const db = {
                     });
                 }).then(dados => {
                     dados = dados[0];
-                    let erro = dados.db_errorback;
-                    delete dados.db_errorback;
-
-                    if (erro === 0 && d.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                    if (dados.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
                         eval(react[0][entity][action]);
 
                     return dados;
@@ -624,7 +621,7 @@ const dbRemote = {
                         resolve(p);
                     })
                 } else {
-                    resolve(dadosSync)
+                    resolve(Object.assign({db_errorback: 0}, dadosSync));
                 }
             })
         })
