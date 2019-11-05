@@ -315,13 +315,18 @@ const db = {
                     return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
                         if (sync)
                             return dbRemote.syncPost(entity, dados.id);
-                        return dados;
+
+                        return Object.assign({db_errorback : 0}, dados);
                     });
-                }).then(d => {
-                    dados = d[0];
-                    if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined") {
+                }).then(dados => {
+                    dados = dados[0];
+                    let erro = dados.db_errorback;
+                    delete dados.db_errorback;
+
+                    if (erro === 0 && d.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
                         eval(react[0][entity][action]);
-                    }
+
+                    return dados;
                 });
             })
         } else {
@@ -541,54 +546,38 @@ const dbRemote = {
                                     dados: convertEmptyArrayToNull(dataToSend)
                                 },
                                 success: function (data) {
-                                    if (feedback) {
-                                        if (data.response === 1 && typeof data.data === "object") {
+                                    let allP = [];
+                                    if (data.response === 1 && typeof data.data === "object" && data.data.error === 0) {
+                                        if (feedback) {
                                             count++;
                                             if ($("#core-count-progress").length)
                                                 $("#core-count-progress").html(count); else toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>" + count + "</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
-                                        } else if (feedback) {
-                                            fail++
                                         }
-                                    }
-                                },
-                                error: function () {
-                                    failNetwork = !0;
-                                    if (feedback)
-                                        fail++;
-                                },
-                                complete: function (dd) {
-                                    dd = JSON.parse(dd.responseText);
-                                    let allP = [];
 
-                                    if (dd.response === 1) {
-                                        if (dd.data.error === 0) {
-                                            dataReturn = dd.data.data;
+                                        dataReturn = Object.assign({db_errorback: 0}, data.data.data);
+
+                                        /**
+                                         * Atualização realizada, remove sync desta atualização
+                                         * */
+                                        if (!isNaN(d.id)) {
+                                            dbLocal.exeDelete('sync_' + entity, d.id);
+                                            dbLocal.exeDelete(entity, d.id);
+                                            if (d.db_action !== "delete")
+                                                allP.push(moveSyncDataToDb(entity, data.data.data[0]));
 
                                             /**
-                                             * Atualização realizada, remove sync desta atualização
+                                             * Atualiza histórico
                                              * */
-                                            if (!isNaN(d.id) && dd.data.error === 0) {
-                                                dbLocal.exeDelete('sync_' + entity, d.id);
-                                                dbLocal.exeDelete(entity, d.id);
-
-                                                if(d.db_action !== "delete")
-                                                    allP.push(moveSyncDataToDb(entity, dd.data.data[0]));
-
-                                                /**
-                                                 * Atualiza histórico
-                                                 * */
-                                                let historicData = {};
-                                                historicData[entity] = dd.data.historic;
-                                                dbLocal.exeUpdate("__historic", historicData, 1);
-                                            }
-
-                                        } else {
-                                            fail += dd.data.error;
-                                            if(typeof dd.data.data[0].db_error[entity] === "object")
-                                                msg = Object.keys(dd.data.data[0].db_error[entity])[0] + ": " + Object.values(dd.data.data[0].db_error[entity])[0];
+                                            let historicData = {};
+                                            historicData[entity] = data.data.historic;
+                                            dbLocal.exeUpdate("__historic", historicData, 1)
                                         }
-                                    } else if (feedback) {
-                                        fail++
+
+                                    } else {
+                                        fail++;
+
+                                        if (typeof data.data.data[0].db_error[entity] === "object")
+                                            dataReturn = Object.assign({db_errorback: 1}, data.data.data[0].db_error[entity]);
                                     }
 
                                     if (feedback) {
@@ -597,8 +586,13 @@ const dbRemote = {
                                     }
 
                                     Promise.all(allP).then(() => {
-                                        s(dataReturn);
+                                        s(dataReturn)
                                     });
+                                },
+                                error: function () {
+                                    failNetwork = !0;
+                                    fail++;
+                                    s({db_errorback: 1, 0: {"rede": "Falha na Comunicação"}});
                                 },
                                 dataType: "json",
                                 async: !0
@@ -607,10 +601,18 @@ const dbRemote = {
                     });
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            if(fail === 0 && total > 1) {
-                                msg = "Todos os registros enviados";
-                            } else if(fail !== 0) {
-                                msg = (total > 1 ? "Erro ao enviar: " + fail + " de " + total : msg)
+                            if(total === 1) {
+                                if(p[0].db_errorback === 1) {
+                                    delete p[0].db_errorback;
+                                    msg = Object.keys(p[0])[0] + ": " + Object.values(p[0])[0];
+                                }
+
+                            } else {
+                                if (fail === 0) {
+                                    msg = "Todos os registros enviados"
+                                } else {
+                                    msg = "Erro ao enviar: " + fail + " de " + total;
+                                }
                             }
 
                             toast(msg, 4000, (fail > 0 ? "toast-error" : "toast-success") + " toast-upload-progress");
@@ -619,8 +621,7 @@ const dbRemote = {
                                 $("#core-upload-progress-bar").css("width", 0)
                             }, 600)
                         }
-
-                        resolve(p[0]);
+                        resolve(p);
                     })
                 } else {
                     resolve(dadosSync)
