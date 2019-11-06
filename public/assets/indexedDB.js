@@ -621,7 +621,7 @@ const dbRemote = {
                         resolve(p);
                     })
                 } else {
-                    resolve(Object.assign({db_errorback: 0}, dadosSync));
+                    resolve([Object.assign({db_errorback: 0}, dadosSync[0])]);
                 }
             })
         })
