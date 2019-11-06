@@ -316,7 +316,7 @@ const db = {
                         if (sync)
                             return dbRemote.syncPost(entity, dados.id);
 
-                        return Object.assign({db_errorback : 0}, dados);
+                        return Object.assign([{db_errorback : 0}, dados]);
                     });
                 }).then(dados => {
                     dados = dados[0];
@@ -365,7 +365,7 @@ const db = {
                                     'id': ii,
                                     'db_action': 'delete'
                                 }).then(id => {
-                                    dbRemote.syncPost(entity, id);
+                                    return dbRemote.syncPost(entity, id);
                                 }));
                             });
 
@@ -391,7 +391,7 @@ const dbRemote = {
                 id = typeof id === "undefined" ? null : id;
                 return dbRemote.syncDownload(entity).then(down => {
                     return dbRemote.syncPost(entity, id, feedback).then(d => {
-                        return down === 0 ? d : 1
+                        return down === 0 ? d[0] : 1
                     })
                 })
             } else {
@@ -551,7 +551,7 @@ const dbRemote = {
                                                 $("#core-count-progress").html(count); else toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>" + count + "</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
                                         }
 
-                                        dataReturn = Object.assign({db_errorback: 0}, data.data.data);
+                                        dataReturn = Object.assign({db_errorback: 0}, data.data.data[0]);
 
                                         /**
                                          * Atualização realizada, remove sync desta atualização

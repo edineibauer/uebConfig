@@ -839,13 +839,11 @@ function checkSessao() {
                         toast("Token inválido. Desconectado!", 3000);
 
                         setCookieAnonimo().then(() => {
-                            setTimeout(function () {
-                                location.reload(1);
-                            }, 1500);
+                            location.reload();
                         });
+                    } else {
+                        resolve(1);
                     }
-
-                    resolve(1);
                 }
             };
             xhttp.send("lib=route&file=sessao");
@@ -1807,8 +1805,9 @@ $(function () {
             });
         }).then(() => {
             return clearCache().then(() => {
-                setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
-                readRouteState();
+                return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
+                    return readRouteState();
+                });
             })
         });
     }
