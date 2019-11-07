@@ -893,9 +893,9 @@ function loadCacheUser() {
             dicionarios = r[1];
             creates.push(downloadEntityData());
 
-            menuHeader();
-
             return Promise.all(creates)
+        }).then(() => {
+            menuHeader();
         })
     } else {
         return Promise.all([]);
