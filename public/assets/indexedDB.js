@@ -94,7 +94,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
         if(!SERVICEWORKER)
             return data;
 
-        if (parseInt(data.length) >= parseInt(LIMITOFFLINE) - limit - 5) {
+        if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
             return new Promise(function (resolve, reject) {
                 //online
                 $.ajax({
@@ -356,7 +356,15 @@ const db = {
                             }))
                         }
                     }
-                    return Promise.all(allDelete);
+                    return Promise.all(allDelete).then(() => {
+                        //atualiza base local, visto que liberou espaço no LIMITOFF
+                        return dbLocal.exeRead("__historic", 1).then(h => {
+                            h[entity] = null;
+                            return dbLocal.exeCreate("__historic", h).then(() => {
+                                return dbRemote.syncDownload(entity);
+                            })
+                        });
+                    })
                 }
             })
         } else {

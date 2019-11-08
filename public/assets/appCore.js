@@ -932,10 +932,7 @@ function downloadEntityData() {
     let down = [];
     let historic = {};
     $.each(dicionarios, function (entity, meta) {
-        down.push(dbRemote.syncDownload(entity).then(h => {
-            if (h !== 0)
-                historic[entity] = h
-        }))
+        down.push(dbRemote.syncDownload(entity));
     });
 
     return Promise.all(down).then(() => {
