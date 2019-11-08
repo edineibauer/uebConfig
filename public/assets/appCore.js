@@ -930,14 +930,11 @@ function downloadEntityData() {
         return Promise.all([]);
 
     let down = [];
-    let historic = {};
     $.each(dicionarios, function (entity, meta) {
         down.push(dbRemote.syncDownload(entity));
     });
 
-    return Promise.all(down).then(() => {
-        return dbLocal.exeUpdate('__historic', historic, 1)
-    })
+    return Promise.all(down);
 }
 
 function webp(extension) {
