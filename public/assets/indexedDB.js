@@ -332,7 +332,6 @@ const db = {
             return dbLocal.exeRead("__react").then(react => {
                 let allDelete = [];
                 let ids = [];
-                let idSync = [];
 
                 //Aceita id sendo número ou array
                 if (typeof id !== "undefined" && !isNaN(id) && id > 0)
@@ -347,7 +346,9 @@ const db = {
                             allDelete.push(deleteDB(entity, idU, react).then(() => {
                                 return dbLocal.exeRead("sync_" + entity, idU).then(d => {
                                     if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === "update") {
-                                        idSync.push(idU)
+                                        return dbLocal.exeCreate("sync_" + entity, {'id': idU, 'db_action': 'delete'}).then(id => {
+                                            return dbRemote.syncPost(entity, id);
+                                        });
                                     } else if (d.db_action === "create") {
                                         return dbLocal.exeDelete("sync_" + entity, idU)
                                     }
@@ -355,21 +356,7 @@ const db = {
                             }))
                         }
                     }
-                    return Promise.all(allDelete).then(() => {
-                        if (idSync.length) {
-                            allDelete = [];
-                            $.each(idSync, function (i, ii) {
-                                allDelete.push(dbLocal.exeCreate("sync_" + entity, {
-                                    'id': ii,
-                                    'db_action': 'delete'
-                                }).then(id => {
-                                    return dbRemote.syncPost(entity, id);
-                                }));
-                            });
-
-                            return Promise.all(allDelete);
-                        }
-                    })
+                    return Promise.all(allDelete);
                 }
             })
         } else {
