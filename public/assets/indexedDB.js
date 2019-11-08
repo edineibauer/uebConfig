@@ -345,9 +345,9 @@ const db = {
                             let idU = parseInt(ids[k]);
                             allDelete.push(deleteDB(entity, idU, react).then(() => {
                                 return dbLocal.exeRead("sync_" + entity, idU).then(d => {
-                                    if ((Object.entries(d).length === 0 && d.constructor === Object) || d.db_action === "update") {
+                                    if (isEmpty(d) || d.db_action === "update") {
                                         return dbLocal.exeCreate("sync_" + entity, {'id': idU, 'db_action': 'delete'}).then(id => {
-                                            return dbRemote.syncPost(entity, id);
+                                            return dbRemote.syncPost(entity, idU);
                                         });
                                     } else if (d.db_action === "create") {
                                         return dbLocal.exeDelete("sync_" + entity, idU)
