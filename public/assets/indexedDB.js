@@ -94,7 +94,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
         if(!SERVICEWORKER)
             return data;
 
-        if (parseInt(data.length) >= parseInt(LIMITOFFLINE) - limit) {
+        if (parseInt(data.length) >= parseInt(LIMITOFFLINE) - limit - 5) {
             return new Promise(function (resolve, reject) {
                 //online
                 $.ajax({
