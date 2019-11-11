@@ -1171,18 +1171,13 @@ function defaultPageTransitionPosition(direction, $element) {
     let left = $element[0].getBoundingClientRect().left;
     let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
-        "min-height": (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") === "1" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
+        "min-height": (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
         "left": left + "px",
         "overflow": "hidden"
     });
-
-    if(window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "1" && $("#core-header-nav-bottom").hasClass("s-show"))
-        $("#core-content").addClass("mb-50");
-    else
-        $("#core-content").removeClass("mb-50");
 
     let file = app.file.split("/");
     file = file[0];
@@ -1212,6 +1207,12 @@ function animateTimeout($element, $aux, scroll) {
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
     clearHeaderScrollPosition();
+
+    //add or not space on end content (navbar space)
+    if(window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show"))
+        $("#core-content").addClass("mb-50");
+    else
+        $("#core-content").removeClass("mb-50");
 }
 
 function animateForward(id, scroll) {
