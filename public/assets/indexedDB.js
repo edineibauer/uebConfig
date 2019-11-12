@@ -863,17 +863,12 @@ function getDefaultValue(meta, value) {
                 valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
                 break;
             case 'valor':
-                if(typeof value === "number")
-                    value = value.toString();
+                if (typeof value === "number")
+                    value = value.toString().replace(",", ".");
+                else if(typeof value === "string")
+                    value = value.replace(",", ".");
 
-                let f = "";
-                for (let i = 0; i < value.length; i++) {
-                    if (!isNaN(value[i]))
-                        f += value[i];
-                    else if (value[i] === "." || value[i] === ",")
-                        f = f.replace(".", "") + ".";
-                }
-                valor = f !== "" && !isNaN(f) ? f : null;
+                valor = (!isNaN(value) ? parseFloat(value).toFixed(2) : null);
                 break;
             case 'float':
                 value = (typeof value === "string" ? value.replace(',', '.') : value);
