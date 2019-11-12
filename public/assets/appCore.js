@@ -1139,10 +1139,10 @@ function finishCache() {
 }
 
 function checkMenuActive() {
-    $("#core-menu-custom-bottom > li").removeClass("active");
-    $("#core-menu-custom-bottom > li[rel='" + app.file + "']").addClass("active");
-    $("#core-menu-custom > li").removeClass("active theme-l1");
-    $("#core-menu-custom > li[rel='" + app.file + "']").addClass("active theme-l1");
+    $(".menu-li").removeClass("active").each(function (i, e) {
+        if($(e).find("[rel='" + app.file + "']").length)
+            $(e).addClass("active");
+    });
 }
 
 function checkFormNotSaved() {
