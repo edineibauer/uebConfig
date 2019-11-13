@@ -852,10 +852,21 @@ function updateCacheUser() {
 }
 
 function loadUserViews() {
-    if(SERVICEWORKER) {
+    if(SERVICEWORKER && getCookie("viewsLoaded") === "") {
         get("appFilesView/" + app.file).then(g => {
             caches.open('view-v' + VERSION).then(cache => {
-                cache.addAll(g.view)
+
+                setCookie("viewsLoaded", 1);
+                if(localStorage.setor !== "0")
+                    toast("Baixando aplicativo...", 25000);
+
+                let t = [];
+                t.push(cache.addAll(g.view));
+
+                return Promise.all(t).then(() => {
+                    if(localStorage.setor !== "0")
+                        toast("Pronto para uso Offline", 3000, "toast-success");
+                });
             })
         })
     }
@@ -1640,10 +1651,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 }, 50)
             }
         }).then(() => {
-            if(getCookie("viewsLoaded") === "") {
-                setCookie("viewsLoaded", 1);
-                loadUserViews();
-            }
+            loadUserViews();
         });
     }
 }
