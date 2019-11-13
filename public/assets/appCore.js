@@ -857,8 +857,6 @@ function loadUserViews() {
             caches.open('view-v' + VERSION).then(cache => {
 
                 setCookie("viewsLoaded", 1);
-                if(localStorage.setor !== "0")
-                    toast("Baixando aplicativo...", 25000);
 
                 let t = [];
                 t.push(cache.addAll(g.view));
@@ -877,9 +875,6 @@ function loadCacheUser() {
      * Load User Data content
      * */
     if (navigator.onLine) {
-        if(localStorage.setor !== "0")
-            toast("Carregando Seus Dados...", 20000, "toast-success");
-
         let gets = [];
         let creates = [];
         gets.push(get("allow"));
@@ -897,7 +892,7 @@ function loadCacheUser() {
             return Promise.all(creates)
         }).then(() => {
             if(localStorage.setor !== "0")
-                toast("Seja Bem Vindo " + localStorage.nome , 2000, "toast-success");
+                toast("Seja Bem Vindo " + localStorage.nome , 4000, "toast-success");
 
             menuHeader();
         })
