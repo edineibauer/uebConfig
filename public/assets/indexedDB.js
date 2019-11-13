@@ -426,10 +426,7 @@ const dbRemote = {
                     return 0;
 
                 if (response.tipo === 1) {
-                    let dic = dbLocal.exeRead("__dicionario", 1);
-                    let clear = dbLocal.clear(entity);
-                    return Promise.all([dic, clear]).then(r => {
-                        dicionarios = r[0];
+                    return dbLocal.clear(entity).then(() => {
                         let cc = [];
                         if (response.data.length) {
                             for (let k in response.data) {

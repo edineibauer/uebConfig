@@ -583,7 +583,7 @@ function toggleSidebar(action = 'toggle') {
 
 function logoutDashboard() {
     if (navigator.onLine) {
-        toast("Saindo...", 2500);
+        toast("Saindo...", 12500);
         setCookieAnonimo().then(() => {
             location.href = HOME + "login";
         })
@@ -678,89 +678,81 @@ function menuHeader() {
 }
 
 function clearCacheUser() {
-    if(SERVICEWORKER) {
-        return dbLocal.exeRead("__dicionario", 1).then(dd => {
-            let clear = [];
-            for (var k in dd) {
-                clear.push(dbLocal.exeRead("sync_" + k).then(d => {
-                    if (d.length) {
-                        return dbRemote.sync(k).then(() => {
-                            return dbLocal.clear("sync_" + k)
-                        })
-                    } else {
-                        return dbLocal.clear("sync_" + k)
-                    }
-                }));
-                clear.push(dbLocal.clear(k))
+    let clear = [];
+    setCookie('viewsLoaded', "", -1);
+
+    for (let entity in dicionarios) {
+        clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
+            if (d.length) {
+                $.each(d, function (i, syncPendente) {
+                    console.log(syncPendente);
+                    post("entity", "up/pendente", syncPendente, function (g) {
+                        console.log(g);
+                    });
+                });
+                return dbLocal.clear("sync_" + entity);
             }
-            clear.push(dbLocal.clear('__historic'));
-            clear.push(dbLocal.clear('__allow'));
-            clear.push(dbLocal.clear('__dicionario'));
-            clear.push(dbLocal.clear('__info'));
-            clear.push(dbLocal.clear('__menu'));
-            clear.push(dbLocal.clear('__panel'));
-            return Promise.all(clear)
+            return;
         }).then(() => {
+            return dbLocal.clear(entity);
+        }));
+    }
+
+    clear.push(dbLocal.clear('__historic'));
+    clear.push(dbLocal.clear('__allow'));
+    clear.push(dbLocal.clear('__dicionario'));
+    clear.push(dbLocal.clear('__info'));
+    clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__panel'));
+
+    return Promise.all(clear).then(() => {
+        if (SERVICEWORKER) {
 
             /**
-             * Clear View user
-             * */
+             * Clear cache pages
+             */
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let reg = new RegExp("^view-v");
                     if (reg.test(cacheName))
                         return caches.delete(cacheName)
                 }))
-            });
-        })
-    } else {
-        let clear = [];
-        clear.push(dbLocal.clear('__historic'));
-        clear.push(dbLocal.clear('__allow'));
-        clear.push(dbLocal.clear('__dicionario'));
-        clear.push(dbLocal.clear('__info'));
-        clear.push(dbLocal.clear('__menu'));
-        clear.push(dbLocal.clear('__panel'));
-        return Promise.all(clear)
-    }
+            })
+        }
+    })
 }
 
 function clearCache() {
-
     setCookie('update', 0, -1);
+    setCookie('viewsLoaded', "", -1);
 
-    return dbLocal.exeRead('__dicionario', 1).then(dicion => {
-        let clear = [];
+    let clear = [];
+    for (var k in dicionarios)
+        clear.push(dbLocal.clear(k));
 
-        if(SERVICEWORKER) {
-            for (var k in dicion)
-                clear.push(dbLocal.clear(k));
-        }
+    clear.push(dbLocal.clear('__historic'));
+    clear.push(dbLocal.clear('__dicionario'));
+    clear.push(dbLocal.clear('__info'));
+    clear.push(dbLocal.clear('__allow'));
+    clear.push(dbLocal.clear('__general'));
+    clear.push(dbLocal.clear('__react'));
+    clear.push(dbLocal.clear('__reactOnline'));
+    clear.push(dbLocal.clear('__relevant'));
+    clear.push(dbLocal.clear('__template'));
+    clear.push(dbLocal.clear('__user'));
+    clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__panel'));
 
-        clear.push(dbLocal.clear('__historic'));
-        clear.push(dbLocal.clear('__dicionario'));
-        clear.push(dbLocal.clear('__info'));
-        clear.push(dbLocal.clear('__allow'));
-        clear.push(dbLocal.clear('__general'));
-        clear.push(dbLocal.clear('__react'));
-        clear.push(dbLocal.clear('__reactOnline'));
-        clear.push(dbLocal.clear('__relevant'));
-        clear.push(dbLocal.clear('__template'));
-        clear.push(dbLocal.clear('__user'));
-        clear.push(dbLocal.clear('__menu'));
-        clear.push(dbLocal.clear('__panel'));
-
-        return Promise.all(clear);
-    }).then(() => {
-        if(!SERVICEWORKER)
-            return Promise.all([]);
+    return Promise.all(clear).then(() => {
+        if (!SERVICEWORKER)
+            return;
 
         return caches.keys().then(cacheNames => {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName)
             }))
         })
-    });
+    })
 }
 
 function updateCache() {
@@ -875,6 +867,9 @@ function loadCacheUser() {
      * Load User Data content
      * */
     if (navigator.onLine) {
+        if(localStorage.setor !== "0")
+            toast("Carregando Seus Dados...", 20000, "toast-success");
+
         let gets = [];
         let creates = [];
         gets.push(get("allow"));
@@ -888,17 +883,17 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__info', r[2]));
             creates.push(dbLocal.exeCreate('__template', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
-            creates.push(loadUserViews());
-
             dicionarios = r[1];
-            creates.push(downloadEntityData());
-
             return Promise.all(creates)
         }).then(() => {
+            if(localStorage.setor !== "0")
+                toast("Seja Bem Vindo " + localStorage.nome , 2000, "toast-success");
+
             menuHeader();
         })
     } else {
-        return Promise.all([]);
+        toast("Sem Conexão!", 3000, "toast-warning");
+        return Promise.all([])
     }
 }
 
@@ -1645,7 +1640,12 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                     }
                 }, 50)
             }
-        })
+        }).then(() => {
+            if(getCookie("viewsLoaded") === "") {
+                setCookie("viewsLoaded", 1);
+                return loadUserViews();
+            }
+        });
     }
 }
 
