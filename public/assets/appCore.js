@@ -865,7 +865,7 @@ function loadUserViews() {
 
                 return Promise.all(t).then(() => {
                     if(localStorage.setor !== "0")
-                        toast("Pronto para uso Offline", 3000, "toast-success");
+                        toast("Pronto para uso Offline", 2500, "toast-success");
                 });
             })
         })
