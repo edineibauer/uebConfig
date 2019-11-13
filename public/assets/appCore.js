@@ -852,14 +852,13 @@ function updateCacheUser() {
 }
 
 function loadUserViews() {
-    if(!SERVICEWORKER)
-        return Promise.all([]);
-
-    return get("appFilesView/" + window.location.pathname).then(g => {
-        return caches.open('view-v' + VERSION).then(cache => {
-            return cache.addAll(g.view)
+    if(SERVICEWORKER) {
+        get("appFilesView/" + app.file).then(g => {
+            caches.open('view-v' + VERSION).then(cache => {
+                cache.addAll(g.view)
+            })
         })
-    })
+    }
 }
 
 function loadCacheUser() {
@@ -1643,7 +1642,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         }).then(() => {
             if(getCookie("viewsLoaded") === "") {
                 setCookie("viewsLoaded", 1);
-                return loadUserViews();
+                loadUserViews();
             }
         });
     }
