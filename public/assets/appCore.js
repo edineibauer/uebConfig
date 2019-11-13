@@ -857,13 +857,15 @@ function loadUserViews() {
             caches.open('view-v' + VERSION).then(cache => {
 
                 setCookie("viewsLoaded", 1);
+                if(localStorage.setor !== "0")
+                    toast("Baixando aplicativo...", 25000);
 
                 let t = [];
                 t.push(cache.addAll(g.view));
 
                 return Promise.all(t).then(() => {
                     if(localStorage.setor !== "0")
-                        toast("Pronto para uso Offline", 3000, "toast-success");
+                        toast("Pronto para uso Offline", 2500, "toast-success");
                 });
             })
         })
