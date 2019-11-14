@@ -1004,8 +1004,8 @@ function startCache() {
                 })
             })
         }).then(() => {
-            return caches.open('midia-v' + VERSION).then(cache => {
-                return cache.addAll(g.midia).catch(() => {
+            return caches.open('misc-v' + VERSION).then(cache => {
+                return cache.addAll(g.misc).catch(() => {
                     toast("Erro ao carregar Arquivos", 3000, "toast-error");
                     setTimeout(function () {
                         updateCache();

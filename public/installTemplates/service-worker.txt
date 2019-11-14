@@ -176,13 +176,8 @@ self.addEventListener('fetch', function (e) {
 
         } else {
 
-            let extension = url.split('.').pop().split('&').reverse().pop();
-            let cacheName = 'misc';
-            if(["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg", "mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3", "mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"].indexOf(extension) > -1)
-                cacheName = 'midia';
-
             e.respondWith(
-                caches.open(cacheName + "-v" + VERSION).then(cache => {
+                caches.open("misc-v" + VERSION).then(cache => {
                     return cache.match(url).then(response => {
 
                         return response || fetch(e.request).then(networkResponse => {
