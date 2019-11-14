@@ -37,7 +37,7 @@ $data['data'] = getCachedContent('public', $data['data']);
 
 // libs content
 foreach (\Config\Config::getViewPermissoes() as $rota) {
-    $libs = !empty($_SESSION['userlogin']) ? ['route', 'form', 'table', 'dashboard'] : ['route', 'form', 'table'];
+    $libs = !empty($_SESSION['userlogin']) ? ['route', 'dashboard'] : ['route'];
     if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && in_array($rota, $libs))
         $data['data'] = getCachedContent(VENDOR . $rota . '/public', $data['data']);
 }
