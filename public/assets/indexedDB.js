@@ -308,11 +308,23 @@ const db = {
                 dados.db_status = !1;
                 let action = r[0][1];
                 react = r[1];
-                return dbLocal.exeCreate(entity, dados).then(() => {
+                return dbLocal.exeCreate(entity, dados).then(dadosCreated => {
                     dados.db_action = action;
-                    return dbLocal.insert("sync_" + entity, dados, dados.id).then(() => {
-                        if (sync)
-                            return dbRemote.syncPost(entity, dados.id);
+                    return dbLocal.insert("sync_" + entity, dados, dados.id).then(syncCreated => {
+                        if (sync) {
+                            return dbRemote.syncPost(entity, dados.id).then(syncReturn => {
+
+                                /**
+                                 * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
+                                 */
+                                if(syncReturn[0].db_errorback !== 0 && action === "create") {
+                                    dbLocal.exeDelete(entity, dadosCreated);
+                                    dbLocal.exeDelete("sync_" + entity, syncCreated);
+                                }
+
+                                return syncReturn;
+                            });
+                        }
 
                         return Object.assign([{db_errorback : 0}, dados]);
                     });
