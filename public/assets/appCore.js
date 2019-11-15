@@ -891,7 +891,7 @@ function loadCacheUser() {
             dicionarios = r[1];
             return Promise.all(creates)
         }).then(() => {
-            if(localStorage.setor !== "0")
+            if(localStorage.setor !== "0" && app.file === "dashboard")
                 toast("Seja Bem Vindo " + localStorage.nome , 4000, "toast-success");
 
             menuHeader();
