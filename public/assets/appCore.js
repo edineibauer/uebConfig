@@ -677,22 +677,37 @@ function menuHeader() {
     })
 }
 
+function loadSyncNotSaved() {
+    return get("load/sync").then(sync => {
+        if (typeof sync === "object") {
+            $.each(sync, function (entity, registros) {
+                dbLocal.newKey(entity).then(key => {
+                    $.each(registros, function (i, reg) {
+                        let d = Object.assign({}, reg);
+                        d.id = key++;
+                        delete d.id_old;
+                        delete d.db_error;
+                        delete d.db_errorback;
+                        dbLocal.insert(entity, d, d.id);
+                        dbLocal.insert("sync_" + entity, d, d.id);
+                    });
+                })
+            });
+        }
+    });
+}
+
 function clearCacheUser() {
     let clear = [];
     setCookie('viewsLoaded', "", -1);
 
     for (let entity in dicionarios) {
         clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
-            if (d.length) {
-                $.each(d, function (i, syncPendente) {
-                    console.log(syncPendente);
-                    post("entity", "up/pendente", syncPendente, function (g) {
-                        console.log(g);
-                    });
-                });
-                return dbLocal.clear("sync_" + entity);
-            }
-            return;
+            if (!d.length)
+                return;
+
+            post("entity", "up/sync", {entity: entity, dados: d});
+            return dbLocal.clear("sync_" + entity)
         }).then(() => {
             return dbLocal.clear(entity);
         }));
@@ -933,6 +948,8 @@ function downloadEntityData() {
     $.each(dicionarios, function (entity, meta) {
         down.push(dbRemote.syncDownload(entity));
     });
+
+    down.push(loadSyncNotSaved());
 
     return Promise.all(down);
 }
