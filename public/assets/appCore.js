@@ -678,22 +678,37 @@ function menuHeader() {
 }
 
 function loadSyncNotSaved() {
-    return get("load/sync").then(sync => {
-        if (typeof sync === "object") {
-            $.each(sync, function (entity, registros) {
-                dbLocal.newKey(entity).then(key => {
-                    $.each(registros, function (i, reg) {
-                        let d = Object.assign({}, reg);
-                        d.id = key++;
-                        delete d.id_old;
-                        delete d.db_error;
-                        delete d.db_errorback;
-                        dbLocal.insert(entity, d, d.id);
-                        dbLocal.insert("sync_" + entity, d, d.id);
-                    });
-                })
-            });
-        }
+    return new Promise((resolve, f) => {
+        $.ajax({
+            type: "GET",
+            url: HOME + 'get/load/sync',
+            success: function (data) {
+                if (data.response === 1){
+                    console.log(data);
+                    let sync = data.data;
+                    if (typeof sync === "object") {
+                        $.each(sync, function (entity, registros) {
+                            dbLocal.newKey(entity).then(key => {
+                                $.each(registros, function (i, reg) {
+                                    let d = Object.assign({}, reg);
+                                    d.id = key++;
+                                    delete d.id_old;
+                                    delete d.db_error;
+                                    delete d.db_errorback;
+                                    dbLocal.insert(entity, d, d.id);
+                                    dbLocal.insert("sync_" + entity, d, d.id);
+                                });
+                            })
+                        });
+                    }
+                }
+                resolve(0)
+            },
+            error: function () {
+                resolve(0)
+            },
+            dataType: "json"
+        })
     });
 }
 
@@ -906,7 +921,7 @@ function loadCacheUser() {
             dicionarios = r[1];
             return Promise.all(creates)
         }).then(() => {
-            if(localStorage.setor !== "0" && app.file === "dashboard")
+            if(localStorage.setor !== "0" && app.file === "login")
                 toast("Seja Bem Vindo " + localStorage.nome , 4000, "toast-success");
 
             menuHeader();
