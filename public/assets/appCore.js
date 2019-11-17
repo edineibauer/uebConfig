@@ -109,7 +109,20 @@ $(function ($) {
      * */
     $.fn.hasAttr = function (name) {
         return typeof (this.attr(name)) !== "undefined"
-    }
+    };
+
+    /**
+     * Renderiza template mustache no elemento
+     * @param tpl
+     * @param param
+     * @returns {PromiseLike<T> | Promise<T> | *}
+     */
+    $.fn.htmlTemplate = function(tpl, param) {
+        let $this = this;
+        return getTemplates().then(templates => {
+            $this.html(Mustache.render(templates[tpl], param));
+        });
+    };
 }(jQuery));
 
 /**
