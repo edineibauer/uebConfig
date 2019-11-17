@@ -932,6 +932,10 @@ function loadCacheUser() {
     }
 }
 
+function getTemplates() {
+    return dbLocal.exeRead("__template", 1);
+}
+
 function firstAccess() {
     setCookie('accesscount', 0);
     return updateCacheUser();
