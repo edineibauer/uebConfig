@@ -697,7 +697,6 @@ function loadSyncNotSaved() {
             url: HOME + 'get/load/sync',
             success: function (data) {
                 if (data.response === 1){
-                    console.log(data);
                     let sync = data.data;
                     if (typeof sync === "object") {
                         $.each(sync, function (entity, registros) {
