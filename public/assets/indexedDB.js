@@ -444,6 +444,13 @@ const dbRemote = {
                             for (let k in response.data) {
                                 if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
+
+                                    if(typeof dicionarios[entity] === "undefined") {
+                                        toast("Erro: Você não tem permissão para acessar '" + entity + "'", 5000, "toast-error");
+                                        alert('Erro de Permissão! "' + entity + '" não esta acessível.');
+                                        break;
+                                    }
+
                                     for (let col in response.data[k])
                                         response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
                                     response.data[k].id = id;
