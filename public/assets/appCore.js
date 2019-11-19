@@ -1772,11 +1772,13 @@ $(function () {
                 history.back();
             } else {
                 let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "fade";
+                let target = $(this).attr("data-target") || $(this).attr("data-target") || "#core-content";
+                let route = $(this).attr("data-route") || $(this).attr("data-route") || "route";
                 let p = new RegExp(/^#/i);
                 let pjs = new RegExp(/^javascript/i);
                 if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                     e.preventDefault();
-                    pageTransition(url, 'route', animation);
+                    pageTransition(url, route, animation, target);
                 }
             }
         }).off("submit", "form").on("submit", "form", function (e) {
