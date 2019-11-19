@@ -1247,9 +1247,6 @@ function defaultPageTransitionPosition(direction, $element) {
 }
 
 function animateTimeout($element, $aux, scroll) {
-    if($(".core-style").length > 1)
-        $(".core-style:not(:last-of-type)").remove();
-
     $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"}).removeClass("notop");
     $element.remove();
     aniTransitionPage = null;
@@ -1461,9 +1458,10 @@ var app = {
             if (g) {
                 if (app.haveAccessPermission(g.setor, g["!setor"])) {
                     headerShow(g.header);
-                    $("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>").appendTo("head");
+
+                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
                     $("#core-title").text(g.title);
-                    $div.html(g.content);
+                    $div.append(g.content);
 
                     if(!g.header)
                         $div.addClass("notop");
