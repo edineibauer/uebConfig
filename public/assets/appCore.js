@@ -1670,7 +1670,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                      * Gera formulário
                      * */
                     form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
-                    if (data && Object.size(data) > 1) {
+                    if (!isEmpty(data)) {
                         form.setData(data);
                         id = ""
                     }
