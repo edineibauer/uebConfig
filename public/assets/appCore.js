@@ -1604,8 +1604,12 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
                 let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
                 let data = (typeof param === "object" && typeof param.data === "object" ? param.data : {});
+
                 if(!isEmpty(id))
                     data.id = id;
+                else if(!isEmpty(data.id))
+                    id = parseInt(data.id);
+
                 /**
                  * ## Identificador ##
                  * Recebe identificador por parâmetro
@@ -1670,10 +1674,9 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                      * Gera formulário
                      * */
                     form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
-                    if (!isEmpty(data)) {
+                    if (!isEmpty(data))
                         form.setData(data);
-                        id = ""
-                    }
+
                     form.show(id);
 
                     if (haveFormRelation || history.state.param.modified)
