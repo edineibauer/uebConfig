@@ -13,65 +13,64 @@ $data = ["response" => 1, "error" => "", "data" => ""];
 if (isset($_GET['data'])) {
 
     $key = filter_input(INPUT_POST, 'key', FILTER_DEFAULT);
+    $rota = str_replace('.php', '', strip_tags(trim($_GET['data'])));
 
     if (empty($key)) {
-        $data = ["response" => 2, "error" => "Chave de Acesso não Corresponde", "data" => ""];
+        $data = ["response" => 2, "error" => "'Key' não Informado", "data" => ""];
     } else {
 
         $read = new Read();
-        $url = explode('/', strip_tags(trim($_GET['data'])));
-        $include = "";
-        $find = false;
-        $var = [];
+        $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
+        if ($read->getResult()) {
+            $AllowRota = $read->getResult()[0]['rota_de_acesso'];
+            if (empty($AllowRota) || $rota === $AllowRota) {
 
-        foreach ($url as $i => $u) {
-            if (!$find) {
-                if (file_exists(PATH_HOME . "public/api" . $include . "/{$u}.php")) {
-                    $include = PATH_HOME . "public/api" . $include . "/{$u}.php";
-                    $find = true;
-                } else {
-                    foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                        if (file_exists(PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php")) {
-                            $include = PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php";
+                $url = explode('/', $rota);
+                $include = "";
+                $find = false;
+                $var = [];
+
+                foreach ($url as $i => $u) {
+                    if (!$find) {
+                        if (file_exists(PATH_HOME . "public/api" . $include . "/{$u}.php")) {
+                            $include = PATH_HOME . "public/api" . $include . "/{$u}.php";
                             $find = true;
-                            break;
+                        } else {
+                            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                                if (file_exists(PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php")) {
+                                    $include = PATH_HOME . VENDOR . $lib . "/public/api" . $include . "/{$u}.php";
+                                    $find = true;
+                                    break;
+                                }
+                            }
+
+                            if (!$find)
+                                $include .= "/{$u}";
                         }
+                    } elseif ($find) {
+                        $var[] = $u;
                     }
-
-                    if (!$find)
-                        $include .= "/{$u}";
                 }
-            } elseif ($find) {
-                $var[] = $u;
-            }
-        }
 
-        if ($find) {
-            $allow = !0;
-            if ((!defined("KEY") && $include !== PATH_HOME . VENDOR . "config/public/api/system/activation.php") || (defined("KEY") && KEY !== $key)) {
-                if (defined("KEY") && preg_match("/^" . preg_quote(PATH_HOME . VENDOR . "config/") . "/i", $include)) {
-                    $allow = !1;
+                if ($find) {
+                    include_once $include;
+
+                    if (!empty($data['error']))
+                        $data['response'] = 2;
+                    elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
+                        $data = ["response" => 5, "error" => "retorno inválido!", "data" => ""];
+                    elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
+                        $data = ["response" => 2, "error" => "url de redirecionamento inválida.", "data" => ""];
+
                 } else {
-                    $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
-                    $allow = $read->getResult() ? !0 : !1;
+                    $data["response"] = 4;
+                    $data["error"] = "Rota não Encontrada.";
                 }
-            }
-
-            if ($allow) {
-                include_once $include;
-
-                if (!empty($data['error']))
-                    $data['response'] = 2;
-                elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
-                    $data = ["response" => 5, "error" => "retorno inválido!", "data" => ""];
-                elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
-                    $data = ["response" => 2, "error" => "url de redirecionamento inválida.", "data" => ""];
             } else {
-                $data = ["response" => 2, "error" => "Chave de Acesso Inválida", "data" => ""];
+                $data = ["response" => 2, "error" => "Chave de acesso não permite esta rota", "data" => ""];
             }
         } else {
-            $data["response"] = 4;
-            $data["error"] = "Rota não Encontrada.";
+            $data = ["response" => 2, "error" => "Chave de Acesso Inválida", "data" => ""];
         }
     }
 }
