@@ -88,6 +88,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     reverse = (typeof reverse !== "undefined" ? (reverse ? !0 : !1) : !1);
     limit = parseInt(typeof limit === "number" ? limit : (localStorage.limitGrid ? localStorage.limitGrid : 15));
     limit = limit > parseInt(LIMITOFFLINE) ? parseInt(LIMITOFFLINE) : limit;
+    limit = limit < parseInt(localStorage.limitGrid) ? parseInt(localStorage.limitGrid) : limit;
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
     return db.exeRead(entity).then(data => {
