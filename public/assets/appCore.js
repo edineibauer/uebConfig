@@ -1603,7 +1603,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
                 let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
                 let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
-                let data = (typeof param === "object" && typeof param.data === "object" ? param.data : {});
+                let data = (typeof param === "object" && typeof param.data === "object" && !isEmpty(param.data) ? param.data : {});
 
                 if(!isEmpty(id))
                     data.id = id;
