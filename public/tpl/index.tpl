@@ -23,7 +23,7 @@
     <div class="hide" id="core-header-nav-bottom">
         <nav role="navigation">
             <ul class="core-class-container" style="padding:0">
-                <div id="core-menu-custom-bottom" class="left"></div>
+                <div id="core-menu-custom-bottom" style="float: left"></div>
             </ul>
         </nav>
     </div>
