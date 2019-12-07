@@ -778,7 +778,6 @@ function clearCache() {
     clear.push(dbLocal.clear('__allow'));
     clear.push(dbLocal.clear('__general'));
     clear.push(dbLocal.clear('__react'));
-    clear.push(dbLocal.clear('__reactOnline'));
     clear.push(dbLocal.clear('__relevant'));
     clear.push(dbLocal.clear('__template'));
     clear.push(dbLocal.clear('__user'));
@@ -897,16 +896,8 @@ function loadUserViews() {
     if(SERVICEWORKER && getCookie("viewsLoaded") === "") {
         get("appFilesView/" + app.file).then(g => {
             caches.open('view-v' + VERSION).then(cache => {
-
                 setCookie("viewsLoaded", 1);
-
-                let t = [];
-                t.push(cache.addAll(g.view));
-
-                return Promise.all(t).then(() => {
-                    if(localStorage.setor !== "0")
-                        toast("Pronto para uso Offline", 2500, "toast-success");
-                });
+                return cache.addAll(g.view);
             })
         })
     }
@@ -1109,60 +1100,28 @@ function startCache() {
             setCookie("webp", await WebpIsSupported());
         })();
     }).then(() => {
-        setTimeout(function () {
-            finishCache();
-        }, 500);
+         finishCache();
     });
 }
 
 function finishCache() {
     if(SERVICEWORKER) {
-        caches.open('misc-v' + VERSION).then(function (cache) {
-            return cache.match(HOME + "manifest.json").then(response => {
-                if (!response) {
-                    return get("appFiles").then(g => {
-                        if(!g)
-                            return;
-
-                        return caches.open('viewJs-v' + VERSION).then(cache => {
-                            return cache.addAll(g.viewJs)
-                        }).then(() => {
-                            return caches.open('viewCss-v' + VERSION).then(cache => {
-                                return cache.addAll(g.viewCss)
-                            })
-                        }).then(() => {
-                            return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.addAll(g.view)
-                            })
-                        }).then(() => {
-                            return caches.open('misc-v' + VERSION).then(cache => {
-                                return cache.addAll(g.misc)
-                            })
-                        })
-                    }).then(() => {
-                        let gets = [];
-                        let creates = [];
-                        gets.push(get("react"));
-                        gets.push(get("relevant"));
-                        gets.push(get("general"));
-                        gets.push(get("user"));
-                        gets.push(get("reactOnline"));
-                        return Promise.all(gets).then(r => {
-                            if(!isEmpty(r[0]))
-                                creates.push(dbLocal.exeCreate('__react', r[0]));
-                            if(!isEmpty(r[1]))
-                                creates.push(dbLocal.exeCreate('__relevant', r[1]));
-                            if(!isEmpty(r[2]))
-                                creates.push(dbLocal.exeCreate('__general', r[2]));
-                            if(!isEmpty(r[3]))
-                                creates.push(dbLocal.exeCreate('__user', r[3]));
-                            if(!isEmpty(r[4]))
-                                creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
-                            return Promise.all(creates)
-                        })
-                    })
-                }
-            })
+        let gets = [];
+        let creates = [];
+        gets.push(get("react"));
+        gets.push(get("relevant"));
+        gets.push(get("general"));
+        gets.push(get("user"));
+        return Promise.all(gets).then(r => {
+            if(!isEmpty(r[0]))
+                creates.push(dbLocal.exeCreate('__react', r[0]));
+            if(!isEmpty(r[1]))
+                creates.push(dbLocal.exeCreate('__relevant', r[1]));
+            if(!isEmpty(r[2]))
+                creates.push(dbLocal.exeCreate('__general', r[2]));
+            if(!isEmpty(r[3]))
+                creates.push(dbLocal.exeCreate('__user', r[3]));
+            return Promise.all(creates)
         })
     } else {
         return dbLocal.exeRead("__relevant", 1).then(r => {
@@ -1173,7 +1132,6 @@ function finishCache() {
                 gets.push(get("relevant"));
                 gets.push(get("general"));
                 gets.push(get("user"));
-                gets.push(get("reactOnline"));
                 return Promise.all(gets).then(r => {
                     if(!isEmpty(r[0]))
                         creates.push(dbLocal.exeCreate('__react', r[0]));
@@ -1183,8 +1141,6 @@ function finishCache() {
                         creates.push(dbLocal.exeCreate('__general', r[2]));
                     if(!isEmpty(r[3]))
                         creates.push(dbLocal.exeCreate('__user', r[3]));
-                    if(!isEmpty(r[4]))
-                        creates.push(dbLocal.exeCreate('__reactOnline', r[4]));
                     return Promise.all(creates)
                 })
             }

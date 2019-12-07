@@ -39,8 +39,8 @@ function getAssetsMidias(string $path, array $dados, string $domain): array
 function getCurrentCachedContent(string $path, array $dados, string $domain): array
 {
     //assets
-    if (file_exists(PATH_HOME . "{$path}/assets"))
-        $dados = getAssetsMidias("{$path}/assets", $dados, $domain);
+//    if (file_exists(PATH_HOME . "{$path}/assets"))
+//        $dados = getAssetsMidias("{$path}/assets", $dados, $domain);
 
     //views
     if (file_exists(PATH_HOME . "{$path}/view/{$domain}.php"))
@@ -57,7 +57,7 @@ $data['data'] = [
     "viewJs" => [],
     "viewCss" => [],
     "view" => [],
-    "misc" => [$_SESSION['userlogin']['imagem']['urls']['100']]
+    "misc" => [HOME . "manifest.json?v=" . VERSION, $_SESSION['userlogin']['imagem']['urls']['100']]
 ];
 
 if (!empty($link->getVariaveis())) {
@@ -96,7 +96,9 @@ if (file_exists(PATH_HOME . "assetsPublic/view/{$domain}.min.js"))
 $data['data'] = getCurrentCachedContent('public', $data['data'], $domain);
 
 // libs content
-foreach (\Config\Config::getViewPermissoes() as $rota) {
-    if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && !in_array($rota, ['entity-ui', 'dev-ui', 'config', 'form']))
-        $data['data'] = getCurrentCachedContent(VENDOR . $rota . '/public', $data['data'], $domain);
+if(empty($data['data']['view'])) {
+    foreach (Helper::listFolder(PATH_HOME . VENDOR) as $rota) {
+        if (file_exists(PATH_HOME . VENDOR . $rota . "/public") && !in_array($rota, ['entity-ui', 'dev-ui', 'config', 'form']))
+            $data['data'] = getCurrentCachedContent(VENDOR . $rota . '/public', $data['data'], $domain);
+    }
 }
