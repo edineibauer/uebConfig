@@ -312,6 +312,9 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "public/dash/admin/menu.json"))
             Config::writeFile("public/dash/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/dashAdmin.txt"));
 
+        if(!file_exists(PATH_HOME . "_config/viewOffline.json"))
+            Config::writeFile("_config/viewOffline.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
+
         //CONSTANTES EM CONFIG
         $contantes = [];
         require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";

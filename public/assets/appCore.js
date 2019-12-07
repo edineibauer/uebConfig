@@ -1846,7 +1846,7 @@ $(function () {
 
                 if (getCookie('accesscount') === "0")
                     return startCache();
-                else if(DEV)
+                else if(navigator.onLine && DEV)
                     return updateTemplates();
 
             }).then(() => {
