@@ -989,6 +989,12 @@ function webp(extension) {
     return (getCookie('webp') === "true" ? 'webp' : extension);
 }
 
+function updateTemplates() {
+    return get("templates").then(tpl => {
+        return dbLocal.exeCreate('__template', tpl);
+    });
+}
+
 function startCache() {
     let t = [];
     if(SERVICEWORKER)
@@ -1840,6 +1846,8 @@ $(function () {
 
                 if (getCookie('accesscount') === "0")
                     return startCache();
+                else if(DEV)
+                    return updateTemplates();
 
             }).then(() => {
                 checkUpdate();
