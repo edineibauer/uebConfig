@@ -898,6 +898,12 @@ function loadUserViews() {
             caches.open('view-v' + VERSION).then(cache => {
                 setCookie("viewsLoaded", 1);
                 return cache.addAll(g.view);
+            }).then(() => {
+                if(!isEmpty(g.misc)) {
+                    return caches.open('misc-v' + VERSION).then(cache => {
+                        return cache.addAll(g.misc)
+                    });
+                }
             })
         })
     }

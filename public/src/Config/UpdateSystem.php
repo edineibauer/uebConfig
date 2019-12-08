@@ -315,6 +315,9 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "_config/viewOffline.json"))
             Config::writeFile("_config/viewOffline.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
 
+        if(!file_exists(PATH_HOME . "_config/viewOfflineAssets.json"))
+            Config::writeFile("_config/viewOfflineAssets.json", "[]");
+
         //CONSTANTES EM CONFIG
         $contantes = [];
         require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
