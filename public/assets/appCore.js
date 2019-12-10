@@ -1156,7 +1156,7 @@ function finishCache() {
 
 function checkMenuActive() {
     $(".menu-li").removeClass("active").each(function (i, e) {
-        if($(e).find("[rel='" + app.file + "']").length)
+        if($(e).attr("rel") === app.file || $(e).find("[rel='" + app.file + "']").length)
             $(e).addClass("active");
     });
 }
