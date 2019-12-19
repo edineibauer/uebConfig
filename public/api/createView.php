@@ -177,7 +177,7 @@ if (!empty($name)) {
      * Cria view file
      */
     $f = fopen(PATH_HOME . "public/view/" . $name . ".php", "w+");
-    fwrite($f, "<div id='core-content-view' style='float: left;width: 100%'></div>");
+    fwrite($f, "<div id='core-view-" . $name . "' style='float: left;width: 100%'></div>");
     fclose($f);
 
     /**
@@ -271,7 +271,7 @@ if (!empty($name)) {
     /**
      * Cria JS
      */
-    $jsContent .= ";$(function(){ $('#core-content-view').htmlTemplate('view" . ucfirst($name) . "', {}); });";
+    $jsContent = "$(function(){ $('#core-view" . $name . "').htmlTemplate('view" . ucfirst($name) . "', {}).then(() => {" . $jsContent . ";}); });";
     $f = fopen(PATH_HOME . "public/assets/" . $name . ".js", "w+");
     fwrite($f, $jsContent);
     fclose($f);
