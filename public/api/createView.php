@@ -207,10 +207,12 @@ if (!empty($name)) {
             $mJs->add(file_get_contents($c['link'], $name));
     }
 
+    $mJs->add("$(function(){ $('#core-view-" . $name . "').htmlTemplate('view" . ucfirst($name) . "', {}).then(() => {");
     if (!empty($js)) {
         foreach ($js as $c)
             $mJs->add(file_get_contents($c['url']));
     }
+    $mJs->add(";}); });");
 
     $jsContent = $mJs->minify();
 
@@ -271,7 +273,6 @@ if (!empty($name)) {
     /**
      * Cria JS
      */
-    $jsContent = "$(function(){ $('#core-view" . $name . "').htmlTemplate('view" . ucfirst($name) . "', {}).then(() => {" . $jsContent . ";}); });";
     $f = fopen(PATH_HOME . "public/assets/" . $name . ".js", "w+");
     fwrite($f, $jsContent);
     fclose($f);
