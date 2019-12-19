@@ -276,4 +276,6 @@ if (!empty($name)) {
     $f = fopen(PATH_HOME . "public/assets/" . $name . ".js", "w+");
     fwrite($f, $jsContent);
     fclose($f);
+
+    \Config\Config::updateSite();
 }
