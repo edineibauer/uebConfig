@@ -184,14 +184,15 @@ if (!empty($name)) {
      * Cria CSS file
      */
     $mCss = new MatthiasMullie\Minify\CSS("");
-    if (!empty($css)) {
-        foreach ($css as $c)
-            $mCss->add(file_get_contents($c['url']));
-    }
 
     if (!empty($cssLink)) {
         foreach ($cssLink as $c)
             $mCss->add(getCss($c['link'], $name));
+    }
+
+    if (!empty($css)) {
+        foreach ($css as $c)
+            $mCss->add(file_get_contents($c['url']));
     }
 
     $cssContent = $mCss->minify();
@@ -200,15 +201,15 @@ if (!empty($name)) {
      * Cria JS file
      */
     $mJs = new MatthiasMullie\Minify\JS("");
-    if (!empty($js)) {
-        foreach ($js as $c) {
-            $mJs->add(file_get_contents($c['url']));
-        }
-    }
 
     if (!empty($jsLink)) {
         foreach ($jsLink as $c)
             $mJs->add(file_get_contents($c['link'], $name));
+    }
+
+    if (!empty($js)) {
+        foreach ($js as $c)
+            $mJs->add(file_get_contents($c['url']));
     }
 
     $jsContent = $mJs->minify();
