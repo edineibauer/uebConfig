@@ -293,7 +293,7 @@ class UpdateSystem
                 if (!isset($config[$contante]))
                     $config[$contante] = $value;
             }
-            $config['dev'] = preg_match("/localhost\//i", $config['home']);
+            $config['dev'] = (defined('DEV') ? DEV : preg_match("/localhost\//i", $config['home']));
             $config['publico'] = $config['home'] . $config['vendor'] . $config['dominio'] . "/public/";
             Config::createConfig($config);
         }
