@@ -1187,7 +1187,7 @@ function defaultPageTransitionPosition(direction, $element) {
     let left = $element[0].getBoundingClientRect().left;
     let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
-        "min-height": (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px",
+        "min-height": ($element.attr("id") === "core-content" ? (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) : 0) + "px",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
@@ -1440,7 +1440,7 @@ var app = {
                         $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
                     let topHeader = g.header ? $("#core-header")[0].clientHeight : 0;
-                    $div.css("min-height", (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) + "px");
+                    $div.css("min-height", ($div.attr("id") === "core-content" ? (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) : 0) + "px");
 
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
