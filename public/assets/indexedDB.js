@@ -251,10 +251,18 @@ function dbSendData(entity, dados, action) {
                     s(allP);
                 } else {
                     navigator.vibrate(100);
-                    showErrorField(form.$element, dd.data.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
-                    setFormSaveStatus(form, 1);
+
+                    if(!isEmpty(form)) {
+                        showErrorField(form.$element, dd.data.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
+                        setFormSaveStatus(form, 1);
+                    }
+
                     toast("Erro ao cadastrar, corrija o formulário", 7000, "toast-error");
-                    f(0);
+
+                    if(!isEmpty(form))
+                        f(dd.data.data[0].db_error[form.entity]);
+                    else
+                        f(dd.data.data[0].db_error);
                 }
             },
             dataType: "json",
