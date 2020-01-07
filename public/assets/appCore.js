@@ -996,6 +996,8 @@ function startCache() {
     let t = [];
     if(SERVICEWORKER)
         t.push(get("currentFiles/" + window.location.pathname));
+    else if (navigator.onLine && DEV)
+        t.push(updateTemplates());
 
     return Promise.all(t).then(g => {
         if(!SERVICEWORKER || !g)
