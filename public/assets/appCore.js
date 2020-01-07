@@ -1424,7 +1424,7 @@ var app = {
 
         return view(file, function (g) {
             if (g) {
-                if (app.haveAccessPermission(g.setor, g["!setor"])) {
+                if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
                     headerShow(g.header);
 
                     $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
@@ -1458,7 +1458,7 @@ var app = {
                         })
                     }
                 } else {
-                    pageTransition(g.redirect, 'route', 'fade');
+                    location.href = HOME + g.redirect;
                 }
             } else {
                 $div.html("");
