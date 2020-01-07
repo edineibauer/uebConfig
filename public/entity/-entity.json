@@ -1,6 +1,5 @@
 {
   "*": [
-    "api_chaves",
-    "config"
+    "api_chaves"
   ]
 }

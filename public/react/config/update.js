@@ -1,1 +1,0 @@
-post("config", "updateConfiguracoes", {dados: dados});
