@@ -47,6 +47,7 @@ if (!empty($url)) {
                 "navbar" => $link->getParam()['navbar'],
                 "setor" => $link->getParam()['setor'],
                 "!setor" => $link->getParam()['!setor'],
+                "redirect" => $link->getParam()['redirect'] ?? "403",
                 "content" => $data['data']
             ];
 
