@@ -6,7 +6,9 @@ if(file_exists(PATH_HOME . "_config/permissoes.json")) {
     $read = new \Conn\Read();
     $read->exeRead("usuarios");
     if ($read->getResult()) {
-        foreach ($read->getResult() as $item)
-            $data['data'][$item['id']] = ["id" => $item['id'], "nome" => $item['nome'], "setor" => $item['setor'], "nivel" => $item['nivel'], "status" => $item['status']];
+        foreach ($read->getResult() as $item){
+            if(!empty($item['nivel']))
+                $data['data'][$item['id']] = ["id" => $item['id'], "nome" => $item['nome'], "setor" => $item['setor'], "nivel" => $item['nivel'], "status" => $item['status']];
+        }
     }
 }
