@@ -633,40 +633,6 @@ function loginBtn() {
     }
 }
 
-function menuBottom(tpl) {
-    let menu = [];
-    if (HOMEPAGE === "0")
-        menu.push({href: HOME, attr: 'rel="index"', html: "<i class='material-icons left'>home</i>"});
-    if (getCookie("token") !== "" && getCookie("token") !== "0")
-        menu.push({
-            href: HOME + 'dashboard',
-            attr: 'rel="dashboard"',
-            html: "<i class='material-icons left'>dashboard</i>"
-        });
-    if (getCookie("setor") === "admin") {
-        menu.push({href: HOME + 'UIDev', attr: 'rel="UIDev"', html: "<i class='material-icons left'>settings</i>"})
-    }
-    if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
-        $("#core-header-nav-bottom").removeClass('s-show');
-        return
-    }
-    $("#core-header-nav-bottom").addClass('s-show');
-    let content = "";
-    for (let m in menu) {
-        if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-            content += Mustache.render(tpl['menu-header'], menu[m])
-    }
-    $("#core-menu-custom-bottom").html(content);
-    let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
-    $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
-}
-
-function afterMenuHeader() {
-    let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
-    let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
-    $("#core-header-perfil").html(perfilImg);
-}
-
 function menuHeader() {
     $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px");
     loginBtn();
@@ -674,20 +640,40 @@ function menuHeader() {
     let menu = dbLocal.exeRead("__menu", 1);
     return Promise.all([templates, menu]).then(r => {
         let tpl = r[0];
-        let menu = r[1];
+        let menu = (typeof r[1] !== "object" || r[1].constructor !== Array || r[1] === null ? [] : r[1]);
 
-        if(typeof menu !== "object" || menu.constructor !== Array || menu === null)
-            menu = [];
-
-        menuBottom(tpl);
         let content = "";
         for (let m in menu) {
             if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
                 content += Mustache.render(tpl['menu-header'], menu[m])
         }
         $("#core-menu-custom").html(content);
+
+        navbar(tpl);
         afterMenuHeader();
     })
+}
+
+function navbar(tpl) {
+    return dbLocal.exeRead("__navbar", 1).then(menu => {
+        menu = (typeof menu !== "object" || menu.constructor !== Array || menu === null ? [] : menu);
+
+        let content = "";
+        for (let m in menu) {
+            if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
+                content += Mustache.render(tpl['menu-header'], menu[m])
+        }
+
+        $("#core-menu-custom-bottom").html(content);
+        let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
+        $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
+    });
+}
+
+function afterMenuHeader() {
+    let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
+    let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+    $("#core-header-perfil").html(perfilImg);
 }
 
 function loadSyncNotSaved() {
@@ -745,6 +731,7 @@ function clearCacheUser() {
     clear.push(dbLocal.clear('__dicionario'));
     clear.push(dbLocal.clear('__info'));
     clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
 
     return Promise.all(clear).then(() => {
@@ -782,6 +769,7 @@ function clearCache() {
     clear.push(dbLocal.clear('__template'));
     clear.push(dbLocal.clear('__user'));
     clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
 
     return Promise.all(clear).then(() => {
@@ -921,12 +909,14 @@ function loadCacheUser() {
         gets.push(get("info"));
         gets.push(get("templates"));
         gets.push(get("menu"));
+        gets.push(get("navbar"));
         return Promise.all(gets).then(r => {
             creates.push(dbLocal.exeCreate('__allow', r[0]));
             creates.push(dbLocal.exeCreate('__dicionario', r[1]));
             creates.push(dbLocal.exeCreate('__info', r[2]));
             creates.push(dbLocal.exeCreate('__template', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
+            creates.push(dbLocal.exeCreate('__navbar', r[5]));
             dicionarios = r[1];
             return Promise.all(creates)
         }).then(() => {

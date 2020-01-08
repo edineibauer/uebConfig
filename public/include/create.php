@@ -231,8 +231,8 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("public/react/online");
         Config\Config::createDir("public/param");
         Config\Config::createDir("public/assets");
-        Config\Config::createDir("public/dash");
-        Config\Config::createDir("public/dash/admin");
+        Config\Config::createDir("public/menu");
+        Config\Config::createDir("public/menu/admin");
         Config\Config::createDir("public/tpl");
         Config\Config::createDir("public/cron");
         Config\Config::createDir("public/entity");
@@ -297,7 +297,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("public/assets/index.js", file_get_contents("public/installTemplates/viewIndexJs.txt"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
         Config\Config::writeFile("public/entity/-entity.json", '{"1":[],"2":[],"3":[],"0":[], "20":[]}');
-        Config\Config::writeFile("public/dash/-menu.json", '{"1":[],"2":[],"3":[]}');
         Config\Config::writeFile("entity/general/general_info.json", "[]");
         Config\Config::writeFile("_config/.htaccess", "Deny from all");
         Config\Config::writeFile("entity/.htaccess", "Deny from all");

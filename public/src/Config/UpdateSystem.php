@@ -255,8 +255,41 @@ class UpdateSystem
             $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.js");
         }
 
+        $this->checkDirBase();
         $this->copyInstallTemplate();
         $this->copyCustomSystem();
+    }
+
+    /**
+     * Verifica se os diretórios padrões existem
+     */
+    private function checkDirBase()
+    {
+        Config::createDir("entity");
+        Config::createDir("entity/general");
+        Config::createDir("uploads");
+        Config::createDir("uploads/site");
+        Config::createDir("_config");
+        Config::createDir("_cdn");
+        Config::createDir("_cdn/vendor");
+        Config::createDir("libs");
+        Config::createDir("public");
+        Config::createDir("public/view");
+        Config::createDir("public/set");
+        Config::createDir("public/get");
+        Config::createDir("public/api");
+        Config::createDir("public/overload");
+        Config::createDir("public/react");
+        Config::createDir("public/react/online");
+        Config::createDir("public/param");
+        Config::createDir("public/assets");
+        Config::createDir("public/menu");
+        Config::createDir("public/menu/admin");
+        Config::createDir("public/tpl");
+        Config::createDir("public/cron");
+        Config::createDir("public/entity");
+        Config::createDir("assetsPublic");
+        Config::createDir("assetsPublic/img");
     }
 
     /**
@@ -264,8 +297,6 @@ class UpdateSystem
      */
     private function copyInstallTemplate()
     {
-        Helper::createFolderIfNoExist(PATH_HOME . "public/dash/admin");
-        Helper::createFolderIfNoExist(PATH_HOME . "public/overload");
         Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.txt"));
         Config::writeFile("apiView.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiView.txt"));
         Config::writeFile("apiGet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiGet.txt"));
@@ -273,10 +304,10 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
         Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
-        if(!file_exists(PATH_HOME . "public/dash/menu.json"))
-            Config::writeFile("public/dash/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/dash.txt"));
-        if(!file_exists(PATH_HOME . "public/dash/admin/menu.json"))
-            Config::writeFile("public/dash/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/dashAdmin.txt"));
+        if(!file_exists(PATH_HOME . "public/menu/menu.json"))
+            Config::writeFile("public/menu/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menu.txt"));
+        if(!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
+            Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
 
         if(!file_exists(PATH_HOME . "_config/viewOffline.json"))
             Config::writeFile("_config/viewOffline.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
@@ -339,11 +370,9 @@ class UpdateSystem
             if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . $lib . "/public/assets/theme.min.css"))
                 copy(PATH_HOME . VENDOR . $lib . "/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
-            $libNot = Config::getMenuNotAllow();
-
             //Remove index caso alguma biblioteca já possua
             if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view/index.php") && file_exists(PATH_HOME . "public/view/index.php")) {
-                if (preg_match("/<h1>Parabéns, tudo funcionando de acordo!<\/h1>/i", file_get_contents(PATH_HOME . "public/view/index.php")) && (!isset($libNot) || !in_array($lib, $libNot))) {
+                if (preg_match("/<h1>Parabéns, tudo funcionando de acordo!<\/h1>/i", file_get_contents(PATH_HOME . "public/view/index.php"))) {
                     unlink(PATH_HOME . "public/view/index.php");
                     unlink(PATH_HOME . "public/param/index.json");
                 }
