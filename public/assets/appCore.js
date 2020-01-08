@@ -664,6 +664,13 @@ function navbar(tpl) {
                 content += Mustache.render(tpl['menu-header'], menu[m])
         }
 
+        if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
+            $("#core-header-nav-bottom").removeClass('s-show');
+            return
+        }
+
+        $("#core-header-nav-bottom").addClass('s-show');
+
         $("#core-menu-custom-bottom").html(content);
         let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
         $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
