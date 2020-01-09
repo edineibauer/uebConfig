@@ -52,6 +52,9 @@
     const LIMITOFFLINE = '{$limitoffline}';
     const PUSH_PUBLIC_KEY = '{$pushpublic}';
     const USER = JSON.parse('{$user}');
+    {foreach from=$front item=vari key=variKey}
+    const {$variKey|upper} = '{$vari}';
+    {/foreach}
 </script>
 
 <script src='{$home}assetsPublic/appCore.min.js?v={$version}' defer></script>
