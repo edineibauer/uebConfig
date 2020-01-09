@@ -1426,6 +1426,7 @@ var app = {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
                     TITLE = g.title;
                     headerShow(g.header);
+                    checkMenuActive();
 
                     $("#core-title").text(g.title);
 
