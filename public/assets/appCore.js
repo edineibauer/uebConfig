@@ -1433,11 +1433,10 @@ var app = {
                     /**
                      * Define as constantes do front
                      */
+                    FRONT = {};
                     if(!isEmpty(g.front) && typeof g.front === "object") {
-                        for(let col in g.front) {
-                            if(typeof FRONT[col.toUpperCase()] === "undefined")
-                                FRONT[col.toUpperCase()] = g.front[col];
-                        }
+                        for(let col in g.front)
+                            FRONT[col.toUpperCase()] = g.front[col];
                     }
 
                     if(!g.header)
