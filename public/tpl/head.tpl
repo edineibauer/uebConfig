@@ -46,12 +46,12 @@
     const HOMEPAGE = '{$homepage}';
     const THEME = '{$theme}';
     const THEMETEXT = '{$themeColor}';
-    const TITLE = '{$title}';
     const LOGO = '{$logo}';
     const FAVICON = '{$favicon}';
     const LIMITOFFLINE = '{$limitoffline}';
     const PUSH_PUBLIC_KEY = '{$pushpublic}';
     const USER = JSON.parse('{$user}');
+    var TITLE = '{$title}';
     var FRONT = {};
 </script>
 

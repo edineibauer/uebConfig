@@ -1424,10 +1424,12 @@ var app = {
         return view(file, function (g) {
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
+                    TITLE = g.title;
                     headerShow(g.header);
 
-                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
                     $("#core-title").text(g.title);
+
+                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
                     $div.append(g.content);
 
                     /**
