@@ -1666,7 +1666,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 });
             }
         }).then(() => {
-            checkMenuActive();
             if (historyReqPosition) {
                 let t = setInterval(function () {
                     if (!aniTransitionPage) {
