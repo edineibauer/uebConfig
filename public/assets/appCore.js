@@ -1430,6 +1430,16 @@ var app = {
                     $("#core-title").text(g.title);
                     $div.append(g.content);
 
+                    /**
+                     * Define as constantes do front
+                     */
+                    if(!isEmpty(g.front) && typeof g.front === "object") {
+                        for(let col in g.front) {
+                            if(typeof FRONT[col.toUpperCase()] === "undefined")
+                                FRONT[col.toUpperCase()] = g.front[col];
+                        }
+                    }
+
                     if(!g.header)
                         $div.addClass("notop");
 

@@ -38,6 +38,7 @@ if (!empty($url)) {
             $data["data"] = [
                 "title" => $link->getParam()['title'],
                 "descricao" => $link->getParam()['descricao'],
+                "front" => $link->getParam()['front'],
                 "css" => $link->getParam()['css'],
                 "js" => $link->getParam()['js'],
                 "meta" => $link->getParam()['meta'],
