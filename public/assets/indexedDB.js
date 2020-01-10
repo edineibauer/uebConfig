@@ -245,10 +245,8 @@ function dbSendData(entity, dados, action) {
                 f(0);
             },
             success: function (dd) {
-                let allP = [];
                 if (dd.response === 1 && dd.data.error === 0) {
-                    allP.push(Object.assign({db_errorback: 0}, dd.data.data[0]));
-                    s(allP);
+                    s(Object.assign({db_errorback: 0}, dd.data.data[0]));
                 } else {
                     navigator.vibrate(100);
 
@@ -260,9 +258,9 @@ function dbSendData(entity, dados, action) {
                     toast("Erro ao cadastrar, corrija o formulário", 7000, "toast-error");
 
                     if(!isEmpty(form))
-                        f([Object.assign({db_errorback: 1}, dd.data.data[0].db_error[form.entity])]);
+                        f(Object.assign({db_errorback: 1}, dd.data.data[0].db_error[form.entity]));
                     else
-                        f([Object.assign({db_errorback : 1}, dd.data.data[0].db_error)]);
+                        f(Object.assign({db_errorback : 1}, dd.data.data[0].db_error));
                 }
             },
             dataType: "json",
