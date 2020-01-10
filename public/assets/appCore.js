@@ -1516,9 +1516,10 @@ var app = {
  * @param param
  * @param scroll
  * @param setHistory
- * @returns {Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>}
+ * @param replaceHistory
+ * @returns {Promise<unknown[]>}
  */
-function pageTransition(route, type, animation, target, param, scroll, setHistory) {
+function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
     route = (typeof route === "string" ? route : location.href).replace(HOME, '');
     route = route === "/" ? "" : route;
@@ -1528,6 +1529,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
     scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
+    replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
     if (!app.loading && !aniTransitionPage) {
@@ -1557,15 +1559,27 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 param: history.state.param,
                 scroll: scroll
             }, null, HOME + history.state.route);
-        if (setHistory && !reload && novaRota)
-            history.pushState({
-                id: historyPosition++,
-                route: route,
-                type: type,
-                target: target,
-                param: param,
-                scroll: 0
-            }, null, HOME + route);
+        if (setHistory && !reload && novaRota) {
+            if(replaceHistory) {
+                history.replaceState({
+                    id: historyPosition++,
+                    route: route,
+                    type: type,
+                    target: target,
+                    param: param,
+                    scroll: 0
+                }, null, HOME + route);
+            } else {
+                history.pushState({
+                    id: historyPosition++,
+                    route: route,
+                    type: type,
+                    target: target,
+                    param: param,
+                    scroll: 0
+                }, null, HOME + route);
+            }
+        }
         return Promise.all([]).then(() => {
 
             if (historyReqPosition)
