@@ -317,6 +317,7 @@ class UpdateSystem
 
         //CONSTANTES EM CONFIG
         $contantes = [];
+        $contantes = [];
         require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
         if(!empty($contantes) && is_array($contantes)) {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
@@ -407,34 +408,38 @@ class UpdateSystem
      */
     private function createCoreJs(array $jsList, array $data, string $name = "core")
     {
-        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.js")) {
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.js")) {
             $minifier = new Minify\JS("");
 
-            foreach ($data as $datum) {
-                if (in_array($datum['nome'], $jsList)) {
-                    foreach ($datum['arquivos'] as $file) {
-                        if ($file['type'] === "text/javascript")
-                            $minifier->add($file['content']);
-                    }
-                }
-            }
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/" . $setor);
 
             if(is_array($jsList) && !empty($jsList)) {
+
+                foreach ($data as $datum) {
+                    if (in_array($datum['nome'], $jsList)) {
+                        foreach ($datum['arquivos'] as $file) {
+                            if ($file['type'] === "text/javascript")
+                                $minifier->add($file['content']);
+                        }
+                    }
+                }
+
                 foreach ($jsList as $i => $js) {
-                    if(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
-                        $minifier->add(PATH_HOME . "public/assets/{$js}.js");
+                    if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
+                        $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$js}.js");
                         break;
-                    } elseif(file_exists(PATH_HOME . "public/assets/js/{$js}.js")) {
-                        $minifier->add(PATH_HOME . "public/assets/js/{$js}.js");
+                    } elseif(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
+                        $minifier->add(PATH_HOME . "public/assets/{$js}.js");
                         break;
                     } else {
                         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                            if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
-                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
+                            if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js")) {
+                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js");
                                 break;
-                            } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$js}.js")) {
-                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$js}.js");
+                            } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
+                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
                                 break;
                             }
                         }
@@ -442,24 +447,26 @@ class UpdateSystem
                 }
             } elseif(is_string($jsList)) {
                 $js = $jsList;
-                if(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
+                if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
+                    $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$js}.js");
+
+                } elseif(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
                     $minifier->add(PATH_HOME . "public/assets/{$js}.js");
-                } elseif(file_exists(PATH_HOME . "public/assets/js/{$js}.js")) {
-                    $minifier->add(PATH_HOME . "public/assets/js/{$js}.js");
+
                 } else {
                     foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
-                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
+                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js");
                             break;
-                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$js}.js")) {
-                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$js}.js");
+                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
                             break;
                         }
                     }
                 }
             }
 
-            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.js");
+            $minifier->minify(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.js");
         }
     }
 
@@ -470,8 +477,10 @@ class UpdateSystem
      */
     private function createCoreCss(array $cssList, array $data, string $name = "core")
     {
-        if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.css")) {
             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/" . $setor);
 
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
 
@@ -507,19 +516,19 @@ class UpdateSystem
 
             if(is_array($cssList) && !empty($cssList)) {
                 foreach ($cssList as $i => $css) {
-                    if(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
-                        $minifier->add(PATH_HOME . "public/assets/{$css}.css");
+                    if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$css}.css")) {
+                        $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$css}.css");
                         break;
-                    } elseif(file_exists(PATH_HOME . "public/assets/js/{$css}.css")) {
-                        $minifier->add(PATH_HOME . "public/assets/js/{$css}.css");
+                    } elseif(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
+                        $minifier->add(PATH_HOME . "public/assets/{$css}.css");
                         break;
                     } else {
                         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                            if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
-                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
+                            if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css")) {
+                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css");
                                 break;
-                            } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$css}.css")) {
-                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$css}.css");
+                            } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
+                                $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
                                 break;
                             }
                         }
@@ -527,24 +536,26 @@ class UpdateSystem
                 }
             } elseif(is_string($cssList)) {
                 $css = $cssList;
-                if(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
+                if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$css}.css")) {
+                    $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$css}.css");
+
+                } elseif(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
                     $minifier->add(PATH_HOME . "public/assets/{$css}.css");
-                } elseif(file_exists(PATH_HOME . "public/assets/js/{$css}.css")) {
-                    $minifier->add(PATH_HOME . "public/assets/js/{$css}.css");
+
                 } else {
                     foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
-                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
+                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css");
                             break;
-                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$css}.css")) {
-                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/js/{$css}.css");
+                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
                             break;
                         }
                     }
                 }
             }
 
-            $minifier->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
+            $minifier->minify(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.css");
         }
     }
 
