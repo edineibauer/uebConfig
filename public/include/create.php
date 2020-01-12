@@ -23,7 +23,6 @@ function getServerConstants(array $dados)
     $dados['version'] = "1.00";
     $dados['dev'] = preg_match("/localhost\//i", $dados['home']);
     $dados['publico'] = $dados['home'] . $dados['vendor'] . $dados['dominio'] . "/public/";
-    $dados['repositorio'] = "http://uebster.com/";
     $dados['homepage'] = 1;
     $dados['limitoffline'] = 50;
     $dados['serviceworker'] = !0;
@@ -258,7 +257,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             }
 
             foreach ($configuracoes as $field => $value) {
-                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version', 'repositorio']))
+                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version']))
                     $dados[$field] = $value;
             }
 
