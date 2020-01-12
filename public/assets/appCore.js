@@ -606,81 +606,97 @@ function logoutDashboard() {
 }
 
 function sidebarUserInfo() {
-    if (getCookie("token") === "0" || localStorage.imagem === "" || localStorage.imagem === "null") {
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
-    } else {
-        let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
-        document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+    if($("#core-sidebar-imagem").length) {
+        if (getCookie("token") === "0" || localStorage.imagem === "" || localStorage.imagem === "null") {
+            document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
+        } else {
+            let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
+            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+        }
     }
-    document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
+
+    if($("#core-sidebar-nome").length)
+        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
 }
 
 function loginBtn() {
-    sidebarUserInfo();
-    let btnLoginAside = document.querySelector("#login-aside");
-    if (getCookie("setor") !== "" && getCookie("setor") !== "0") {
-        btnLoginAside.onclick = function () {
-            logoutDashboard()
-        };
-        btnLoginAside.children[0].innerHTML = "sair";
-        btnLoginAside.children[1].innerHTML = "exit_to_app";
-    } else {
-        btnLoginAside.onclick = function () {
-            pageTransition("login", "route", "forward", "#core-content", null, null, !1)
-        };
-        btnLoginAside.children[0].innerHTML = "login";
-        btnLoginAside.children[1].innerHTML = "lock_open";
+    if($("#login-aside").length) {
+        let btnLoginAside = document.querySelector("#login-aside");
+        if (getCookie("setor") !== "" && getCookie("setor") !== "0") {
+            btnLoginAside.onclick = function () {
+                logoutDashboard()
+            };
+            btnLoginAside.children[0].innerHTML = "sair";
+            btnLoginAside.children[1].innerHTML = "exit_to_app";
+        } else {
+            btnLoginAside.onclick = function () {
+                pageTransition("login", "route", "forward", "#core-content", null, null, !1)
+            };
+            btnLoginAside.children[0].innerHTML = "login";
+            btnLoginAside.children[1].innerHTML = "lock_open";
+        }
     }
 }
 
+function menuAside() {
+    return $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").htmlTemplate('aside', {}).then(() => {
+        sidebarUserInfo();
+        loginBtn();
+    })
+}
+
 function menuHeader() {
-    $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px");
-    loginBtn();
     let templates = dbLocal.exeRead("__template", 1);
     let menu = dbLocal.exeRead("__menu", 1);
-    return Promise.all([templates, menu]).then(r => {
+    let header = $("#core-header").htmlTemplate('header', {version: VERSION, sitename: SITENAME, title: TITLE, home: HOME, homepage: (HOMEPAGE ? "dashboard" : "")});
+    return Promise.all([templates, menu, header]).then(r => {
         let tpl = r[0];
         let menu = (typeof r[1] !== "object" || r[1].constructor !== Array || r[1] === null ? [] : r[1]);
 
-        let content = "";
-        for (let m in menu) {
-            if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                content += Mustache.render(tpl['menu-header'], menu[m])
+        if($("#core-menu-custom").length) {
+            let content = "";
+            for (let m in menu) {
+                if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
+                    content += Mustache.render(tpl['menu-header'], menu[m])
+            }
+            $("#core-menu-custom").html(content);
         }
-        $("#core-menu-custom").html(content);
-
-        navbar(tpl);
         afterMenuHeader();
+        navbar(tpl);
     })
 }
 
 function navbar(tpl) {
     return dbLocal.exeRead("__navbar", 1).then(menu => {
-        menu = (typeof menu !== "object" || menu.constructor !== Array || menu === null ? [] : menu);
+        if($("#core-header-nav-bottom").length) {
+            menu = (typeof menu !== "object" || menu.constructor !== Array || menu === null ? [] : menu);
 
-        let content = "";
-        for (let m in menu) {
-            if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                content += Mustache.render(tpl['menu-header'], menu[m])
+            let content = "";
+            for (let m in menu) {
+                if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
+                    content += Mustache.render(tpl['menu-header'], menu[m])
+            }
+
+            if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
+                $("#core-header-nav-bottom").removeClass('s-show');
+                return
+            }
+
+            $("#core-header-nav-bottom").addClass('s-show');
+
+            $("#core-menu-custom-bottom").html(content);
+            let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
+            $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
         }
-
-        if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
-            $("#core-header-nav-bottom").removeClass('s-show');
-            return
-        }
-
-        $("#core-header-nav-bottom").addClass('s-show');
-
-        $("#core-menu-custom-bottom").html(content);
-        let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
-        $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
     });
 }
 
 function afterMenuHeader() {
-    let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
-    let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
-    $("#core-header-perfil").html(perfilImg);
+    if($("#core-header-perfil").length) {
+        let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
+        let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+        $("#core-header-perfil").html(perfilImg);
+    }
 }
 
 function loadSyncNotSaved() {
@@ -1806,6 +1822,9 @@ $(function () {
                             return thenAccess()
                     })
                 }
+            }).then(() => {
+                return menuAside();
+
             }).then(() => {
                 return menuHeader();
 

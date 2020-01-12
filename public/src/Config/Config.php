@@ -162,7 +162,7 @@ class Config
      */
     public static function createLibsDirectory(bool $uebOnly = false)
     {
-        $libs = ($uebOnly ? PATH_HOME . VENDOR : PATH_HOME . explode("/", VENDOR)[0]);
+        $libs = PATH_HOME . ($uebOnly ? VENDOR : explode("/", VENDOR)[0]);
 
         //delete libs
         Helper::recurseDelete($libs);
@@ -308,47 +308,34 @@ class Config
 
     /**
      * Cria o Core JS e CSS do setor de acesso
+     *
+     * @param array $param
      */
-    public static function createCore()
+    public static function createCore(array $param)
     {
-        $f = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        $list = implode('/', array_unique(array_merge($f['js'], $f['css'])));
-        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), !0);
+        $param = $param ?? (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
         $setor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
-
-        if (empty($data))
-            $data = [];
 
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
 
-        if (!empty($f['js']))
-            self::createCoreJs($f['js'], $data, $setor);
+        if (!empty($param['js']))
+            self::createCoreJs($param['js'], $setor);
 
-        if (!empty($f['css']))
-            self::createCoreCss($f['css'], $data, $setor);
+        if (!empty($param['css']))
+            self::createCoreCss($param['css'], $setor);
     }
 
     /**
      * @param array $jsList
-     * @param array $data
-     * @param string|null $setor
+     * @param string $setor
      */
-    private static function createCoreJs(array $jsList, array $data, string $setor)
+    private static function createCoreJs(array $jsList, string $setor)
     {
         $minifier = new Minify\JS("");
 
         if (is_array($jsList) && !empty($jsList)) {
-
-            foreach ($data as $datum) {
-                if (in_array($datum['nome'], $jsList)) {
-                    foreach ($datum['arquivos'] as $file) {
-                        if ($file['type'] === "text/javascript")
-                            $minifier->add($file['content']);
-                    }
-                }
-            }
 
             foreach ($jsList as $i => $js) {
                 if (file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
@@ -369,6 +356,7 @@ class Config
                     }
                 }
             }
+
         } elseif (is_string($jsList)) {
             $js = $jsList;
             if (file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
@@ -395,10 +383,9 @@ class Config
 
     /**
      * @param array $cssList
-     * @param array $data
-     * @param string|null $setor
+     * @param string $setor
      */
-    private static function createCoreCss(array $cssList, array $data, string $setor)
+    private static function createCoreCss(array $cssList, string $setor)
     {
         $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
 
