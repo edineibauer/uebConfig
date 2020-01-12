@@ -2,8 +2,14 @@
 ob_start();
 require_once './_config/config.php';
 
+use Config\Config;
 use Helpers\Template;
 use Route\Link;
+
+if(DEV) {
+    Config::createLibsDirectory(!0);
+    Config::createCore();
+}
 
 $link = new Link();
 $view = new Template("config");

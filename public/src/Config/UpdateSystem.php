@@ -188,6 +188,9 @@ class UpdateSystem
         $this->createCoreFont($f['font'], $f['icon'], 'fonts');
         $this->createCoreImages();
 
+        /**
+         * AppCore JS Generator
+         */
         $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/hammer.min.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/moment.js");
@@ -196,10 +199,25 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/idb.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/mask.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
-        //table js & css
+        /**
+         * AppCore CSS Generator
+         */
+        $m = new Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/normalize.css");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.css");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/app.css");
+        $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
+
+        /**
+         * tableCore Generator
+         */
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
             $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
             $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.js");
@@ -449,8 +467,9 @@ class UpdateSystem
     }
 
     /**
-     * @param array $vendors
      * Cria cache dos assets requisitados pelas views
+     *
+     * @param array $vendors
      */
     private function createRepositorioCache(array $vendors)
     {
@@ -479,6 +498,42 @@ class UpdateSystem
                         //minifica novo
                         $minifier = new Minify\CSS($file['content']);
                         $minifier->minify(PATH_HOME . "assetsPublic/cache/{$datum['nome']}.min.css");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $permissoes
+     */
+    private function downloadAssetsCache(array $permissoes)
+    {
+        foreach ($permissoes as $lib) {
+            $path = PATH_HOME . VENDOR . $lib . "/public/";
+            if (file_exists($path . "view")) {
+                foreach (Helper::listFolder($path . "view") as $view) {
+                    if (preg_match('/.php$/i', $view)) {
+
+                        //para cada view
+                        $nameView = str_replace('.php', '', $view);
+                        if (file_exists($path . "param/{$nameView}.json")) {
+                            $param = json_decode(file_get_contents($path . "param/{$nameView}.json"), true);
+
+                            if (!empty($param['js']) || !empty($param['css'])) {
+                                $assets = array_unique((!empty($param['js']) ? (is_string($param['js']) ? [$param['js']] : $param['js']) : []));
+                                $assetsCss = array_unique((!empty($param['css']) ? (is_string($param['css']) ? [$param['css']] : $param['css']) : []));
+
+                                foreach ($assets as $asset) {
+                                    if (is_string($asset))
+                                        $this->downloadAssets($asset, 'js');
+                                }
+                                foreach ($assetsCss as $asset) {
+                                    if (is_string($asset))
+                                        $this->downloadAssets($asset, 'css');
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -539,62 +594,15 @@ class UpdateSystem
     }
 
     /**
-     * @param array $vendors
-     */
-    private function downloadAssetsCache(array $vendors)
-    {
-        foreach ($vendors as $lib) {
-            $path = PATH_HOME . VENDOR . $lib . "/public/";
-            if (file_exists($path . "view")) {
-                foreach (Helper::listFolder($path . "view") as $view) {
-                    if (preg_match('/.php$/i', $view)) {
-
-                        //para cada view
-                        $nameView = str_replace('.php', '', $view);
-                        if (file_exists($path . "param/{$nameView}.json")) {
-                            $param = json_decode(file_get_contents($path . "param/{$nameView}.json"), true);
-
-                            if (!empty($param['js']) || !empty($param['css'])) {
-                                $assets = array_unique((!empty($param['js']) ? (is_string($param['js']) ? [$param['js']] : $param['js']) : []));
-                                $assetsCss = array_unique((!empty($param['css']) ? (is_string($param['css']) ? [$param['css']] : $param['css']) : []));
-
-                                foreach ($assets as $asset) {
-                                    if (is_string($asset))
-                                        $this->downloadAssets($asset, 'js');
-                                }
-                                foreach ($assetsCss as $asset) {
-                                    if (is_string($asset))
-                                        $this->downloadAssets($asset, 'css');
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Minifica todos os assets das bibliotecas
      */
     private function createMinifyAssetsLib()
     {
-        Helper::createFolderIfNoExist(PATH_HOME . 'assetsPublic/cache');
-        Helper::createFolderIfNoExist(PATH_HOME . 'assetsPublic/view');
-
         //Remove todos os dados das pastas de assets
-        foreach (Helper::listFolder(PATH_HOME . "assetsPublic/cache") as $cache) {
-            if(!is_dir(PATH_HOME . "assetsPublic/cache/" . $cache))
-                unlink(PATH_HOME . "assetsPublic/cache/" . $cache);
-        }
-        foreach (Helper::listFolder(PATH_HOME . "assetsPublic/view") as $cache) {
-            if(!is_dir(PATH_HOME . "assetsPublic/view/" . $cache))
-                unlink(PATH_HOME . "assetsPublic/view/" . $cache);
-        }
+        if(file_exists(PATH_HOME . "assetsPublic/view"))
+            Helper::recurseDelete(PATH_HOME . "assetsPublic/view");
 
-        $vendors = Config::getViewPermissoes();
-        $this->createRepositorioCache($vendors);
-        $this->downloadAssetsCache($vendors);
+        Config::createViewAssets();
     }
 
     private function generateInfo(array $metadados): array

@@ -1,0 +1,112 @@
+/*
+    Materialize's toast redone for standalone jQuery
+    
+    Author: André Luiz Rabêllo
+    Version: 1.0.0
+*/
+
+#toast-container {
+    display: block;
+    position: fixed;
+    text-align: center;
+	z-index: 10002;
+	height: 85px;
+    overflow: hidden;
+	width: 100%;
+    top: 0;
+    right: 0;
+    padding: 8px 9px 0;
+}
+
+.toast {
+	border-radius: 50px;
+    max-width: 100%;
+    margin: 0;
+    height: 55px;
+    background-color: #323232;
+	border-style: solid;
+	border-width: 1px;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
+    clear: both;
+    color: #fff;
+    cursor: grab;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    min-height: 48px;
+    position: relative;
+    top: 0;
+    width: auto;
+    padding: 16px 16px 16px 20px;
+    -webkit-align-items: center;
+         -ms-flex-align: center;
+            align-items: center;
+    -webkit-justify-content: space-between;
+              -ms-flex-pack: justify;
+            justify-content: space-between;
+}
+.toast:active {
+    cursor: grabbing;
+}
+
+.toast .btn, .toast .btn-large, .toast .btn-flat {
+    margin: 0 0 0 3rem;
+}
+
+.toast.rounded {
+    border-radius: 100px;
+}
+
+.toast-success {
+    background: #dff0d8 !important;
+    color: #3c763d !important
+}
+
+.toast-warning {
+    background: #fcf8e3!important;
+    color: #8a6d3b!important;
+}
+
+.toast-error {
+    background: #f2dede!important;
+    color: #a94442 !important;
+}
+
+@media only screen and (min-width: 993px) {
+    #toast-container {
+		top: initial;
+        bottom: 3%;
+        right: 5%;
+        max-width: 86%;
+		width: auto;
+		padding-left: 10px;
+		padding-right: 10px;
+    }
+	
+	.toast {
+		height: auto;
+		padding: 16px 24px;
+	}
+}
+@media only screen and (max-width: 600px) {
+    .toast.rounded {
+        display: inline-block;
+        margin: 8px 8px 0;
+    }
+    .toast.rounded:only-child {
+        margin: 8px;
+    }
+}
+@media only screen and (min-width: 601px) and (max-width: 992px) {
+    .toast {
+        float: left;
+    }
+}
+@media only screen and (min-width: 993px) {
+    .toast {
+        float: right;
+    }
+}
