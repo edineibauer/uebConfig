@@ -409,11 +409,12 @@ class UpdateSystem
     private function createCoreJs(array $jsList, array $data, string $name = "core")
     {
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.js")) {
+        if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/{$name}.min.js")) {
             $minifier = new Minify\JS("");
 
             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/" . $setor);
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
 
             if(is_array($jsList) && !empty($jsList)) {
 
@@ -466,7 +467,7 @@ class UpdateSystem
                 }
             }
 
-            $minifier->minify(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.js");
+            $minifier->minify(PATH_HOME . "assetsPublic/core/" . $setor . "/{$name}.min.js");
         }
     }
 
@@ -478,9 +479,10 @@ class UpdateSystem
     private function createCoreCss(array $cssList, array $data, string $name = "core")
     {
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.css")) {
+        if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/{$name}.min.css")) {
             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/" . $setor);
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
 
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
 
@@ -555,7 +557,7 @@ class UpdateSystem
                 }
             }
 
-            $minifier->minify(PATH_HOME . "assetsPublic/" . $setor . "/{$name}.min.css");
+            $minifier->minify(PATH_HOME . "assetsPublic/core/" . $setor . "/{$name}.min.css");
         }
     }
 
