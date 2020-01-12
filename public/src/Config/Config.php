@@ -153,4 +153,173 @@ class Config
         fwrite($f, $update);
         fclose($f);
     }
+
+    /**
+     * Cria o Core JS e CSS do setor de acesso
+     */
+    public static function createCore() {
+        $f = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
+        $list = implode('/', array_unique(array_merge($f['js'], $f['css'])));
+        $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), !0);
+        $setor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
+
+        if (empty($data))
+            $data = [];
+
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
+
+        if(!empty($f['js']))
+            self::createCoreJs($f['js'], $data, $setor);
+
+        if(!empty($f['css']))
+            self::createCoreCss($f['css'], $data, $setor);
+    }
+
+    /**
+     * @param array $jsList
+     * @param array $data
+     * @param string|null $setor
+     */
+    private static function createCoreJs(array $jsList, array $data, string $setor)
+    {
+        $minifier = new Minify\JS("");
+
+        if(is_array($jsList) && !empty($jsList)) {
+
+            foreach ($data as $datum) {
+                if (in_array($datum['nome'], $jsList)) {
+                    foreach ($datum['arquivos'] as $file) {
+                        if ($file['type'] === "text/javascript")
+                            $minifier->add($file['content']);
+                    }
+                }
+            }
+
+            foreach ($jsList as $i => $js) {
+                if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
+                    $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$js}.js");
+                    break;
+                } elseif(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
+                    $minifier->add(PATH_HOME . "public/assets/{$js}.js");
+                    break;
+                } else {
+                    foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
+                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js");
+                            break;
+                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
+                            break;
+                        }
+                    }
+                }
+            }
+        } elseif(is_string($jsList)) {
+            $js = $jsList;
+            if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
+                $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$js}.js");
+
+            } elseif(file_exists(PATH_HOME . "public/assets/{$js}.js")) {
+                $minifier->add(PATH_HOME . "public/assets/{$js}.js");
+
+            } else {
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
+                    if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js")) {
+                        $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js");
+                        break;
+                    } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js")) {
+                        $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$js}.js");
+                        break;
+                    }
+                }
+            }
+        }
+
+        $minifier->minify(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js");
+    }
+
+    /**
+     * @param array $cssList
+     * @param array $data
+     * @param string|null $setor
+     */
+    private static function createCoreCss(array $cssList, array $data, string $setor)
+    {
+        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+
+        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
+        $themeFile = file_get_contents($dirTheme);
+        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
+        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
+        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
+        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
+
+        $minifier = new Minify\CSS("");
+        $arrayReplace = ['{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
+            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
+
+        foreach ($cssList as $item) {
+            $datum = array_values(array_filter(array_map(function ($d) use ($item) {
+                return $d['nome'] === $item ? $d : [];
+            }, $data)));
+
+            if (!empty($datum[0]) && !empty($datum[0]['arquivos'])) {
+                foreach ($datum[0]['arquivos'] as $file) {
+                    if ($file['type'] === "text/css")
+                        $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file['content']));
+                }
+            }
+        }
+
+        //copia theme padrão para pasta do site
+        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
+            copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+
+        $minifier->add(PATH_HOME . "public/assets/theme.min.css");
+
+        if(is_array($cssList) && !empty($cssList)) {
+            foreach ($cssList as $i => $css) {
+                if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$css}.css")) {
+                    $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$css}.css");
+                    break;
+                } elseif(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
+                    $minifier->add(PATH_HOME . "public/assets/{$css}.css");
+                    break;
+                } else {
+                    foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
+                        if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css");
+                            break;
+                        } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
+                            $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
+                            break;
+                        }
+                    }
+                }
+            }
+        } elseif(is_string($cssList)) {
+            $css = $cssList;
+            if(file_exists(PATH_HOME . "public/assets/" . $setor . "/{$css}.css")) {
+                $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$css}.css");
+
+            } elseif(file_exists(PATH_HOME . "public/assets/{$css}.css")) {
+                $minifier->add(PATH_HOME . "public/assets/{$css}.css");
+
+            } else {
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
+                    if(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css")) {
+                        $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css");
+                        break;
+                    } elseif(file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css")) {
+                        $minifier->add(PATH_HOME . VENDOR . $libs . "/public/assets/{$css}.css");
+                        break;
+                    }
+                }
+            }
+        }
+
+        $minifier->minify(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css");
+    }
 }
