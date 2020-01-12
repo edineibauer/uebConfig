@@ -155,6 +155,39 @@ class Config
     }
 
     /**
+     * Cria/Atualiza os caches de Vendor
+     * Caso seja informado uma biblioteca em específico para ser atualizada apenas
+     *
+     * @param bool $uebOnly
+     */
+    public static function createLibsDirectory(bool $uebOnly = false) {
+        $libs = ($uebOnly ? PATH_HOME . VENDOR : PATH_HOME . explode("/", VENDOR)[0]);
+
+        //delete libs
+        Helper::recurseDelete($libs);
+
+        //create libs
+        Helper::createFolderIfNoExist($libs);
+        Helper::recurseCopy(PATH_HOME . "vendor" . ($uebOnly ? "/ueb" : ""), $libs);
+
+        //para cada lib overload other lib
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
+            if(file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload")){
+                foreach (Helper::listFolder(PATH_HOME . VENDOR . $pathOverload . "/overload") as $libOverloaded) {
+                    if(is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded))
+                        Helper::recurseCopy(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded, PATH_HOME . VENDOR . $libOverloaded . "/public");
+                }
+            }
+        }
+
+        //public (projeto atual) overload libs
+        foreach (Helper::listFolder(PATH_HOME . "public/overload") as $libOverloaded) {
+            if(is_dir(PATH_HOME . "public/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded))
+                Helper::recurseCopy(PATH_HOME . "public/overload/" . $libOverloaded, PATH_HOME . VENDOR . $libOverloaded . "/public");
+        }
+    }
+
+    /**
      * Cria o Core JS e CSS do setor de acesso
      */
     public static function createCore() {

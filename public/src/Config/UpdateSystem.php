@@ -125,7 +125,7 @@ class UpdateSystem
     {
         //cria/atualiza update log file
         Config::updateSite();
-        $this->updateLibsDirectory();
+        Config::createLibsDirectory();
 
         if(empty($custom)) {
             $this->updateDependenciesEntity();
@@ -154,42 +154,6 @@ class UpdateSystem
         }
 
         $this->result = true;
-    }
-
-    private function updateLibsDirectory()
-    {
-        $libs = PATH_HOME . explode("/", VENDOR)[0];
-
-        //delete libs
-        Helper::recurseDelete($libs);
-
-        //create libs
-        Helper::createFolderIfNoExist($libs);
-        Helper::recurseCopy(PATH_HOME . "vendor", $libs);
-
-        $this->overloadLibs();
-    }
-
-    private function overloadLibs() {
-        //para cada lib overload other lib
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
-            if(file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload")){
-                foreach (Helper::listFolder(PATH_HOME . VENDOR . $pathOverload . "/overload") as $libOverloaded) {
-                    if(is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded)) {
-                        $dirOverload = PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded . (file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded . "/public") ? "/public" : "");
-                        Helper::recurseCopy($dirOverload, PATH_HOME . VENDOR . $libOverloaded . "/public");
-                    }
-                }
-            }
-        }
-
-        //public (projeto atual) overload libs
-        foreach (Helper::listFolder(PATH_HOME . "public/overload") as $libOverloaded) {
-            if(is_dir(PATH_HOME . "public/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded)) {
-                $dirOverload = PATH_HOME . "public/overload/" . $libOverloaded . (file_exists(PATH_HOME . "public/overload/" . $libOverloaded . "/public") ? "/public" : "");
-                Helper::recurseCopy($dirOverload, PATH_HOME . VENDOR . $libOverloaded . "/public");
-            }
-        }
     }
 
     private function updateAssets()
