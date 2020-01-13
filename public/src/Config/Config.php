@@ -487,12 +487,8 @@ class Config
         $minifier = new \MatthiasMullie\Minify\JS("");
 
         if (!empty($listaJs)) {
-            if (is_string($listaJs)) {
-                $minifier->add(self::getAssetsContent($listaJs, $pathFile, 'js', $lib, $setor));
-            } elseif (is_array($listaJs)) {
-                foreach ($listaJs as $j)
-                    $minifier->add(self::getAssetsContent($j, $pathFile, 'js', $lib, $setor));
-            }
+            foreach ($listaJs as $j)
+                $minifier->add(self::getAssetsContent($j, $pathFile, 'js', $lib, $setor));
         }
 
         /**
@@ -552,12 +548,8 @@ class Config
         $minifier = new \MatthiasMullie\Minify\CSS("");
 
         if (!empty($listaCss)) {
-            if (is_string($listaCss)) {
-                $minifier->add(self::getAssetsContent($listaCss, $pathFile, 'css', $lib, $setor));
-            } elseif (is_array($listaCss)) {
-                foreach ($listaCss as $css)
-                    $minifier->add(self::getAssetsContent($css, $pathFile, 'css', $lib, $setor));
-            }
+            foreach ($listaCss as $css)
+                $minifier->add(self::getAssetsContent($css, $pathFile, 'css', $lib, $setor));
         }
 
         /**
@@ -635,6 +627,8 @@ class Config
         } elseif (file_exists(PATH_HOME . "public/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/assets/" . $asset . ".{$extension}");
 
+        } elseif (file_exists(PATH_HOME . VENDOR . "config/public/assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . VENDOR . "config/public/assets/" . $asset . ".{$extension}");
         }
 
         return "";
