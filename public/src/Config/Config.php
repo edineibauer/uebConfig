@@ -269,10 +269,10 @@ class Config
         $param = [];
         if ($lib !== DOMINIO) {
             if (file_exists(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json")) {
-                $param = @file_get_contents(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json");
+                $param = json_decode(@file_get_contents(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json"), !0);
                 $findParamView = !0;
             } elseif (file_exists(PATH_HOME . "public/overload/{$lib}/param/{$view}.json")) {
-                $param = @file_get_contents(PATH_HOME . "public/overload/{$lib}/param/{$view}.json");
+                $param = json_decode(@file_get_contents(PATH_HOME . "public/overload/{$lib}/param/{$view}.json"), !0);
                 $findParamView = !0;
             }
         }
@@ -283,10 +283,10 @@ class Config
         if (!$findParamView) {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
                 if (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json")) {
-                    $param = @file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json");
+                    $param = json_decode(@file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json"), !0);
                     $findParamView = !0;
                 } elseif (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$view}.json")) {
-                    $param = @file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$view}.json");
+                    $param = json_decode(@file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$view}.json"), !0);
                     $findParamView = !0;
                 }
             }
@@ -298,9 +298,9 @@ class Config
         if (!$findParamView) {
             $pathFile = ($lib === DOMINIO ? "public/" : PATH_HOME . VENDOR . $lib . "/public/");
             if (file_exists($pathFile . "param/{$setor}/{$view}.json"))
-                $param = @file_get_contents($pathFile . "param/{$setor}/{$view}.json");
+                $param = json_decode(@file_get_contents($pathFile . "param/{$setor}/{$view}.json"), !0);
             elseif (file_exists($pathFile . "param/{$view}.json"))
-                $param = @file_get_contents($pathFile . "param/{$view}.json");
+                $param = json_decode(@file_get_contents($pathFile . "param/{$view}.json"), !0);
         }
 
         return array_merge($base, $param);
@@ -320,6 +320,10 @@ class Config
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
 
+        //copia theme padrão para pasta do site
+        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
+            copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+
         if (!empty($param['js']))
             self::createCoreJs($param['js'], $setor);
 
@@ -333,7 +337,7 @@ class Config
      */
     private static function createCoreJs(array $jsList, string $setor)
     {
-        $minifier = new Minify\JS("");
+        $minifier = new \MatthiasMullie\Minify\JS("");
 
         if (is_array($jsList) && !empty($jsList)) {
 
@@ -387,37 +391,7 @@ class Config
      */
     private static function createCoreCss(array $cssList, string $setor)
     {
-        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
-
-        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
-        $themeFile = file_get_contents($dirTheme);
-        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
-        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
-        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
-        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
-
-        $minifier = new Minify\CSS("");
-        $arrayReplace = ['{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
-            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
-
-        foreach ($cssList as $item) {
-            $datum = array_values(array_filter(array_map(function ($d) use ($item) {
-                return $d['nome'] === $item ? $d : [];
-            }, $data)));
-
-            if (!empty($datum[0]) && !empty($datum[0]['arquivos'])) {
-                foreach ($datum[0]['arquivos'] as $file) {
-                    if ($file['type'] === "text/css")
-                        $minifier->add(str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file['content']));
-                }
-            }
-        }
-
-        //copia theme padrão para pasta do site
-        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
-            copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
-
-        $minifier->add(PATH_HOME . "public/assets/theme.min.css");
+        $minifier = new \MatthiasMullie\Minify\CSS(PATH_HOME . "public/assets/theme.min.css");
 
         if (is_array($cssList) && !empty($cssList)) {
             foreach ($cssList as $i => $css) {
@@ -461,6 +435,38 @@ class Config
         }
 
         $minifier->minify(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css");
+        self::setCssPrefixAndVariables("assetsPublic/core/" . $setor . "/core.min.css");
+
+    }
+
+    /**
+     * @param string $pathCss
+     * @param string|null $view
+     */
+    private static function setCssPrefixAndVariables(string $pathCss, string $view = null)
+    {
+        //troca variáveis CSS pelos valores
+        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
+        $themeFile = file_get_contents($dirTheme);
+        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
+        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
+        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
+        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
+
+        $arrayReplace = ["../" => "", '{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
+            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
+
+        $file = file_get_contents(PATH_HOME . $pathCss);
+        $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
+
+        if($view)
+            $file = self::setPrefixToCssDefinition($file, ".r-" . $view);
+
+        //Salva CSS novamente
+        $f = fopen(PATH_HOME . $pathCss, "w");
+        fwrite($f, $file);
+        fclose($f);
     }
 
     /**
@@ -474,7 +480,7 @@ class Config
     private static function createPageJs(string $view, array $listaJs, string $lib, string $setor)
     {
         $pathFile = ($lib === DOMINIO ? "public/" : VENDOR . $lib . "/public/");
-        $minifier = new Minify\JS("");
+        $minifier = new \MatthiasMullie\Minify\JS("");
 
         if (!empty($listaJs)) {
             if (is_string($listaJs)) {
@@ -539,7 +545,7 @@ class Config
     private static function createPageCss(string $view, array $listaCss, string $lib, string $setor)
     {
         $pathFile = ($lib === DOMINIO ? "public/" : VENDOR . $lib . "/public/");
-        $minifier = new Minify\CSS("");
+        $minifier = new \MatthiasMullie\Minify\CSS("");
 
         if (!empty($listaCss)) {
             if (is_string($listaCss)) {
@@ -592,28 +598,7 @@ class Config
         //Salva CSS assets da view
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.css");
 
-        //troca variáveis CSS pelos valores
-        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
-        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
-        $themeFile = file_get_contents($dirTheme);
-        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
-        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
-        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
-        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
-
-        $arrayReplace = ["../" => "", '{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
-            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
-
-        //Seta prefixo
-        $file = file_get_contents(PATH_HOME . "assetsPublic/view/{$view}.min.css");
-        $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
-        $file = self::setPrefixToCssDefinition($file, ".r-" . $view);
-
-        //Salva CSS novamente
-        $f = fopen(PATH_HOME . "assetsPublic/view/{$view}.min.css", "w");
-        fwrite($f, $file);
-        fclose($f);
-
+        self::setCssPrefixAndVariables("assetsPublic/view/{$view}.min.css", $view);
     }
 
     /**
