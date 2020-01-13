@@ -301,11 +301,11 @@ class Config
                 $param = json_decode(@file_get_contents($pathFile . "param/{$view}.json"), !0);
         }
 
-        if(!is_array($param['js']))
-            $param['js'] = (is_string($param['js']) ? [$param['js']] : []);
+        if(!isset($param['js']) || !is_array($param['js']))
+            $param['js'] = (!empty($param['js']) && is_string($param['js']) ? [$param['js']] : []);
 
-        if(!is_array($param['css']))
-            $param['css'] = (is_string($param['css']) ? [$param['css']] : []);
+        if(!isset($param['css']) || !is_array($param['css']))
+            $param['css'] = (!empty($param['css']) && is_string($param['css']) ? [$param['css']] : []);
 
         return array_merge($base, $param);
     }
