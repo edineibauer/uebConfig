@@ -301,6 +301,12 @@ class Config
                 $param = json_decode(@file_get_contents($pathFile . "param/{$view}.json"), !0);
         }
 
+        if(!is_array($param['js']))
+            $param['js'] = [];
+
+        if(!is_array($param['css']))
+            $param['css'] = [];
+
         return array_merge($base, $param);
     }
 
