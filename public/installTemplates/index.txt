@@ -6,11 +6,6 @@ use Config\Config;
 use Helpers\Template;
 use Route\Link;
 
-if(DEV) {
-    Config::createLibsDirectory(!0);
-    Config::createCore();
-}
-
 $link = new Link();
 $view = new Template("config");
 $view->show("index", $link->getParam());
