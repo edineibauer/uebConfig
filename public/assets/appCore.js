@@ -663,6 +663,8 @@ function menuHeader() {
         }
         afterMenuHeader();
         navbar(tpl);
+    }).then(() => {
+        return menuAside();
     })
 }
 
@@ -1822,15 +1824,13 @@ $(function () {
                             return thenAccess()
                     })
                 }
-            }).then(() => {
-                return menuAside();
 
             }).then(() => {
                 return menuHeader();
 
             }).then(() => {
                 return new Promise((resolve, reject) => {
-                    $.cachedScript(HOME + "assetsPublic/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+                    $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
                         success: function () {
                             resolve(1);
                         }, fail: function () {
@@ -1861,7 +1861,7 @@ $(function () {
 
     } else {
         return new Promise((resolve, reject) => {
-            $.cachedScript(HOME + "assetsPublic/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+            $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
                 success: function () {
                     resolve(1);
                 }, fail: function () {
