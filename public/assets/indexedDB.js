@@ -293,7 +293,7 @@ const db = {
                             if(!isNaN(key) && key > 0)
                                 resolve(data.data.data[0]);
                             else
-                                resolve(data.data);
+                                resolve(data.data.data);
                         }
                         resolve(0)
                     },
