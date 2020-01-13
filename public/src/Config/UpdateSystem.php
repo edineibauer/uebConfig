@@ -7,7 +7,6 @@ use Helpers\Helper;
 use Conn\Read;
 use Conn\SqlCommand;
 use Entity\Entity;
-use MatthiasMullie\Minify;
 
 class UpdateSystem
 {
@@ -170,7 +169,7 @@ class UpdateSystem
         /**
          * AppCore JS Generator
          */
-        $m = new Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
+        $m = new MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/hammer.min.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/moment.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.js");
@@ -189,7 +188,7 @@ class UpdateSystem
         /**
          * AppCore CSS Generator
          */
-        $m = new Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/normalize.css");
+        $m = new MatthiasMullie\Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/normalize.css");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.css");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/app.css");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
@@ -198,7 +197,7 @@ class UpdateSystem
          * tableCore Generator
          */
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
-            $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
+            $minifier = new MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
             $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.js");
         }
 
@@ -367,7 +366,7 @@ class UpdateSystem
                     $fonts .= $this->getFontIcon($item, "icon");
             }
 
-            $m = new Minify\CSS($fonts);
+            $m = new MatthiasMullie\Minify\CSS($fonts);
             $m->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
         }
     }
