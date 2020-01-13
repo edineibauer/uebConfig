@@ -302,10 +302,10 @@ class Config
         }
 
         if(!is_array($param['js']))
-            $param['js'] = [];
+            $param['js'] = (is_string($param['js']) ? [$param['js']] : []);
 
         if(!is_array($param['css']))
-            $param['css'] = [];
+            $param['css'] = (is_string($param['css']) ? [$param['css']] : []);
 
         return array_merge($base, $param);
     }
