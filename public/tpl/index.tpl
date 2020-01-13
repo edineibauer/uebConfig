@@ -57,6 +57,7 @@
         const USER = JSON.parse('{$user}');
         var TITLE = '{$title}';
         var FRONT = {};
+        {if !empty($variaveis)}FRONT.variaveis = {$variaveis|json_encode};{/if}
     </script>
 
     <script src='{$home}assetsPublic/appCore.min.js?v={$version}' defer></script>
