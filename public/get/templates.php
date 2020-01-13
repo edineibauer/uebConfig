@@ -52,7 +52,7 @@ function getTemplates(string $lib, string $setor, array $list)
                      * Caso não tenha encontrado overload do template, adiciona o template original
                      */
                     if (!in_array($nameTpl, array_keys($list)))
-                        $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$nameTpl}.mustache");
+                        $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$tpl}");
                 }
             }
         }
