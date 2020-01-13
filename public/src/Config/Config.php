@@ -313,9 +313,9 @@ class Config
     /**
      * Cria o Core JS e CSS do setor de acesso
      *
-     * @param array $param
+     * @param array|null $param
      */
-    public static function createCore(array $param)
+    public static function createCore(array $param = null)
     {
         $param = $param ?? (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
         $setor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
