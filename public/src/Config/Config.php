@@ -328,11 +328,8 @@ class Config
         if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
             copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
-        if (!empty($param['js']))
-            self::createCoreJs($param['js'], $setor);
-
-        if (!empty($param['css']))
-            self::createCoreCss($param['css'], $setor);
+        self::createCoreJs($param['js'], $setor);
+        self::createCoreCss($param['css'], $setor);
     }
 
     /**
