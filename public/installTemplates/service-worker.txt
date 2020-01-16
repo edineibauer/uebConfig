@@ -62,13 +62,13 @@ self.addEventListener('fetch', function (e) {
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                             return networkResponse;
 
-                        return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "get/blank");
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.match(HOME + "view/network");
                         });
 
                     }).catch(error => {
-                        return caches.open('get-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "get/blank");
+                        return caches.open('view-v' + VERSION).then(cache => {
+                            return cache.match(HOME + "view/network");
                         });
                     });
                 });
@@ -152,7 +152,7 @@ self.addEventListener('fetch', function (e) {
 
         if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
 
-            //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR BLANK
+            //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR NETWORK
             e.respondWith(
                 caches.open('core-v' + VERSION).then(cache => {
                     return cache.match(HOME + "index").then(response => {
@@ -185,13 +185,13 @@ self.addEventListener('fetch', function (e) {
                             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                                 return networkResponse;
 
-                            return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "get/blank");
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match(HOME + "view/network");
                             });
 
                         }).catch(error => {
-                            return caches.open('get-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "get/blank");
+                            return caches.open('view-v' + VERSION).then(cache => {
+                                return cache.match(HOME + "view/network");
                             });
                         });
                     });
