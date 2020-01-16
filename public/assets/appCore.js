@@ -935,6 +935,16 @@ function loadCacheUser() {
         gets.push(get("templates"));
         gets.push(get("menu"));
         gets.push(get("navbar"));
+
+        if(SERVICEWORKER) {
+            gets.push(caches.open('core-v' + VERSION).then(cache => {
+                return cache.addAll([HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.css?v=" + VERSION]);
+            }));
+        }
+
+        if(DEV)
+            gets.push(updateTemplates());
+
         return Promise.all(gets).then(r => {
             creates.push(dbLocal.exeCreate('__allow', r[0]));
             creates.push(dbLocal.exeCreate('__dicionario', r[1]));
@@ -1849,10 +1859,11 @@ $(function () {
                 if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
                     $(".site-btn-push").remove();
 
-                if (getCookie('accesscount') === "0")
+                if (getCookie('accesscount') === "0") {
                     return startCache();
-                else if(navigator.onLine && DEV)
+                } else if(navigator.onLine && DEV) {
                     return updateTemplates();
+                }
 
             }).then(() => {
                 checkUpdate();
