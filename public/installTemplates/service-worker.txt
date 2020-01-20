@@ -50,6 +50,7 @@ self.addEventListener('fetch', function (e) {
     let view = new RegExp("view\/", "i");
     let get = new RegExp("get\/", "i");
     let set = new RegExp("set\/?$", "i");
+    let app = new RegExp("(app|api)\/", "i");
     let cacheImages = new RegExp("image\/", "i");
 
     if(core.test(url)) {
@@ -128,26 +129,8 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(get.test(url) || set.test(url)) {
-
-        e.respondWith(
-            caches.open('core-v' + VERSION).then(cache => {
-                return fetch(e.request).then(networkResponse => {
-
-                    if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                        return networkResponse;
-
-                    return cache.match(HOME + 'set').then(response => {
-                        return response;
-                    });
-
-                }).catch(error => {
-                    return cache.match(HOME + 'set').then(response => {
-                        return response;
-                    });
-                });
-            })
-        );
+    } else if(get.test(url) || set.test(url) || app.test(url)) {
+        e.respondWith(fetch(e.request));
     } else {
 
         if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
