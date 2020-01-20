@@ -416,7 +416,7 @@ function gridCrud(entity, fields, actions) {
                 });
                 if (typeof info !== "undefined") {
                     let totalFormated = "";
-                    let total = result.total.toString();
+                    let total = result.length;
                     let le = total.length;
                     for (let i = 0; i < le; i++)
                         totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
@@ -424,9 +424,9 @@ function gridCrud(entity, fields, actions) {
                     $this.filterTotal = -1;
                     let pp = [];
                     $this.$content.html("");
-                    for (let k in result.data) {
-                        if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
-                            pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
+                    for (let k in result) {
+                        if (typeof result[k] === "object" && !isEmpty(result[k])) {
+                            pp.push(gridTr($this.identificador, entity, result[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
                                 $this.$content.append(Mustache.render(templates['grid-content'], tr))
                             }))
                         }
