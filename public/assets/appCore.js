@@ -1464,7 +1464,7 @@ var app = {
                     /**
                      * Define as constantes do front
                      */
-                    FRONT = typeof FRONT.variaveis !== "undefined" ? {variaveis : FRONT.variaveis} : {};
+                    FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS : FRONT.VARIAVEIS} : {};
                     if(!isEmpty(g.front) && typeof g.front === "object") {
                         for(let col in g.front)
                             FRONT[col.toUpperCase()] = g.front[col];
