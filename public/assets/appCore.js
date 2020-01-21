@@ -80,6 +80,25 @@ function replaceAll (target, search, replacement) {
 }
 
 /**
+ * Ordena array pelo parâmetro order passado
+ *
+ * @param data
+ * @param order
+ * @returns {[]}
+ */
+function orderBy(data, order) {
+    let classificacao = [];
+    $.each(data, function (i, d) {
+        classificacao.push(d)
+    });
+    classificacao.sort(dynamicSort(order)).reverse();
+    $.each(classificacao, function (i, c) {
+        classificacao[i].position = i + 1
+    });
+    return classificacao
+}
+
+/**
  * Obtém o número de parametros do objeto
  * @param obj
  * @returns {number}
