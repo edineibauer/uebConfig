@@ -837,6 +837,10 @@ function getDefaultValues(entity, values) {
             valores[column] = getDefaultValue(meta, value)
         }
     });
+
+    if(typeof values.id !== "undefined" && !isNaN(values.id))
+        valores.id = parseInt(values.id);
+
     return valores
 }
 
