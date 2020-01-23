@@ -139,10 +139,10 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                                 if(offset === -1) {
                                     moveSyncInfoToDb(entity).then(syncD => {
                                         let dd = (syncD ? syncD.concat(dados.data) : dados.data);
-                                        resolve({data: dd, lenght: dd.length, total: dados.total})
+                                        resolve({data: dd, length: dd.length})
                                     })
                                 } else {
-                                    resolve({data: dados.data, lenght: dados.data.length, total: dados.total});
+                                    resolve({data: dados.data, length: dados.data.length});
                                 }
                             });
                         } else {
@@ -166,15 +166,12 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
 function readOffline(data, filter, order, reverse, limit, offset) {
     let result = {
         data: [],
-        total: data.length,
-        lenght: 0
+        length: 0
     };
 
     //FILTER
-    if (!isEmpty(filter)) {
+    if (!isEmpty(filter))
         data = exeReadApplyFilter(data, filter);
-        result.total = data.length;
-    }
 
     //ORDER
     data.sort(dynamicSort(order));
