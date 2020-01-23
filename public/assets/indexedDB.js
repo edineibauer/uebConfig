@@ -286,11 +286,16 @@ const db = {
                     url: HOME + 'set',
                     data: {lib: "entity", file: "load/entity", entity: entity, id: key, historic: null},
                     success: function (data) {
-                        if (data.response === 1 && data.data.historic !== 0){
-                            if(!isNaN(key) && key > 0)
-                                resolve(data.data.data[0]);
-                            else
-                                resolve(data.data.data);
+                        if (data.response === 1 && data.data.historic !== 0) {
+                            if (!isNaN(key) && key > 0) {
+                                resolve(getDefaultValues(entity, data.data.data[0]));
+                            }else {
+                                let result = [];
+                                $.each(data.data.data, function (i, e) {
+                                    result.push(getDefaultValues(entity, e));
+                                });
+                                resolve(result);
+                            }
                         }
                         resolve(0)
                     },
