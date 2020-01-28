@@ -854,17 +854,7 @@ function setCookieUser(user) {
             /**
              * Seta usuário
              * */
-            $.each(user, function (i, e) {
-                if(i !== "id_old" && i !== "db_action" && i !== "db_status") {
-                    if (typeof e === "object")
-                        e = JSON.stringify(e);
-                    else if(i === "setor" && isEmpty(e))
-                        e = "admin";
-
-                    setCookie(i, e);
-                    localStorage.setItem(i, e);
-                }
-            });
+            USER = user;
 
             /**
              * Obtém novos dados de usuário
@@ -1992,7 +1982,7 @@ function loadUpdateSystem() {
         });
     }).then(() => {
         return clearCache().then(() => {
-            return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
+            return setCookieAnonimo().then(() => {
                 return readRouteState();
             });
         })
