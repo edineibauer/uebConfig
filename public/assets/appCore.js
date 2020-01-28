@@ -190,10 +190,10 @@ function setUpdateVersion() {
 }
 
 function checkUserOptions() {
-    $("." + getCookie("setor") + "Show").removeClass("hide");
-    $("." + getCookie("setor") + "Hide").addClass("hide");
-    $("." + getCookie("setor") + "Allow").removeAttr("disabled");
-    $("." + getCookie("setor") + "Disabled").attr("disabled", "disabled");
+    $("." + USER.setor + "Show").removeClass("hide");
+    $("." + USER.setor + "Hide").addClass("hide");
+    $("." + USER.setor + "Allow").removeAttr("disabled");
+    $("." + USER.setor + "Disabled").attr("disabled", "disabled");
 }
 
 function slug(val, replaceBy) {
@@ -532,7 +532,7 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
             'p3': navigator.platform
         }, function () {
             if (!showMessageSuccess)
-                pushNotification("Parabéns " + getCookie("nome"), "A partir de agora, você receberá notificações importantes!");
+                pushNotification("Parabéns " + USER.nome, "A partir de agora, você receberá notificações importantes!");
         })
     }
 }
@@ -635,13 +635,13 @@ function sidebarUserInfo() {
     }
 
     if($("#core-sidebar-nome").length)
-        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : getCookie("nome");
+        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
 }
 
 function loginBtn() {
     if($("#login-aside").length) {
         let btnLoginAside = document.querySelector("#login-aside");
-        if (getCookie("setor") !== "" && getCookie("setor") !== "0") {
+        if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
             btnLoginAside.onclick = function () {
                 logoutDashboard()
             };
@@ -879,15 +879,19 @@ function setCookieUser(user) {
 
 function checkSessao() {
     /**
-     * Verifica integridade
+     * Verifica Sessão
      * */
-    if (getCookie("id") === "" || getCookie("token") === "" || getCookie("nome") === "" || getCookie("setor") === "") {
+    if (getCookie("token") === "") {
+        /**
+         * Ainda não existe sessão, começa como anônimo
+         */
         return setCookieAnonimo();
 
     } else if (getCookie("token") !== "0") {
 
         /**
-         * Verifica se o token atual é válido
+         * Sessão existe
+         * Verifica se o token atual corresponde
          * */
         return new Promise(function (resolve, reject) {
             var xhttp = new XMLHttpRequest();
@@ -901,12 +905,17 @@ function checkSessao() {
                      * Se retorno for 0, então token não validou no back
                      * */
                     if (data.response === 1 && data.data === 0) {
-                        toast("Token inválido. Desconectado!", 3000);
+                        toast("Sessão expirada! Desconectando...", 3000);
 
                         setCookieAnonimo().then(() => {
-                            location.reload();
+                            setTimeout(function () {
+                                location.reload();
+                            },1000);
                         });
                     } else {
+                        /**
+                         * Atualiza variável do usuário
+                         */
                         USER = data.data;
                         resolve(1);
                     }
@@ -915,10 +924,15 @@ function checkSessao() {
             xhttp.send("lib=route&file=sessao");
         });
     } else {
+        USER = {token: 0, id: 0, nome: 'Anônimo', imagem: '', status: 1, setor: 0, setorData: ""};
         return Promise.all([]);
     }
 }
 
+/**
+ * Atualiza o cache do usuário atual
+ * @returns {Promise<void>}
+ */
 function updateCacheUser() {
     return clearCacheUser().then(() => {
         return loadCacheUser();
@@ -996,20 +1010,25 @@ function firstAccess() {
 }
 
 function thenAccess() {
+
     /**
-     * Check Data content
+     * Conta acesso
+     */
+    setCookie('accesscount', parseInt(getCookie('accesscount')) + 1);
+
+    /**
+     * Check if have dicionario and templates
      * */
     let gets = [];
     gets.push(dbLocal.exeRead("__dicionario", 1));
     gets.push(dbLocal.exeRead("__template", 1));
 
-    setCookie('accesscount', parseInt(getCookie('accesscount')) + 1);
-
     return Promise.all(gets).then(r => {
-        if (isEmpty(r[1]))
+        if (isEmpty(r[1])) {
             return updateCacheUser();
-        else
+        } else {
             dicionarios = r[0];
+        }
     });
 }
 
@@ -1526,26 +1545,25 @@ var app = {
         })
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
-        let mySetor = getCookie("setor");
         if (!isEmpty(setor)) {
             allow = !1;
             if (setor.constructor === Array) {
                 $.each(setor, function (i, seto) {
-                    if (typeof seto === "string" && seto === mySetor) {
+                    if (typeof seto === "string" && seto === USER.setor) {
                         allow = !0;
                         return !1
                     }
                 })
-            } else if (typeof setor === "string" && setor === mySetor) {
+            } else if (typeof setor === "string" && setor === USER.setor) {
                 allow = !0
             }
         } else if (!isEmpty(notSetor)) {
             if (notSetor.constructor === Array) {
                 $.each(notSetor, function (i, seto) {
-                    if (typeof seto === "string" && seto === mySetor)
+                    if (typeof seto === "string" && seto === USER.setor)
                         return allow = !1
                 })
-            } else if (typeof notSetor === "string" && notSetor === mySetor) {
+            } else if (typeof notSetor === "string" && notSetor === USER.setor) {
                 allow = !1
             }
         }
@@ -1767,157 +1785,59 @@ function readRouteState() {
     }
 }
 
-$(function () {
-    if (location.href !== HOME + "updateSystem") {
-        window.onpopstate = function (event) {
-            if (event.state) {
+/**
+ * Header menu hide on scroll down and show when scroll up
+ * */
+function headerScrollFixed(sentidoScroll) {
+    sentidoScrollDown = sentidoScroll;
+    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
+    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+    let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
+    $("#core-header").css("top", t + "px")
+}
 
-                if (historyPosition === -2) {
-                    /**
-                     * Busca última rota de view (type = route)
-                     * */
-                    readRouteState();
+/**
+ * Ao carregar todo o documento executa esta função
+ */
+function onLoadDocument() {
+    window.onpopstate = function (event) {
+        if (event.state) {
 
-                } else if (historyPosition === -1) {
-                    /**
-                     * Somente atualiza historyPosition
-                     * */
-
-                } else if (checkFormNotSaved()) {
-                    /**
-                     * Carrega página da navegação solicitada
-                     * */
-                    clearPage();
-                    let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
-                    pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
-
-                } else {
-                    /**
-                     * navegação cancelada, volta state do history que já foi aplicado
-                     * */
-                    if (historyPosition < event.state.id)
-                        history.back();
-                    else
-                        history.forward();
-
-                    historyPosition = -1;
-                    return;
-                }
-
-                historyPosition = event.state.id + 1;
-            }
-        };
-
-        $("body").off("click", "a").on("click", "a", function (e) {
-            let url = $(this).attr("href").replace(HOME, '');
-
-            if (url === "#back") {
-                e.preventDefault();
-                history.back();
-            } else {
-                let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "fade";
-                let target = $(this).attr("data-target") || $(this).attr("data-target") || "#core-content";
-                let route = $(this).attr("data-route") || $(this).attr("data-route") || "route";
-                let p = new RegExp(/^#/i);
-                let pjs = new RegExp(/^javascript/i);
-                if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
-                    e.preventDefault();
-                    pageTransition(url, route, animation, target);
-                }
-            }
-        }).off("submit", "form").on("submit", "form", function (e) {
-            e.preventDefault()
-        });
-
-        $(".core-open-menu").off("click").on("click", function () {
-            toggleSidebar();
-        });
-
-        checkSessao().then(() => {
-            let t = [];
-            if(SERVICEWORKER)
-                t.push(caches.open('core-v' + VERSION));
-
-            return Promise.all(t).then(cache => {
-                if(!SERVICEWORKER) {
-                    return dbLocal.exeRead("__dicionarios", 1).then(d => {
-                        if(isEmpty(d))
-                            return firstAccess();
-                        else
-                            return thenAccess()
-                    });
-                } else {
-                    return cache[0].match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
-                        if (!response)
-                            return firstAccess();
-                        else
-                            return thenAccess()
-                    })
-                }
-
-            }).then(() => {
-                return menuHeader();
-
-            }).then(() => {
-                return new Promise((resolve, reject) => {
-                    $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
-                        success: function () {
-                            resolve(1);
-                        }, fail: function () {
-                            reject(0);
-                        }
-                    });
-                });
-            }).then(() => {
+            if (historyPosition === -2) {
+                /**
+                 * Busca última rota de view (type = route)
+                 * */
                 readRouteState();
 
-            }).then(() => {
-
+            } else if (historyPosition === -1) {
                 /**
-                 * Notificação btn
+                 * Somente atualiza historyPosition
                  * */
-                if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                    $(".site-btn-push").remove();
 
-                if (getCookie('accesscount') === "0") {
-                    return startCache();
-                } else if(navigator.onLine && DEV) {
-                    return updateTemplates();
-                }
+            } else if (checkFormNotSaved()) {
+                /**
+                 * Carrega página da navegação solicitada
+                 * */
+                clearPage();
+                let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
+                pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
 
-            }).then(() => {
-                checkUpdate();
-            });
-        });
+            } else {
+                /**
+                 * navegação cancelada, volta state do history que já foi aplicado
+                 * */
+                if (historyPosition < event.state.id)
+                    history.back();
+                else
+                    history.forward();
 
-    } else {
-        return new Promise((resolve, reject) => {
-            $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
-                success: function () {
-                    resolve(1);
-                }, fail: function () {
-                    reject(0);
-                }
-            });
-        }).then(() => {
-            return clearCache().then(() => {
-                return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
-                    return readRouteState();
-                });
-            })
-        });
-    }
+                historyPosition = -1;
+                return;
+            }
 
-    /**
-     * Header menu hide on scroll down and show when scroll up
-     * */
-    function headerScrollFixed(sentidoScroll) {
-        sentidoScrollDown = sentidoScroll;
-        let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-        let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
-        let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
-        $("#core-header").css("top", t + "px")
-    }
+            historyPosition = event.state.id + 1;
+        }
+    };
 
     window.onscroll = function () {
         if (window.innerWidth < 994) {
@@ -1935,5 +1855,156 @@ $(function () {
             }
             lastPositionScroll = $(window).scrollTop();
         }
+    };
+
+    /**
+     * Intercepta clicks em links e traduz na função "pageTransition()"
+     */
+    $("body").off("click", "a").on("click", "a", function (e) {
+        let url = $(this).attr("href").replace(HOME, '');
+
+        if (url === "#back") {
+            e.preventDefault();
+            history.back();
+        } else {
+            let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "fade";
+            let target = $(this).attr("data-target") || $(this).attr("data-target") || "#core-content";
+            let route = $(this).attr("data-route") || $(this).attr("data-route") || "route";
+            let p = new RegExp(/^#/i);
+            let pjs = new RegExp(/^javascript/i);
+            if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+                e.preventDefault();
+                pageTransition(url, route, animation, target);
+            }
+        }
+
+        /**
+         * Intercepta todos os submits de formulários
+         */
+    }).off("submit", "form").on("submit", "form", function (e) {
+        e.preventDefault()
+    });
+
+    /**
+     * Default button header sidebar toggle click
+     */
+    $(".core-open-menu").off("click").on("click", function () {
+        toggleSidebar();
+    });
+}
+
+function startApplication() {
+    checkSessao().then(() => {
+        let t = [];
+        if(SERVICEWORKER)
+            t.push(caches.open('core-v' + VERSION));
+
+        return Promise.all(t).then(cache => {
+
+            /**
+             * Verifica se é o primeiro acesso
+             * carrega a base caso seja, senão verifica
+             */
+            return new Promise((s,f) => {
+                if(!SERVICEWORKER) {
+                    return dbLocal.exeRead("__template", 1).then(d => {
+                        s(isEmpty(d));
+                    });
+                } else {
+                    return cache[0].match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
+                        s(!response);
+                    })
+                }
+            }).then(isFirstAccess => {
+
+                if(isFirstAccess)
+                    return firstAccess();
+                else
+                    return thenAccess()
+            });
+
+
+        }).then(() => {
+            return menuHeader();
+
+        }).then(() => {
+
+            /**
+             * Carrega o core do setor de acesso
+             */
+            return new Promise((resolve, reject) => {
+                $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+                    success: function () {
+                        resolve(1);
+                    }, fail: function () {
+                        reject(0);
+                    }
+                });
+            });
+        }).then(() => {
+
+            /**
+             * Carrega a rota atual
+             */
+            readRouteState();
+
+        }).then(() => {
+
+            /**
+             * Verifica se remove o botão de Notificação
+             * */
+            if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+                $(".site-btn-push").remove();
+
+            if (getCookie('accesscount') === "0") {
+                /**
+                 * Se primeiro acesso, carrega os caches
+                 * os caches foram deixados para serem carregados no final
+                 */
+                return startCache();
+
+            } else if(navigator.onLine && DEV) {
+
+                /**
+                 * Se estiver em Dev, atualiza os templates
+                 */
+                return updateTemplates();
+            }
+
+        }).then(() => {
+
+            /**
+             * Verifica se existe uma versão mais recente do app
+             */
+            checkUpdate();
+        });
+    });
+}
+
+function loadUpdateSystem() {
+    new Promise((resolve, reject) => {
+        $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+            success: function () {
+                resolve(1);
+            }, fail: function () {
+                reject(0);
+            }
+        });
+    }).then(() => {
+        return clearCache().then(() => {
+            return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0}).then(() => {
+                return readRouteState();
+            });
+        })
+    });
+}
+
+$(function () {
+    if (location.href !== HOME + "updateSystem") {
+        onLoadDocument();
+        startApplication();
+
+    } else {
+        loadUpdateSystem();
     }
 });

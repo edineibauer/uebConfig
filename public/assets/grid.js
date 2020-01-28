@@ -14,7 +14,7 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
     let pp = [];
     pp.push(actions['delete'] ? permissionToAction(entity, 'delete') : !1);
     pp.push(actions.update ? permissionToAction(entity, 'update') : !1);
-    if (typeof info !== "undefined" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor === 1 && getCookie("setor") !== "admin") {
+    if (typeof info !== "undefined" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor === 1 && USER.setor !== "admin") {
         pp.push(permissionToChange(entity, data))
     }
     return Promise.all(pp).then(r => {
@@ -36,7 +36,7 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
                 }
             })
         }
-        if (actions.autor && getCookie("setor") === "admin" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor > 0) {
+        if (actions.autor && USER.setor === "admin" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor > 0) {
             gridContent.button.autor.have = !0;
             let colAutor = info.autor === 2 ? "ownerpub" : "autorpub";
             if (isEmpty(data[colAutor]))

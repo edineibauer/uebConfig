@@ -82,24 +82,17 @@ function validateForm(id) {
 
 function permissionToChange(entity, data) {
     return dbLocal.exeRead('__info', 1).then(info => {
-        let setor = parseInt(getCookie("setor"));
-        let nivel = parseInt(getCookie("nivel"));
-        let id = parseInt(getCookie("id"));
+        let setor = parseInt(USER.setor);
+        let id = parseInt(USER.id);
         if (setor === 1)
             return 0;
         if (typeof info[entity].autor === "number") {
             if (info[entity].autor === 1 && !isNaN(data.id) && data.id > 0) {
                 return dbLocal.exeRead(entity, data.id).then(dados => {
-                    if (data.autorpub != dados.autorpub)
-                        return 1; else if (dados.autorpub == id)
+                    if (dados.autorpub == id)
                         return 0;
-                    return getJSON(HOME + "get/user").then(u => {
-                        if (u.response === 1 && typeof u.data.js === "undefined" && !isEmpty(u.data) && typeof u.data[data.autorpub] === "object") {
-                            if (setor < u.data[data.autorpub].setor || (setor == u.data[data.autorpub].setor && nivel < u.data[data.autorpub].nivel))
-                                return 0
-                        }
-                        return 1
-                    })
+
+                    return 1;
                 })
             } else if (info[entity].autor === 2) {
                 return dbLocal.exeRead(entity, data.id).then(dados => {
@@ -112,14 +105,14 @@ function permissionToChange(entity, data) {
 }
 
 function permissionToAction(entity, action) {
-    if (getCookie("setor") === "admin") {
+    if (USER.setor === "admin") {
         return new Promise(function (s, f) {
             return s(!0)
         })
     }
     return dbLocal.exeRead("__allow", 1).then(p => {
-        if (typeof p[getCookie("setor")] !== "undefined" && typeof p[getCookie("setor")][entity] !== "undefined")
-            return p[getCookie("setor")][entity][action]
+        if (typeof p[USER.setor] !== "undefined" && typeof p[USER.setor][entity] !== "undefined")
+            return p[USER.setor][entity][action]
         else return !1
     })
 }
