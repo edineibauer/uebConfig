@@ -54,7 +54,7 @@
         const FAVICON = '{$favicon}';
         const LIMITOFFLINE = '{$limitoffline}';
         const PUSH_PUBLIC_KEY = '{$pushpublic}';
-        const USER = JSON.parse('{$user}');
+        var USER = JSON.parse('{$user}');
         var TITLE = '{$title}';
         var FRONT = {};
         {if !empty($variaveis)}FRONT.VARIAVEIS = {$variaveis|json_encode};{/if}

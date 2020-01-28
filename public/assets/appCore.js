@@ -907,6 +907,7 @@ function checkSessao() {
                             location.reload();
                         });
                     } else {
+                        USER = data.data;
                         resolve(1);
                     }
                 }
