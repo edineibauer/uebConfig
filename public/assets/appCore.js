@@ -894,20 +894,22 @@ function checkSessao() {
                     /**
                      * Se retorno for 0, então token não validou no back
                      * */
-                    if (data.response === 1 && data.data === 0) {
-                        toast("Sessão expirada! Desconectando...", 3000);
+                    if(data.response === 1) {
+                        if (data.data === 0) {
+                            toast("Sessão expirada! Desconectando...", 3000);
 
-                        setCookieAnonimo().then(() => {
-                            setTimeout(function () {
-                                location.reload();
-                            },1000);
-                        });
-                    } else {
-                        /**
-                         * Atualiza variável do usuário
-                         */
-                        USER = data.data;
-                        resolve(1);
+                            setCookieAnonimo().then(() => {
+                                setTimeout(function () {
+                                    location.reload();
+                                },1000);
+                            });
+                        } else if(data.data !== 2) {
+                            /**
+                             * Atualiza variável do usuário
+                             */
+                            USER = data.data;
+                            resolve(1);
+                        }
                     }
                 }
             };
