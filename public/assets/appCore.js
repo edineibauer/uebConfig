@@ -626,10 +626,10 @@ function logoutDashboard() {
 
 function sidebarUserInfo() {
     if($("#core-sidebar-imagem").length) {
-        if (getCookie("token") === "0" || localStorage.imagem === "" || localStorage.imagem === "null") {
+        if (getCookie("token") === "0" || USER.imagem === "" || USER.imagem === "null") {
             document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
         } else {
-            let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
+            let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)['urls'][100]) : USER.imagem) : "");
             document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
         }
     }
@@ -714,7 +714,7 @@ function navbar(tpl) {
 
 function afterMenuHeader() {
     if($("#core-header-perfil").length) {
-        let src = (typeof localStorage.imagem === "string" && localStorage.imagem !== "null" && !isEmpty(localStorage.imagem) ? (isJson(localStorage.imagem) ? decodeURIComponent(JSON.parse(localStorage.imagem)['urls'][100]) : localStorage.imagem) : "");
+        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)['urls'][100]) : USER.imagem) : "");
         let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
         $("#core-header-perfil").html(perfilImg);
     }
@@ -909,6 +909,8 @@ function checkSessao() {
                              */
                             USER = data.data;
                             resolve(1);
+                        } else {
+                            resolve(1);
                         }
                     }
                 }
@@ -964,7 +966,7 @@ function loadCacheUser() {
 
         if(SERVICEWORKER) {
             gets.push(caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll([HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.css?v=" + VERSION]);
+                return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
             }));
         }
 
@@ -981,8 +983,8 @@ function loadCacheUser() {
             dicionarios = r[1];
             return Promise.all(creates)
         }).then(() => {
-            if(localStorage.setor !== "0" && app.file === "login")
-                toast("Seja Bem Vindo " + localStorage.nome , 4000, "toast-success");
+            if(USER.setor !== "0" && app.file === "login")
+                toast("Seja Bem Vindo " + USER.nome , 4000, "toast-success");
 
             menuHeader();
         })
@@ -1925,7 +1927,7 @@ function startApplication() {
              * Carrega o core do setor de acesso
              */
             return new Promise((resolve, reject) => {
-                $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+                $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, {
                     success: function () {
                         resolve(1);
                     }, fail: function () {
@@ -1975,7 +1977,7 @@ function startApplication() {
 
 function loadUpdateSystem() {
     new Promise((resolve, reject) => {
-        $.cachedScript(HOME + "assetsPublic/core/" + localStorage.setor + "/core.min.js?v=" + VERSION, {
+        $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, {
             success: function () {
                 resolve(1);
             }, fail: function () {
