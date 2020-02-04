@@ -626,10 +626,10 @@ function logoutDashboard() {
 
 function sidebarUserInfo() {
     if($("#core-sidebar-imagem").length) {
-        if (getCookie("token") === "0" || USER.imagem === "" || USER.imagem === "null") {
+        if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
             document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
         } else {
-            let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)['urls'][100]) : USER.imagem) : "");
+            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)['urls'][100]) : USER.imagem);
             document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
         }
     }
