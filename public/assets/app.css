@@ -252,6 +252,7 @@ input::-webkit-inner-spin-button {
 	padding:5px 10px;
 	float: right;
     margin-top: -12px;
+    display: none;
 }
 
 #core-sidebar-edit > i{

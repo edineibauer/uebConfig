@@ -655,6 +655,11 @@ function loginBtn() {
             btnLoginAside.children[1].innerHTML = "lock_open";
         }
     }
+
+    if($("#core-sidebar-edit").length) {
+        if(USER.setor.toString() !== "0")
+            $("#core-sidebar-edit").css("display", "block");
+    }
 }
 
 function menuAside() {
