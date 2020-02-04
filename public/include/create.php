@@ -1,5 +1,17 @@
 <?php
 
+if(isset($_SESSION['userlogin']))
+    unset($_SESSION['userlogin']);
+
+/**
+ * Reseta os cookies
+ */
+setcookie('accesscount', '', time() -1, "/");
+setcookie('token', '', time() -1, "/");
+setcookie('update', '', time() -1, "/");
+setcookie('viewsLoaded', '', time() -1, "/");
+setcookie('webp', '', time() -1, "/");
+
 /**
  * @param array $dados
  * @return array
