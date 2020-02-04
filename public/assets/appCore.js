@@ -860,6 +860,7 @@ function setCookieUser(user) {
              * Seta usuário
              * */
             USER = user;
+            setCookie("token", user.token);
 
             /**
              * Obtém novos dados de usuário
