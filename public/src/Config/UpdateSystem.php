@@ -231,6 +231,7 @@ class UpdateSystem
         Config::createDir("public/assets");
         Config::createDir("public/menu");
         Config::createDir("public/menu/admin");
+        Config::createDir("public/menu/0");
         Config::createDir("public/tpl");
         Config::createDir("public/cron");
         Config::createDir("public/entity");
@@ -250,8 +251,13 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
         Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
+
         if(!file_exists(PATH_HOME . "public/menu/menu.json"))
             Config::writeFile("public/menu/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menu.txt"));
+
+        if(!file_exists(PATH_HOME . "public/menu/0/menu.json"))
+            Config::writeFile("public/menu/0/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAnonimo.txt"));
+
         if(!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
             Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
 

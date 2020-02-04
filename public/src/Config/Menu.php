@@ -28,7 +28,7 @@ class Menu
     {
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
-        if (!empty($setor) && file_exists(PATH_HOME . "public/menu/{$setor}/{$this->file}.json")) {
+        if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/menu/{$setor}/{$this->file}.json")) {
             $this->addMenuJson(PATH_HOME . "public/menu/{$setor}/{$this->file}.json");
         } elseif (file_exists(PATH_HOME . "public/menu/{$this->file}.json")) {
             $this->addMenuJson(PATH_HOME . "public/menu/{$this->file}.json");
@@ -37,7 +37,7 @@ class Menu
                 if(!empty($this->menu))
                     break;
 
-                if (!empty($setor) && file_exists(PATH_HOME . VENDOR . "{$lib}/public/menu/{$setor}/{$this->file}.json"))
+                if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . VENDOR . "{$lib}/public/menu/{$setor}/{$this->file}.json"))
                     $this->addMenuJson(PATH_HOME . VENDOR . "{$lib}/public/menu/{$setor}/{$this->file}.json");
                 elseif (file_exists(PATH_HOME . VENDOR . "{$lib}/public/menu/{$this->file}.json"))
                     $this->addMenuJson(PATH_HOME . VENDOR . "{$lib}/public/menu/{$this->file}.json");

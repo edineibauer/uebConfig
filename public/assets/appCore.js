@@ -1539,25 +1539,26 @@ var app = {
         })
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
+        let meuSetor = USER.setor.toString();
         if (!isEmpty(setor)) {
             allow = !1;
             if (setor.constructor === Array) {
                 $.each(setor, function (i, seto) {
-                    if (typeof seto === "string" && seto === USER.setor) {
+                    if (seto.toString() === meuSetor) {
                         allow = !0;
                         return !1
                     }
                 })
-            } else if (typeof setor === "string" && setor === USER.setor) {
+            } else if (setor.toString() === meuSetor) {
                 allow = !0
             }
         } else if (!isEmpty(notSetor)) {
             if (notSetor.constructor === Array) {
                 $.each(notSetor, function (i, seto) {
-                    if (typeof seto === "string" && seto === USER.setor)
+                    if (seto.toString() === meuSetor)
                         return allow = !1
                 })
-            } else if (typeof notSetor === "string" && notSetor === USER.setor) {
+            } else if (notSetor.toString() === meuSetor) {
                 allow = !1
             }
         }
