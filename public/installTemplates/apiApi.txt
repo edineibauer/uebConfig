@@ -12,7 +12,7 @@ $data = ["response" => 1, "error" => "", "data" => ""];
 
 if (isset($_GET['data'])) {
 
-    $key = filter_input(INPUT_POST, 'key', FILTER_DEFAULT);
+    $key = $_SERVER['HTTP_KEY'] ?? filter_input(INPUT_POST, 'key', FILTER_DEFAULT);
     $rota = str_replace('.php', '', strip_tags(trim($_GET['data'])));
 
     if (empty($key)) {
