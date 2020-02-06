@@ -929,28 +929,28 @@ function loadMask(form) {
     if($form.find("input[type='tel']").length)
         $form.find("input[type='tel']").mask(SPMaskBehavior, spOptions);
 
-    if($form.find("input[type='ie']").length)
+    if($form.find(".ie").length)
         $form.find(".ie").find("input").mask('999.999.999.999', {reverse: !0});
 
-    if($form.find("input[type='cpf']").length)
+    if($form.find(".cpf'").length)
         $form.find(".cpf").find("input").mask('999.999.999-99', {reverse: !0});
 
-    if($form.find("input[type='cnpj']").length)
+    if($form.find(".cnpj'").length)
         $form.find(".cnpj").find("input").mask('99.999.999/9999-99', {reverse: !0});
 
-    if($form.find("input[type='cep']").length)
+    if($form.find(".cep'").length)
         $form.find(".cep").find("input").mask('99999-999', {reverse: !0});
 
-    if($form.find("input[type='percent']").length)
+    if($form.find(".percent'").length)
         $form.find('.percent').find("input").mask('##0,00%', {reverse: !0});
 
-    if($form.find("input[type='valor']").length)
+    if($form.find(".valor'").length)
         $form.find(".valor").find("input").mask('#.##0,00', {reverse: !0});
 
-    if($form.find("input[type='date_time']").length)
+    if($form.find(".date_time'").length)
         $form.find('.date_time').find("input").mask('00/00/0000 00:00:00');
 
-    if($form.find("input[type='card_number']").length)
+    if($form.find(".card_number'").length)
         $form.find('.card_number').find("input").mask('0000 0000 0000 0000 0000', {reverse: !0});
 
     if($form.find("input[data-format='float']").length)
