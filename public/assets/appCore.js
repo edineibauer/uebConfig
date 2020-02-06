@@ -1609,7 +1609,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
             history.back();
             return
         }
-        if (history.length === 1 || !history.state)
+        if (!history.state)
             history.replaceState({
                 id: 0,
                 route: app.route,
@@ -1820,7 +1820,7 @@ function onLoadDocument() {
                  * Carrega página da navegação solicitada
                  * */
                 clearPage();
-                let animation = (historyPosition > event.state.id ? (historyReqPosition ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
+                let animation = (historyPosition > event.state.id ? (historyReqPosition || ($("#dashboard").length && history.state.route === "dashboard") ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
                 pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
 
             } else {
