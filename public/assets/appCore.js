@@ -1858,6 +1858,10 @@ function onLoadDocument() {
         }
     };
 
+    window.onresize = function () {
+        clearHeaderScrollPosition();
+    };
+
     /**
      * Intercepta clicks em links e traduz na função "pageTransition()"
      */
