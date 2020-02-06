@@ -925,20 +925,42 @@ function loadMask(form) {
             field.mask(SPMaskBehavior.apply({}, arguments), options)
         }
     };
-    $form.find("input[type='tel']").mask(SPMaskBehavior, spOptions);
-    $form.find(".ie").find("input").mask('999.999.999.999', {reverse: !0});
-    $form.find(".cpf").find("input").mask('999.999.999-99', {reverse: !0});
-    $form.find(".cnpj").find("input").mask('99.999.999/9999-99', {reverse: !0});
-    $form.find(".cep").find("input").mask('99999-999', {reverse: !0});
-    $form.find('.percent').find("input").mask('##0,00%', {reverse: !0});
-    $form.find(".valor").find("input").mask('#.##0,00', {reverse: !0});
-    $form.find('.date_time').find("input").mask('00/00/0000 00:00:00');
-    $form.find('.card_number').find("input").mask('0000 0000 0000 0000 0000', {reverse: !0});
-    $form.find("input[data-format='float']").mask("#0.00", {reverse: !0});
+
+    if($form.find("input[type='tel']").length)
+        $form.find("input[type='tel']").mask(SPMaskBehavior, spOptions);
+
+    if($form.find("input[type='ie']").length)
+        $form.find(".ie").find("input").mask('999.999.999.999', {reverse: !0});
+
+    if($form.find("input[type='cpf']").length)
+        $form.find(".cpf").find("input").mask('999.999.999-99', {reverse: !0});
+
+    if($form.find("input[type='cnpj']").length)
+        $form.find(".cnpj").find("input").mask('99.999.999/9999-99', {reverse: !0});
+
+    if($form.find("input[type='cep']").length)
+        $form.find(".cep").find("input").mask('99999-999', {reverse: !0});
+
+    if($form.find("input[type='percent']").length)
+        $form.find('.percent').find("input").mask('##0,00%', {reverse: !0});
+
+    if($form.find("input[type='valor']").length)
+        $form.find(".valor").find("input").mask('#.##0,00', {reverse: !0});
+
+    if($form.find("input[type='date_time']").length)
+        $form.find('.date_time').find("input").mask('00/00/0000 00:00:00');
+
+    if($form.find("input[type='card_number']").length)
+        $form.find('.card_number').find("input").mask('0000 0000 0000 0000 0000', {reverse: !0});
+
+    if($form.find("input[data-format='float']").length)
+        $form.find("input[data-format='float']").mask("#0.00", {reverse: !0});
+
     $form.find("input[data-format='float'], input[data-format='number']").off("keypress").on("keypress", function (evt) {
         if (evt.which != 8 && evt.which != 0 && evt.which < 48 || evt.which > 57)
             evt.preventDefault()
     });
+
     $form.find("input").on("click focus", function () {
         $(this).removeAttr("readonly")
     });
@@ -952,7 +974,7 @@ function loadMask(form) {
     clearMarginFormInput();
     loadFolderDrag();
     $form.find("input[type='text'].formCrudInput, input[type='tel'].formCrudInput, input[type='number'].formCrudInput").trigger("change")
-};
+}
 
 function loadFolderDrag() {
     $(".extend_list_register").sortable({

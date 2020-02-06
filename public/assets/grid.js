@@ -315,17 +315,29 @@ function maskData($data) {
             let v = val.replace(/\D/g, '').length;
             return v === 0 ? '' : (v === 2 ? '00.\0\0' : (v === 1 ? '0.\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1)) + '.00'))
         },
-    }
-    $data.find(".td-tel").find(".td-value").mask(SP.tel);
-    $data.find(".td-ie").find(".td-value").mask(SP.ie);
-    $data.find(".td-cpf").find(".td-value").mask(SP.cpf);
-    $data.find(".td-cnpj").find(".td-value").mask(SP.cnpj);
-    $data.find(".td-cep").find(".td-value").mask(SP.cep);
-    $data.find('.td-percent').find(".td-value").mask(SP.percent);
-    $data.find(".td-valor").find(".td-value").mask(SP.valor);
-    $data.find('.td-datetime').find(".td-value").mask(SP.datetime);
-    $data.find('.td-card_number').find(".td-value").mask(SP.cardnumber);
-    $data.find(".td-float").find(".td-value").mask(SP.float);
+    };
+
+    if($data.find(".td-tel").find(".td-value").length)
+        $data.find(".td-tel").find(".td-value").mask(SP.tel);
+    if($data.find(".td-ie").find(".td-value").length)
+        $data.find(".td-ie").find(".td-value").mask(SP.ie);
+    if($data.find(".td-cpf").find(".td-value").length)
+        $data.find(".td-cpf").find(".td-value").mask(SP.cpf);
+    if($data.find(".td-cnpj").find(".td-value").length)
+        $data.find(".td-cnpj").find(".td-value").mask(SP.cnpj);
+    if($data.find(".td-cep").find(".td-value").length)
+        $data.find(".td-cep").find(".td-value").mask(SP.cep);
+    if($data.find(".td-percent").find(".td-value").length)
+        $data.find('.td-percent').find(".td-value").mask(SP.percent);
+    if($data.find(".td-valor").find(".td-value").length)
+        $data.find(".td-valor").find(".td-value").mask(SP.valor);
+    if($data.find(".td-datetime").find(".td-value").length)
+        $data.find('.td-datetime').find(".td-value").mask(SP.datetime);
+    if($data.find(".td-card_number").find(".td-value").length)
+        $data.find('.td-card_number').find(".td-value").mask(SP.cardnumber);
+    if($data.find(".td-float").find(".td-value").length)
+        $data.find(".td-float").find(".td-value").mask(SP.float);
+
     return $data
 }
 
