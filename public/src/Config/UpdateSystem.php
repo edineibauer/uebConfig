@@ -372,8 +372,9 @@ class UpdateSystem
                     $fonts .= $this->getFontIcon($item, "icon");
             }
 
-            $m = new \MatthiasMullie\Minify\CSS($fonts);
-            $m->minify(PATH_HOME . "assetsPublic/{$name}.min.css");
+            $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.css", "w");
+            fwrite($f, $fonts);
+            fclose($f);
         }
     }
 
@@ -603,14 +604,14 @@ class UpdateSystem
                             $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
                             fwrite($f, $urlData);
                             fclose($f);
-                            $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
+                            $data = str_replace($url, "fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
                         } else {
                             $before = "@font-face" . explode("@font-face", $u[$i - 1])[1] . "url(";
                             $after = explode("}", $u)[0];
                             $data = str_replace($before . $after, "", $data);
                         }
                     } else {
-                        $data = str_replace($url, HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
+                        $data = str_replace($url, "fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
                     }
                 }
             }
