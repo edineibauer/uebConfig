@@ -34,7 +34,7 @@
     <meta name="msapplication-navbutton-color" content="{{$theme}}">
 
     <link rel='stylesheet' href='{$home}assetsPublic/appCore.min.css?v={$version}'>
-    <link rel='stylesheet' href='{$home}assetsPublic/core/{$userSetor}/core.min.css?v={$version}'>
+    <link rel='stylesheet' id="setorCoreCss" href='{$home}assetsPublic/core/{$userSetor}/core.min.css?v={$version}'>
     <link rel='stylesheet' href='{$home}assetsPublic/fonts.min.css?v={$version}'>
 
     <script>
