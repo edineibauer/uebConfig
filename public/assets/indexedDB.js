@@ -309,6 +309,7 @@ const db = {
     }, exeCreate(entity, dados, sync) {
         if(SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
+            dados.id = !isNaN(dados.id) && dados.id > 0 ? parseInt(dados.id) : 0;
             let idAction = getIdAction(entity, dados.id);
             let react = dbLocal.exeRead("__react");
             return Promise.all([idAction, react]).then(r => {
@@ -754,7 +755,7 @@ const dbLocal = {
             return tx.complete.then(() => keys)
         })
     }
-}
+};
 
 function getIdAction(entity, id) {
     if (isNaN(id) || id < 1) {
