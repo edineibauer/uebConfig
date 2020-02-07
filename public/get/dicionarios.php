@@ -16,8 +16,10 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
         $entidade = str_replace(".json", "", $entity);
         $user = (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . "entity/" . $_SESSION['userlogin']['setor'] . "/{$entity}") ? $_SESSION['userlogin']['setor'] : "cache");
 
+        $permissao = $setor === "admin" || ($setor !== "0" && $setor === $entidade) || (!empty($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']) || (!empty($permissoes[$entidade]['create']) && $permissoes[$entidade]['create']) || (!empty($permissoes[$entidade]['update']) && $permissoes[$entidade]['update']) || (!empty($permissoes[$entidade]['delete']) && $permissoes[$entidade]['delete']);
+
         //Se tiver permissão para ler
-        if (($setor === "admin" || (!empty($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']))) {
+        if ($permissao) {
             $result = Helper::convertStringToValueArray(json_decode(file_get_contents(PATH_HOME . "entity/{$user}/{$entity}"), !0));
             if (!empty($result)) {
 
