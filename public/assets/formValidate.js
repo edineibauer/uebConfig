@@ -111,8 +111,8 @@ function permissionToAction(entity, action) {
         })
     }
     return dbLocal.exeRead("__allow", 1).then(p => {
-        if (typeof p[USER.setor] !== "undefined" && typeof p[USER.setor][entity] !== "undefined")
-            return p[USER.setor][entity][action]
+        if (typeof p !== "undefined" && typeof p[entity] !== "undefined")
+            return p[entity][action]
         else return !1
     })
 }
