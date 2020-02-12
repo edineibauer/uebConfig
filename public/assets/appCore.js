@@ -969,6 +969,10 @@ function loadCacheUser() {
         gets.push(get("templates"));
         gets.push(get("menu"));
         gets.push(get("navbar"));
+        gets.push(get("react"));
+        gets.push(get("relevant"));
+        gets.push(get("general"));
+        gets.push(get("user"));
 
         if(SERVICEWORKER) {
             gets.push(caches.open('core-v' + VERSION).then(cache => {
@@ -986,6 +990,10 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__template', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
             creates.push(dbLocal.exeCreate('__navbar', r[5]));
+            creates.push(dbLocal.exeCreate('__react', r[6]));
+            creates.push(dbLocal.exeCreate('__relevant', r[7]));
+            creates.push(dbLocal.exeCreate('__general', r[8]));
+            creates.push(dbLocal.exeCreate('__user', r[9]));
             dicionarios = r[1];
             return Promise.all(creates)
         }).then(() => {
@@ -1171,53 +1179,7 @@ function startCache() {
         (async () => {
             setCookie("webp", await WebpIsSupported());
         })();
-    }).then(() => {
-         finishCache();
     });
-}
-
-function finishCache() {
-    if(SERVICEWORKER) {
-        let gets = [];
-        let creates = [];
-        gets.push(get("react"));
-        gets.push(get("relevant"));
-        gets.push(get("general"));
-        gets.push(get("user"));
-        return Promise.all(gets).then(r => {
-            if(!isEmpty(r[0]))
-                creates.push(dbLocal.exeCreate('__react', r[0]));
-            if(!isEmpty(r[1]))
-                creates.push(dbLocal.exeCreate('__relevant', r[1]));
-            if(!isEmpty(r[2]))
-                creates.push(dbLocal.exeCreate('__general', r[2]));
-            if(!isEmpty(r[3]))
-                creates.push(dbLocal.exeCreate('__user', r[3]));
-            return Promise.all(creates)
-        })
-    } else {
-        return dbLocal.exeRead("__relevant", 1).then(r => {
-            if(isEmpty(r)) {
-                let gets = [];
-                let creates = [];
-                gets.push(get("react"));
-                gets.push(get("relevant"));
-                gets.push(get("general"));
-                gets.push(get("user"));
-                return Promise.all(gets).then(r => {
-                    if(!isEmpty(r[0]))
-                        creates.push(dbLocal.exeCreate('__react', r[0]));
-                    if(!isEmpty(r[1]))
-                        creates.push(dbLocal.exeCreate('__relevant', r[1]));
-                    if(!isEmpty(r[2]))
-                        creates.push(dbLocal.exeCreate('__general', r[2]));
-                    if(!isEmpty(r[3]))
-                        creates.push(dbLocal.exeCreate('__user', r[3]));
-                    return Promise.all(creates)
-                })
-            }
-        });
-    }
 }
 
 function checkMenuActive() {
