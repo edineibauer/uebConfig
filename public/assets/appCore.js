@@ -524,7 +524,7 @@ function subscribeUser(showMessageSuccess) {
 }
 
 function updateSubscriptionOnServer(subscription, showMessageSuccess) {
-    if (subscription) {
+    if (subscription && USER.setor !== 0 && typeof USER.setor === "string" && USER.setor !== "0" && !isEmpty(USER.setor)) {
         post('dashboard', 'push', {
             "push": JSON.stringify(subscription),
             'p1': navigator.appName,
