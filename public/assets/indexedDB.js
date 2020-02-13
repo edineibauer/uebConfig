@@ -892,6 +892,8 @@ function getDefaultValue(meta, value) {
                 valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
                 break;
             case 'valor':
+            case 'valor_decimal':
+            case 'valor_decimal_plus':
                 if (typeof value === "number")
                     value = value.toString();
 
@@ -903,7 +905,7 @@ function getDefaultValue(meta, value) {
                 if(value.split(",").length > 1)
                     value = replaceAll(value, ".", "").replace(",", ".");
 
-                valor = (!isNaN(value) ? parseFloat(value).toFixed(2) : null);
+                valor = (!isNaN(value) ? parseFloat(value).toFixed(meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : 4)) : null);
                 break;
             case 'float':
                 value = (typeof value === "string" ? value.replace(',', '.') : value);

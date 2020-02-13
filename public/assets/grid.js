@@ -308,6 +308,12 @@ function maskData($data) {
         }, valor: val => {
             let v = val.replace(/\D/g, '').length;
             return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',00'))
+        }, valor_decimal: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',000'))
+        }, valor_decimal_plus: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',0000'))
         }, cardnumber: val => {
             let v = val.replace(/\D/g, '').length;
             return v === 0 ? '' : (v === 8 ? '0000 0000' : v === 12 ? '0000 0000 0000' : v === 16 ? '0000 0000 0000 0000' : '0000 0000 0000 0000 0000')
@@ -331,6 +337,10 @@ function maskData($data) {
         $data.find('.td-percent').find(".td-value").mask(SP.percent);
     if($data.find(".td-valor").find(".td-value").length)
         $data.find(".td-valor").find(".td-value").mask(SP.valor);
+    if($data.find(".td-valor-decimal").find(".td-value").length)
+        $data.find(".td-valor-decimal").find(".td-value").mask(SP.valor_decimal);
+    if($data.find(".td-valor-decimal-plus").find(".td-value").length)
+        $data.find(".td-valor-decimal-plus").find(".td-value").mask(SP.valor_decimal_plus);
     if($data.find(".td-datetime").find(".td-value").length)
         $data.find('.td-datetime').find(".td-value").mask(SP.datetime);
     if($data.find(".td-card_number").find(".td-value").length)
