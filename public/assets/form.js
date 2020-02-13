@@ -953,6 +953,12 @@ function loadMask(form) {
     if ($form.find(".valor_decimal_plus").length)
         $form.find(".valor_decimal_plus").find("input").mask('#.##0,0000', {reverse: !0});
 
+    if ($form.find(".valor_decimal_minus").length)
+        $form.find(".valor_decimal_minus").find("input").mask('#.##0,0', {reverse: !0});
+
+    if ($form.find(".valor_decimal_none").length)
+        $form.find(".valor_decimal_none").find("input").mask('#.##0', {reverse: !0});
+
     if($form.find(".date_time").length)
         $form.find('.date_time').find("input").mask('00/00/0000 00:00:00');
 

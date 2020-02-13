@@ -905,7 +905,8 @@ function getDefaultValue(meta, value) {
                 if(value.split(",").length > 1)
                     value = replaceAll(value, ".", "").replace(",", ".");
 
-                valor = (!isNaN(value) ? parseFloat(value).toFixed(meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : 4)) : null);
+                let decimal = (meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : (meta.format === 'valor_decimal_plus' ? 4 : (meta.format === 'valor_decimal_minus' ? 1 : 0))));
+                valor = (!isNaN(value) ? parseFloat(value).toFixed(decimal) : null);
                 break;
             case 'float':
                 value = (typeof value === "string" ? value.replace(',', '.') : value);
