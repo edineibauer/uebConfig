@@ -893,9 +893,15 @@ function getDefaultValue(meta, value) {
                 break;
             case 'valor':
                 if (typeof value === "number")
-                    value = value.toString().replace(",", ".");
-                else if(typeof value === "string")
-                    value = value.replace(",", ".");
+                    value = value.toString();
+
+                if (typeof value !== "string") {
+                    valor = 0;
+                    break;
+                }
+
+                if(value.split(",").length > 1)
+                    value = replaceAll(value, ".", "").replace(",", ".");
 
                 valor = (!isNaN(value) ? parseFloat(value).toFixed(2) : null);
                 break;
