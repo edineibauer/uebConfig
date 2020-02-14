@@ -891,9 +891,23 @@ function getDefaultValue(meta, value) {
             case 'percent':
                 valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
                 break;
+            case 'valor_decimal_none':
+                if (typeof value === "number")
+                    value = value.toString();
+
+                if (typeof value !== "string") {
+                    valor = 0;
+                    break;
+                }
+
+                value = replaceAll(replaceAll(value, ".", ""), ",", "");
+
+                valor = (!isNaN(value) ? parseInt(value) : null);
+                break;
             case 'valor':
             case 'valor_decimal':
             case 'valor_decimal_plus':
+            case 'valor_decimal_minus':
                 if (typeof value === "number")
                     value = value.toString();
 
@@ -905,7 +919,7 @@ function getDefaultValue(meta, value) {
                 if(value.split(",").length > 1)
                     value = replaceAll(value, ".", "").replace(",", ".");
 
-                let decimal = (meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : (meta.format === 'valor_decimal_plus' ? 4 : (meta.format === 'valor_decimal_minus' ? 1 : 0))));
+                let decimal = (meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : (meta.format === 'valor_decimal_plus' ? 4 : 1)));
                 valor = (!isNaN(value) ? parseFloat(value).toFixed(decimal) : null);
                 break;
             case 'float':
