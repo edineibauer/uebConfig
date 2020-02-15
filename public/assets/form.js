@@ -1090,6 +1090,8 @@ function deleteRegisterRelation(column) {
 function deleteRegisterAssociation(col, el) {
     if(confirm("Remover Associação com este registro?")) {
 		form.data[col] = "";
+		form.modified = !0;
+        form.saved = !1;
 		getInputsTemplates(form, form.entity, col).then(inputTemplate => {
 			$(el).closest(".parent-input").parent().replaceWith(inputTemplate[0])
 		})
