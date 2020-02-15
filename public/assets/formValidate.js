@@ -4,7 +4,7 @@ function validateDicionario(entity, dicionario, form, action, parent) {
     let entityData = (SERVICEWORKER ? db.exeRead(entity) : new Promise((s, f) => {s([])}));
     return Promise.all([entityData]).then(entityData => {
         entityData = entityData[0];
-        
+
         $.each(dicionario, function (i, meta) {
             if (meta.key !== "identifier") {
                 if (meta.format === "extend") {
@@ -110,21 +110,18 @@ function permissionToAction(entity, action) {
 }
 
 function havePermission(form, action) {
-    return permissionToChange(form.entity, form.data).then(d => {
-        if (typeof d !== "undefined" && d > 0)
-            return d;
-        return permissionToAction(form.entity, action) ? 0 : 3
+    return permissionToChange(form.entity, form.data).then(permission => {
+        if(!permission)
+            return 1;
+
+        return permissionToAction(form.entity, action) ? 0 : 2
     }).then(d => {
-        if (d > 0) {
-            let mensagem = "Permissão Negada";
-            if (d === 1)
-                mensagem = "Você não é o autor deste conteúdo"; else if (d === 2)
-                mensagem = "Você não é tem acesso a este conteúdo"; else if (d === 3)
-                mensagem = "Você não tem permissão para " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")) + " este conteúdo";
-            toast("Opss! " + mensagem, 3000, "toast-error");
-            return !1
-        }
-        return !0
+        if (d === 0)
+            return !0;
+
+        let mensagem = (d === 1 ? "Permissão Negada" : "Você não tem permissão para " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")) + " este conteúdo");
+        toast("Opss! " + mensagem, 3000, "toast-error");
+        return !1;
     })
 }
 
