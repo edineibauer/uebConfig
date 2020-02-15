@@ -1046,7 +1046,7 @@ function addListSetTitle(form, entity, column, parent, id, $input) {
             let v = $next.val();
             $next.val("").focus().val(v);
             if (isNaN(form.id) || dicionarios[form.entity][column].update)
-                $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>delete</i></div>").insertBefore($input)
+                $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
         })
     })
 }
