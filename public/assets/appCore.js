@@ -1662,24 +1662,29 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let isUpdateFormRelation = !1;
 
                 if (haveFormRelation) {
-                    if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
-                        data[history.state.param.openForm.column] = [];
+                    if(history.state.param.openForm.tipo === 1) {
+                        data[history.state.param.openForm.column] = form.id;
+                        isUpdateFormRelation = !0;
+                    } else {
+                        if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
+                            data[history.state.param.openForm.column] = [];
 
-                    if (data[history.state.param.openForm.column].length) {
-                        $.each(data[history.state.param.openForm.column], function (i, e) {
-                            if (isUpdateFormRelation = (e.id == form.data.id)) {
+                        if (data[history.state.param.openForm.column].length) {
+                            $.each(data[history.state.param.openForm.column], function (i, e) {
+                                if (isUpdateFormRelation = (e.id == form.data.id)) {
 
-                                promisses.push(getRelevantTitle(form.entity, form.data).then(title => {
-                                    form.data.columnTituloExtend = title;
-                                    form.data.columnName = history.state.param.openForm.column;
-                                    form.data.columnRelation = history.state.param.openForm.entity;
-                                    form.data.columnStatus = {column: '', have: !1, value: !1};
+                                    promisses.push(getRelevantTitle(form.entity, form.data).then(title => {
+                                        form.data.columnTituloExtend = title;
+                                        form.data.columnName = history.state.param.openForm.column;
+                                        form.data.columnRelation = history.state.param.openForm.entity;
+                                        form.data.columnStatus = {column: '', have: !1, value: !1};
 
-                                    pushToArrayIndex(data[history.state.param.openForm.column], form.data, i);
-                                }));
-                                return !1
-                            }
-                        });
+                                        pushToArrayIndex(data[history.state.param.openForm.column], form.data, i);
+                                    }));
+                                    return !1
+                                }
+                            });
+                        }
                     }
                 }
 

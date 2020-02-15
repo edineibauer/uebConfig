@@ -35,7 +35,7 @@ function clearMarginFormInput() {
 
 $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInput", function (e) {
     let $input = $(this);
-    if ($input.attr("rel") !== "undefined" && typeof form === "object") {
+    if ($input.attr("rel") !== "undefined" && typeof form === "object" && form.identificador === $input.attr("rel")) {
         let column = $input.attr("data-column");
         let format = $input.attr("data-format");
         let parent = $input.attr("data-parent");
@@ -1055,6 +1055,7 @@ function addRegisterAssociation(entity, column) {
 	let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
 	history.state.param.data = Object.assign({id: form.id}, form.data);
 	history.replaceState(history.state, null, HOME + app.route);
+    history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
 	if (!isEmpty(form.data[column]) && !isNaN(form.data[column])) {
 		db.exeRead(entity, parseInt(form.data[column])).then(data => {
 			if (data)
@@ -1101,7 +1102,7 @@ function deleteRegisterAssociation(col, el) {
 function addRegisterRelation(entity, column) {
     if(dicionarios[form.entity][column].size === !1 || typeof form.data[column] === "string" || form.data[column] === null || dicionarios[form.entity][column].size > form.data[column].length) {
         let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
-        history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend};
+        history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
         history.state.param.data = Object.assign({id: form.id}, form.data);
         history.state.param.modified = form.modified;
         history.replaceState(history.state, null, HOME + app.route);
@@ -1116,7 +1117,7 @@ function addRegisterRelation(entity, column) {
  * */
 function editRegisterRelation(entity, column, id) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
-    history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend};
+    history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.state.param.modified = form.modified;
     history.replaceState(history.state, null, HOME + app.route);
@@ -1135,7 +1136,7 @@ function editRegisterRelation(entity, column, id) {
  * */
 function editFormRelation(entity, column) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
-    history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend};
+    history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
     history.state.param.modified = form.modified;
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.replaceState(history.state, null, HOME + app.route);
