@@ -345,10 +345,8 @@ class Config
             foreach ($jsList as $i => $js) {
                 if (file_exists(PATH_HOME . "public/assets/" . $setor . "/{$js}.js")) {
                     $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$js}.js");
-                    break;
                 } elseif (file_exists(PATH_HOME . "public/assets/{$js}.js")) {
                     $minifier->add(PATH_HOME . "public/assets/{$js}.js");
-                    break;
                 } else {
                     foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
                         if (file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$js}.js")) {
@@ -398,10 +396,8 @@ class Config
             foreach ($cssList as $i => $css) {
                 if (file_exists(PATH_HOME . "public/assets/" . $setor . "/{$css}.css")) {
                     $minifier->add(PATH_HOME . "public/assets/" . $setor . "/{$css}.css");
-                    break;
                 } elseif (file_exists(PATH_HOME . "public/assets/{$css}.css")) {
                     $minifier->add(PATH_HOME . "public/assets/{$css}.css");
-                    break;
                 } else {
                     foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
                         if (file_exists(PATH_HOME . VENDOR . $libs . "/public/assets/" . $setor . "/{$css}.css")) {
