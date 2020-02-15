@@ -81,25 +81,17 @@ function validateForm(id) {
 }
 
 function permissionToChange(entity, data) {
-    return dbLocal.exeRead('__info', 1).then(info => {
-        let setor = parseInt(USER.setor);
-        let id = parseInt(USER.id);
-        if (setor === 1)
-            return 0;
-        if (typeof info[entity].autor === "number") {
-            if (info[entity].autor === 1 && !isNaN(data.id) && data.id > 0) {
-                return dbLocal.exeRead(entity, data.id).then(dados => {
-                    if (dados.autorpub == id)
-                        return 0;
+    if (USER.setor === "admin")
+        return !0;
 
-                    return 1;
-                })
-            } else if (info[entity].autor === 2) {
-                return dbLocal.exeRead(entity, data.id).then(dados => {
-                    if (data.ownerpub != dados.ownerpub)
-                        data.ownerpub = dados.ownerpub
-                })
-            }
+    return dbLocal.exeRead('__info', 1).then(info => {
+        let id = parseInt(USER.id);
+        if (typeof info[entity].autor === "number" && info[entity].autor === 1 && !isNaN(data.id) && data.id > 0) {
+            return db.exeRead(entity, data.id).then(dados => {
+                return typeof dados.autorpub === "number" && dados.autorpub === id;
+            })
+        } else {
+            return !0;
         }
     })
 }
