@@ -14,18 +14,14 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
     let pp = [];
     pp.push(actions['delete'] ? permissionToAction(entity, 'delete') : !1);
     pp.push(actions.update ? permissionToAction(entity, 'update') : !1);
-    if (typeof info !== "undefined" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor === 1 && USER.setor !== "admin") {
-        pp.push(permissionToChange(entity, data))
-    }
+    pp.push(permissionToChange(entity, data));
     return Promise.all(pp).then(r => {
         gridContent.button.delete = r[0];
         gridContent.button.update = r[1];
+        gridContent.permission = r[2];
         gridContent.button.status = {have: !1, status: !1};
         gridContent.button.autor = {have: !1, id: !1, list: []};
-        if (typeof r[2] !== "undefined")
-            gridContent.permission = d === 0;
-        return r
-    }).then(d => {
+
         if (actions.status && gridContent.button.update && typeof info.status !== "undefined" && !isNaN(info.status) && info.status > 0) {
             gridContent.button.status.have = !0;
             $.each(dicionarios[entity], function (col, dic) {
