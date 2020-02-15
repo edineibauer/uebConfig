@@ -755,6 +755,9 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                                     } else {
                                         privateFormSetError(form, syncData, showMessages, destroy);
                                     }
+                                }).then(() => {
+                                    if(history.state.param.column !== "undefined")
+                                        history.back();
                                 })
 
                             } else {
