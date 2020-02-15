@@ -884,6 +884,7 @@ function getDefaultValue(meta, value) {
             case 'status':
                 valor = value === !0 || value === 1 || value === "1" || value === "true" ? 1 : 0;
                 break;
+            case 'publisher':
             case 'number':
             case 'year':
                 valor = value !== "" && !isNaN(value) ? parseInt(value) : null;
