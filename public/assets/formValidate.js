@@ -81,10 +81,10 @@ function validateForm(id) {
 }
 
 function permissionToChange(entity, data) {
-    if (USER.setor === "admin")
-        return !0;
-
     return dbLocal.exeRead('__info', 1).then(info => {
+        if (USER.setor === "admin")
+            return !0;
+
         let id = parseInt(USER.id);
         if (typeof info[entity].autor === "number" && info[entity].autor === 1 && !isNaN(data.id) && data.id > 0) {
             return db.exeRead(entity, data.id).then(dados => {
