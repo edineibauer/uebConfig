@@ -20,7 +20,7 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
 
         //Se tiver permissão para ler
         if ($permissao) {
-            $result = \Entity\Metadados::getDicionario($entidade, !0);
+            $result = \Entity\Metadados::getDicionario($entidade, !0, !0);
             if (!empty($result)) {
 
                 if (!empty($result[0]['id'])) {
