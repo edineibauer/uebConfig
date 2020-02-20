@@ -844,6 +844,15 @@ function updateCache() {
     }
 }
 
+function recoveryUser() {
+    return dbLocal.exeRead("__login", 1).then(login => {
+        login.id = login.idUserReal;
+        delete login.idUserReal;
+
+        USER = login;
+    });
+}
+
 function setUserInNavigator(user) {
     if(typeof user.password !== "undefined")
         delete user.password;
@@ -896,6 +905,12 @@ function checkSessao() {
          */
         return setCookieAnonimo();
 
+    } else if (!navigator.onLine) {
+        /**
+         * Sem internet
+         */
+        recoveryUser();
+
     } else if (navigator.onLine && getCookie("token") !== "0") {
 
         /**
@@ -939,11 +954,7 @@ function checkSessao() {
                                 resolve(1);
                             });
                         } else {
-                            dbLocal.exeRead("__login", 1).then(login => {
-                                setUserInNavigator(login).then(() => {
-                                    resolve(1);
-                                })
-                            });
+                            recoveryUser();
                         }
                     }
                 }
