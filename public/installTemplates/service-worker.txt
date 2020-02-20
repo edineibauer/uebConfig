@@ -129,7 +129,15 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(get.test(url) || set.test(url) || app.test(url)) {
+    } else if(set.test(url)) {
+
+        e.respondWith(fetch(e.request) ||
+            caches.open('core-v' + VERSION).then(cache => {
+                return cache.match(url);
+            })
+        );
+
+    } else if(get.test(url) || app.test(url)) {
         e.respondWith(fetch(e.request));
     } else {
 

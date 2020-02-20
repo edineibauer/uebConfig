@@ -844,6 +844,19 @@ function updateCache() {
     }
 }
 
+function setUserInNavigator(user) {
+    if(typeof user.password !== "undefined")
+        delete user.password;
+
+    user = typeof user === "object" ? user : {token: 0, id: 0, nome: 'Anônimo', imagem: '', status: 1, setor: 0, setorData: ""};
+    USER = user;
+    let userLogin = Object.assign({}, USER);
+    userLogin.idUserReal = USER.id;
+    userLogin.id = 1;
+    setCookie("token", user.token);
+    return dbLocal.exeCreate("__login", userLogin);
+}
+
 function setCookieAnonimo() {
     return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
 }
@@ -859,13 +872,13 @@ function setCookieUser(user) {
             /**
              * Seta usuário
              * */
-            USER = user;
-            setCookie("token", user.token);
+            return setUserInNavigator(user).then(() => {
 
-            /**
-             * Obtém novos dados de usuário
-             * */
-            return loadCacheUser();
+                /**
+                 * Obtém novos dados de usuário
+                 * */
+                return loadCacheUser();
+            });
         });
 
     } else {
@@ -883,7 +896,7 @@ function checkSessao() {
          */
         return setCookieAnonimo();
 
-    } else if (getCookie("token") !== "0") {
+    } else if (navigator.onLine && getCookie("token") !== "0") {
 
         /**
          * Sessão existe
@@ -894,8 +907,17 @@ function checkSessao() {
             xhttp.open("POST", HOME + "set");
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
+                if (this.readyState === 4) {
                     let data = JSON.parse(this.responseText);
+
+                    /**
+                     * Se o request não funcionar
+                     */
+                    if(this.status !== 200 || data.response !== 1) {
+                        setUserInNavigator().then(() => {
+                            resolve(1);
+                        });
+                    }
 
                     /**
                      * Se retorno for 0, então token não validou no back
@@ -913,10 +935,15 @@ function checkSessao() {
                             /**
                              * Atualiza variável do usuário
                              */
-                            USER = data.data;
-                            resolve(1);
+                            setUserInNavigator(data.data).then(() => {
+                                resolve(1);
+                            });
                         } else {
-                            resolve(1);
+                            dbLocal.exeRead("__login", 1).then(login => {
+                                setUserInNavigator(login).then(() => {
+                                    resolve(1);
+                                })
+                            });
                         }
                     }
                 }
@@ -924,8 +951,7 @@ function checkSessao() {
             xhttp.send("lib=route&file=sessao");
         });
     } else {
-        USER = {token: 0, id: 0, nome: 'Anônimo', imagem: '', status: 1, setor: 0, setorData: ""};
-        return Promise.all([]);
+        return setUserInNavigator();
     }
 }
 
