@@ -129,16 +129,25 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(set.test(url)) {
+    } else if(set.test(url) || get.test(url) || app.test(url)) {
 
-        e.respondWith(fetch(e.request) ||
-            caches.open('core-v' + VERSION).then(cache => {
-                return cache.match(url);
+        e.respondWith(
+            fetch(e.request).then(networkResponse => {
+
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                    return networkResponse;
+
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.match('set');
+                })
+
+            }).catch(error => {
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.match('set');
+                })
             })
         );
 
-    } else if(get.test(url) || app.test(url)) {
-        e.respondWith(fetch(e.request));
     } else {
 
         if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
