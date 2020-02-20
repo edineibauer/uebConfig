@@ -909,7 +909,7 @@ function checkSessao() {
         /**
          * Sem internet
          */
-        recoveryUser();
+        return recoveryUser();
 
     } else if (navigator.onLine && getCookie("token") !== "0") {
 
