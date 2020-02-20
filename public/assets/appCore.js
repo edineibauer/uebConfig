@@ -854,9 +854,6 @@ function recoveryUser() {
 }
 
 function setUserInNavigator(user) {
-    if(typeof user.password !== "undefined")
-        delete user.password;
-
     user = typeof user === "object" ? user : {token: 0, id: 0, nome: 'Anônimo', imagem: '', status: 1, setor: 0, setorData: ""};
     USER = user;
     let userLogin = Object.assign({}, USER);
