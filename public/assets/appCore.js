@@ -951,7 +951,9 @@ function checkSessao() {
                                 resolve(1);
                             });
                         } else {
-                            recoveryUser();
+                            recoveryUser().then(() => {
+                                resolve(1);
+                            });
                         }
                     }
                 }
