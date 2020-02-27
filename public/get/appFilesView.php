@@ -31,6 +31,8 @@ if (file_exists(PATH_HOME . "_config/viewOffline.json")) {
  * Assets Offline
  */
 if (file_exists(PATH_HOME . "_config/viewOfflineAssets.json")) {
-    foreach (json_decode(file_get_contents(PATH_HOME . "_config/viewOfflineAssets.json"), !0) as $item)
+    foreach (json_decode(file_get_contents(PATH_HOME . "_config/viewOfflineAssets.json"), !0) as $item){
+        $item = preg_match("/^public/i", $item) ? str_replace("public/", VENDOR . DOMINIO . "/", $item) : $item;
         $data['data']['misc'][] = HOME . $item;
+    }
 }
