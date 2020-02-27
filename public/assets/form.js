@@ -81,7 +81,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
             value = form.$element.find("input[name='" + column + "']:checked").val()
         } else if (format === "source" || format === "source_list") {
             value = !$.isArray(data[column]) ? [] : data[column];
-            let entity = $input.attr("rel");
+            let entity = $input.attr("data-entity");
             let max = parseInt($input.attr("max"));
             let now = value.length;
             if (typeof e.target.files[0] !== "undefined" && now < max) {
