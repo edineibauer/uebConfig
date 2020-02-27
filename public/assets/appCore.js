@@ -982,6 +982,30 @@ function loadUserViews() {
                 setCookie("viewsLoaded", 1);
                 return cache.addAll(g.view);
             }).then(() => {
+
+                /**
+                 * Para cada view, carrega seus assets
+                 */
+                let viewsAssets = {css: [], js: []};
+                for(let i in g.view) {
+                    let viewName = g.view[i].split("/view/");
+                    viewName = "assetsPublic/view/" + viewName[1].split('/')[0];
+                    viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
+                    viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
+                }
+
+                return viewsAssets;
+
+            }).then(viewsAssets => {
+                return caches.open('viewJs-v' + VERSION).then(cache => {
+                    return cache.addAll(viewsAssets.js);
+                }).then(() => {
+                    return caches.open('viewCss-v' + VERSION).then(cache => {
+                        return cache.addAll(viewsAssets.css);
+                    })
+                });
+
+            }).then(() => {
                 if(!isEmpty(g.misc)) {
                     return caches.open('misc-v' + VERSION).then(cache => {
                         return cache.addAll(g.misc)
