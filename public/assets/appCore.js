@@ -1072,6 +1072,10 @@ function loadCacheUser() {
     }
 }
 
+function getGraficos() {
+    return dbLocal.exeRead("__graficos", 1);
+}
+
 function getTemplates() {
     return dbLocal.exeRead("__template", 1);
 }
