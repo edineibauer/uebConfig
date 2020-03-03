@@ -780,6 +780,7 @@ function clearCacheUser() {
     clear.push(dbLocal.clear('__dicionario'));
     clear.push(dbLocal.clear('__info'));
     clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
 
@@ -818,6 +819,7 @@ function clearCache() {
     clear.push(dbLocal.clear('__template'));
     clear.push(dbLocal.clear('__user'));
     clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
 
@@ -1033,6 +1035,7 @@ function loadCacheUser() {
         gets.push(get("relevant"));
         gets.push(get("general"));
         gets.push(get("user"));
+        gets.push(get("graficos"));
 
         if(SERVICEWORKER) {
             gets.push(caches.open('core-v' + VERSION).then(cache => {
@@ -1054,8 +1057,9 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__relevant', r[7]));
             creates.push(dbLocal.exeCreate('__general', r[8]));
             creates.push(dbLocal.exeCreate('__user', r[9]));
+            creates.push(dbLocal.exeCreate('__graficos', r[10]));
             dicionarios = r[1];
-            return Promise.all(creates)
+            return Promise.all(creates);
         }).then(() => {
             if(USER.setor !== "0" && app.file === "login")
                 toast("Seja Bem Vindo " + USER.nome , 4000, "toast-success");

@@ -598,7 +598,7 @@ input::-webkit-inner-spin-button {
 }
 
 .modal-filter-opacity {
-    z-index: 99998;
+    z-index: 99;
     position: fixed;
     left: 0;
     top: 0;
