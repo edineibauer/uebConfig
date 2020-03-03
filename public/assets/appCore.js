@@ -1072,6 +1072,14 @@ function loadCacheUser() {
     }
 }
 
+function updateGraficos() {
+    return dbLocal.clear('__graficos').then(() => {
+        return get("graficos").then(r => {
+            return dbLocal.exeCreate('__graficos', r);
+        });
+    });
+}
+
 function getGraficos() {
     return dbLocal.exeRead("__graficos", 1);
 }
