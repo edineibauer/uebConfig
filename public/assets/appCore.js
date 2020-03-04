@@ -27,6 +27,10 @@ function zeroEsquerda(n) {
     return ("00" + n).slice(-2);
 }
 
+function mergeObject(a, b) {
+    $.extend( true, a, b );
+}
+
 /**
  * Padroniza valores nulos em Array
  * @param param
