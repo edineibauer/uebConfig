@@ -2334,7 +2334,7 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
 
 .color-grey-light, .color-hover-grey-light:hover, .color-gray-light, .color-hover-gray-light:hover {
     color: #000 !important;
-    background-color: #f1f1f1 !important
+    background-color: #f9f9f9 !important
 }
 
 .color-grey-light-medium, .color-hover-grey-light-medium:hover, .color-gray-light-medium, .color-hover-gray-light-medium:hover {
