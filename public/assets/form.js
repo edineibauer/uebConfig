@@ -1045,9 +1045,6 @@ function addListSetTitle(form, entity, column, parent, id, $input) {
                 "margin-bottom": "20px"
             }).html(title);
             $input.siblings(".list-remove-btn").remove();
-            let $next = $input.parent().parent().next().find(".formCrudInput");
-            let v = $next.val();
-            $next.val("").focus().val(v);
             if (isNaN(form.id) || dicionarios[form.entity][column].update)
                 $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
         })
