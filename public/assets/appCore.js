@@ -1560,7 +1560,7 @@ var app = {
                     let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) : 0);
                     $div.css("min-height", minHeightContent + "px");
                     if(file === "dashboard")
-                        $(".dashboard-main").css("min-height", minHeightContent + "px");
+                        $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
 
                     if (g.js.length) {
                         $.cachedScript(g.js).then(() => {
