@@ -1893,26 +1893,38 @@ function onLoadDocument() {
         }
     };
 
-    window.onscroll = function () {
-        if (window.innerWidth < 994) {
-            if (lastPositionScroll < $(window).scrollTop()) {
-                if (!sentidoScrollDown) {
-                    headerScrollFixed(!0);
-                    $("#core-header").css("position", "absolute");
-                }
+    function updateHeaderPosition(revision) {
+        if (lastPositionScroll < $(window).scrollTop()) {
+            if (!sentidoScrollDown) {
+                headerScrollFixed(!0);
+                $("#core-header").css("position", "absolute");
+            }
+        } else {
+            if (sentidoScrollDown) {
+                headerScrollFixed(!1);
+            } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
+                $("#core-header").css({"position": "fixed", "top": 0})
             } else {
-                if (sentidoScrollDown) {
-                    headerScrollFixed(!1);
-                } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
-                    $("#core-header").css({"position": "fixed", "top": 0});
+                if(typeof revision === "undefined") {
+                    setTimeout(function () {
+                        updateHeaderPosition(true);
+                    }, 50);
                 }
             }
-            lastPositionScroll = $(window).scrollTop();
         }
+        lastPositionScroll = $(window).scrollTop();
+    }
+
+    window.onscroll = function () {
+        if (window.innerWidth < 994)
+            updateHeaderPosition();
     };
 
     window.onresize = function () {
         clearHeaderScrollPosition();
+
+        if (window.innerWidth < 994)
+            updateHeaderPosition();
     };
 
     /**
