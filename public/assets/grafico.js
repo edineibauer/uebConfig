@@ -680,7 +680,6 @@ if (typeof Grafico !== 'function') {
         }
 
         workOptions() {
-            console.log(this);
             if(!isEmpty(this.minimoY)) {
                 this.setOptions({
                     yaxis: {
@@ -769,7 +768,6 @@ if (typeof Grafico !== 'function') {
          */
         show() {
             this.getOptions().then(options => {
-                console.log(this.options);
                 this.options = options;
                 this.chart = new ApexCharts(this.container, this.options);
                 this.chart.render();
