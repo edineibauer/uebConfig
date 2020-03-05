@@ -21,7 +21,12 @@ if (typeof Grafico !== 'function') {
             this.maximo = 100;
             this.labelY = "";
             this.labelX = "";
+            this.minimoY = "";
+            this.maximoY = "";
+            this.minimoX = "";
+            this.maximoX = "";
             this.legendShow = !0;
+            this.cornerRounded = "smooth";
         }
 
         setElementTarget(container) {
@@ -30,6 +35,27 @@ if (typeof Grafico !== 'function') {
 
         setPrecision(casas) {
             this.precision = casas;
+        }
+
+        setMinimoY(minimo) {
+            this.minimoY = minimo;
+        }
+
+        setMaximoY(minimo) {
+            this.maximoY = minimo;
+        }
+
+        setMinimoX(maximo) {
+            this.minimoX = maximo;
+        }
+
+        setMaximoX(maximo) {
+            this.maximoX = maximo;
+        }
+
+        setCornerRounded(rounded) {
+            if (["smooth", "straight", "stepline"].indexOf(rounded) > -1)
+                this.cornerRounded = rounded;
         }
 
         setLabelY(label) {
@@ -159,11 +185,58 @@ if (typeof Grafico !== 'function') {
             this.legendShow = !this.legendShow;
         }
 
+        getType() {
+            switch (this.type) {
+                case "lineSoft":
+                case "lineSquad":
+                    return "line";
+                    break;
+                case "areaHard":
+                case "areaSquad":
+                    return "area";
+                    break;
+                case "barHorizontal":
+                    this.setOptions({
+                        plotOptions: {
+                            bar: {
+                                horizontal: true,
+                            }
+                        }
+                    });
+                    return "bar";
+                    break;
+                default:
+                    return this.type;
+            }
+        }
+
+        workCornerRound() {
+            if (["line", "area"].indexOf(this.getType()) > -1) {
+                this.setOptions({
+                    stroke: {
+                        curve: this.cornerRounded
+                    }
+                });
+            } else if (this.getType() === "bar") {
+                this.setOptions({
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '400%',
+                            distributed: true,
+                            endingShape: (this.cornerRounded === "smooth" ? 'rounded' : 'flat')
+                        },
+                    }
+                });
+            }
+        }
+
         /**
          * Retorna opções padrões já definidas
          * @returns {{xaxis: {categories: number[]}, series: [{data, name: string}], chart: {type: (*|string)}}}
          */
         getOptions() {
+
+            this.workCornerRound();
 
             /**
              * Faz a leitura dos dados da lingua nativa
@@ -175,7 +248,7 @@ if (typeof Grafico !== 'function') {
                  */
                 this.setOptions({
                     chart: {
-                        type: this.type,
+                        type: this.getType(),
                         locales: [language],
                         defaultLocale: 'pt-br',
                         width: "100%",
@@ -318,84 +391,80 @@ if (typeof Grafico !== 'function') {
             let countMaioria = {};
             let retorno = [];
 
-            if (this.type === "radialBar")
-                this.groupBy = this.y;
+            if (['soma', 'media', 'maioria'].indexOf(this.operacao) === -1)
+                return data;
 
             if ((this.operacao === 'soma' || this.operacao === 'media') && isNaN(data[0].y)) {
                 toast("Gráfico: Soma ou Média necessita valores numéricos no campo Y", 6000, "toast-warning");
-                return retorno;
+                return data;
             }
 
-            if (this.operacao === 'soma' || this.operacao === 'media' || this.operacao === 'maioria') {
+            for (let i in data) {
+                let x = "";
+                let countHelper = 1;
 
-                for (let i in data) {
-                    let x = "";
-                    let countHelper = 1;
-
-                    if (this.xType === "datetime") {
-                        if (this.groupBy === "hour") {
-                            x = (isDataTimeComplete ? moment(data[i].x).format("YYYY-MM-DD hh:mm:ss") : moment(data[i].x).format("YYYY-MM-DD") + zeroEsquerda(countHelper) + ":00:00");
-                            countHelper++;
-                        } else if (this.groupBy === "day") {
-                            x = moment(data[i].x).format("YYYY-MM-DD");
-                        } else if (this.groupBy === "week") {
-                            x = moment(data[i].x).day("Sunday").format("YYYY-MM-DD");
-                        } else if (this.groupBy === "month") {
-                            x = moment(data[i].x).format("YYYY-MM-[01]");
-                        } else if (this.groupBy === "year") {
-                            x = moment(data[i].x).format("YYYY-[01]-[01]");
-                        } else {
-                            x = this.groupBy;
-                        }
+                if (this.type === "radialBar") {
+                    x = this.y;
+                } else if (this.xType === "datetime") {
+                    if (this.groupBy === "hour") {
+                        x = (isDataTimeComplete ? moment(data[i].x).format("YYYY-MM-DD hh:mm:ss") : moment(data[i].x).format("YYYY-MM-DD") + zeroEsquerda(countHelper) + ":00:00");
+                        countHelper++;
+                    } else if (this.groupBy === "day") {
+                        x = moment(data[i].x).format("YYYY-MM-DD");
+                    } else if (this.groupBy === "week") {
+                        x = moment(data[i].x).day("Sunday").format("YYYY-MM-DD");
+                    } else if (this.groupBy === "month") {
+                        x = moment(data[i].x).format("YYYY-MM-[01]");
+                    } else if (this.groupBy === "year") {
+                        x = moment(data[i].x).format("YYYY-[01]-[01]");
                     } else {
-                        x = data[i].x;
+                        x = this.groupBy;
                     }
-
-                    if (typeof dados[x] === "undefined") {
-                        dados[x] = 0.0;
-                        count[x] = 0;
-                        if (typeof countMaioria[x] === "undefined")
-                            countMaioria[x] = {};
-
-                        countMaioria[x][data[i].y] = 0;
-                    }
-
-                    dados[x] += parseFloat(data[i].y);
-                    if (this.operacao === "maioria")
-                        countMaioria[x][data[i].y]++;
-
-                    count[x]++;
+                } else {
+                    x = data[i].x;
                 }
 
-                if (this.operacao === 'media') {
-                    for (let i in dados)
-                        dados[i] = parseFloat(dados[i] / count[i]).toFixed(2);
+                if (typeof dados[x] === "undefined") {
+                    dados[x] = 0.0;
+                    count[x] = 0;
+                    if (typeof countMaioria[x] === "undefined")
+                        countMaioria[x] = {};
+
+                    countMaioria[x][data[i].y] = 0;
                 }
 
-                if (this.operacao === 'maioria') {
-                    for (let i in dados) {
-                        let maior = "";
-                        let maiorv = 0;
-                        for (let e in countMaioria[i]) {
-                            if (maiorv < countMaioria[i][e]) {
-                                maior = e;
-                                maiorv = countMaioria[i][e];
-                            }
-                        }
+                dados[x] += parseFloat(data[i].y);
+                if (this.operacao === "maioria")
+                    countMaioria[x][data[i].y]++;
 
-                        dados[i] = maior;
-                    }
-                }
-
-                /**
-                 * Constrói os dados de retorno
-                 */
-                for (let i in dados)
-                    retorno.push({x: i, y: parseFloat(dados[i]).toFixed(this.precision)});
-
-            } else {
-                retorno = data;
+                count[x]++;
             }
+
+            if (this.operacao === 'media') {
+                for (let i in dados)
+                    dados[i] = parseFloat(dados[i] / count[i]).toFixed(2);
+            }
+
+            if (this.operacao === 'maioria') {
+                for (let i in dados) {
+                    let maior = "";
+                    let maiorv = 0;
+                    for (let e in countMaioria[i]) {
+                        if (maiorv < countMaioria[i][e]) {
+                            maior = e;
+                            maiorv = countMaioria[i][e];
+                        }
+                    }
+
+                    dados[i] = maior;
+                }
+            }
+
+            /**
+             * Constrói os dados de retorno
+             */
+            for (let i in dados)
+                retorno.push({x: i, y: parseFloat(dados[i]).toFixed(this.precision)});
 
             return retorno;
         }
@@ -489,7 +558,6 @@ if (typeof Grafico !== 'function') {
                     if (typeof this.x !== "undefined" && !isEmpty(this.x)) {
                         this.operacao = 'soma';
                         dataReady = this.getSumData();
-                        console.log(dataReady);
                     } else if (this.type === "radialBar") {
                         dataReady[0] = this.data.length;
                         labels = [this.labelY || this.operacao + " do " + this.title];
@@ -599,9 +667,8 @@ if (typeof Grafico !== 'function') {
                  * Caso tenha labels, muda o formato para pie
                  */
                 if (!isEmpty(labels)) {
-
-                    if(this.type === "radialBar")
-                        this.setOptions({series: this.options.series[0].data});
+                    if (["radialBar", "pie", "donut"].indexOf(this.type) > -1)
+                        this.setOptions({series: this.options.series[0].data, labels: labels});
                     else if (this.type === "radar")
                         this.setOptions({xaxis: {categories: labels, type: "category"}});
                     else
@@ -613,6 +680,37 @@ if (typeof Grafico !== 'function') {
         }
 
         workOptions() {
+            console.log(this);
+            if(!isEmpty(this.minimoY)) {
+                this.setOptions({
+                    yaxis: {
+                        min: this.minimoY
+                    }
+                });
+            }
+            if(!isEmpty(this.maximoY)) {
+                this.setOptions({
+                    yaxis: {
+                        max: this.maximoY
+                    }
+                });
+            }
+
+            if(this.minimoX !== false && !isEmpty(this.minimoX) && this.xType !== "category") {
+                this.setOptions({
+                    xaxis: {
+                        min: (this.xType === "datetime" ? (["now", "today", "hoje", "agora"].indexOf(this.minimoX) > -1 ? new Date().getTime() : new Date(this.minimoX).getTime()) : this.minimoX)
+                    }
+                });
+            }
+            if(this.minimoX !== false && !isEmpty(this.maximoX) && this.xType !== "category") {
+                this.setOptions({
+                    xaxis: {
+                        max: (this.xType === "datetime" ? (["now", "today", "hoje", "agora"].indexOf(this.minimoX) > -1 ? new Date().getTime() : new Date(this.minimoX).getTime()) : this.maximoX)
+                    }
+                });
+            }
+
             this.setOptions({
                 legend: {
                     show: this.legendShow
