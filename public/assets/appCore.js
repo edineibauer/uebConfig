@@ -1491,8 +1491,9 @@ if (SERVICEWORKER) {
     });
 }
 
-function getPageHeight() {
-    let topHeader = g.header ? $("#core-header")[0].clientHeight : 0;
+function getPageHeight(haveHeader) {
+    haveHeader = typeof haveHeader === "undefined" ? $("#core-header").css("opacity") === "1" : haveHeader;
+    let topHeader = haveHeader ? $("#core-header")[0].clientHeight : 0;
     return (window.innerHeight - topHeader - (window.innerWidth < 900 && g.navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0));
 }
 
@@ -1565,7 +1566,7 @@ var app = {
                     else
                         $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-                    let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight() : 0);
+                    let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header) : 0);
                     $div.css("min-height", minHeightContent + "px");
                     if(file === "dashboard")
                         $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
