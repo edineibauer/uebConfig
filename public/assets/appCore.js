@@ -142,7 +142,7 @@ $(function ($) {
      */
     $.fn.htmlTemplate = function(tpl, param) {
         let $this = this;
-        param = mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, variavel: FRONT.VARIAVEIS});
+        mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO});
         return getTemplates().then(templates => {
             $this.html(Mustache.render(templates[tpl], param));
         });
