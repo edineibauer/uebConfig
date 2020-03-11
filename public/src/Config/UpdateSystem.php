@@ -227,7 +227,6 @@ class UpdateSystem
         Config::createDir("public/api");
         Config::createDir("public/overload");
         Config::createDir("public/react");
-        Config::createDir("public/react/online");
         Config::createDir("public/param");
         Config::createDir("public/assets");
         Config::createDir("public/menu");

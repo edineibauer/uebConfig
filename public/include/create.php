@@ -239,7 +239,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("public/api");
         Config\Config::createDir("public/overload");
         Config\Config::createDir("public/react");
-        Config\Config::createDir("public/react/online");
         Config\Config::createDir("public/param");
         Config\Config::createDir("public/assets");
         Config\Config::createDir("public/menu");
@@ -312,7 +311,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("_config/.htaccess", "Deny from all");
         Config\Config::writeFile("entity/.htaccess", "Deny from all");
         Config\Config::writeFile("public/react/.htaccess", "Deny from all");
-        Config\Config::writeFile("public/react/online/.htaccess", "Deny from all");
         Config\Config::writeFile("_cdn/.htaccess", "Deny from all");
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
         Config\Config::writeFile("vendor/.htaccess", getAccessFile());
