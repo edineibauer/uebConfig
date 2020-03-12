@@ -805,11 +805,11 @@ function moveSyncDataToDb(entity, dados, db_status) {
                         d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
                     d.id = id;
                     d.db_status = db_status;
-                    if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(USER.id)) {
-                        movedAsync.push(dbLocal.exeDelete(entity, d.id))
-                    } else {
+                    // if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(USER.id)) {
+                    //     movedAsync.push(dbLocal.exeDelete(entity, d.id))
+                    // } else {
                         movedAsync.push(dbLocal.exeCreate(entity, d))
-                    }
+                    // }
                     break;
                 case 'delete':
                     if (!isNaN(d.id) && d.id > 0)
