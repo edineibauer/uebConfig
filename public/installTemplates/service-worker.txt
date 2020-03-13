@@ -51,9 +51,13 @@ self.addEventListener('fetch', function (e) {
     let get = new RegExp("get\/", "i");
     let set = new RegExp("set\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
+    let linkInterno = new RegExp("^" + HOME.split("/").join("\\/"), "i");
     let cacheImages = new RegExp("image\/", "i");
 
-    if(core.test(url)) {
+    if(!linkInterno.test(url)) {
+        e.respondWith(fetch(e.request));
+
+    } else if(core.test(url)) {
         let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
