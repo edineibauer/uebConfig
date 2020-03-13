@@ -182,6 +182,7 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
