@@ -1590,7 +1590,7 @@ var app = {
                         })
                     }
                 } else {
-                    if(USER.setor === "0" && getCookie("redirectOnLogin") === "")
+                    if(USER.setor === 0 && getCookie("redirectOnLogin") === "")
                         setCookie("redirectOnLogin", file);
 
                     location.href = HOME + g.redirect;
