@@ -1068,7 +1068,7 @@ function loadCacheUser() {
             return Promise.all(creates);
         }).then(() => {
             if(USER.setor !== "0" && app.file === "login")
-                toast("Seja Bem Vindo " + USER.nome , 4000, "toast-success");
+                toast("Seja Bem Vindo " + USER.nome , 2000, "toast-success");
 
             menuHeader();
         })
