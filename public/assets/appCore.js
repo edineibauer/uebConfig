@@ -263,7 +263,7 @@ function post(lib, file, param, funcao) {
                         toast(data.error, 7000, "toast-warning");
                         break;
                     case 3:
-                        location.href = data.data;
+                        pageTransition(data.data);
                         break;
                     case 4:
                         if (data.data === "no-network")

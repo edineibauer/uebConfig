@@ -30,7 +30,7 @@ if (!empty($file) && !empty($lib)) {
         $data = ["response" => 2, "error" => "erro ao executar arquivo", "data" => $result];
     elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
         $data = ["response" => 2, "error" => "data retornada não formatada corretamente", "data" => ""];
-    elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . HOME . "/i", $data['data'])))
+    elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . str_replace(["/", "."], ["\\/", "\\."], HOME) . "/i", $data['data'])))
         $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
 
 } else {
