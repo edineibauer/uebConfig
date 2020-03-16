@@ -1354,10 +1354,10 @@ function animateForward(id, scroll) {
             $aux.css("top", topHeader + "px");
 
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
+                $aux.animate({left: '0'}, 150, () => {
                     animateTimeout($element, $aux, 0)
                 });
-                $element.animate({left: '-100%'}, 300)
+                $element.animate({left: '-100%'}, 150)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 150, () => {
                     animateTimeout($element, $aux, 0)
@@ -1385,10 +1385,10 @@ function animateBack(id, scroll) {
             let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
+                $aux.animate({left: '0'}, 150, () => {
                     animateTimeout($element, $aux, scroll);
                 });
-                $element.animate({left: '100%'}, 300)
+                $element.animate({left: '100%'}, 150)
             } else {
                 $aux.animate({left: left + 'px', opacity: 1}, 150, () => {
                     animateTimeout($element, $aux, scroll)
@@ -1416,7 +1416,7 @@ function animateFade(id, scroll) {
             let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
-                $aux.animate({left: 0}, 0).animate({opacity: 1}, 400, () => {
+                $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
                 })
             } else {
