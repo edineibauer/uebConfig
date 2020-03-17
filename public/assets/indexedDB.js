@@ -890,7 +890,7 @@ function getDefaultValue(meta, value) {
                 valor = value !== "" && !isNaN(value) ? parseInt(value) : null;
                 break;
             case 'percent':
-                valor = value !== "" ? parseFloat(parseFloat(value.toString().replace(',', '.').replace('%', '')).toFixed(2)) : null;
+                valor = value !== "" ? value.toString().replace(',', '').replace('.', '').replace('%', '') : null;
                 break;
             case 'valor_decimal_none':
                 if (typeof value === "number")
