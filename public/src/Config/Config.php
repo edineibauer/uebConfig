@@ -12,7 +12,7 @@ class Config
      */
     public static function getViewPermissoes(): array
     {
-        return json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true);
+        return Helper::listFolder(PATH_HOME . VENDOR);
     }
 
     /**
