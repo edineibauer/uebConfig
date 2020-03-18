@@ -87,12 +87,12 @@ self.addEventListener('fetch', function (e) {
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                     return networkResponse;
 
-                return caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg");
+                return caches.open('images-v' + VERSION).then(cache => {
+                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
                 })
             }).catch(error => {
-                return caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg");
+                return caches.open('images-v' + VERSION).then(cache => {
+                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
                 })
             })
         );
