@@ -51,10 +51,10 @@ self.addEventListener('fetch', function (e) {
     let get = new RegExp("get\/", "i");
     let set = new RegExp("set\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
-    let linkInterno = new RegExp("^" + HOME.split("/").join("\\/"), "i");
+    let linkExterno = new RegExp("^https*:\/\/", "i");
     let cacheImages = new RegExp("image\/", "i");
 
-    if(!linkInterno.test(url)) {
+    if(linkExterno.test(url)) {
         e.respondWith(fetch(e.request));
 
     } else if(core.test(url)) {
