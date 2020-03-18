@@ -42,6 +42,7 @@
         const SERVICEWORKER = {if ($serviceworker)}'serviceWorker' in navigator && !isEdge{else}!1{/if};
         const HOME = '{$home}';
         const SITENAME = '{$sitename}';
+        const SITESUB = '{$sitesub}';
         const PUBLICO = '{$publico}';
         const DOMINIO = '{$dominio}';
         const VERSION = {$version};
