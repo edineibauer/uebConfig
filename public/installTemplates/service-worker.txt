@@ -82,7 +82,6 @@ self.addEventListener('fetch', function (e) {
         );
 
     } else if(imagesEntity.test(url)) {
-        console.log(url + ": image uploads");
         e.respondWith(fetch(e.request).then(networkResponse => {
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                     return networkResponse;
