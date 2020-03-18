@@ -525,11 +525,8 @@ class Config
         }
 
         //Salva o Assets JS da view
-        $output = str_replace(array(PHP_EOL, "\n"), '', preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify()));
-        $packer = new Packer($output);
-
         $f = fopen(PATH_HOME . "assetsPublic/view/{$view}.min.js", "w");
-        fwrite($f, $packer->pack());
+        fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
         fclose($f);
     }
 

@@ -12,7 +12,6 @@
     "ueb/route": "*",
     "ueb/entity": "*",
     "phpoffice/phpspreadsheet": "^1.5",
-    "tholu/php-packer": "^0.2.0",
     "php": "^7.1"
   },
   "autoload": {
