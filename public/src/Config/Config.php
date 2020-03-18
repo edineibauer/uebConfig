@@ -3,6 +3,7 @@
 namespace Config;
 
 use Helpers\Helper;
+use Tholu\Packer\Packer;
 
 class Config
 {
@@ -524,7 +525,12 @@ class Config
         }
 
         //Salva o Assets JS da view
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.js");
+        $output = str_replace(array(PHP_EOL, "\n"), '', preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify()));
+        $packer = new Packer($output);
+
+        $f = fopen(PATH_HOME . "assetsPublic/view/{$view}.min.js", "w");
+        fwrite($f, $packer->pack());
+        fclose($f);
     }
 
     /**

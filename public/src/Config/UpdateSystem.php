@@ -7,6 +7,7 @@ use Helpers\Helper;
 use Conn\Read;
 use Conn\SqlCommand;
 use Entity\Entity;
+use Tholu\Packer\Packer;
 
 class UpdateSystem
 {
@@ -185,7 +186,13 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
-        $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+
+        $output = str_replace(array(PHP_EOL, "\n"), '', preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify()));
+        $packer = new Packer($output);
+
+        $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w");
+        fwrite($f, $packer->pack());
+        fclose($f);
 
         /**
          * AppCore CSS Generator
@@ -200,7 +207,13 @@ class UpdateSystem
          */
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
             $minifier = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
-            $minifier->minify(PATH_HOME . "assetsPublic/tableCore.min.js");
+
+            $output = str_replace(array(PHP_EOL, "\n"), '', preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify()));
+            $packer = new Packer($output);
+
+            $f = fopen(PATH_HOME . "assetsPublic/tableCore.min.js", "w");
+            fwrite($f, $packer->pack());
+            fclose($f);
         }
 
         $this->checkDirBase();
