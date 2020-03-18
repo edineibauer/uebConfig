@@ -402,6 +402,7 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.webp", PATH_HOME . "assetsPublic/img/loading.webp");
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/file_type.svg", PATH_HOME . "assetsPublic/img/file_type.svg");
+        copy(PATH_HOME . VENDOR . "config/public/assets/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
         if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png")))
             copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");

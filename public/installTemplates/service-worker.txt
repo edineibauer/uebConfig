@@ -52,6 +52,7 @@ self.addEventListener('fetch', function (e) {
     let set = new RegExp("set\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
     let linkExterno = new RegExp("^https*:\/\/", "i");
+    let imagesEntity = new RegExp("^uploads\/", "i");
     let cacheImages = new RegExp("image\/", "i");
 
     if(linkExterno.test(url)) {
@@ -77,6 +78,22 @@ self.addEventListener('fetch', function (e) {
                         });
                     });
                 });
+            })
+        );
+
+    } else if(imagesEntity.test(url)) {
+        console.log(url + ": image uploads");
+        e.respondWith(fetch(e.request).then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                    return networkResponse;
+
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg");
+                })
+            }).catch(error => {
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg");
+                })
             })
         );
 
