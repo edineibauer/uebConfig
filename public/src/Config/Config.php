@@ -525,9 +525,7 @@ class Config
         }
 
         //Salva o Assets JS da view
-        $f = fopen(PATH_HOME . "assetsPublic/view/{$view}.min.js", "w");
-        fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
-        fclose($f);
+        $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.js");
     }
 
     /**

@@ -187,9 +187,7 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
 
-        $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w");
-        fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
-        fclose($f);
+        $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
         /**
          * AppCore CSS Generator
