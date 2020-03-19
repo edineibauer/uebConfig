@@ -5,6 +5,7 @@
     <meta name="robots" content="index, follow"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title id="core-title">{$title}</title>
     <link rel="canonical" href="{$home}">
     <link rel="shortcut icon" href="{$home}assetsPublic/img/favicon.png?v={$version}">
