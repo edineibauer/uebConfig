@@ -1548,7 +1548,6 @@ var app = {
 
                     $("#core-title").text(g.title);
 
-                    $("#setorCoreCss").attr("href", HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION);
                     $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
                     $div.append(g.content);
 
