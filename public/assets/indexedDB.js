@@ -853,8 +853,8 @@ function getDefaultValue(meta, value) {
             let testValue = value.replace("[", '["').replace(']', '"]').split(",").join('", "');
             if(isJson(testValue)) {
                 testValue = JSON.parse(testValue);
-                if(testValue.constructor === Array)
-                    value = testValue.map(s => s.trim());
+                if(testValue.constructor === Array && testValue.length > 0)
+                    value = testValue.map(s => s.toString().trim());
             }
         }
 
