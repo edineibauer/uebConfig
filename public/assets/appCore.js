@@ -1757,6 +1757,16 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 if (haveFormRelation) {
                     if(history.state.param.openForm.tipo === 1) {
                         data[history.state.param.openForm.column] = form.id;
+
+                        if(dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
+                            data[history.state.param.openForm.column] = form.id;
+                        } else {
+                            if(typeof data[history.state.param.openForm.column] === "undefined" || data[history.state.param.openForm.column] === null || isEmpty(data[history.state.param.openForm.column]))
+                                data[history.state.param.openForm.column] = [];
+
+                            data[history.state.param.openForm.column].push(form.id.toString());
+                        }
+
                         isUpdateFormRelation = !0;
                     } else {
                         if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
