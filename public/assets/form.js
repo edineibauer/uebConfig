@@ -36,9 +36,9 @@ function clearMarginFormInput() {
 $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInput", function (e) {
     let $input = $(this);
     if ($input.attr("rel") !== "undefined" && typeof form === "object" && form.identificador === $input.attr("rel")) {
-        let column = $input.attr("data-column");
-        let format = $input.attr("data-format");
-        let parent = $input.attr("data-parent");
+        let column = $input.data("column");
+        let format = $input.data("format");
+        let parent = $input.data("parent");
         let value = null;
         let data = {};
         let dicionario = dicionarios[form.entity];
@@ -61,7 +61,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
         $input.parent().parent().parent().find(".input-message").html("");
         if (format === "checkbox") {
             value = [];
-            let max = ($input.attr("data-max") === "false" ? 1000 : parseInt($input.attr("data-max")));
+            let max = ($input.data("max") === "false" ? 1000 : parseInt($input.data("max")));
             max = isNaN(max) ? 1000 : max;
             let v = $input.val().toString();
             if (max > 0) {
@@ -81,7 +81,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
             value = form.$element.find("input[name='" + column + "']:checked").val()
         } else if (format === "source" || format === "source_list") {
             value = !$.isArray(data[column]) ? [] : data[column];
-            let entity = $input.attr("data-entity");
+            let entity = $input.data("entity");
             let max = parseInt($input.attr("max"));
             let now = value.length;
             if (typeof e.target.files[0] !== "undefined" && now < max) {
@@ -189,10 +189,10 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
 }).off("dblclick", ".list").on("dblclick", ".list", function () {
     searchList($(this))
 }).off("click", ".switch-status-extend").on("click", ".switch-status-extend", function () {
-    let column = $(this).attr("data-column");
-    let id = $(this).attr("data-id");
+    let column = $(this).data("column");
+    let id = $(this).data("id");
     let valor = $(this).prop("checked");
-    $(this).attr("data-status", valor);
+    $(this).data("status", valor);
     $.each(form.data[column], function (i, e) {
         if (e.id == id) {
             e.columnStatus.value = valor;
@@ -204,8 +204,8 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
 
 function removeFileForm($btn, tempo) {
     let $input = $btn.closest(".file_gallery").siblings("input[type='file']");
-    let column = $input.attr("data-column");
-    let parent = $input.attr("data-parent");
+    let column = $input.data("column");
+    let parent = $input.data("parent");
     let max = $input.attr("max");
     let name = $btn.attr("rel");
     if (typeof ajaxUploadProgress[name] !== "undefined") {
@@ -483,10 +483,10 @@ function createSource(mock, $input, tipo, prepend) {
 
 function searchList($input) {
     let search = $input.val();
-    let column = $input.attr("data-column");
+    let column = $input.data("column");
     if ($input.is(":focus")) {
-        let entity = $input.attr("data-entity");
-        let parent = $input.attr("data-parent").replace(form.entity + ".", "").replace(form.entity, "");
+        let entity = $input.data("entity");
+        let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
         let templates = dbLocal.exeRead("__template", 1);
         let dataRead = exeRead(entity, {}, 'id', !1, 10);
         Promise.all([templates, dataRead]).then(r => {
@@ -980,10 +980,10 @@ function loadMask(form) {
         $(this).removeAttr("readonly")
     });
     $.each($form.find(".list"), function () {
-        let v = $(this).attr("data-value");
+        let v = $(this).data("value");
         let parent = $(this).attr('data-parent').replace(form.entity + ".", "").replace(form.entity, "");
         if (v !== "" && !isNaN(v))
-            addListSetTitle(form, $(this).attr("data-entity"), $(this).attr("data-column"), parent, $(this).attr('data-value'), $(this).parent())
+            addListSetTitle(form, $(this).data("entity"), $(this).data("column"), parent, $(this).attr('data-value'), $(this).parent())
     });
     checkUserOptions();
     clearMarginFormInput();
@@ -995,7 +995,7 @@ function loadFolderDrag() {
     $(".extend_list_register").sortable({
         revert: !1, stop: function () {
             let $div = $(this).closest(".extend_list_register");
-            let column = $div.attr("data-column");
+            let column = $div.data("column");
             let order = [];
             $div.children(".extend_register").each(function () {
                 let id = parseInt($(this).attr('rel'));

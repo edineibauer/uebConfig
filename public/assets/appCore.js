@@ -1307,7 +1307,7 @@ function defaultPageTransitionPosition(direction, $element) {
 
     let file = app.file.split("/");
     file = file[0];
-    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.attr("data-file")).addClass("r-" + (file === "dashboard" ? "dashboard r-panel" : file)).attr("data-file", file).html("").insertBefore($element);
+    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
@@ -1585,7 +1585,7 @@ var app = {
                     if (g.font.length) {
                         $.each(g.font, function (i, url) {
                             if (!$("head").find("link[href='" + url + "']").length)
-                                $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').attr("data-assets", "core-assets").appendTo("head")
+                                $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').data("assets", "core-assets").appendTo("head")
                         })
                     }
                 } else {
@@ -1956,9 +1956,9 @@ function onLoadDocument() {
             e.preventDefault();
             history.back();
         } else {
-            let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "forward";
-            let target = $(this).attr("data-target") || $(this).attr("data-target") || "#core-content";
-            let route = $(this).attr("data-route") || $(this).attr("data-route") || "route";
+            let animation = $(this).data("animation") || "forward";
+            let target = $(this).data("target") || "#core-content";
+            let route = $(this).data("route") || "route";
             let p = new RegExp(/^#/i);
             let pjs = new RegExp(/^javascript/i);
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
