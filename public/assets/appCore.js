@@ -1956,7 +1956,7 @@ function onLoadDocument() {
             e.preventDefault();
             history.back();
         } else {
-            let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "fade";
+            let animation = $(this).attr("data-animation") || $(this).attr("data-animate") || "forward";
             let target = $(this).attr("data-target") || $(this).attr("data-target") || "#core-content";
             let route = $(this).attr("data-route") || $(this).attr("data-route") || "route";
             let p = new RegExp(/^#/i);
