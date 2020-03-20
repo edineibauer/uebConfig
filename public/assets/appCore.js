@@ -338,7 +338,7 @@ function get(file, retrying) {
 }
 
 function view(file, funcao) {
-    getJSON(HOME + "view/" + file).then(data => {
+    return getJSON(HOME + "view/" + file).then(data => {
         if (data.response === 1) {
             clearHeaderScrollPosition();
             return funcao(data.data)
