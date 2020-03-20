@@ -848,10 +848,20 @@ function getDefaultValues(entity, values) {
 function getDefaultValue(meta, value) {
     let valor = "";
     if (typeof meta === "object" && meta !== null) {
+        let jsonStringWrongValidation = new RegExp("^\\[\\s*\\w+\\s*(,\\s*\\w+\\s*)*\\]$", "i");
+        if(meta.type === "json" && typeof value === "string" && isNaN(value) && !isJson(value) && jsonStringWrongValidation.test(value)) {
+            let testValue = value.replace("[", '["').replace(']', '"]').split(",").join('", "');
+            if(isJson(testValue)) {
+                testValue = JSON.parse(testValue);
+                if(testValue.constructor === Array)
+                    value = testValue.map(s => s.trim());
+            }
+        }
+
         if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
             value = "";
         else if (meta.type === "json")
-            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ((typeof value === 'number' || typeof value === 'string') && value !== "" ? JSON.parse("[" + value + "]") : ""));
+            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ((typeof value === 'number' || typeof value === 'string') && value !== "" && !isNaN(value) ? JSON.parse("[" + value + "]") : ""));
         else if (meta.group === "date")
             value = value.replace(" ", "T");
 
