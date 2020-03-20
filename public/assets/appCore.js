@@ -341,7 +341,7 @@ function view(file, funcao) {
     getJSON(HOME + "view/" + file).then(data => {
         if (data.response === 1) {
             clearHeaderScrollPosition();
-            funcao(data.data)
+            return funcao(data.data)
         } else {
             switch (data.response) {
                 case 2:
@@ -355,7 +355,7 @@ function view(file, funcao) {
             }
 
             console.log(data);
-            funcao(null);
+            return funcao(null);
         }
     });
 }
@@ -1509,6 +1509,7 @@ var sentidoScrollDown = !1;
 var historyPosition = 1;
 var historyReqPosition = 0;
 var loadingEffect = null;
+var updateEntityDataInterval = null;
 
 /**
  * app global de navegação do app
@@ -1535,9 +1536,6 @@ var app = {
 
         /* SET LOADING */
         app.setLoading();
-
-        /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
-        downloadEntityData();
 
         return view(file, function (g) {
             if (g) {
@@ -1598,7 +1596,15 @@ var app = {
                 $div.html("");
                 app.removeLoading()
             }
-        })
+        }).then(() => {
+            /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
+            if(!updateEntityDataInterval) {
+                updateEntityDataInterval = setTimeout(function () {
+                    downloadEntityData();
+                    updateEntityDataInterval = null;
+                }, 3000);
+            }
+        });
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
         let meuSetor = USER.setor.toString();
