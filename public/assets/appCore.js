@@ -1756,8 +1756,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
 
                 if (haveFormRelation) {
                     if(history.state.param.openForm.tipo === 1) {
-                        data[history.state.param.openForm.column] = form.id;
-
                         if(dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
                             data[history.state.param.openForm.column] = form.id;
                         } else {
