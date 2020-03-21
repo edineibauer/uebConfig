@@ -885,7 +885,9 @@ function clearCacheAll() {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName);
             }))
-        })
+        });
+    }).then(() => {
+        return loadCacheUser();
     })
 }
 
