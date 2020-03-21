@@ -571,6 +571,9 @@ function updateVersionNumber() {
 }
 
 function checkUpdate() {
+    if(!navigator.onLine)
+        return Promise.all([]);
+
     return new Promise(function (resolve, r) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", HOME + "set");
