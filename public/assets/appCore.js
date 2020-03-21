@@ -2079,7 +2079,7 @@ function startApplication() {
 
         return Promise.all(promessa).then(() => {
             $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
-            $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION + "'>");
+            $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION + "'>");
         }).then(() => {
             return menuHeader();
 
