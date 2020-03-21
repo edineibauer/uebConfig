@@ -564,7 +564,7 @@ function checkUpdate() {
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState) {
-                if(this.status !== 200)
+                if (this.status !== 200)
                     resolve(0);
 
                 let data = JSON.parse(this.responseText);
@@ -1088,7 +1088,7 @@ function loadUserViews() {
              */
             let viewsAssets = {css: [], js: []};
             for (let i in g.view) {
-                let viewName = "assetsPublic/view/" +  g.view[i];
+                let viewName = "assetsPublic/view/" + g.view[i];
                 viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
                 viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
             }
@@ -1210,7 +1210,7 @@ function setVersionApplication() {
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4) {
-                if(this.status !== 200)
+                if (this.status !== 200)
                     resolve(0);
 
                 let data = JSON.parse(this.responseText);
@@ -1304,20 +1304,110 @@ function firstAccess() {
     });
 }
 
+/**
+ * Se estiver em Dev, atualiza dados
+ */
+function updateAppOnDev() {
+    if (navigator.onLine && DEV) {
+        /**
+         * Limpa cache information
+         */
+        clear.push(dbLocal.clear('__allow'));
+        clear.push(dbLocal.clear('__dicionario'));
+        clear.push(dbLocal.clear('__info'));
+        clear.push(dbLocal.clear('__menu'));
+        clear.push(dbLocal.clear('__template'));
+        clear.push(dbLocal.clear('__templateUser'));
+        clear.push(dbLocal.clear('__graficos'));
+        clear.push(dbLocal.clear('__navbar'));
+        clear.push(dbLocal.clear('__panel'));
+
+        return Promise.all(clear).then(() => {
+            if (SERVICEWORKER) {
+
+                /**
+                 * Clear cache pages
+                 */
+                return caches.keys().then(cacheNames => {
+                    return Promise.all(cacheNames.map(cacheName => {
+                        return caches.delete(cacheName);
+                    }))
+                })
+            }
+        }).then(() => {
+
+            clear = [];
+            for (let entity in dicionarios)
+                clear.push(dbLocal.clear(entity));
+
+            return Promise.all(clear);
+
+        }).then(() => {
+
+            let gets = [];
+            let creates = [];
+            gets.push(get("allow"));
+            gets.push(get("dicionarios"));
+            gets.push(get("info"));
+            gets.push(get("templates"));
+            gets.push(get("templatesUser"));
+            gets.push(get("menu"));
+            gets.push(get("navbar"));
+            gets.push(get("react"));
+            gets.push(get("user"));
+            gets.push(get("graficos"));
+
+            /**
+             * Adiciona o core Js e core Css do meu atual usuário
+             */
+            if (SERVICEWORKER) {
+                gets.push(caches.open('core-v' + VERSION).then(cache => {
+                    return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
+                }));
+            }
+
+            return Promise.all(gets).then(r => {
+                creates.push(dbLocal.exeCreate('__allow', r[0]));
+                creates.push(dbLocal.exeCreate('__dicionario', r[1]));
+                creates.push(dbLocal.exeCreate('__info', r[2]));
+                creates.push(dbLocal.exeCreate('__template', r[3]));
+                creates.push(dbLocal.exeCreate('__templateUser', r[4]));
+                creates.push(dbLocal.exeCreate('__menu', r[5]));
+                creates.push(dbLocal.exeCreate('__navbar', r[6]));
+                creates.push(dbLocal.exeCreate('__react', r[7]));
+                creates.push(dbLocal.exeCreate('__user', r[8]));
+                creates.push(dbLocal.exeCreate('__graficos', r[9]));
+                dicionarios = r[1];
+                return Promise.all(creates);
+
+            }).then(() => {
+                /**
+                 * Baixa os dados das entidades para este usuário
+                 */
+                return downloadEntityData();
+
+            }).then(() => {
+                /**
+                 * Carrega as views para este usuário
+                 */
+                return loadUserViews();
+            });
+        })
+    }
+}
+
 function thenAccess() {
     /**
      * Conta acesso
      */
     setCookie('accesscount', (parseInt(getCookie('accesscount')) + 1));
 
-    /**
-     * Se estiver em Dev, atualiza os templates
-     */
-    if (navigator.onLine && DEV)
-        updateTemplates();
-
-    return dbLocal.exeRead("__dicionario", 1).then(d => {
-        dicionarios = d;
+    return updateAppOnDev().then(() => {
+        if(!navigator.onLine || !DEV) {
+            return dbLocal.exeRead("__dicionario", 1).then(d => {
+                dicionarios = d;
+            });
+        }
     });
 }
 
@@ -1341,7 +1431,11 @@ function webp(extension) {
 
 function updateTemplates() {
     return get("templates").then(tpl => {
-        return dbLocal.exeCreate('__template', tpl);
+        return dbLocal.exeCreate('__template', tpl).then(() => {
+            return get("templatesUser").then(tpl => {
+                return dbLocal.exeCreate('__templateUser', tpl);
+            });
+        })
     });
 }
 
@@ -2071,7 +2165,7 @@ function startApplication() {
         return Promise.all(promessa).then(() => {
             $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
             $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION + "'>");
-        }).then(() => {
+
             return menuHeader();
 
         }).then(() => {
