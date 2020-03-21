@@ -1596,7 +1596,6 @@ var sentidoScrollDown = !1;
 var historyPosition = 1;
 var historyReqPosition = 0;
 var loadingEffect = null;
-var updateEntityDataInterval = null;
 
 /**
  * app global de navegação do app
@@ -1683,12 +1682,6 @@ var app = {
                 $div.html("");
                 app.removeLoading()
             }
-        }).then(() => {
-            /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
-            clearTimeout(updateEntityDataInterval);
-            updateEntityDataInterval = setTimeout(function () {
-                downloadEntityData();
-            }, 3000);
         });
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
