@@ -1141,10 +1141,9 @@ function firstAccess() {
         if (!SERVICEWORKER)
             return Promise.all([]);
 
-        return get("currentFiles/" + window.location.pathname).then(g => {
+        return get("currentFiles").then(g => {
             if (!g)
                 return Promise.all([]);
-            g = g[0];
 
             return caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll(g.core).catch(() => {

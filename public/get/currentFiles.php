@@ -11,8 +11,11 @@ $data['data'] = [
     "core" => [HOME, HOME . "index", HOME . "set"],
     "fonts" => [],
     "images" => [],
-    "misc" => [HOME . "manifest.json?v=" . VERSION, $_SESSION['userlogin']['imagem']['urls']['100']]
+    "misc" => [HOME . "manifest.json?v=" . VERSION]
 ];
+
+if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['imagem']))
+    $data['data'][] = $_SESSION['userlogin']['imagem']['urls']['100'];
 
 //CORE, create cache from all 'assetsPublic' root and current view
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
