@@ -14,6 +14,24 @@ function isJson(str) {
     return !0
 }
 
+function returnNoNetwork() {
+    return caches.open('core-v' + VERSION).then(cache => {
+        return cache.match(HOME + "set");
+    });
+}
+
+function returnViewNoNetwork() {
+    return caches.open('view-v' + VERSION).then(cache => {
+        return cache.match(HOME + "view/network");
+    })
+}
+
+function returnImgNoNetwork() {
+    return caches.open('images-v' + VERSION).then(cache => {
+        return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
+    })
+}
+
 self.addEventListener('push', function(event) {
     let title = "";
     let options = {};
@@ -59,40 +77,36 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(fetch(e.request));
 
     } else if(core.test(url)) {
-        let cacheName = (viewJs.test(url) ? 'viewJs' : (viewCss.test(url) ? 'viewCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
+        let cacheName = (viewJs.test(url) ? 'viewUserJs' : (viewCss.test(url) ? 'viewUserCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            return networkResponse;
-
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
+                    if(!response && (cacheName === "viewUserJs" || cacheName === "viewUserCss")) {
+                        return caches.open(cacheName.replace("User", "") + '-v' + VERSION).then(cache => {
+                            return cache.match(url).then(response => {
+                                return response || fetch(e.request).then(networkResponse => {
+                                    return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
+                                }).catch(error => {
+                                    return returnNoNetwork();
+                                });
+                            });
                         });
-
-                    }).catch(error => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
+                    } else {
+                        return response || fetch(e.request).then(networkResponse => {
+                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
+                        }).catch(error => {
+                            return returnNoNetwork();
                         });
-                    });
+                    }
                 });
             })
         );
 
     } else if(imagesEntity.test(url)) {
         e.respondWith(fetch(e.request).then(networkResponse => {
-                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                    return networkResponse;
-
-                return caches.open('images-v' + VERSION).then(cache => {
-                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
-                })
+                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnImgNoNetwork());
             }).catch(error => {
-                return caches.open('images-v' + VERSION).then(cache => {
-                    return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
-                })
+                return returnImgNoNetwork();
             })
         );
 
@@ -107,14 +121,10 @@ self.addEventListener('fetch', function (e) {
                             return networkResponse;
                         }
 
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
-                        })
+                        return returnNoNetwork();
 
                     }).catch(error => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
-                        })
+                        return returnNoNetwork();
                     });
                 });
             })
@@ -123,28 +133,27 @@ self.addEventListener('fetch', function (e) {
     } else if(view.test(url)) {
         let listagens = new RegExp("listagem\/\.+", "i");
         let formulario = new RegExp("formulario\/\.+", "i");
+
         if(listagens.test(url))
             url = HOME + "view/listagem";
         else if(formulario.test(url))
             url = HOME + "view/formulario";
 
         e.respondWith(
-            caches.open('view-v' + VERSION).then(cache => {
+            caches.open('viewUser-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
+                    if(response)
+                        return response;
 
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                            return networkResponse;
-
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
-                        })
-
-                    }).catch(error => {
-                        return caches.open('view-v' + VERSION).then(cache => {
-                            return cache.match(HOME + "view/network");
-                        })
-                    });
+                    return caches.open('view-v' + VERSION).then(cache => {
+                        return cache.match(url).then(response => {
+                            return response || fetch(e.request).then(networkResponse => {
+                                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
+                            }).catch(error => {
+                                return returnViewNoNetwork();
+                            });
+                        });
+                    })
                 });
             })
         );
@@ -153,18 +162,9 @@ self.addEventListener('fetch', function (e) {
 
         e.respondWith(
             fetch(e.request).then(networkResponse => {
-
-                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                    return networkResponse;
-
-                return caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match('set');
-                })
-
+                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
             }).catch(error => {
-                return caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match('set');
-                })
+                return returnNoNetwork();
             })
         );
 
@@ -178,17 +178,9 @@ self.addEventListener('fetch', function (e) {
                     return cache.match(HOME + "index").then(response => {
 
                         return response || fetch("index").then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                                return networkResponse;
-
-                            return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "view/network");
-                            })
-
+                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
                         }).catch(error => {
-                            return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "view/network");
-                            })
+                            return returnViewNoNetwork();
                         });
                     });
                 })
@@ -201,18 +193,9 @@ self.addEventListener('fetch', function (e) {
                     return cache.match(url).then(response => {
 
                         return response || fetch(e.request).then(networkResponse => {
-
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                                return networkResponse;
-
-                            return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "view/network");
-                            });
-
+                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
                         }).catch(error => {
-                            return caches.open('view-v' + VERSION).then(cache => {
-                                return cache.match(HOME + "view/network");
-                            });
+                            return returnViewNoNetwork();
                         });
                     });
                 })
