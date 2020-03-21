@@ -15,7 +15,16 @@ $data['data'] = [
 ];
 
 if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['imagem']))
-    $data['data'][] = $_SESSION['userlogin']['imagem']['urls']['100'];
+    $data['data']['misc'][] = $_SESSION['userlogin']['imagem']['urls']['100'];
+
+
+/**
+ * View Misc Offline
+ */
+if (file_exists(PATH_HOME . "_config/viewOfflineAssets.json")) {
+    foreach (json_decode(file_get_contents(PATH_HOME . "_config/viewOfflineAssets.json"), !0) as $item)
+        $data['data']['misc'][] = HOME . $item;
+}
 
 //CORE, create cache from all 'assetsPublic' root and current view
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {

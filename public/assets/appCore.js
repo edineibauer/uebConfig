@@ -843,21 +843,24 @@ function clearCache() {
     clear.push(dbLocal.clear('__panel'));
 
     return Promise.all(clear).then(() => {
-        if (!SERVICEWORKER)
-            return;
-
-        return caches.keys().then(cacheNames => {
-            return Promise.all(cacheNames.map(cacheName => {
-                return caches.delete(cacheName)
-            }))
-        })
+        if (SERVICEWORKER) {
+            return caches.keys().then(cacheNames => {
+                return Promise.all(cacheNames.map(cacheName => {
+                    let corte = cacheName.split("-v");
+                    let name = corte[0];
+                    let version = parseFloat(corte[1]);
+                    if (version !== VERSION || ["view", "viewCss", "viewJs"].indexOf(name) > -1)
+                        return caches.delete(cacheName);
+                }))
+            })
+        }
     })
 }
 
 function updateCache() {
     if (navigator.onLine) {
         toast("Atualizando Aplicativo", 7000, "toast-success");
-        clearCache().then(() => {
+        updateCacheUser().then(() => {
             location.reload();
         })
     } else {
