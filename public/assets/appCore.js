@@ -881,7 +881,7 @@ function clearCacheAll() {
 function updateCache() {
     if (navigator.onLine) {
         toast("Atualizando Aplicativo", 7000, "toast-success");
-        updateCacheUser().then(() => {
+        clearCacheAll().then(() => {
             location.reload();
         })
     } else {
