@@ -643,9 +643,6 @@ function menuHeader() {
         let menu = (typeof r[1] !== "object" || r[1].constructor !== Array || r[1] === null ? [] : r[1]);
         let navbar = (typeof r[2] !== "object" || r[2].constructor !== Array || r[2] === null ? [] : r[2]);
 
-        let $menuCustom = $("#core-menu-custom");
-        let $headerPerfil = $("#core-header-perfil");
-
         $("#core-header").html(Mustache.render(tpl.header, {
             version: VERSION,
             sitename: SITENAME,
@@ -654,6 +651,7 @@ function menuHeader() {
             homepage: (HOMEPAGE ? "dashboard" : "")
         }));
 
+        let $menuCustom = $("#core-menu-custom");
         if ($menuCustom.length) {
             $menuCustom.html("");
             for (let m in menu) {
@@ -661,6 +659,8 @@ function menuHeader() {
                     $menuCustom.append(Mustache.render(tpl['menu-header'], menu[m]));
             }
         }
+
+        let $headerPerfil = $("#core-header-perfil");
         if ($headerPerfil.length) {
             let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
             $headerPerfil.html(src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
@@ -1211,13 +1211,6 @@ function firstAccess() {
             (async () => {
                 setCookie("webp", await WebpIsSupported());
             })();
-
-        }).then(() => {
-
-            /**
-             * Carrega os dados de usuário
-             */
-            return updateCacheUser();
         });
     });
 }
@@ -1233,6 +1226,10 @@ function thenAccess() {
      */
     if (navigator.onLine && DEV)
         updateTemplates();
+
+    return dbLocal.exeRead("__dicionarios", 1).then(d => {
+        dicionarios = d;
+    });
 }
 
 function downloadEntityData() {
