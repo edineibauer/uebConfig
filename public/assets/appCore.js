@@ -563,13 +563,19 @@ function checkUpdate() {
         xhttp.open("POST", HOME + "set");
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
+            if (this.readyState) {
+                if(this.status !== 200)
+                    resolve(0);
+
                 let data = JSON.parse(this.responseText);
                 if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update"))
                     toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
 
                 resolve(1);
             }
+        };
+        xhttp.onerror = function () {
+            resolve(0)
         };
         xhttp.send("lib=config&file=update&update=false");
     });
@@ -1003,6 +1009,9 @@ function checkSessao() {
                     }
                 }
             };
+            xhttp.onerror = function () {
+                resolve(0)
+            };
             xhttp.send("lib=route&file=sessao");
         });
     } else {
@@ -1151,6 +1160,12 @@ function loadCacheUser() {
 
         }).then(() => {
             /**
+             * Seta a versão do app
+             */
+            return setVersionApplication();
+
+        }).then(() => {
+            /**
              * Carrega as views para este usuário
              */
             return loadUserViews();
@@ -1188,6 +1203,30 @@ function errorLoadingApp() {
     setTimeout(function () {
         updateCache();
     }, 3000);
+}
+
+function setVersionApplication() {
+    return new Promise(function (resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", HOME + "set");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if(this.status !== 200)
+                    resolve(0);
+
+                let data = JSON.parse(this.responseText);
+                if (data.data !== "no-network" && data.response === 1)
+                    setCookie("update", data.data);
+
+                resolve(1)
+            }
+        };
+        xhttp.onerror = function () {
+            reject(Error("Network Error"))
+        };
+        xhttp.send("lib=config&file=update")
+    })
 }
 
 function firstAccess() {
@@ -1235,26 +1274,6 @@ function firstAccess() {
                         errorLoadingApp();
                     })
                 })
-            });
-
-        }).then(() => {
-
-            /**
-             * Seta a versão do aplicativo nos cookies
-             */
-            return new Promise(function (resolve, reject) {
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("POST", HOME + "set");
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let data = JSON.parse(this.responseText);
-                        if (data.data !== "no-network" && data.response === 1)
-                            setCookie("update", data.data);
-                        resolve(1)
-                    }
-                };
-                xhttp.send("lib=config&file=update")
             });
 
         }).then(() => {
