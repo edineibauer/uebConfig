@@ -1057,6 +1057,10 @@ function loadCacheUser() {
      * Load User Data content
      * */
     if (navigator.onLine) {
+
+        if (USER.setor !== "0" && app.file === "login")
+            toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
+
         let gets = [];
         let creates = [];
         gets.push(get("allow"));
@@ -1092,12 +1096,27 @@ function loadCacheUser() {
             return Promise.all(creates);
 
         }).then(() => {
-            return loadUserViews();
+            /**
+             * Adiciona novo core Js e Css no cache
+             */
+            return caches.open('core-v' + VERSION).then(cache => {
+                return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]).catch(() => {
+                    errorLoadingApp();
+                })
+            })
+        }).then(() => {
+            /**
+             * Baixa os dados das entidades para este usuário
+             */
+            return downloadEntityData();
 
         }).then(() => {
-            if (USER.setor !== "0" && app.file === "login")
-                toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
+            /**
+             * Carrega as views para este usuário
+             */
+            return loadUserViews();
         });
+
     } else {
         toast("Sem Conexão!", 3000, "toast-warning");
         return Promise.all([])
@@ -1597,12 +1616,10 @@ var app = {
             }
         }).then(() => {
             /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
-            if (!updateEntityDataInterval) {
-                updateEntityDataInterval = setTimeout(function () {
-                    downloadEntityData();
-                    updateEntityDataInterval = null;
-                }, 3000);
-            }
+            clearTimeout(updateEntityDataInterval);
+            updateEntityDataInterval = setTimeout(function () {
+                downloadEntityData();
+            }, 3000);
         });
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
@@ -1992,6 +2009,9 @@ function startApplication() {
         promessa.push(getCookie("accesscount") === "" ? firstAccess() : thenAccess());
 
         return Promise.all(promessa).then(() => {
+            $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
+            $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION + "'>");
+        }).then(() => {
             return menuHeader();
 
         }).then(() => {
