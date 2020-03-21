@@ -1230,7 +1230,7 @@ function thenAccess() {
     if (navigator.onLine && DEV)
         updateTemplates();
 
-    return dbLocal.exeRead("__dicionarios", 1).then(d => {
+    return dbLocal.exeRead("__dicionario", 1).then(d => {
         dicionarios = d;
     });
 }
