@@ -564,14 +564,16 @@ function checkUpdate() {
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState) {
-                if (this.status !== 200)
+                if (this.status !== 200 || isEmpty(this.responseText)) {
                     resolve(0);
+                } else {
 
-                let data = JSON.parse(this.responseText);
-                if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update"))
-                    toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+                    let data = JSON.parse(this.responseText);
+                    if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update"))
+                        toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
 
-                resolve(1);
+                    resolve(1);
+                }
             }
         };
         xhttp.onerror = function () {
@@ -976,16 +978,12 @@ function checkSessao() {
                     /**
                      * Se o request não funcionar
                      */
-                    if (this.status !== 200 || data.response !== 1) {
+                    if (this.status !== 200 || isEmpty(this.responseText) || data.response !== 1) {
                         setUserInNavigator().then(() => {
                             resolve(1);
                         });
-                    }
 
-                    /**
-                     * Se retorno for 0, então token não validou no back
-                     * */
-                    if (data.response === 1) {
+                    } else if (data.response === 1) {
                         if (data.data === 0) {
                             toast("Sessão expirada! Desconectando...", 3000);
 
@@ -1210,14 +1208,15 @@ function setVersionApplication() {
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4) {
-                if (this.status !== 200)
+                if (this.status !== 200 || isEmpty(this.responseText)) {
                     resolve(0);
+                } else {
+                    let data = JSON.parse(this.responseText);
+                    if (data.data !== "no-network" && data.response === 1)
+                        setCookie("update", data.data);
 
-                let data = JSON.parse(this.responseText);
-                if (data.data !== "no-network" && data.response === 1)
-                    setCookie("update", data.data);
-
-                resolve(1)
+                    resolve(1);
+                }
             }
         };
         xhttp.onerror = function () {
