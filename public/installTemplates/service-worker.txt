@@ -103,10 +103,20 @@ self.addEventListener('fetch', function (e) {
         );
 
     } else if(imagesEntity.test(url)) {
-        e.respondWith(fetch(e.request).then(networkResponse => {
-                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnImgNoNetwork());
-            }).catch(error => {
-                return returnImgNoNetwork();
+        e.respondWith(
+            caches.open('viewUserImages-v' + VERSION).then(cache => {
+                return cache.match(url).then(response => {
+                    return response || fetch(e.request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(url, networkResponse.clone());
+                            return networkResponse;
+                        }
+
+                        return returnImgNoNetwork();
+                    }).catch(error => {
+                        return returnImgNoNetwork();
+                    })
+                })
             })
         );
 
@@ -158,7 +168,26 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(set.test(url) || get.test(url) || app.test(url)) {
+    } else if(get.test(url)) {
+
+        e.respondWith(
+            caches.open('viewUserGet-v' + VERSION).then(cache => {
+                return cache.match(url).then(response => {
+                    return response || fetch(e.request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(url, networkResponse.clone());
+                            return networkResponse;
+                        }
+
+                        return returnNoNetwork();
+                    }).catch(error => {
+                        return returnNoNetwork();
+                    })
+                })
+            })
+        );
+
+    } else if(set.test(url) || app.test(url)) {
 
         e.respondWith(
             fetch(e.request).then(networkResponse => {
