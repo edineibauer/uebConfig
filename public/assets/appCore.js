@@ -28,7 +28,7 @@ function zeroEsquerda(n) {
 }
 
 function mergeObject(a, b) {
-    $.extend( true, a, b );
+    $.extend(true, a, b);
 }
 
 /**
@@ -53,7 +53,7 @@ function convertEmptyArrayToNull(param) {
  * @param name
  * @returns {*}
  */
-function removeItemArray (array, name) {
+function removeItemArray(array, name) {
     if ($.inArray(name, array) > -1)
         array.splice($.inArray(name, array), 1);
 
@@ -68,7 +68,7 @@ function removeItemArray (array, name) {
  * @param item
  * @param index
  */
-function pushToArrayIndex (array, item, index) {
+function pushToArrayIndex(array, item, index) {
     array.splice(index, 1, item);
 }
 
@@ -79,7 +79,7 @@ function pushToArrayIndex (array, item, index) {
  * @param replacement
  * @returns {void | string}
  */
-function replaceAll (target, search, replacement) {
+function replaceAll(target, search, replacement) {
     return target.split(search).join(replacement);
 }
 
@@ -107,7 +107,7 @@ function orderBy(data, order) {
  * @param obj
  * @returns {number}
  */
-Object.size = function(obj) {
+Object.size = function (obj) {
     var size = 0, key;
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
@@ -140,7 +140,7 @@ $(function ($) {
      * @param param
      * @returns {PromiseLike<T> | Promise<T> | *}
      */
-    $.fn.htmlTemplate = function(tpl, param) {
+    $.fn.htmlTemplate = function (tpl, param) {
         let $this = this;
         param = typeof param === "object" && param !== null ? param : {};
         mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO});
@@ -237,7 +237,7 @@ function readFile(file) {
             return;
 
         let reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             s(e.target.result);
         };
         reader.readAsText(file);
@@ -276,7 +276,7 @@ function post(lib, file, param, funcao) {
                 if (typeof (funcao) !== "undefined")
                     funcao((data.data === "no-network" ? "no-network" : null));
             }
-        }, fail: function() {
+        }, fail: function () {
             toast("Erro na Conexão", 3000, "toast-warning");
         }, dataType: "json"
     })
@@ -326,7 +326,7 @@ function get(file, retrying) {
                         toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
-        if(typeof retrying === "undefined" || retrying === 1) {
+        if (typeof retrying === "undefined" || retrying === 1) {
             toast("Comunicação perdida! Tentando novamente...", 5000, "toast-warning");
             setTimeout(function () {
                 return get(file, typeof retrying === "undefined" ? 1 : 2);
@@ -362,7 +362,7 @@ function view(file, funcao) {
 
 function download(filename, text) {
     let element = document.createElement('a');
-    let blobData = new Blob(['\ufeff'+text], { type: 'application/vnd.ms-excel' });
+    let blobData = new Blob(['\ufeff' + text], {type: 'application/vnd.ms-excel'});
     let url = window.URL.createObjectURL(blobData);
     element.setAttribute('href', url);
     element.setAttribute('download', filename);
@@ -381,8 +381,8 @@ function CSV(array, comma) {
     //obtem o nome das colunas com base em todos os registros
     let keys = [];
     array.forEach(function (obj) {
-        Object.keys(obj).forEach(function(e) {
-            if(keys.indexOf(e) === -1)
+        Object.keys(obj).forEach(function (e) {
+            if (keys.indexOf(e) === -1)
                 keys.push(e);
         })
     });
@@ -416,7 +416,7 @@ function CSV(array, comma) {
 
             if (typeof obj[k] === "object" && obj[k] !== null) {
                 v = JSON.stringify(obj[k]).replace(regExp, keyChange);
-            } else if(typeof obj[k] !== "undefined" && obj[k] !== null) {
+            } else if (typeof obj[k] !== "undefined" && obj[k] !== null) {
                 v = obj[k];
             }
 
@@ -544,7 +544,6 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
 }
 
 function updateVersionNumber() {
-    clearInterval(checkUpdateInt);
     let xhttp = new XMLHttpRequest();
     xhttp.open("POST", HOME + "set");
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -566,10 +565,9 @@ function checkUpdate() {
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 let data = JSON.parse(this.responseText);
-                if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update")) {
-                    clearInterval(checkUpdateInt);
-                    toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-warning");
-                }
+                if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update"))
+                    toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 50px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+
                 resolve(1);
             }
         };
@@ -583,7 +581,7 @@ function checkUpdate() {
 function closeSidebar() {
     $("#app").off("mouseup");
     $("#core-sidebar, #core-overlay").removeClass("active");
-    if(window.innerWidth > 899)
+    if (window.innerWidth > 899)
         $("#core-sidebar").css("top", ($("#core-header")[0].clientHeight - 50) + "px");
 
     setTimeout(function () {
@@ -630,105 +628,113 @@ function logoutDashboard() {
     }
 }
 
-function sidebarUserInfo() {
-    if($("#core-sidebar-imagem").length) {
-        if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
-            document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
-        } else {
-            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
-            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
-        }
-    }
-
-    if($("#core-sidebar-nome").length)
-        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
-}
-
-function loginBtn() {
-    if($("#login-aside").length) {
-        let btnLoginAside = document.querySelector("#login-aside");
-        if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
-            btnLoginAside.onclick = function () {
-                logoutDashboard()
-            };
-            btnLoginAside.children[0].innerHTML = "sair";
-            btnLoginAside.children[1].innerHTML = "exit_to_app";
-        } else {
-            btnLoginAside.onclick = function () {
-                pageTransition("login", "route", "forward", "#core-content", null, null, !1)
-            };
-            btnLoginAside.children[0].innerHTML = "login";
-            btnLoginAside.children[1].innerHTML = "lock_open";
-        }
-    }
-
-    if($("#core-sidebar-edit").length) {
-        if(USER.setor.toString() !== "0")
-            $("#core-sidebar-edit").css("display", "block");
-    }
-}
-
-function menuAside() {
-    return $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").htmlTemplate('aside', {}).then(() => {
-        sidebarUserInfo();
-        loginBtn();
-    })
-}
-
+/**
+ * Ajusta os dados do Header, navbar, menu, sidebar, btn login, btn push
+ * verifica visibilidade destes itens
+ */
 function menuHeader() {
-    let templates = dbLocal.exeRead("__template", 1);
-    let menu = dbLocal.exeRead("__menu", 1);
-    let header = $("#core-header").htmlTemplate('header', {version: VERSION, sitename: SITENAME, title: TITLE, home: HOME, homepage: (HOMEPAGE ? "dashboard" : "")});
-    return Promise.all([templates, menu, header]).then(r => {
+    let requests = [];
+    requests.push(dbLocal.exeRead("__template", 1));
+    requests.push(dbLocal.exeRead("__menu", 1));
+    requests.push(dbLocal.exeRead("__navbar", 1));
+
+    return Promise.all(requests).then(r => {
         let tpl = r[0];
         let menu = (typeof r[1] !== "object" || r[1].constructor !== Array || r[1] === null ? [] : r[1]);
+        let navbar = (typeof r[2] !== "object" || r[2].constructor !== Array || r[2] === null ? [] : r[2]);
 
-        if($("#core-menu-custom").length) {
-            let content = "";
+        let $menuCustom = $("#core-menu-custom");
+        let $headerPerfil = $("#core-header-perfil");
+
+        $("#core-header").html(Mustache.render(tpl.header, {
+            version: VERSION,
+            sitename: SITENAME,
+            title: TITLE,
+            home: HOME,
+            homepage: (HOMEPAGE ? "dashboard" : "")
+        }));
+
+        if ($menuCustom.length) {
+            $menuCustom.html("");
             for (let m in menu) {
                 if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                    content += Mustache.render(tpl['menu-header'], menu[m])
+                    $menuCustom.append(Mustache.render(tpl['menu-header'], menu[m]));
             }
-            $("#core-menu-custom").html(content);
         }
-        afterMenuHeader();
-        navbar(tpl);
-    }).then(() => {
-        return menuAside();
-    })
-}
+        if ($headerPerfil.length) {
+            let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
+            $headerPerfil.html(src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+        }
 
-function navbar(tpl) {
-    return dbLocal.exeRead("__navbar", 1).then(menu => {
-        if($("#core-header-nav-bottom").length) {
-            menu = (typeof menu !== "object" || menu.constructor !== Array || menu === null ? [] : menu);
+        let $menuNav = $("#core-header-nav-bottom");
+        if ($menuNav.length) {
+            let $menu = $("#core-menu-custom-bottom").html("");
 
-            let content = "";
-            for (let m in menu) {
-                if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                    content += Mustache.render(tpl['menu-header'], menu[m])
+            for (let m in navbar) {
+                if (typeof navbar[m].html === "string" && navbar[m].html !== "undefined" && !isEmpty(navbar[m].html))
+                    $menu.append(Mustache.render(tpl['menu-header'], navbar[m]));
             }
 
-            if ((HOMEPAGE === "0" && menu.length === 1) || (HOMEPAGE !== "0" && menu.length === 0)) {
-                $("#core-header-nav-bottom").removeClass('s-show');
+            if ((HOMEPAGE === "0" && navbar.length === 1) || (HOMEPAGE !== "0" && navbar.length === 0)) {
+                $menuNav.removeClass('s-show');
                 return
             }
 
-            $("#core-header-nav-bottom").addClass('s-show');
+            $menuNav.addClass('s-show');
+            $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
+        }
 
-            $("#core-menu-custom-bottom").html(content);
-            let widthBottomMenu = (100 / ($("#core-menu-custom-bottom").find("li").length));
-            $("#core-menu-custom-bottom > li").css("width", (100 / $("#core-menu-custom-bottom").find("li").length) + "%")
+        $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
+
+        /**
+         * Sidebar Info
+         */
+        if ($("#core-sidebar-imagem").length) {
+            if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
+                document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
+            } else {
+                let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
+                document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+            }
+        }
+
+        if ($("#core-sidebar-nome").length)
+            document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
+
+        /**
+         * Botão de login
+         */
+        if ($("#login-aside").length) {
+            let btnLoginAside = document.querySelector("#login-aside");
+            if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
+                btnLoginAside.onclick = function () {
+                    logoutDashboard()
+                };
+                btnLoginAside.children[0].innerHTML = "sair";
+                btnLoginAside.children[1].innerHTML = "exit_to_app";
+            } else {
+                btnLoginAside.onclick = function () {
+                    pageTransition("login", "route", "forward", "#core-content", null, null, !1)
+                };
+                btnLoginAside.children[0].innerHTML = "login";
+                btnLoginAside.children[1].innerHTML = "lock_open";
+            }
+        }
+
+        /**
+         * Verifica se remove o botão de Notificação
+         * */
+        if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+            $(".site-btn-push").remove();
+
+        /**
+         * Edição do perfil somente usuários logados
+         */
+        if ($("#core-sidebar-edit").length) {
+            if (USER.setor.toString() !== "0")
+                $("#core-sidebar-edit").css("display", "block");
         }
     });
-}
-
-function afterMenuHeader() {
-    if($("#core-header-perfil").length) {
-        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
-        let perfilImg = (src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
-        $("#core-header-perfil").html(perfilImg);
-    }
 }
 
 function loadSyncNotSaved() {
@@ -737,7 +743,7 @@ function loadSyncNotSaved() {
             type: "GET",
             url: HOME + 'get/load/sync',
             success: function (data) {
-                if (data.response === 1){
+                if (data.response === 1) {
                     let sync = data.data;
                     if (typeof sync === "object") {
                         $.each(sync, function (entity, registros) {
@@ -769,6 +775,9 @@ function clearCacheUser() {
     let clear = [];
     setCookie('viewsLoaded', "", -1);
 
+    /**
+     * Sobe pendências para o servidor e limpa base local
+     */
     for (let entity in dicionarios) {
         clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
             if (!d.length)
@@ -781,6 +790,9 @@ function clearCacheUser() {
         }));
     }
 
+    /**
+     * Limpa cache information
+     */
     clear.push(dbLocal.clear('__historic'));
     clear.push(dbLocal.clear('__allow'));
     clear.push(dbLocal.clear('__dicionario'));
@@ -798,9 +810,11 @@ function clearCacheUser() {
              */
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
-                    let reg = new RegExp("^view-v");
-                    if (reg.test(cacheName))
-                        return caches.delete(cacheName)
+                    let corte = cacheName.split("-v");
+                    let name = corte[0];
+                    let version = parseFloat(corte[1]);
+                    if (version !== VERSION || ["view", "viewCss", "viewJs"].indexOf(name) > -1)
+                        return caches.delete(cacheName);
                 }))
             })
         }
@@ -862,7 +876,15 @@ function recoveryUser() {
 }
 
 function setUserInNavigator(user) {
-    user = typeof user === "object" ? user : {token: 0, id: 0, nome: 'Anônimo', imagem: '', status: 1, setor: 0, setorData: ""};
+    user = typeof user === "object" ? user : {
+        token: 0,
+        id: 0,
+        nome: 'Anônimo',
+        imagem: '',
+        status: 1,
+        setor: 0,
+        setorData: ""
+    };
     USER = user;
     let userLogin = Object.assign({}, USER);
     userLogin.idUserReal = USER.id;
@@ -933,7 +955,7 @@ function checkSessao() {
                     /**
                      * Se o request não funcionar
                      */
-                    if(this.status !== 200 || data.response !== 1) {
+                    if (this.status !== 200 || data.response !== 1) {
                         setUserInNavigator().then(() => {
                             resolve(1);
                         });
@@ -942,16 +964,16 @@ function checkSessao() {
                     /**
                      * Se retorno for 0, então token não validou no back
                      * */
-                    if(data.response === 1) {
+                    if (data.response === 1) {
                         if (data.data === 0) {
                             toast("Sessão expirada! Desconectando...", 3000);
 
                             setCookieAnonimo().then(() => {
                                 setTimeout(function () {
                                     location.reload();
-                                },1000);
+                                }, 1000);
                             });
-                        } else if(data.data !== 2) {
+                        } else if (data.data !== 2) {
                             /**
                              * Atualiza variável do usuário
                              */
@@ -978,50 +1000,54 @@ function checkSessao() {
  * @returns {Promise<void>}
  */
 function updateCacheUser() {
-    return clearCacheUser().then(() => {
-        return loadCacheUser();
-    })
+    if (navigator.onLine) {
+        return clearCacheUser().then(() => {
+            return loadCacheUser();
+        });
+    }
 }
 
 function loadUserViews() {
-    if(SERVICEWORKER && getCookie("viewsLoaded") === "") {
-        get("appFilesView/" + app.file).then(g => {
-            caches.open('view-v' + VERSION).then(cache => {
-                setCookie("viewsLoaded", 1);
-                return cache.addAll(g.view);
+    if (!SERVICEWORKER)
+        return Promise.all([]);
+
+    return get("appFilesView/").then(g => {
+        return caches.open('view-v' + VERSION).then(cache => {
+
+            /**
+             * Cache views
+             */
+            return cache.addAll(g.view);
+
+        }).then(() => {
+
+            /**
+             * Para cada view, carrega seus assets
+             */
+            let viewsAssets = {css: [], js: []};
+            for (let i in g.view) {
+                let viewName = g.view[i].split("/view/");
+                viewName = "assetsPublic/view/" + viewName[1].split('/')[0];
+                viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
+                viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
+            }
+
+            return viewsAssets;
+
+        }).then(viewsAssets => {
+
+            /**
+             * Cache view Assets
+             */
+            return caches.open('viewJs-v' + VERSION).then(cache => {
+                return cache.addAll(viewsAssets.js);
             }).then(() => {
-
-                /**
-                 * Para cada view, carrega seus assets
-                 */
-                let viewsAssets = {css: [], js: []};
-                for(let i in g.view) {
-                    let viewName = g.view[i].split("/view/");
-                    viewName = "assetsPublic/view/" + viewName[1].split('/')[0];
-                    viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
-                    viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
-                }
-
-                return viewsAssets;
-
-            }).then(viewsAssets => {
-                return caches.open('viewJs-v' + VERSION).then(cache => {
-                    return cache.addAll(viewsAssets.js);
-                }).then(() => {
-                    return caches.open('viewCss-v' + VERSION).then(cache => {
-                        return cache.addAll(viewsAssets.css);
-                    })
-                });
-
-            }).then(() => {
-                if(!isEmpty(g.misc)) {
-                    return caches.open('misc-v' + VERSION).then(cache => {
-                        return cache.addAll(g.misc)
-                    });
-                }
-            })
+                return caches.open('viewCss-v' + VERSION).then(cache => {
+                    return cache.addAll(viewsAssets.css);
+                })
+            });
         })
-    }
+    });
 }
 
 function loadCacheUser() {
@@ -1038,19 +1064,17 @@ function loadCacheUser() {
         gets.push(get("menu"));
         gets.push(get("navbar"));
         gets.push(get("react"));
-        gets.push(get("relevant"));
-        gets.push(get("general"));
         gets.push(get("user"));
         gets.push(get("graficos"));
 
-        if(SERVICEWORKER) {
+        /**
+         * Adiciona o core Js e core Css do meu atual usuário
+         */
+        if (SERVICEWORKER) {
             gets.push(caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
             }));
         }
-
-        if(DEV)
-            gets.push(updateTemplates());
 
         return Promise.all(gets).then(r => {
             creates.push(dbLocal.exeCreate('__allow', r[0]));
@@ -1060,18 +1084,18 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__menu', r[4]));
             creates.push(dbLocal.exeCreate('__navbar', r[5]));
             creates.push(dbLocal.exeCreate('__react', r[6]));
-            creates.push(dbLocal.exeCreate('__relevant', r[7]));
-            creates.push(dbLocal.exeCreate('__general', r[8]));
-            creates.push(dbLocal.exeCreate('__user', r[9]));
-            creates.push(dbLocal.exeCreate('__graficos', r[10]));
+            creates.push(dbLocal.exeCreate('__user', r[7]));
+            creates.push(dbLocal.exeCreate('__graficos', r[8]));
             dicionarios = r[1];
             return Promise.all(creates);
-        }).then(() => {
-            if(USER.setor !== "0" && app.file === "login")
-                toast("Seja Bem Vindo " + USER.nome , 2000, "toast-success");
 
-            menuHeader();
-        })
+        }).then(() => {
+            return loadUserViews();
+
+        }).then(() => {
+            if (USER.setor !== "0" && app.file === "login")
+                toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
+        });
     } else {
         toast("Sem Conexão!", 3000, "toast-warning");
         return Promise.all([])
@@ -1094,36 +1118,127 @@ function getTemplates() {
     return dbLocal.exeRead("__template", 1);
 }
 
-function firstAccess() {
-    setCookie('accesscount', 0);
-    return updateCacheUser();
+function errorLoadingApp() {
+    toast("Erro ao carregar Aplicativo", 3000, "toast-warning");
+    setTimeout(function () {
+        updateCache();
+    }, 3000);
 }
 
-function thenAccess() {
+function firstAccess() {
+    setCookie('accesscount', 1);
 
-    /**
-     * Conta acesso
-     */
-    setCookie('accesscount', parseInt(getCookie('accesscount')) + 1);
-
-    /**
-     * Check if have dicionario and templates
-     * */
     let gets = [];
-    gets.push(dbLocal.exeRead("__dicionario", 1));
-    gets.push(dbLocal.exeRead("__template", 1));
+    gets.push(get("relevant"));
+    gets.push(get("general"));
 
     return Promise.all(gets).then(r => {
-        if (isEmpty(r[1])) {
+        let creates = [];
+        creates.push(dbLocal.exeCreate('__relevant', r[0]));
+        creates.push(dbLocal.exeCreate('__general', r[1]));
+        return Promise.all(creates);
+
+    }).then(() => {
+        if (!SERVICEWORKER)
+            return Promise.all([]);
+
+        return get("currentFiles/" + window.location.pathname).then(g => {
+            if (!g)
+                return Promise.all([]);
+            g = g[0];
+
+            return caches.open('core-v' + VERSION).then(cache => {
+                return cache.addAll(g.core).catch(() => {
+                    errorLoadingApp();
+                })
+            }).then(() => {
+                return caches.open('fonts-v' + VERSION).then(cache => {
+                    return cache.addAll(g.fonts).catch(() => {
+                        errorLoadingApp();
+                    })
+                })
+            }).then(() => {
+                return caches.open('images-v' + VERSION).then(cache => {
+                    return cache.addAll(g.images).catch(() => {
+                        errorLoadingApp();
+                    })
+                })
+            }).then(() => {
+                return caches.open('misc-v' + VERSION).then(cache => {
+                    return cache.addAll(g.misc).catch(() => {
+                        errorLoadingApp();
+                    })
+                })
+            });
+
+        }).then(() => {
+
+            /**
+             * Seta a versão do aplicativo nos cookies
+             */
+            return new Promise(function (resolve, reject) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", HOME + "set");
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        let data = JSON.parse(this.responseText);
+                        if (data.data !== "no-network" && data.response === 1)
+                            setCookie("update", data.data);
+                        resolve(1)
+                    }
+                };
+                xhttp.send("lib=config&file=update")
+            });
+
+        }).then(() => {
+
+            /**
+             * Check support to webp images
+             * */
+            async function WebpIsSupported() {
+                // If the browser doesn't has the method createImageBitmap, you can't display webp format
+                if (!self.createImageBitmap) return !1;
+
+                // Base64 representation of a white point image
+                const webpData = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=';
+
+                // Retrieve the Image in Blob Format
+                const blob = await fetch(webpData).then(r => r.blob());
+
+                // If the createImageBitmap method succeeds, return true, otherwise false
+                return createImageBitmap(blob).then(() => !0, () => !1);
+            }
+
+            (async () => {
+                setCookie("webp", await WebpIsSupported());
+            })();
+
+        }).then(() => {
+
+            /**
+             * Carrega os dados de usuário
+             */
             return updateCacheUser();
-        } else {
-            dicionarios = r[0];
-        }
+        });
     });
 }
 
+function thenAccess() {
+    /**
+     * Conta acesso
+     */
+    setCookie('accesscount', (parseInt(getCookie('accesscount')) + 1));
+
+    /**
+     * Se estiver em Dev, atualiza os templates
+     */
+    if (navigator.onLine && DEV)
+        updateTemplates();
+}
+
 function downloadEntityData() {
-    if(!SERVICEWORKER)
+    if (!SERVICEWORKER)
         return Promise.all([]);
 
     let down = [];
@@ -1146,127 +1261,9 @@ function updateTemplates() {
     });
 }
 
-function startCache() {
-    let t = [];
-    if(SERVICEWORKER)
-        t.push(get("currentFiles/" + window.location.pathname));
-    else if (navigator.onLine && DEV)
-        t.push(updateTemplates());
-
-    return Promise.all(t).then(g => {
-        if(!SERVICEWORKER || !g)
-            return Promise.all([]);
-
-        g = g[0];
-        return caches.open('core-v' + VERSION).then(cache => {
-            return cache.addAll(g.core).catch(() => {
-                toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                setTimeout(function () {
-                    updateCache();
-                },3000);
-            })
-        }).then(() => {
-            return caches.open('fonts-v' + VERSION).then(cache => {
-                return cache.addAll(g.fonts).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        }).then(() => {
-            return caches.open('images-v' + VERSION).then(cache => {
-                return cache.addAll(g.images).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        }).then(() => {
-            return caches.open('viewJs-v' + VERSION).then(cache => {
-                return cache.addAll(g.viewJs).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        }).then(() => {
-            return caches.open('viewCss-v' + VERSION).then(cache => {
-                return cache.addAll(g.viewCss).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        }).then(() => {
-            return caches.open('view-v' + VERSION).then(cache => {
-                return cache.addAll(g.view).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        }).then(() => {
-            return caches.open('misc-v' + VERSION).then(cache => {
-                return cache.addAll(g.misc).catch(() => {
-                    toast("Erro ao carregar Arquivos", 3000, "toast-error");
-                    setTimeout(function () {
-                        updateCache();
-                    },3000);
-                })
-            })
-        })
-    }).then(() => {
-        return new Promise(function (resolve, reject) {
-            if (app.route !== "updateSystem") {
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("POST", HOME + "set");
-                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState === 4 && this.status === 200) {
-                        let data = JSON.parse(this.responseText);
-                        if (data.data !== "no-network" && data.response === 1)
-                            setCookie("update", data.data);
-                        resolve(1)
-                    }
-                };
-                xhttp.send("lib=config&file=update")
-            } else {
-                resolve(1)
-            }
-        })
-    }).then(() => {
-
-        /**
-         * Check support to webp
-         * */
-        async function WebpIsSupported() {
-            // If the browser doesn't has the method createImageBitmap, you can't display webp format
-            if (!self.createImageBitmap) return !1;
-
-            // Base64 representation of a white point image
-            const webpData = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=';
-
-            // Retrieve the Image in Blob Format
-            const blob = await fetch(webpData).then(r => r.blob());
-
-            // If the createImageBitmap method succeeds, return true, otherwise false
-            return createImageBitmap(blob).then(() => !0, () => !1);
-        }
-
-        (async () => {
-            setCookie("webp", await WebpIsSupported());
-        })();
-    });
-}
-
 function checkMenuActive() {
     $(".menu-li").removeClass("active").each(function (i, e) {
-        if($(e).attr("rel") === app.file || $(e).find("[rel='" + app.file + "']").length || $(e).find("a[href='" + app.file + "']").length)
+        if ($(e).attr("rel") === app.file || $(e).find("[rel='" + app.file + "']").length || $(e).find("a[href='" + app.file + "']").length)
             $(e).addClass("active");
     });
 }
@@ -1325,14 +1322,19 @@ function defaultPageTransitionPosition(direction, $element) {
 }
 
 function animateTimeout($element, $aux, scroll) {
-    $aux.attr("id", $element.attr('id')).css({"position": "relative", "top": "initial", "left": "initial", "width": "100%"}).removeClass("notop");
+    $aux.attr("id", $element.attr('id')).css({
+        "position": "relative",
+        "top": "initial",
+        "left": "initial",
+        "width": "100%"
+    }).removeClass("notop");
     $element.remove();
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
     clearHeaderScrollPosition();
 
     //add or not space on end content (navbar space)
-    if(window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show"))
+    if (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show"))
         $("#core-content").addClass("mb-50");
     else
         $("#core-content").removeClass("mb-50");
@@ -1460,7 +1462,7 @@ function headerShow(show) {
     setTimeout(function () {
         $("#core-header").removeClass("core-transition");
     }, 300);
-    if(show) {
+    if (show) {
         $("#core-header").addClass("core-show-header-navbar");
     } else {
         $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
@@ -1503,7 +1505,6 @@ function getPageHeight(haveHeader, navbar) {
 var dicionarios;
 var swRegistration = null;
 var aniTransitionPage = null;
-var checkUpdateInt = null;
 var lastPositionScroll = 0;
 var sentidoScrollDown = !1;
 var historyPosition = 1;
@@ -1552,23 +1553,23 @@ var app = {
                     /**
                      * Define as constantes do front
                      */
-                    FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS : FRONT.VARIAVEIS} : {};
-                    if(!isEmpty(g.front) && typeof g.front === "object") {
-                        for(let col in g.front)
+                    FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
+                    if (!isEmpty(g.front) && typeof g.front === "object") {
+                        for (let col in g.front)
                             FRONT[col.toUpperCase()] = g.front[col];
                     }
 
-                    if(!g.header)
+                    if (!g.header)
                         $div.addClass("notop");
 
-                    if(g.navbar)
+                    if (g.navbar)
                         $("#core-header-nav-bottom").addClass("core-show-header-navbar");
                     else
                         $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
                     let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : 0);
                     $div.css("min-height", minHeightContent + "px");
-                    if(file === "dashboard")
+                    if (file === "dashboard")
                         $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
 
                     if (g.js.length) {
@@ -1587,7 +1588,7 @@ var app = {
                         })
                     }
                 } else {
-                    if(USER.setor === 0 && getCookie("redirectOnLogin") === "")
+                    if (USER.setor === 0 && getCookie("redirectOnLogin") === "")
                         setCookie("redirectOnLogin", file);
 
                     location.href = HOME + g.redirect;
@@ -1598,7 +1599,7 @@ var app = {
             }
         }).then(() => {
             /* VERIFICA NECESSIDADE DE ATUALIZAÇÃO DOS DADOS DAS ENTIDADES */
-            if(!updateEntityDataInterval) {
+            if (!updateEntityDataInterval) {
                 updateEntityDataInterval = setTimeout(function () {
                     downloadEntityData();
                     updateEntityDataInterval = null;
@@ -1689,7 +1690,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 scroll: scroll
             }, null, HOME + history.state.route);
         if (setHistory && !reload && novaRota) {
-            if(replaceHistory) {
+            if (replaceHistory) {
                 history.replaceState({
                     id: historyPosition++,
                     route: route,
@@ -1727,9 +1728,9 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
                 let data = (typeof param === "object" && typeof param.data === "object" && !isEmpty(param.data) ? param.data : {});
 
-                if(!isEmpty(id))
+                if (!isEmpty(id))
                     data.id = id;
-                else if(!isEmpty(data.id))
+                else if (!isEmpty(data.id))
                     id = parseInt(data.id);
 
                 /**
@@ -1738,12 +1739,12 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                  * Busca identificador no history, ou cria um novo
                  * */
                 let identificador = "";
-                if(typeof param === "object" && typeof param.identificador === "string") {
+                if (typeof param === "object" && typeof param.identificador === "string") {
                     identificador = param.identificador;
                     history.state.param.identificador = identificador;
                     history.replaceState(history.state, null, HOME + app.route);
 
-                } else if(typeof history.state.param === "object" && typeof history.state.param.identificador !== "undefined") {
+                } else if (typeof history.state.param === "object" && typeof history.state.param.identificador !== "undefined") {
                     identificador = history.state.param.identificador;
 
                 } else {
@@ -1761,11 +1762,11 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 let isUpdateFormRelation = !1;
 
                 if (haveFormRelation) {
-                    if(history.state.param.openForm.tipo === 1) {
-                        if(dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
+                    if (history.state.param.openForm.tipo === 1) {
+                        if (dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
                             data[history.state.param.openForm.column] = form.id;
                         } else {
-                            if(typeof data[history.state.param.openForm.column] === "undefined" || data[history.state.param.openForm.column] === null || isEmpty(data[history.state.param.openForm.column]))
+                            if (typeof data[history.state.param.openForm.column] === "undefined" || data[history.state.param.openForm.column] === null || isEmpty(data[history.state.param.openForm.column]))
                                 data[history.state.param.openForm.column] = [];
 
                             data[history.state.param.openForm.column].push(form.id.toString());
@@ -1796,7 +1797,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 }
 
                 Promise.all(promisses).then(() => {
-                    if(haveFormRelation) {
+                    if (haveFormRelation) {
                         if (!isUpdateFormRelation)
                             data[history.state.param.openForm.column].push(form.data);
 
@@ -1834,8 +1835,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                     }
                 }, 50)
             }
-        }).then(() => {
-            loadUserViews();
         });
     }
 }
@@ -1872,6 +1871,28 @@ function headerScrollFixed(sentidoScroll) {
     let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
     $("#core-header").css("top", t + "px")
+}
+
+function updateHeaderPosition(revision) {
+    if (lastPositionScroll < $(window).scrollTop()) {
+        if (!sentidoScrollDown) {
+            headerScrollFixed(!0);
+            $("#core-header").css("position", "absolute");
+        }
+    } else {
+        if (sentidoScrollDown) {
+            headerScrollFixed(!1);
+        } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
+            $("#core-header").css({"position": "fixed", "top": 0})
+        } else {
+            if (typeof revision === "undefined") {
+                setTimeout(function () {
+                    updateHeaderPosition(true);
+                }, 50);
+            }
+        }
+    }
+    lastPositionScroll = $(window).scrollTop();
 }
 
 /**
@@ -1916,28 +1937,6 @@ function onLoadDocument() {
             historyPosition = event.state.id + 1;
         }
     };
-
-    function updateHeaderPosition(revision) {
-        if (lastPositionScroll < $(window).scrollTop()) {
-            if (!sentidoScrollDown) {
-                headerScrollFixed(!0);
-                $("#core-header").css("position", "absolute");
-            }
-        } else {
-            if (sentidoScrollDown) {
-                headerScrollFixed(!1);
-            } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
-                $("#core-header").css({"position": "fixed", "top": 0})
-            } else {
-                if(typeof revision === "undefined") {
-                    setTimeout(function () {
-                        updateHeaderPosition(true);
-                    }, 50);
-                }
-            }
-        }
-        lastPositionScroll = $(window).scrollTop();
-    }
 
     window.onscroll = function () {
         if (window.innerWidth < 994)
@@ -1989,117 +1988,40 @@ function onLoadDocument() {
 }
 
 function startApplication() {
+    onLoadDocument();
     checkSessao().then(() => {
-        let t = [];
-        if(SERVICEWORKER)
-            t.push(caches.open('core-v' + VERSION));
+        let promessa = [];
+        promessa.push(getCookie("accesscount") === "" ? firstAccess() : thenAccess());
 
-        return Promise.all(t).then(cache => {
-
-            /**
-             * Verifica se é o primeiro acesso
-             * carrega a base caso seja, senão verifica
-             */
-            return new Promise((s,f) => {
-                if(!SERVICEWORKER) {
-                    return dbLocal.exeRead("__template", 1).then(d => {
-                        s(isEmpty(d));
-                    });
-                } else {
-                    return cache[0].match(HOME + "assetsPublic/appCore.min.js?v=" + VERSION).then(response => {
-                        s(!response);
-                    })
-                }
-            }).then(isFirstAccess => {
-
-                if(isFirstAccess)
-                    return firstAccess();
-                else
-                    return thenAccess()
-            });
-
-
-        }).then(() => {
+        return Promise.all(promessa).then(() => {
             return menuHeader();
 
         }).then(() => {
 
             /**
-             * Carrega o core do setor de acesso
-             */
-            return new Promise((resolve, reject) => {
-                $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, {
-                    success: function () {
-                        resolve(1);
-                    }, fail: function () {
-                        reject(0);
-                    }
-                });
-            });
-        }).then(() => {
-
-            /**
              * Carrega a rota atual
              */
-            readRouteState();
-
-        }).then(() => {
-
-            /**
-             * Verifica se remove o botão de Notificação
-             * */
-            if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-                $(".site-btn-push").remove();
-
-            if (getCookie('accesscount') === "0") {
-                /**
-                 * Se primeiro acesso, carrega os caches
-                 * os caches foram deixados para serem carregados no final
-                 */
-                return startCache();
-
-            } else if(navigator.onLine && DEV) {
-
-                /**
-                 * Se estiver em Dev, atualiza os templates
-                 */
-                return updateTemplates();
-            }
+            return readRouteState();
 
         }).then(() => {
 
             /**
              * Verifica se existe uma versão mais recente do app
              */
-            checkUpdate();
+            return checkUpdate();
         });
-    });
-}
-
-function loadUpdateSystem() {
-    new Promise((resolve, reject) => {
-        $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, {
-            success: function () {
-                resolve(1);
-            }, fail: function () {
-                reject(0);
-            }
-        });
-    }).then(() => {
-        return clearCache().then(() => {
-            return setCookieAnonimo().then(() => {
-                return readRouteState();
-            });
-        })
     });
 }
 
 $(function () {
     if (location.href !== HOME + "updateSystem") {
-        onLoadDocument();
         startApplication();
 
     } else {
-        loadUpdateSystem();
+        return clearCache().then(() => {
+            return setCookieAnonimo().then(() => {
+                return readRouteState();
+            });
+        });
     }
 });

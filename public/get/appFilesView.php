@@ -7,7 +7,7 @@
 use \Helpers\Helper;
 
 // return values
-$data['data'] = ["view" => [], "misc" => []];
+$data['data'] = ["view" => []];
 
 /**
  * View Offline
@@ -24,17 +24,5 @@ if (file_exists(PATH_HOME . "_config/viewOffline.json")) {
                 }
             }
         }
-    }
-}
-
-/**
- * Assets Offline
- */
-if (file_exists(PATH_HOME . "_config/viewOfflineAssets.json")) {
-    foreach (json_decode(file_get_contents(PATH_HOME . "_config/viewOfflineAssets.json"), !0) as $item){
-        $data['data']['misc'][] = HOME . $item;
-
-        if(preg_match("/^public/i", $item))
-            $data['data']['misc'][] = HOME . str_replace("public/", VENDOR . DOMINIO . "/public/", $item);
     }
 }

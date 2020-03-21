@@ -63,6 +63,7 @@
     </script>
 
     <script src='{$home}assetsPublic/appCore.min.js?v={$version}' defer></script>
+    <script src='{$home}assetsPublic/core/{$userSetor}/core.min.js?v={$version}' defer></script>
 </head>
 <body>
 <div id="app">
