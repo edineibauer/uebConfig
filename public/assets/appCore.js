@@ -544,17 +544,30 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
 }
 
 function updateVersionNumber() {
-    let xhttp = new XMLHttpRequest();
-    xhttp.open("POST", HOME + "set");
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            let data = JSON.parse(this.responseText);
-            if (data.data !== "no-network" && data.response === 1)
-                setCookie("update", data.data);
-        }
-    };
-    xhttp.send("lib=config&file=update");
+    if(!navigator.onLine)
+        return Promise.all([]);
+
+    return new Promise(function (resolve, r) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", HOME + "set");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if(this.status === 200) {
+                    let data = JSON.parse(this.responseText);
+                    if (data.data !== "no-network" && data.response === 1 && (getCookie("update") === "" || data.data !== getCookie("update")))
+                        setCookie("update", data.data);
+                    resolve(1);
+                } else {
+                    resolve(0);
+                }
+            }
+        };
+        xhttp.onerror = function () {
+            resolve(0)
+        };
+        xhttp.send("lib=config&file=update");
+    });
 }
 
 function checkUpdate() {
@@ -873,8 +886,6 @@ function clearCacheAll() {
                 return caches.delete(cacheName);
             }))
         })
-    }).then(() => {
-        return setCookieAnonimo();
     })
 }
 
@@ -882,7 +893,9 @@ function updateCache() {
     if (navigator.onLine) {
         toast("Atualizando Aplicativo", 7000, "toast-success");
         clearCacheAll().then(() => {
-            location.reload();
+            updateVersionNumber().then(() => {
+                location.reload();
+            });
         })
     } else {
         toast("Sem Conexão", 1200);
@@ -895,6 +908,8 @@ function recoveryUser() {
         delete login.idUserReal;
 
         USER = login;
+
+        return loadCacheUser();
     });
 }
 
@@ -1202,6 +1217,9 @@ function errorLoadingApp() {
 }
 
 function setVersionApplication() {
+    if(getCookie("update") !== "")
+        return Promise.all([]);
+
     return new Promise(function (resolve, reject) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", HOME + "set");
