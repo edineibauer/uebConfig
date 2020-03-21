@@ -223,6 +223,7 @@ class UpdateSystem
         Config::createDir("uploads");
         Config::createDir("uploads/site");
         Config::createDir("_config");
+        Config::createDir("_config/offline");
         Config::createDir("_cdn");
         Config::createDir("_cdn/vendor");
         Config::createDir("libs");
@@ -267,11 +268,11 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
             Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
 
-        if(!file_exists(PATH_HOME . "_config/viewOffline.json"))
-            Config::writeFile("_config/viewOffline.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
+        if(!file_exists(PATH_HOME . "_config/offline/view.json"))
+            Config::writeFile("_config/offline/view.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
 
-        if(!file_exists(PATH_HOME . "_config/viewOfflineAssets.json"))
-            Config::writeFile("_config/viewOfflineAssets.json", "[]");
+        if(!file_exists(PATH_HOME . "_config/offline/assets.json"))
+            Config::writeFile("_config/offline/assets.json", "[]");
 
         //CONSTANTES EM CONFIG
         $contantes = [];

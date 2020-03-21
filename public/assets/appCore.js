@@ -797,6 +797,7 @@ function clearCacheUser() {
     clear.push(dbLocal.clear('__dicionario'));
     clear.push(dbLocal.clear('__info'));
     clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__templateUser'));
     clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
@@ -812,7 +813,7 @@ function clearCacheUser() {
                     let corte = cacheName.split("-v");
                     let name = corte[0];
                     let version = parseFloat(corte[1]);
-                    if (version !== VERSION || ["view", "viewCss", "viewJs"].indexOf(name) > -1)
+                    if (version !== VERSION || ["viewUser", "viewUserCss", "viewUserJs"].indexOf(name) > -1)
                         return caches.delete(cacheName);
                 }))
             })
@@ -820,13 +821,25 @@ function clearCacheUser() {
     })
 }
 
-function clearCache() {
+function clearCacheAll() {
     setCookie('update', 0, -1);
     setCookie('accesscount', "", -1);
 
+    /**
+     * Sobe pendências para o servidor e limpa base local
+     */
     let clear = [];
-    for (var k in dicionarios)
-        clear.push(dbLocal.clear(k));
+    for (let entity in dicionarios) {
+        clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
+            if (!d.length)
+                return;
+
+            post("entity", "up/sync", {entity: entity, dados: d});
+            return dbLocal.clear("sync_" + entity)
+        }).then(() => {
+            return dbLocal.clear(entity);
+        }));
+    }
 
     clear.push(dbLocal.clear('__historic'));
     clear.push(dbLocal.clear('__dicionario'));
@@ -836,6 +849,7 @@ function clearCache() {
     clear.push(dbLocal.clear('__react'));
     clear.push(dbLocal.clear('__relevant'));
     clear.push(dbLocal.clear('__template'));
+    clear.push(dbLocal.clear('__templateUser'));
     clear.push(dbLocal.clear('__user'));
     clear.push(dbLocal.clear('__menu'));
     clear.push(dbLocal.clear('__graficos'));
@@ -843,17 +857,16 @@ function clearCache() {
     clear.push(dbLocal.clear('__panel'));
 
     return Promise.all(clear).then(() => {
-        if (SERVICEWORKER) {
-            return caches.keys().then(cacheNames => {
-                return Promise.all(cacheNames.map(cacheName => {
-                    let corte = cacheName.split("-v");
-                    let name = corte[0];
-                    let version = parseFloat(corte[1]);
-                    if (version !== VERSION || ["view", "viewCss", "viewJs"].indexOf(name) > -1)
-                        return caches.delete(cacheName);
-                }))
-            })
-        }
+        if (!SERVICEWORKER)
+            return Promise.all([]);
+
+        return caches.keys().then(cacheNames => {
+            return Promise.all(cacheNames.map(cacheName => {
+                return caches.delete(cacheName);
+            }))
+        })
+    }).then(() => {
+        return setCookieAnonimo();
     })
 }
 
@@ -1009,7 +1022,7 @@ function updateCacheUser() {
     }
 }
 
-function loadUserViews() {
+function loadViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
@@ -1034,10 +1047,6 @@ function loadUserViews() {
                 viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
             }
 
-            return viewsAssets;
-
-        }).then(viewsAssets => {
-
             /**
              * Cache view Assets
              */
@@ -1045,6 +1054,45 @@ function loadUserViews() {
                 return cache.addAll(viewsAssets.js);
             }).then(() => {
                 return caches.open('viewCss-v' + VERSION).then(cache => {
+                    return cache.addAll(viewsAssets.css);
+                })
+            });
+        })
+    });
+}
+
+function loadUserViews() {
+    if (!SERVICEWORKER)
+        return Promise.all([]);
+
+    return get("appFilesViewUser/").then(g => {
+        return caches.open('viewUser-v' + VERSION).then(cache => {
+
+            /**
+             * Cache views
+             */
+            return cache.addAll(g.view);
+
+        }).then(() => {
+
+            /**
+             * Para cada view, carrega seus assets
+             */
+            let viewsAssets = {css: [], js: []};
+            for (let i in g.view) {
+                let viewName = g.view[i].split("/view/");
+                viewName = "assetsPublic/view/" + viewName[1].split('/')[0];
+                viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
+                viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
+            }
+
+            /**
+             * Cache view Assets
+             */
+            return caches.open('viewUserJs-v' + VERSION).then(cache => {
+                return cache.addAll(viewsAssets.js);
+            }).then(() => {
+                return caches.open('viewUserCss-v' + VERSION).then(cache => {
                     return cache.addAll(viewsAssets.css);
                 })
             });
@@ -1066,7 +1114,7 @@ function loadCacheUser() {
         gets.push(get("allow"));
         gets.push(get("dicionarios"));
         gets.push(get("info"));
-        gets.push(get("templates"));
+        gets.push(get("templatesUser"));
         gets.push(get("menu"));
         gets.push(get("navbar"));
         gets.push(get("react"));
@@ -1086,7 +1134,7 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__allow', r[0]));
             creates.push(dbLocal.exeCreate('__dicionario', r[1]));
             creates.push(dbLocal.exeCreate('__info', r[2]));
-            creates.push(dbLocal.exeCreate('__template', r[3]));
+            creates.push(dbLocal.exeCreate('__templateUser', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
             creates.push(dbLocal.exeCreate('__navbar', r[5]));
             creates.push(dbLocal.exeCreate('__react', r[6]));
@@ -1095,15 +1143,6 @@ function loadCacheUser() {
             dicionarios = r[1];
             return Promise.all(creates);
 
-        }).then(() => {
-            /**
-             * Adiciona novo core Js e Css no cache
-             */
-            return caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]).catch(() => {
-                    errorLoadingApp();
-                })
-            })
         }).then(() => {
             /**
              * Baixa os dados das entidades para este usuário
@@ -1136,7 +1175,12 @@ function getGraficos() {
 }
 
 function getTemplates() {
-    return dbLocal.exeRead("__template", 1);
+    return dbLocal.exeRead("__templateUser", 1).then(tplUser => {
+        return dbLocal.exeRead("__template", 1).then(tpl => {
+            mergeObject(tpl, tplUser);
+            return tpl;
+        })
+    });
 }
 
 function errorLoadingApp() {
@@ -1152,11 +1196,13 @@ function firstAccess() {
     let gets = [];
     gets.push(get("relevant"));
     gets.push(get("general"));
+    gets.push(get("templates"));
 
     return Promise.all(gets).then(r => {
         let creates = [];
         creates.push(dbLocal.exeCreate('__relevant', r[0]));
         creates.push(dbLocal.exeCreate('__general', r[1]));
+        creates.push(dbLocal.exeCreate('__template', r[2]));
         return Promise.all(creates);
 
     }).then(() => {
@@ -1233,6 +1279,10 @@ function firstAccess() {
             (async () => {
                 setCookie("webp", await WebpIsSupported());
             })();
+
+        }).then(() => {
+            return loadViews();
+
         });
     });
 }
@@ -2036,10 +2086,8 @@ $(function () {
         startApplication();
 
     } else {
-        return clearCache().then(() => {
-            return setCookieAnonimo().then(() => {
-                return readRouteState();
-            });
+        return clearCacheAll().then(() => {
+            return readRouteState();
         });
     }
 });

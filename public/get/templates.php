@@ -2,11 +2,10 @@
 
 /**
  * @param string $lib
- * @param string $setor
  * @param array $list
  * @return array
  */
-function getTemplates(string $lib, string $setor, array $list)
+function getTemplates(string $lib, array $list)
 {
     /**
      * Se existir templates nesta lib
@@ -28,23 +27,17 @@ function getTemplates(string $lib, string $setor, array $list)
                     /**
                      * busca overload do template atual da lib em PUBLIC
                      */
-                    if (file_exists(PATH_HOME . "public/overload/{$lib}/tpl/{$setor}/{$nameTpl}.mustache")) {
-                        $list[$nameTpl] = file_get_contents(PATH_HOME . "public/overload/{$lib}/tpl/{$setor}/{$nameTpl}.mustache");
-                    } elseif (file_exists(PATH_HOME . "public/overload/{$lib}/tpl/{$nameTpl}.mustache")) {
+                    if (file_exists(PATH_HOME . "public/overload/{$lib}/tpl/{$nameTpl}.mustache")) {
                         $list[$nameTpl] = file_get_contents(PATH_HOME . "public/overload/{$lib}/tpl/{$nameTpl}.mustache");
+
                     } else {
 
                         /**
                          * Busta overload do template atual da lib em outras libs
                          */
                         foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $libOverload) {
-                            if ($libOverload !== $lib) {
-                                if (file_exists(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$setor}/{$nameTpl}.mustache")) {
-                                    $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$setor}/{$nameTpl}.mustache");
-                                } elseif (file_exists(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache")) {
-                                    $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache");
-                                }
-                            }
+                            if ($libOverload !== $lib && file_exists(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache"))
+                                $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache");
                         }
                     }
 
@@ -62,9 +55,8 @@ function getTemplates(string $lib, string $setor, array $list)
 }
 
 $list = [];
-$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
-// busca os templates em PUBLIC, estes templates não possuem OVERLOAD
+// busca os templates em PUBLIC
 foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl") as $tpl) {
     if (preg_match('/\.(mst|mustache)$/i', $tpl)) {
         $nameTpl = str_replace(['.mst', '.mustache'], '', $tpl);
@@ -75,6 +67,6 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl") as $tpl) {
 
 //search in VENDOR
 foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-    $list = getTemplates($lib, $setor, $list);
+    $list = getTemplates($lib, $list);
 
 $data['data'] = $list;

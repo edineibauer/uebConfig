@@ -21,8 +21,8 @@ if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['imagem']))
 /**
  * View Misc Offline
  */
-if (file_exists(PATH_HOME . "_config/viewOfflineAssets.json")) {
-    foreach (json_decode(file_get_contents(PATH_HOME . "_config/viewOfflineAssets.json"), !0) as $item)
+if (file_exists(PATH_HOME . "_config/offline/assets.json")) {
+    foreach (json_decode(file_get_contents(PATH_HOME . "_config/offline/assets.json"), !0) as $item)
         $data['data']['misc'][] = HOME . $item;
 }
 
