@@ -455,8 +455,7 @@ const dbRemote = {
                                     let id = parseInt(response.data[k].id);
 
                                     if(typeof dicionarios[entity] === "undefined") {
-                                        toast("Erro: Você não tem permissão para acessar '" + entity + "'", 5000, "toast-error");
-                                        alert('Erro de Permissão! "' + entity + '" não esta acessível.');
+                                        toast("Erro: '" + entity + "' não esta acessível", 5000, "toast-error");
                                         break;
                                     }
 

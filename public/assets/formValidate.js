@@ -119,7 +119,7 @@ function havePermission(form, action) {
         if (d === 0)
             return !0;
 
-        let mensagem = (d === 1 ? "Permissão Negada" : "Você não tem permissão para " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")) + " este conteúdo");
+        let mensagem = (d === 1 ? "Permissão Negada" : "Erro: '" + entity + "' não esta pode " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")));
         toast("Opss! " + mensagem, 3000, "toast-error");
         return !1;
     })

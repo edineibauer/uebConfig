@@ -645,7 +645,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                     $this.data.id = parseInt($this.id);
                 } else if(typeof dicionarios !== "undefined") {
                     if(typeof dicionarios[$this.entity] === "undefined")
-                        toast("Você não tem acesso a '" + $this.entity + "'!", 5000, "toast-warning");
+                        toast("Erro: '" + entity + "' não esta acessível", 5000, "toast-warning");
                     else if (typeof dicionarios[$this.entity][col] === "object")
                         $this.data[col] = getDefaultValue(dicionarios[$this.entity][col], value)
                 } else {
