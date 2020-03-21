@@ -1314,6 +1314,7 @@ function updateAppOnDev() {
     /**
      * Limpa cache information
      */
+    let clear = [];
     clear.push(dbLocal.clear('__allow'));
     clear.push(dbLocal.clear('__dicionario'));
     clear.push(dbLocal.clear('__info'));
