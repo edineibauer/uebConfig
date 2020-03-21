@@ -1344,6 +1344,39 @@ function updateAppOnDev() {
 
         }).then(() => {
 
+            return get("currentFiles").then(g => {
+                if (!g)
+                    return Promise.all([]);
+                return caches.open('core-v' + VERSION).then(cache => {
+                    return cache.addAll(g.core).catch(() => {
+                        errorLoadingApp()
+                    })
+                }).then(() => {
+                    return caches.open('fonts-v' + VERSION).then(cache => {
+                        return cache.addAll(g.fonts).catch(() => {
+                            errorLoadingApp()
+                        })
+                    })
+                }).then(() => {
+                    return caches.open('images-v' + VERSION).then(cache => {
+                        return cache.addAll(g.images).catch(() => {
+                            errorLoadingApp()
+                        })
+                    })
+                }).then(() => {
+                    return caches.open('misc-v' + VERSION).then(cache => {
+                        return cache.addAll(g.misc).catch(() => {
+                            errorLoadingApp()
+                        })
+                    })
+                });
+
+            }).then(() => {
+                return loadViews()
+            });
+
+        }).then(() => {
+
             let gets = [];
             let creates = [];
             gets.push(get("allow"));
