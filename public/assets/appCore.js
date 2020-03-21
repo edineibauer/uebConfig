@@ -773,7 +773,6 @@ function loadSyncNotSaved() {
 
 function clearCacheUser() {
     let clear = [];
-    setCookie('viewsLoaded', "", -1);
 
     /**
      * Sobe pendências para o servidor e limpa base local
@@ -823,7 +822,7 @@ function clearCacheUser() {
 
 function clearCache() {
     setCookie('update', 0, -1);
-    setCookie('viewsLoaded', "", -1);
+    setCookie('accesscount', "", -1);
 
     let clear = [];
     for (var k in dicionarios)
