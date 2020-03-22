@@ -1,40 +1,36 @@
 <div id="installAppCard">
-    <i class="material-icons" onclick="closeInstallAppPrompt()">close</i>
+    <i class="material-icons" onclick="closePromptApp()">close</i>
     <img src="{{home}}{{favicon}}" alt="{{sitename}}"/>
     <h2>{{sitename}}</h2>
     <button id="installAppButton" onclick="acceptInstallApp()">Instalar</button>
-    <p>Oi {{nome}}, instale nosso app, ele é ainda melhor!</p>
+    <p>Oi {{nome}}, instale nosso app!</p>
 </div>
 
 <style>
     #installAppCard {
         position: fixed;
-        top: 200px;
+        top: calc(50% - 75px);
         left: 3%;
         width: 94%;
         background: #ffffff;
         border-radius: 7px;
         z-index: 99999;
         box-shadow: 3px 3px 15px -6px black;
-        transition: all ease .3s;
-    }
-
-    #installAppCard.activeClose {
-        transform: translateY(-700px);
     }
 
     #installAppCard > i {
         color: coral;
         position: absolute;
-        right: 10px;
-        top: 10px;
+        right: 5px;
+        top: 5px;
+        padding: 10px;
     }
 
     #installAppCard > img {
         float:left;
         width: 70px;
         height: 70px;
-        margin: 20px;
+        margin: 20px 20px 15px;
     }
 
     #installAppCard > h2 {
