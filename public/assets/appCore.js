@@ -890,8 +890,8 @@ function clearCacheAll() {
             }))
         });
     }).then(() => {
-        return navigator.serviceWorker.getRegistrations().then( registrations => {
-            for(let registration of registrations)
+        return navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations)
                 registration.unregister();
         });
     })
@@ -1742,20 +1742,20 @@ function getPageHeight(haveHeader, navbar) {
     return (window.innerHeight - topHeader - (window.innerWidth < 900 && navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0));
 }
 
-var dicionarios;
-var swRegistration = null;
-var aniTransitionPage = null;
-var lastPositionScroll = 0;
-var sentidoScrollDown = !1;
-var historyPosition = 1;
-var historyReqPosition = 0;
-var loadingEffect = null;
-var appInstalled = !1;
-var deferredPrompt;
+var dicionarios,
+    swRegistration = null,
+    aniTransitionPage = null,
+    lastPositionScroll = 0,
+    sentidoScrollDown = !1,
+    historyPosition = 1,
+    historyReqPosition = 0,
+    loadingEffect = null,
+    appInstalled = !1,
+    deferredPrompt;
 
 const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test( userAgent );
+    return /iphone|ipad|ipod/.test(userAgent);
 };
 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
@@ -1768,7 +1768,7 @@ function acceptInstallApp() {
         deferredPrompt.userChoice.then(choiceResult => {
             appInstalled = choiceResult.outcome === 'accepted';
             setCookie("installAppAction", appInstalled);
-            if(appInstalled)
+            if (appInstalled)
                 post("config", "appInstaled", {success: !0, ios: isIos()});
             else
                 post("config", "appInstaled", {success: !1, ios: isIos()});
@@ -1788,8 +1788,8 @@ function closeInstallAppPrompt(onInstall) {
 }
 
 function openInstallAppPrompt(force) {
-    if (!appInstalled && !isInStandaloneMode()) {
-        if((typeof force === "boolean" && force) || getCookie("installAppAction") === "") {
+    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined") {
+        if ((typeof force === "boolean" && force) || getCookie("installAppAction") === "") {
             getTemplates().then(tpl => {
                 $("#core-overlay").addClass("active activeBold");
                 $("#app").append(Mustache.render((isIos() ? tpl.installAppCard : tpl.installAppCard), {
