@@ -1750,6 +1750,58 @@ var sentidoScrollDown = !1;
 var historyPosition = 1;
 var historyReqPosition = 0;
 var loadingEffect = null;
+var appInstalled = !1;
+var deferredPrompt;
+
+const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test( userAgent );
+};
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+function acceptInstallApp() {
+    if (!appInstalled) {
+        closeInstallAppPrompt(1);
+        deferredPrompt.prompt();
+
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then(choiceResult => {
+            appInstalled = choiceResult.outcome === 'accepted';
+            setCookie("installAppAction", appInstalled);
+            if(appInstalled)
+                post("config", "appInstaled", {success: !0, ios: isIos()});
+            else
+                post("config", "appInstaled", {success: !1, ios: isIos()});
+        });
+    }
+}
+
+function closeInstallAppPrompt(onInstall) {
+    let $installCard = $("#installAppCard").addClass("activeClose");
+    $("#core-overlay").removeClass("active activeBold");
+    setCookie("installAppAction", "false");
+    post("config", "appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
+
+    setTimeout(function () {
+        $installCard.remove();
+    }, 300);
+}
+
+function openInstallAppPrompt(force) {
+    if (!appInstalled && !isInStandaloneMode()) {
+        if((typeof force === "boolean" && force) || getCookie("installAppAction") === "") {
+            getTemplates().then(tpl => {
+                $("#core-overlay").addClass("active activeBold");
+                $("#app").append(Mustache.render((isIos() ? tpl.installAppCard : tpl.installAppCard), {
+                    home: HOME,
+                    favicon: FAVICON,
+                    sitename: SITENAME,
+                    nome: USER.nome
+                }));
+            });
+        }
+    }
+}
 
 /**
  * app global de navegação do app
