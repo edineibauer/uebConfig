@@ -912,7 +912,8 @@ function recoveryUser() {
 
         USER = login;
 
-        return loadCacheUser();
+        if (getCookie("accesscount") === "")
+            return loadCacheUser();
     });
 }
 
@@ -926,12 +927,18 @@ function setUserInNavigator(user) {
         setor: 0,
         setorData: ""
     };
+
     USER = user;
     let userLogin = Object.assign({}, USER);
     userLogin.idUserReal = USER.id;
     userLogin.id = 1;
+
     setCookie("token", user.token);
-    return dbLocal.exeCreate("__login", userLogin);
+
+    return dbLocal.exeCreate("__login", userLogin).then(() => {
+        if (getCookie("accesscount") === "")
+            return loadCacheUser();
+    });
 }
 
 function setCookieAnonimo() {
@@ -954,7 +961,8 @@ function setCookieUser(user) {
                 /**
                  * Obtém novos dados de usuário
                  * */
-                return loadCacheUser();
+                if (getCookie("accesscount") !== "")
+                    return loadCacheUser();
             });
         });
 
@@ -1000,28 +1008,19 @@ function checkSessao() {
                      * Se o request não funcionar
                      */
                     if (this.status !== 200 || isEmpty(this.responseText) || data.response !== 1) {
-                        resolve(setUserInNavigator().then(() => {
-                            if (getCookie("accesscount") === "")
-                                return loadCacheUser();
-                        }));
+                        resolve(setUserInNavigator());
 
                     } else if (data.response === 1) {
                         if (data.data === 0) {
                             toast("Sessão expirada! Desconectando...", 3000);
                             resolve(setCookieAnonimo().then(() => {
-                                if (getCookie("accesscount") === "")
-                                    return loadCacheUser();
-                            }).then(() => {
                                 location.reload();
                             }))
                         } else if (data.data !== 2) {
                             /**
                              * Atualiza variável do usuário
                              */
-                            resolve(setUserInNavigator(data.data).then(() => {
-                                if (getCookie("accesscount") === "")
-                                    return loadCacheUser();
-                            }))
+                            resolve(setUserInNavigator(data.data))
                         } else {
                             resolve(recoveryUser());
                         }
@@ -1034,10 +1033,7 @@ function checkSessao() {
             xhttp.send("lib=route&file=sessao");
         });
     } else {
-        return setUserInNavigator().then(() => {
-            if (getCookie("accesscount") === "")
-                return loadCacheUser();
-        });
+        return setUserInNavigator();
     }
 }
 
