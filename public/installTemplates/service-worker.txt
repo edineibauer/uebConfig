@@ -40,11 +40,6 @@ function returnImgNoNetwork() {
     })
 }
 
-self.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
 self.addEventListener('appinstalled', (evt) => {
     appInstalled = !0;
     setCookie("installAppAction", "true");

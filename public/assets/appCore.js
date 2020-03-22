@@ -2182,6 +2182,12 @@ function updateHeaderPosition(revision) {
  * Ao carregar todo o documento executa esta função
  */
 function onLoadDocument() {
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
     window.onpopstate = function (event) {
         if (event.state) {
 
