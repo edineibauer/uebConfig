@@ -658,7 +658,7 @@ function logoutDashboard() {
  */
 function menuHeader() {
     let requests = [];
-    requests.push(dbLocal.exeRead("__template", 1));
+    requests.push(getTemplates());
     requests.push(dbLocal.exeRead("__menu", 1));
     requests.push(dbLocal.exeRead("__navbar", 1));
 

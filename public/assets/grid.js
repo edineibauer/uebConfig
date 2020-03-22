@@ -421,7 +421,7 @@ function gridCrud(entity, fields, actions) {
             let info = dbLocal.exeRead("__info", 1);
             let result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
             let users = dbLocal.exeRead("__user", 1);
-            let templates = dbLocal.exeRead("__template", 1);
+            let templates = getTemplates();
             let $loadingLoading = $("<div class='col' id='tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));
             $loadingLoading.loading();
             let loadingContent = setInterval(function () {

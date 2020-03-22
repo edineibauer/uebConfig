@@ -487,7 +487,7 @@ function searchList($input) {
     if ($input.is(":focus")) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
-        let templates = dbLocal.exeRead("__template", 1);
+        let templates = getTemplates();
         let dataRead = exeRead(entity, {}, 'id', !1, 10);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
