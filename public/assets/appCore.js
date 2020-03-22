@@ -544,7 +544,7 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
 }
 
 function updateVersionNumber() {
-    if(!navigator.onLine)
+    if (!navigator.onLine)
         return Promise.all([]);
 
     return new Promise(function (resolve, r) {
@@ -553,7 +553,7 @@ function updateVersionNumber() {
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4) {
-                if(this.status === 200) {
+                if (this.status === 200) {
                     let data = JSON.parse(this.responseText);
                     if (data.data !== "no-network" && data.response === 1 && (getCookie("update") === "" || data.data !== getCookie("update")))
                         setCookie("update", data.data);
@@ -571,7 +571,7 @@ function updateVersionNumber() {
 }
 
 function checkUpdate() {
-    if(!navigator.onLine)
+    if (!navigator.onLine)
         return Promise.all([]);
 
     return new Promise(function (resolve, r) {
@@ -889,8 +889,6 @@ function clearCacheAll() {
                 return caches.delete(cacheName);
             }))
         });
-    }).then(() => {
-        return loadCacheUser();
     })
 }
 
@@ -973,7 +971,10 @@ function checkSessao() {
         /**
          * Ainda não existe sessão, começa como anônimo
          */
-        return setCookieAnonimo();
+        return setCookieAnonimo().then(() => {
+            if (getCookie("accesscount") === "")
+                return loadCacheUser();
+        });
 
     } else if (!navigator.onLine) {
         /**
@@ -999,30 +1000,30 @@ function checkSessao() {
                      * Se o request não funcionar
                      */
                     if (this.status !== 200 || isEmpty(this.responseText) || data.response !== 1) {
-                        setUserInNavigator().then(() => {
-                            resolve(1);
-                        });
+                        resolve(setUserInNavigator().then(() => {
+                            if (getCookie("accesscount") === "")
+                                return loadCacheUser();
+                        }));
 
                     } else if (data.response === 1) {
                         if (data.data === 0) {
                             toast("Sessão expirada! Desconectando...", 3000);
-
-                            setCookieAnonimo().then(() => {
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 1000);
-                            });
+                            resolve(setCookieAnonimo().then(() => {
+                                if (getCookie("accesscount") === "")
+                                    return loadCacheUser();
+                            }).then(() => {
+                                location.reload();
+                            }))
                         } else if (data.data !== 2) {
                             /**
                              * Atualiza variável do usuário
                              */
-                            setUserInNavigator(data.data).then(() => {
-                                resolve(1);
-                            });
+                            resolve(setUserInNavigator(data.data).then(() => {
+                                if (getCookie("accesscount") === "")
+                                    return loadCacheUser();
+                            }))
                         } else {
-                            recoveryUser().then(() => {
-                                resolve(1);
-                            });
+                            resolve(recoveryUser());
                         }
                     }
                 }
@@ -1033,7 +1034,10 @@ function checkSessao() {
             xhttp.send("lib=route&file=sessao");
         });
     } else {
-        return setUserInNavigator();
+        return setUserInNavigator().then(() => {
+            if (getCookie("accesscount") === "")
+                return loadCacheUser();
+        });
     }
 }
 
@@ -1222,7 +1226,7 @@ function errorLoadingApp() {
 }
 
 function setVersionApplication() {
-    if(getCookie("update") !== "")
+    if (getCookie("update") !== "")
         return Promise.all([]);
 
     return new Promise(function (resolve, reject) {
