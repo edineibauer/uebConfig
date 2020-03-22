@@ -1,0 +1,70 @@
+<div id="installAppCard">
+    <i class="material-icons" onclick="closeInstallAppPrompt()">close</i>
+    <img src="{{home}}{{favicon}}" alt="{{sitename}}"/>
+    <h2>{{sitename}}</h2>
+    <button id="installAppButton" onclick="acceptInstallApp()">Instalar</button>
+    <p>Oi {{nome}}, instale nosso app, ele é ainda melhor!</p>
+</div>
+
+<style>
+    #installAppCard {
+        position: fixed;
+        top: 200px;
+        left: 3%;
+        width: 94%;
+        background: #ffffff;
+        border-radius: 7px;
+        z-index: 99999;
+        box-shadow: 3px 3px 15px -6px black;
+        transition: all ease .3s;
+    }
+
+    #installAppCard.activeClose {
+        transform: translateY(-700px);
+    }
+
+    #installAppCard > i {
+        color: coral;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    #installAppCard > img {
+        float:left;
+        width: 70px;
+        height: 70px;
+        margin: 20px;
+    }
+
+    #installAppCard > h2 {
+        float: left;
+        width: calc(100% - 110px);
+        padding: 5px;
+        margin: 15px 0 8px;
+        font-size: 20px;
+    }
+
+    #installAppCard > #installAppButton {
+        float: left;
+        max-width: calc(100% - 110px);
+        padding: 7px 20px;
+        border-radius: 4px;
+        color: #ffffff;
+        background: #689f38;
+        border: none;
+    }
+
+    #installAppCard > p {
+        width: 100%;
+        float: left;
+        margin: 0 20px 20px;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 300;
+    }
+
+    .activeBold {
+        background-color: rgba(0, 0, 0, 0.38)!important;
+    }
+</style>

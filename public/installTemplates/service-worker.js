@@ -93,10 +93,10 @@ self.addEventListener('appinstalled', (evt) => {
     setCookie("installAppAction", "true");
 });
 
-self.addEventListener('push', function(event) {
+self.addEventListener('push', function (event) {
     let title = "";
     let options = {};
-    if(isJson(event.data.text())) {
+    if (isJson(event.data.text())) {
         options = JSON.parse(event.data.text());
         title = options.title;
         delete options.title;
@@ -107,11 +107,11 @@ self.addEventListener('push', function(event) {
     options.icon = options.icon || (HOME + FAVICON);
     options.data = options.data || HOME;
 
-    if(typeof title === "string" && title.length > 2)
+    if (typeof title === "string" && title.length > 2)
         event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     event.waitUntil(
         clients.openWindow(event.notification.data)
@@ -134,15 +134,15 @@ self.addEventListener('fetch', function (e) {
     let imagesEntity = new RegExp("^uploads\/", "i");
     let cacheImages = new RegExp("image\/", "i");
 
-    if(linkExterno.test(url)) {
+    if (linkExterno.test(url)) {
         e.respondWith(fetch(e.request));
 
-    } else if(core.test(url)) {
+    } else if (core.test(url)) {
         let cacheName = (viewJs.test(url) ? 'viewUserJs' : (viewCss.test(url) ? 'viewUserCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if(!response && (cacheName === "viewUserJs" || cacheName === "viewUserCss")) {
+                    if (!response && (cacheName === "viewUserJs" || cacheName === "viewUserCss")) {
                         return caches.open(cacheName.replace("User", "") + '-v' + VERSION).then(cache => {
                             return cache.match(url).then(response => {
                                 return response || fetch(e.request).then(networkResponse => {
@@ -163,7 +163,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(imagesEntity.test(url)) {
+    } else if (imagesEntity.test(url)) {
         e.respondWith(
             caches.open('viewUserImages-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
@@ -181,7 +181,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(cacheImages.test(url)) {
+    } else if (cacheImages.test(url)) {
         e.respondWith(
             caches.open('cacheImage-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
@@ -201,19 +201,19 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(view.test(url)) {
+    } else if (view.test(url)) {
         let listagens = new RegExp("listagem\/\.+", "i");
         let formulario = new RegExp("formulario\/\.+", "i");
 
-        if(listagens.test(url))
+        if (listagens.test(url))
             url = HOME + "view/listagem";
-        else if(formulario.test(url))
+        else if (formulario.test(url))
             url = HOME + "view/formulario";
 
         e.respondWith(
             caches.open('viewUser-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if(response)
+                    if (response)
                         return response;
 
                     return caches.open('view-v' + VERSION).then(cache => {
@@ -229,7 +229,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(get.test(url)) {
+    } else if (get.test(url)) {
 
         e.respondWith(
             caches.open('viewUserGet-v' + VERSION).then(cache => {
@@ -248,7 +248,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if(set.test(url) || app.test(url)) {
+    } else if (set.test(url) || app.test(url)) {
 
         e.respondWith(
             fetch(e.request).then(networkResponse => {
@@ -260,7 +260,7 @@ self.addEventListener('fetch', function (e) {
 
     } else {
 
-        if(url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
+        if (url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
 
             //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR NETWORK
             e.respondWith(

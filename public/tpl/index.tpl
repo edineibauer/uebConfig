@@ -11,19 +11,28 @@
     <link rel="shortcut icon" href="{$home}assetsPublic/img/favicon.png?v={$version}">
     <meta name="description" content="{$sitedesc}">
     <link rel="manifest" href="{$home}manifest.json?v={$version}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
-    <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
     <link rel="icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png?v={$version}">
     <link rel="icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png?v={$version}">
     <link rel="icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
 
-    <link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-96.png?v={$version}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
+    <meta name="apple-mobile-web-app-title" content="{$sitename}">
+
+    <link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
     <link rel="apple-touch-icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png?v={$version}">
     <link rel="apple-touch-icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png?v={$version}">
     <link rel="apple-touch-icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
     <link rel="apple-touch-startup-image" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
+
+    <link href="{$home}assetsPublic/img/favicon-192.png?v={$version}" sizes="2048x2732" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-192.png?v={$version}" sizes="1668x2224" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-144.png?v={$version}" sizes="1536x2048" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-144.png?v={$version}" sizes="1125x2436" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-144.png?v={$version}" sizes="1242x2208" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-96.png?v={$version}" sizes="750x1334" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/favicon-96.png?v={$version}" sizes="640x1136" rel="apple-touch-startup-image" />
 
     <meta name="msapplication-square96x96logo" content="{$home}assetsPublic/img/favicon-96.png?v={$version}">
     <meta name="msapplication-square192x192logo" content="{$home}assetsPublic/img/favicon-192.png?v={$version}">
