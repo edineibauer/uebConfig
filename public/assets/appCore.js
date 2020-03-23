@@ -302,7 +302,12 @@ function getRequest(url) {
 
 function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
-        toast("Sem Conexão! Url " + url + " não recuperada!", 7000, "toast-error");
+        url = url.replace(HOME, "");
+        let isView = new RegExp("^view\/", "i");
+        if(isView.test(url))
+            location.reload();
+        else
+            toast("Sem Conexão!", 7000, "toast-error");
         throw err
     })
 }
