@@ -60,14 +60,12 @@ class UpdateSystem
                 fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
                 fclose($f);
 
-                $this->updateVersionNumber();
                 $this->updateVersion($custom);
 
             } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
                 $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
                 $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
                 if (!empty($custom) || $old !== $keyVersion) {
-                    $this->updateVersionNumber();
                     $this->updateVersion($custom);
                 }
             }
@@ -123,6 +121,7 @@ class UpdateSystem
      */
     private function updateVersion(array $custom)
     {
+        $this->updateVersionNumber();
         //cria/atualiza update log file
         Config::updateSite();
         Config::createLibsDirectory();
