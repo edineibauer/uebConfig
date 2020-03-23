@@ -95,6 +95,7 @@ class UpdateSystem
 
     /**
      * Atualiza a Versão do site
+     * @return mixed
      */
     private function updateVersionNumber()
     {
@@ -106,6 +107,8 @@ class UpdateSystem
         $f = fopen(PATH_HOME . "_config/updates/version.txt", "w+");
         fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
         fclose($f);
+
+        return $dados;
     }
 
     private function checkAdminExist()
@@ -121,7 +124,7 @@ class UpdateSystem
      */
     private function updateVersion(array $custom)
     {
-        $this->updateVersionNumber();
+        $dados = $this->updateVersionNumber();
         //cria/atualiza update log file
         Config::updateSite();
         Config::createLibsDirectory();
@@ -131,8 +134,8 @@ class UpdateSystem
             $this->checkAdminExist();
             $this->updateAssets();
             $this->createMinifyAssetsLib();
-            $this->createManifest();
-            $this->updateServiceWorker();
+            $this->createManifest($dados);
+            $this->updateServiceWorker($dados);
 
         } elseif(is_array($custom)) {
 
@@ -146,9 +149,9 @@ class UpdateSystem
             }
 
             if(in_array("manifest", $custom)) {
-                $this->createCoreImages();
-                $this->createManifest();
-                $this->updateServiceWorker();
+                $this->createCoreImages($dados);
+                $this->createManifest($dados);
+                $this->updateServiceWorker($dados);
             }
         }
 
@@ -386,11 +389,11 @@ class UpdateSystem
 
     /**
      * Cria Imagens do sistema
+     * @param array $dados
      */
-    private function createCoreImages()
+    private function createCoreImages(array $config)
     {
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/img");
-        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
@@ -510,11 +513,11 @@ class UpdateSystem
 
     /**
      * Create Manifest
+     * @param array $dados
      */
-    private function createManifest()
+    private function createManifest(array $dados)
     {
         //Cria Tamanhos de Ícones
-        $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         $this->createFaviconSizes($dados);
 
         //Create Manifest
@@ -549,11 +552,11 @@ class UpdateSystem
         $fav->resize(48, 48, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-48.png");
     }
 
-    private function updateServiceWorker()
+    /**
+     * @param array $dados
+     */
+    private function updateServiceWorker(array $dados)
     {
-
-        $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
-
         //copia service worker
         $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.txt");
         $service = str_replace(["const VERSION = '';", "const HOME = '';", "const FAVICON = '';"], ["const VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';", "const FAVICON = '" . $dados['favicon'] . "';"], $service);
