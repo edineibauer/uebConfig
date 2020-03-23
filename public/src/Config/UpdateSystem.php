@@ -132,7 +132,7 @@ class UpdateSystem
         if(empty($custom)) {
             $this->updateDependenciesEntity();
             $this->checkAdminExist();
-            $this->updateAssets();
+            $this->updateAssets($dados);
             $this->createMinifyAssetsLib();
             $this->createManifest($dados);
             $this->updateServiceWorker($dados);
@@ -144,7 +144,7 @@ class UpdateSystem
             }
 
             if(in_array("assets", $custom)) {
-                $this->updateAssets();
+                $this->updateAssets($dados);
                 $this->createMinifyAssetsLib();
             }
 
@@ -158,7 +158,10 @@ class UpdateSystem
         $this->result = true;
     }
 
-    private function updateAssets()
+    /**
+     * @param array $dados
+     */
+    private function updateAssets(array $dados)
     {
         Helper::recurseDelete(PATH_HOME . "assetsPublic");
         Helper::recurseDelete(PATH_HOME . "templates_c");
@@ -167,7 +170,7 @@ class UpdateSystem
         $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
         Config::createCore($param);
         $this->createCoreFont($param['font'], $param['icon'], 'fonts');
-        $this->createCoreImages();
+        $this->createCoreImages($dados);
 
         /**
          * AppCore JS Generator
