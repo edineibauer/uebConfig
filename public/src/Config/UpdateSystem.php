@@ -551,9 +551,12 @@ class UpdateSystem
 
     private function updateServiceWorker()
     {
+
+        $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+
         //copia service worker
         $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.txt");
-        $service = str_replace(["const VERSION = '';", "const HOME = '';", "const FAVICON = '';"], ["const VERSION = '" . number_format(VERSION, 2) . "';", "const HOME = '" . HOME . "';", "const FAVICON = '" . FAVICON . "';"], $service);
+        $service = str_replace(["const VERSION = '';", "const HOME = '';", "const FAVICON = '';"], ["const VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';", "const FAVICON = '" . $dados['favicon'] . "';"], $service);
 
         $f = fopen(PATH_HOME . "service-worker.js", "w+");
         fwrite($f, $service);
