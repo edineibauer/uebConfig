@@ -706,11 +706,10 @@ function menuHeader() {
 
             if ((HOMEPAGE === "0" && navbar.length === 1) || (HOMEPAGE !== "0" && navbar.length === 0)) {
                 $menuNav.removeClass('s-show');
-                return
+            } else {
+                $menuNav.addClass('s-show');
+                $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
             }
-
-            $menuNav.addClass('s-show');
-            $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
         }
 
         $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
