@@ -336,13 +336,14 @@ function get(file, retrying) {
                         toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
-        if (typeof retrying === "undefined" || retrying === 1) {
-            toast("Comunicação perdida! Tentando novamente...", 5000, "toast-warning");
+        if (typeof retrying === "undefined") {
+            toast("Comunicação perdida! tentando...", 5000, "toast-warning");
             setTimeout(function () {
-                return get(file, typeof retrying === "undefined" ? 1 : 2);
+                return get(file, 1);
             }, 2000);
         } else {
-            toast("Comunicação OFFLINE com o arquivo '" + file + "'", 7000, "toast-error");
+            toast("Sem Conexão!", 7000, "toast-error");
+            console.log("OFFLINE: arquivo '" + file  + "'");
         }
     })
 }
