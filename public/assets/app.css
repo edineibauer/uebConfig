@@ -802,6 +802,18 @@ input::-webkit-inner-spin-button {
     top: 0!important;
 }
 
+#keyboard-simulate {
+    position: fixed;
+    bottom: -45%;
+    height: 45%;
+    width: 100%;
+    background: #333333;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    z-index: 99999999;
+}
+
 @media only screen and (min-width: 600px) {
     .table-all thead th:nth-child(2), .table-all thead th:nth-child(3), .table-all tbody td:nth-child(2), .table-all tbody td:nth-child(3) {
         display: table-cell!important
