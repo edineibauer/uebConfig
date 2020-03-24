@@ -1567,7 +1567,7 @@ function defaultPageTransitionPosition(direction, $element) {
 
     let file = app.file.split("/");
     file = file[0];
-    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
+    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
