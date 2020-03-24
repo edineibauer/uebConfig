@@ -443,8 +443,10 @@ function openKeyboradSimulate() {
         $("html").css("transform", "translateY(-45%)");
         $("#app").append("<div id='keyboard-simulate'>simulação de teclado abrindo.<br>A simulação só acontece enquanto estiver em Desenvolvimento.</div>");
         $("input").one("blur", function () {
-            $("#keyboard-simulate").remove();
-            $("html").css("transform", "translateY(0)");
+            setTimeout(function () {
+                $("#keyboard-simulate").remove();
+                $("html").css("transform", "translateY(0)");
+            }, 200);
         })
     }
 }
