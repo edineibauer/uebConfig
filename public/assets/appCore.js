@@ -138,14 +138,19 @@ $(function ($) {
      * Renderiza template mustache no elemento
      * @param tpl
      * @param param
-     * @returns {PromiseLike<T> | Promise<T> | *}
+     * @param includeTpls
+     * @returns {PromiseLike<any> | Promise<any>}
      */
-    $.fn.htmlTemplate = function (tpl, param) {
+    $.fn.htmlTemplate = function (tpl, param, includeTpls) {
         let $this = this;
+        includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : null;
         param = typeof param === "object" && param !== null ? param : {};
         mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO});
         return getTemplates().then(templates => {
-            $this.html(Mustache.render(templates[tpl], param));
+            let includes = {};
+            for(let i in includeTpls)
+                includes[includeTpls[i]] = templates[includeTpls[i]];
+            $this.html(Mustache.render(templates[tpl], param, includes));
         });
     };
 }(jQuery));
