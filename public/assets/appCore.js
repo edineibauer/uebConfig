@@ -190,7 +190,7 @@ function setUpdateVersion() {
     $.ajax({
         type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: function (data) {
             if (data.data !== "no-network" && data.response === 1)
-                setCookie("update", data.data)
+                setCookie("update", data.data > 2 ? data.data : 2)
         }, dataType: "json", async: !1
     })
 }
@@ -561,7 +561,7 @@ function updateVersionNumber() {
                 if (this.status === 200) {
                     let data = JSON.parse(this.responseText);
                     if (data.data !== "no-network" && data.response === 1 && (getCookie("update") === "" || data.data !== getCookie("update")))
-                        setCookie("update", data.data);
+                        setCookie("update", data.data > 2 ? data.data : 2);
                     resolve(1);
                 } else {
                     resolve(0);
@@ -1245,7 +1245,7 @@ function setVersionApplication() {
                 } else {
                     let data = JSON.parse(this.responseText);
                     if (data.data !== "no-network" && data.response === 1)
-                        setCookie("update", data.data);
+                        setCookie("update", data.data > 2 ? data.data : 2);
 
                     resolve(1);
                 }
