@@ -54,7 +54,7 @@
         const SITESUB = '{$sitesub}';
         const PUBLICO = '{$publico}';
         const DOMINIO = '{$dominio}';
-        const VERSION = {$version};
+        const VERSION = '{$version}';
         const DEV = {$dev};
         const VENDOR = '{$vendor}';
         const HOMEPAGE = '{$homepage}';
