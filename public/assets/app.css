@@ -221,7 +221,7 @@ input::-webkit-inner-spin-button {
 }
 
 #core-menu-custom-bottom li a i, #core-menu-custom-bottom li span i, #core-menu-custom-bottom li div i{
-    padding: 12px calc(50% - 15px);
+    padding: 8px calc(50% - 15px);
     font-size: 25px;
     color: #AAAAAA;
 }
