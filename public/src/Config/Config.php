@@ -35,8 +35,8 @@ class Config
         }
 
         //atualiza versão do Service Worker
-        if (file_exists(PATH_HOME . "service-worker.js")) {
-            $serviceWorker = file_get_contents(PATH_HOME . "service-worker.js");
+        if (file_exists($path . "service-worker.js")) {
+            $serviceWorker = file_get_contents($path . "service-worker.js");
             $version = (float)explode("'", explode("const VERSION = '", $serviceWorker)[1])[0];
             $serviceWorker = str_replace("const VERSION = '{$version}'", "const VERSION = '{$dados['version']}'", $serviceWorker);
             self::writeFile("service-worker.js", $serviceWorker);
@@ -55,19 +55,20 @@ class Config
      */
     public static function createHtaccess(string $vendor = "", string $domain = "", string $www = "", string $protocol = "")
     {
+        $pathHome = defined("PATH_HOME") ? PATH_HOME : "../../../";
         if (!empty($vendor) || defined("DOMINIO")) {
             if (empty($vendor)) {
                 $vendor = VENDOR;
                 $domain = DOMINIO;
                 $www = WWW;
                 $protocol = SSL;
-                $path = PATH_HOME . VENDOR . "config/";
+                $path = $pathHome . VENDOR . "config/";
             } else {
                 $path = "";
             }
 
             $vendor = str_replace('/', '\\/', $vendor);
-            $rewriteDomain = file_exists(PATH_HOME . "_config/permissoes.json") ? "" : "RewriteRule ^{$vendor}{$domain}\/public\/(.*)$ public/$1 [L]";
+            $rewriteDomain = file_exists($pathHome . "_config/permissoes.json") ? "" : "RewriteRule ^{$vendor}{$domain}\/public\/(.*)$ public/$1 [L]";
             $dados = "RewriteCond %{HTTP_HOST} ^" . ($www ? "{$domain}\nRewriteRule ^ http" . ($protocol ? "s" : "") . "://www.{$domain}%{REQUEST_URI}" : "www.(.*) [NC]\nRewriteRule ^(.*) http" . ($protocol ? "s" : "") . "://%1/$1") . " [L,R=301]";
             self::writeFile(".htaccess", str_replace(['{$dados}', '{$rewriteDomain}'], [$dados, $rewriteDomain], file_get_contents("{$path}public/installTemplates/htaccess.txt")));
         }
