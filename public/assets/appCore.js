@@ -858,9 +858,7 @@ function clearCacheUser() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-v");
-                    let name = corte[0];
-                    let version = parseFloat(corte[1]);
-                    if (version !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(name) > -1)
+                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
                         return caches.delete(cacheName);
                 }))
             })
