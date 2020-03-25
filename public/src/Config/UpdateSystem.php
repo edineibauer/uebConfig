@@ -132,6 +132,7 @@ class UpdateSystem
         if(empty($custom)) {
             $this->updateDependenciesEntity();
             $this->checkAdminExist();
+            $this->updateConfigFolder();
             $this->updateAssets($dados);
             $this->createMinifyAssetsLib();
             $this->createManifest($dados);
@@ -156,6 +157,61 @@ class UpdateSystem
         }
 
         $this->result = true;
+    }
+
+    /**
+     * Atualiza arquivos na pasta _config
+     */
+    private function updateConfigFolder()
+    {
+        //Para cada biblioteca
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+            if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config")) {
+                $base = PATH_HOME . VENDOR . "/{$lib}/public/_config/";
+
+                if(file_exists($base . "param.json"))
+                    copy($base . "param.json", PATH_HOME . "_config/param.json");
+
+                if(file_exists($base . "permissoes.json"))
+                    copy($base . "permissoes.json", PATH_HOME . "_config/permissoes.json");
+
+                if(file_exists($base . "general_info.json"))
+                    copy($base . "general_info.json", PATH_HOME . "entity/general/general_info.json");
+
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css"))
+                    copy(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+                
+                if(file_exists($base . "config.json")) {
+                    $configUp = json_decode(file_get_contents($base . "config.json"), !0);
+                    $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+
+                    if(!empty($configUp['cepaberto']) && empty($config['cepaberto']))
+                        $config['cepaberto'] = $configUp['cepaberto'];
+
+                    if(!empty($configUp['geocode']) && empty($config['geocode']))
+                        $config['geocode'] = $configUp['geocode'];
+
+                    if(!empty($configUp['push_public_key']) && empty($config['push_public_key']) && !empty($configUp['push_private_key']) && empty($config['push_private_key'])) {
+                        $config['push_public_key'] = $configUp['push_public_key'];
+                        $config['push_private_key'] = $configUp['push_private_key'];
+                    }
+
+                    if(!empty($configUp['emailkey']) && empty($config['emailkey']) && !empty($configUp['email']) && empty($config['email'])) {
+                        $config['emailkey'] = $configUp['emailkey'];
+                        $config['email'] = $configUp['email'];
+                    }
+
+                    Config::createConfig($config);
+                }
+
+                if(file_exists($base . "offline")) {
+                    Helper::recurseDelete(PATH_HOME . "_config/offline");
+                    Helper::recurseCopy($base . "offline", PATH_HOME . "_config/offline");
+                }
+
+                break;
+            }
+        }
     }
 
     /**

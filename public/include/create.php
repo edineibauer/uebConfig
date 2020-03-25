@@ -1,5 +1,7 @@
 <?php
 
+use Config\Config;
+
 if(isset($_SESSION['userlogin']))
     unset($_SESSION['userlogin']);
 
@@ -101,19 +103,6 @@ function uploadFiles()
 
     if (preg_match('/^image\//i', $_FILES['favicon']['type']))
         move_uploaded_file($_FILES['favicon']['tmp_name'], "../../../uploads/site/" . basename($_FILES['favicon']['name']));
-}
-
-/**
- * Cria Arquivo de Rota e adiciona o atual domínio como uma rota alteranativa
- * @param array $dados
- */
-function createRoute(array $dados)
-{
-    $data = json_decode(file_get_contents("public/installTemplates/route.json"), true);
-    if (!empty($dados['dominio']) && !in_array($dados['dominio'], $data))
-        $data[] = $dados['dominio'];
-
-    Config\Config::writeFile("_config/route.json", json_encode($data));
 }
 
 /**
@@ -257,6 +246,28 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             $dados['homepage'] = $configuracoes['homepage'];
             $dados['dominio'] = $configuracoes['dominio'];
 
+            /**
+             * Obtém as integrações
+             */
+            if(!empty($configuracoes['cepaberto']) && empty($dados['cepaberto']))
+                $dados['cepaberto'] = $configuracoes['cepaberto'];
+
+            if(!empty($configuracoes['geocode']) && empty($dados['geocode']))
+                $dados['geocode'] = $configuracoes['geocode'];
+
+            if(!empty($configuracoes['push_public_key']) && empty($dados['push_public_key']) && !empty($configuracoes['push_private_key']) && empty($dados['push_private_key'])) {
+                $dados['push_public_key'] = $configuracoes['push_public_key'];
+                $dados['push_private_key'] = $configuracoes['push_private_key'];
+            }
+
+            if(!empty($configuracoes['emailkey']) && empty($dados['emailkey']) && !empty($configuracoes['email']) && empty($dados['email'])) {
+                $dados['emailkey'] = $configuracoes['emailkey'];
+                $dados['email'] = $configuracoes['email'];
+            }
+
+            /**
+             * Arquivos de imagem LOGO e FAVICON
+             */
             if (empty($_FILES['favicon']['name']) && !empty($configuracoes['favicon'])) {
                 $dados['favicon'] = $configuracoes['favicon'];
                 copy($dados['base'] . "/public/_config/favicon." . pathinfo($dados['favicon'])['extension'], $dados['path_home'] . "uploads/site/favicon." . pathinfo($dados['favicon'])['extension']);
@@ -272,11 +283,17 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
                     $dados[$field] = $value;
             }
 
+            /**
+             * Copia arquivos _config
+             */
             copy($dados['base'] . "/public/assets/theme.min.css", $dados['path_home'] . "public/assets/theme.min.css");
             copy($dados['base'] . "/public/_config/permissoes.json", $dados['path_home'] . "_config/permissoes.json");
-            copy($dados['base'] . "/public/_config/route.json", $dados['path_home'] . "_config/route.json");
             copy($dados['base'] . "/public/_config/param.json", $dados['path_home'] . "_config/param.json");
             copy($dados['base'] . "/public/_config/general_info.json", $dados['path_home'] . "entity/general/general_info.json");
+
+            if(file_exists($dados['base'] . "/public/_config/offline"))
+                Helper::recurseCopy($dados['base'] . "/public/_config/offline", $dados['path_home'] . "_config/offline");
+
         } else {
             Config\Config::writeFile("_config/permissoes.json", "{}");
         }
@@ -291,7 +308,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createConfig($dados);
 
         if(!isset($configuracoes)) {
-            createRoute($dados);
             createParam($dados);
         }
 
