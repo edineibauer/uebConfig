@@ -2307,16 +2307,16 @@ function onLoadDocument() {
 }
 
 function startApplication() {
-    let firstAccess = getCookie("accesscount") === "";
+    let isFirstAccess = getCookie("accesscount") === "";
 
-    if(firstAccess) {
+    if(isFirstAccess) {
         $("#core-spinner").css("stroke", THEMETEXT);
         $("html").css("background", THEME);
     }
     onLoadDocument();
     checkSessao().then(() => {
         let promessa = [];
-        promessa.push(firstAccess ? firstAccess() : thenAccess());
+        promessa.push(isFirstAccess ? firstAccess() : thenAccess());
 
         return Promise.all(promessa).then(() => {
             $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
@@ -2340,7 +2340,7 @@ function startApplication() {
 
         }).then(() => {
 
-            if(firstAccess) {
+            if(isFirstAccess) {
                 $("html").css("background", "#eeeeee");
                 $("#core-spinner").css("stroke", THEME);
             }
