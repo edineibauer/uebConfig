@@ -665,10 +665,11 @@ class Config
         if ((!empty($setor) || $setor === "0")) {
             Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
             $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
+            self::setCssPrefixAndVariables("assetsPublic/view/{$setor}/{$view}.min.css", $view);
         } else {
             $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.css");
+            self::setCssPrefixAndVariables("assetsPublic/view/{$view}.min.css", $view);
         }
-        self::setCssPrefixAndVariables("assetsPublic/view/{$view}.min.css", $view);
     }
 
     /**
