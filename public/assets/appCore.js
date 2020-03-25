@@ -2307,12 +2307,16 @@ function onLoadDocument() {
 }
 
 function startApplication() {
-    $("#core-spinner").css("stroke", THEMETEXT);
-    $("html").css("background", THEME);
+    let firstAccess = getCookie("accesscount") === "";
+
+    if(firstAccess) {
+        $("#core-spinner").css("stroke", THEMETEXT);
+        $("html").css("background", THEME);
+    }
     onLoadDocument();
     checkSessao().then(() => {
         let promessa = [];
-        promessa.push(getCookie("accesscount") === "" ? firstAccess() : thenAccess());
+        promessa.push(firstAccess ? firstAccess() : thenAccess());
 
         return Promise.all(promessa).then(() => {
             $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
@@ -2335,8 +2339,11 @@ function startApplication() {
             return checkUpdate();
 
         }).then(() => {
-            $("html").css("background", "#eeeeee");
-            $("#core-spinner").css("stroke", THEME);
+
+            if(firstAccess) {
+                $("html").css("background", "#eeeeee");
+                $("#core-spinner").css("stroke", THEME);
+            }
         });
     });
 }
