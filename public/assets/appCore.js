@@ -1112,7 +1112,7 @@ function loadUserViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    return get("appFilesViewUser/").then(g => {
+    return get("appFilesViewUser").then(g => {
         return caches.open('viewUser-v' + VERSION).then(cache => {
 
             /**
