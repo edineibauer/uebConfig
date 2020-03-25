@@ -188,6 +188,18 @@ class Config
         */
     }
 
+    private static function getTiposUsuarios()
+    {
+        $lista = ["0"];
+        foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $info) {
+            $infoData = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$info}"), !0);
+            if (!empty($infoData['user']) && $infoData['user'] === 1)
+                $lista[] = str_replace(".json", "", $info);
+        }
+
+        return $lista;
+    }
+
     /**
      * Cria os Assets de View da página
      *
@@ -199,37 +211,95 @@ class Config
     {
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
-        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
         if (empty($view)) {
-            foreach (Config::getViewPermissoes() as $lib) {
 
-                $path = PATH_HOME . VENDOR . $lib . "/public/";
 
-                if (file_exists($path . "view")) {
-                    foreach (Helper::listFolder($path . "view") as $viewLib) {
+            /**
+             * Cria os assets das views de forma genérica
+             */
+            $listaViews = ['generico' => []];
+            $tiposUsuarios = self::getTiposUsuarios();
 
-                        if (preg_match('/.(html|php)$/i', $viewLib)) {
-                            $view = str_replace(['.php', '.html'], '', $viewLib);
-                            $param = self::getViewParam($view, $lib, $setor);
+            /**
+             * GENÉRICO VIEW
+             */
+            if (file_exists(PATH_HOME . "/public/view")) {
+                foreach (Helper::listFolder(PATH_HOME . "/public/view") as $viewLib) {
+                    $viewName = str_replace(['.php', '.html'], '', $viewLib);
+                    if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews['generico'])))
+                        $listaViews['generico'][$viewName] = DOMINIO;
+                }
+            }
 
-                            self::createPageJs($view, $param['js'], $lib, $setor);
-                            self::createPageCss($view, $param['css'], $lib, $setor);
+            /**
+             * GENÉRICO VIEW Libs
+             */
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view")) {
+                    foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/view") as $viewLib) {
+                        $viewName = str_replace(['.php', '.html'], '', $viewLib);
+                        if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews['generico'])))
+                            $listaViews['generico'][$viewName] = $lib;
+                    }
+                }
+            }
+
+            /**
+             * SETOR VIEW
+             */
+            foreach ($tiposUsuarios as $tiposUsuario) {
+                Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/" . $tiposUsuario);
+                $listaViews[$tiposUsuario] = [];
+
+                /**
+                 * Public
+                 */
+                if (file_exists(PATH_HOME . "/public/view/" . $tiposUsuario)) {
+                    foreach (Helper::listFolder(PATH_HOME . "/public/view/" . $tiposUsuario) as $viewLib) {
+                        $viewName = str_replace(['.php', '.html'], '', $viewLib);
+                        if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews[$tiposUsuario])))
+                            $listaViews[$tiposUsuario][$viewName] = DOMINIO;
+                    }
+                }
+
+                /**
+                 * Libs
+                 */
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view/" . $tiposUsuario)) {
+                        foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/view/" . $tiposUsuario) as $viewLib) {
+                            $viewName = str_replace(['.php', '.html'], '', $viewLib);
+                            if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews[$tiposUsuario])))
+                                $listaViews[$tiposUsuario][$viewName] = $lib;
                         }
                     }
                 }
             }
-        } else {
-            if (!empty($lib)) {
 
-                /**
-                 * Considera que param possui a lista de CSS e JS correta. (com overload aplicado)
-                 */
-                $param = (!empty($param) && isset($param['js']) && isset($param['css']) ? $param : ['js' => [], 'css' => []]);
-
-                self::createPageJs($view, $param['js'], $lib, $setor);
-                self::createPageCss($view, $param['css'], $lib, $setor);
+            foreach ($listaViews as $tipoUser => $listaView) {
+                $tipoUser = $tipoUser === 'generico' ? null : $tipoUser;
+                foreach ($listaView as $view => $lib) {
+                    $param = self::getViewParam($view, $lib, $tipoUser);
+                    self::createPageJs($view, $param['js'], $lib, $tipoUser);
+                    self::createPageCss($view, $param['css'], $lib, $tipoUser);
+                }
             }
+
+        } elseif (!empty($lib)) {
+
+            /**
+             * in DEV
+             */
+            $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
+            /**
+             * Considera que param possui a lista de CSS e JS correta. (com overload aplicado)
+             */
+            $param = (!empty($param) && isset($param['js']) && isset($param['css']) ? $param : ['js' => [], 'css' => []]);
+
+            self::createPageJs($view, $param['js'], $lib, $setor);
+            self::createPageCss($view, $param['css'], $lib, $setor);
         }
     }
 
@@ -238,10 +308,10 @@ class Config
      *
      * @param string $view
      * @param string $lib
-     * @param string $setor
-     * @return array|false|string
+     * @param string|null $setor
+     * @return array
      */
-    public static function getViewParam(string $view, string $lib, string $setor)
+    public static function getViewParam(string $view, string $lib, string $setor = null)
     {
         $base = [
             "version" => VERSION,
@@ -268,7 +338,7 @@ class Config
         $findParamView = !1;
         $param = [];
         if ($lib !== DOMINIO) {
-            if (file_exists(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json")) {
+            if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json")) {
                 $param = json_decode(@file_get_contents(PATH_HOME . "public/overload/{$lib}/param/{$setor}/{$view}.json"), !0);
                 $findParamView = !0;
             } elseif (file_exists(PATH_HOME . "public/overload/{$lib}/param/{$view}.json")) {
@@ -282,7 +352,7 @@ class Config
          */
         if (!$findParamView) {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                if (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json")) {
+                if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json")) {
                     $param = json_decode(@file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$setor}/{$view}.json"), !0);
                     $findParamView = !0;
                 } elseif (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/param/{$view}.json")) {
@@ -297,16 +367,16 @@ class Config
          */
         if (!$findParamView) {
             $pathFile = ($lib === DOMINIO ? "public/" : PATH_HOME . VENDOR . $lib . "/public/");
-            if (file_exists($pathFile . "param/{$setor}/{$view}.json"))
+            if ((!empty($setor) || $setor === "0") && file_exists($pathFile . "param/{$setor}/{$view}.json"))
                 $param = json_decode(@file_get_contents($pathFile . "param/{$setor}/{$view}.json"), !0);
             elseif (file_exists($pathFile . "param/{$view}.json"))
                 $param = json_decode(@file_get_contents($pathFile . "param/{$view}.json"), !0);
         }
 
-        if(!isset($param['js']) || !is_array($param['js']))
+        if (!isset($param['js']) || !is_array($param['js']))
             $param['js'] = (!empty($param['js']) && is_string($param['js']) ? [$param['js']] : []);
 
-        if(!isset($param['css']) || !is_array($param['css']))
+        if (!isset($param['css']) || !is_array($param['css']))
             $param['css'] = (!empty($param['css']) && is_string($param['css']) ? [$param['css']] : []);
 
         return array_merge($base, $param);
@@ -474,9 +544,9 @@ class Config
      * @param string $view
      * @param array $listaJs
      * @param string $lib
-     * @param string $setor
+     * @param string|null $setor
      */
-    private static function createPageJs(string $view, array $listaJs, string $lib, string $setor)
+    private static function createPageJs(string $view, array $listaJs, string $lib, string $setor = null)
     {
         $pathFile = ($lib === DOMINIO ? "public/" : VENDOR . $lib . "/public/");
         $minifier = new \MatthiasMullie\Minify\JS("");
@@ -491,7 +561,7 @@ class Config
          */
         $findAssetView = !1;
         if ($lib !== DOMINIO) {
-            if (file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.js")) {
+            if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.js")) {
                 $minifier->add(file_get_contents(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.js"));
                 $findAssetView = !0;
             } elseif (file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$view}.js")) {
@@ -505,7 +575,7 @@ class Config
          */
         if (!$findAssetView) {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                if (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.js")) {
+                if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.js")) {
                     $minifier->add(file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.js"));
                     $findAssetView = !0;
                 } elseif (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$view}.js")) {
@@ -519,14 +589,19 @@ class Config
          * Por fim, se não tiver overload, carrega o view assets padrão da lib
          */
         if (!$findAssetView) {
-            if (file_exists(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.js"))
+            if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.js"))
                 $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.js"));
             elseif (file_exists(PATH_HOME . $pathFile . "assets/{$view}.js"))
                 $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$view}.js"));
         }
 
         //Salva o Assets JS da view
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.js");
+        if ((!empty($setor) || $setor === "0")) {
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
+            $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
+        } else {
+            $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.js");
+        }
     }
 
     /**
@@ -535,9 +610,9 @@ class Config
      * @param string $view
      * @param array $listaCss
      * @param string $lib
-     * @param string $setor
+     * @param string|null $setor
      */
-    private static function createPageCss(string $view, array $listaCss, string $lib, string $setor)
+    private static function createPageCss(string $view, array $listaCss, string $lib, string $setor = null)
     {
         $pathFile = ($lib === DOMINIO ? "public/" : VENDOR . $lib . "/public/");
         $minifier = new \MatthiasMullie\Minify\CSS("");
@@ -552,7 +627,7 @@ class Config
          */
         $findAssetView = !1;
         if ($lib !== DOMINIO) {
-            if (file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.css")) {
+            if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.css")) {
                 $minifier->add(file_get_contents(PATH_HOME . "public/overload/{$lib}/assets/{$setor}/{$view}.css"));
                 $findAssetView = !0;
             } elseif (file_exists(PATH_HOME . "public/overload/{$lib}/assets/{$view}.css")) {
@@ -566,7 +641,7 @@ class Config
          */
         if (!$findAssetView) {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $libs) {
-                if (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.css")) {
+                if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.css")) {
                     $minifier->add(file_get_contents(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$setor}/{$view}.css"));
                     $findAssetView = !0;
                 } elseif (file_exists(PATH_HOME . VENDOR . $libs . "/public/overload/{$lib}/assets/{$view}.css")) {
@@ -580,15 +655,19 @@ class Config
          * Por fim, se não tiver overload, carrega o view assets padrão da lib
          */
         if (!$findAssetView) {
-            if (file_exists(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.css"))
+            if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.css"))
                 $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$setor}/{$view}.css"));
             elseif (file_exists(PATH_HOME . $pathFile . "assets/{$view}.css"))
                 $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$view}.css"));
         }
 
         //Salva CSS assets da view
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.css");
-
+        if ((!empty($setor) || $setor === "0")) {
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
+            $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
+        } else {
+            $minifier->minify(PATH_HOME . "assetsPublic/view/{$view}.min.css");
+        }
         self::setCssPrefixAndVariables("assetsPublic/view/{$view}.min.css", $view);
     }
 
@@ -599,24 +678,24 @@ class Config
      * @param string $pathFile
      * @param string $extension
      * @param string $lib
-     * @param string $setor
+     * @param string|null $setor
      * @return false|string
      */
-    private static function getAssetsContent(string $asset, string $pathFile, string $extension, string $lib, string $setor)
+    private static function getAssetsContent(string $asset, string $pathFile, string $extension, string $lib, string $setor = null)
     {
-        if (DOMINIO !== $lib && file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}")) {
+        if (DOMINIO !== $lib && (!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}");
 
         } elseif (DOMINIO !== $lib && file_exists(PATH_HOME . "public/overload/" . $lib . "/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/overload/" . $lib . "/assets/" . $asset . ".{$extension}");
 
-        } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $setor . "/" . $asset . ".{$extension}")) {
+        } elseif ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . $pathFile . "assets/" . $setor . "/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $setor . "/" . $asset . ".{$extension}");
 
         } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}");
 
-        } elseif (file_exists(PATH_HOME . "public/assets/" . $setor . "/" . $asset . ".{$extension}")) {
+        } elseif ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/assets/" . $setor . "/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/assets/" . $setor . "/" . $asset . ".{$extension}");
 
         } elseif (file_exists(PATH_HOME . "public/assets/" . $asset . ".{$extension}")) {

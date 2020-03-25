@@ -1094,22 +1094,17 @@ function loadViews() {
             /**
              * Para cada view, carrega seus assets
              */
-            let viewsAssets = {css: [], js: []};
+            let viewsAssets = [];
             for (let i in g.view) {
                 let viewName = "assetsPublic/view/" + g.view[i];
-                viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
-                viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
+                viewsAssets.push(viewName + ".min.js?v=" + VERSION);
             }
 
             /**
              * Cache view Assets
              */
             return caches.open('viewJs-v' + VERSION).then(cache => {
-                return cache.addAll(viewsAssets.js);
-            }).then(() => {
-                return caches.open('viewCss-v' + VERSION).then(cache => {
-                    return cache.addAll(viewsAssets.css);
-                })
+                return cache.addAll(viewsAssets);
             });
         })
     });
@@ -1132,22 +1127,17 @@ function loadUserViews() {
             /**
              * Para cada view, carrega seus assets
              */
-            let viewsAssets = {css: [], js: []};
+            let viewsAssets = [];
             for (let i in g.view) {
                 let viewName = "assetsPublic/view/" + g.view[i];
-                viewsAssets.css.push(viewName + ".min.css?v=" + VERSION);
-                viewsAssets.js.push(viewName + ".min.js?v=" + VERSION);
+                viewsAssets.push(viewName + ".min.js?v=" + VERSION);
             }
 
             /**
              * Cache view Assets
              */
             return caches.open('viewUserJs-v' + VERSION).then(cache => {
-                return cache.addAll(viewsAssets.js);
-            }).then(() => {
-                return caches.open('viewUserCss-v' + VERSION).then(cache => {
-                    return cache.addAll(viewsAssets.css);
-                })
+                return cache.addAll(viewsAssets);
             });
         })
     });

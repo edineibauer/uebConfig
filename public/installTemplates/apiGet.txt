@@ -1,12 +1,12 @@
 <?php
 require_once './_config/config.php';
 
-use Route\Link;
+use Route\Route;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    $link = new Link($url, 'get');
 
+    $link = new Route($url, 'get');
     if ($link->getRoute()) {
 
         ob_start();

@@ -4,8 +4,8 @@ use Route\Link;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
-    $link = new Link($url);
 
+    $link = new Link($url);
     if ($link->getRoute()) {
 
         ob_start();
