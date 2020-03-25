@@ -1064,6 +1064,17 @@ function checkSessao() {
 }
 
 /**
+ * Atualiza o cache do usuário atual e recarrega
+ * @returns {Promise<void>}
+ */
+function updateAppUser() {
+    toast("Atualizando...", 10000, "toast-success");
+    updateCacheUser().then(() => {
+        location.reload();
+    })
+}
+
+/**
  * Atualiza o cache do usuário atual
  * @returns {Promise<void>}
  */
