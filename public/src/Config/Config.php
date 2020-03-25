@@ -286,20 +286,24 @@ class Config
                 }
             }
 
-        } elseif (!empty($lib)) {
-
             /**
              * in DEV
              */
+        } elseif (!empty($lib)) {
             $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-
-            /**
-             * Considera que param possui a lista de CSS e JS correta. (com overload aplicado)
-             */
             $param = (!empty($param) && isset($param['js']) && isset($param['css']) ? $param : ['js' => [], 'css' => []]);
 
-            self::createPageJs($view, $param['js'], $lib, $setor);
-            self::createPageCss($view, $param['css'], $lib, $setor);
+            if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js")) {
+                self::createPageJs($view, $param['js'], $lib, $setor);
+            } elseif(file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.js")) {
+                self::createPageJs($view, $param['js'], $lib);
+            }
+
+            if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css")) {
+                self::createPageCss($view, $param['css'], $lib, $setor);
+            } elseif(file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.css")) {
+                self::createPageCss($view, $param['css'], $lib);
+            }
         }
     }
 
