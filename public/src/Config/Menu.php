@@ -24,23 +24,48 @@ class Menu
         return $this->menu;
     }
 
+    /**
+     * @param string $dir
+     * @param string $setor
+     */
+    private function checkMenuExist(string $dir, string $setor)
+    {
+        /**
+         * Verifica se existe um menu
+         */
+        if (file_exists(PATH_HOME . "{$dir}/menu/{$setor}/menu.php")) {
+            ob_start();
+            require_once PATH_HOME . "{$dir}/menu/{$setor}/menu.php";
+            $this->menu = ob_get_contents();
+            ob_end_clean();
+
+        } elseif (file_exists(PATH_HOME . "{$dir}/menu/menu.php")) {
+            ob_start();
+            require_once PATH_HOME . "{$dir}/menu/menu.php";
+            $this->menu = ob_get_contents();
+            ob_end_clean();
+
+        } else {
+            if (file_exists(PATH_HOME . "{$dir}/menu/{$setor}/{$this->file}.json")) {
+                $this->addMenuJson(PATH_HOME . "{$dir}/menu/{$setor}/{$this->file}.json");
+            } elseif (file_exists(PATH_HOME . "{$dir}/menu/{$this->file}.json")) {
+                $this->addMenuJson(PATH_HOME . "{$dir}/menu/{$this->file}.json");
+            }
+        }
+    }
+
     private function start()
     {
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
-        if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/menu/{$setor}/{$this->file}.json")) {
-            $this->addMenuJson(PATH_HOME . "public/menu/{$setor}/{$this->file}.json");
-        } elseif (file_exists(PATH_HOME . "public/menu/{$this->file}.json")) {
-            $this->addMenuJson(PATH_HOME . "public/menu/{$this->file}.json");
-        } else {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(!empty($this->menu))
-                    break;
+        $this->checkMenuExist("public", $setor);
 
-                if ((!empty($setor) || $setor === "0") && file_exists(PATH_HOME . VENDOR . "{$lib}/public/menu/{$setor}/{$this->file}.json"))
-                    $this->addMenuJson(PATH_HOME . VENDOR . "{$lib}/public/menu/{$setor}/{$this->file}.json");
-                elseif (file_exists(PATH_HOME . VENDOR . "{$lib}/public/menu/{$this->file}.json"))
-                    $this->addMenuJson(PATH_HOME . VENDOR . "{$lib}/public/menu/{$this->file}.json");
+        if(empty($this->menu)) {
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                $this->checkMenuExist(VENDOR . "/{$lib}/public", $setor);
+
+                if (!empty($this->menu))
+                    break;
             }
         }
     }
