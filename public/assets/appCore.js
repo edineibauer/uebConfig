@@ -2307,6 +2307,8 @@ function onLoadDocument() {
 }
 
 function startApplication() {
+    $("#core-spinner").css("stroke", THEMETEXT);
+    $("html").css("background", THEME);
     onLoadDocument();
     checkSessao().then(() => {
         let promessa = [];
@@ -2331,6 +2333,10 @@ function startApplication() {
              * Verifica se existe uma versão mais recente do app
              */
             return checkUpdate();
+
+        }).then(() => {
+            $("html").css("background", "#eeeeee");
+            $("#core-spinner").css("stroke", THEME);
         });
     });
 }
