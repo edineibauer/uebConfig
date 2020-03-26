@@ -1137,10 +1137,8 @@ function loadUserViews() {
              * Para cada view, carrega seus assets
              */
             let viewsAssets = [];
-            for (let i in g.view) {
-                let viewName = "assetsPublic/view/" + g.view[i];
-                viewsAssets.push(viewName + ".min.js?v=" + VERSION);
-            }
+            for (let i in g.view)
+                viewsAssets.push("assetsPublic/view/" + USER.setor + "/" + g.view[i] + ".min.js?v=" + VERSION);
 
             /**
              * Cache view Assets
