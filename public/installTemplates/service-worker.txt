@@ -75,8 +75,7 @@ self.addEventListener('fetch', function (e) {
     let url = e.request.url.replace(HOME, '');
     let fonts = new RegExp("assetsPublic\/fonts\/", "i");
     let images = new RegExp("assetsPublic\/img\/", "i");
-    let viewJs = new RegExp("assetsPublic\/view\/\.+.min.js", "i");
-    let viewCss = new RegExp("assetsPublic\/view\/\.+.min.css", "i");
+    let viewJs = new RegExp("assetsPublic\/view\/", "i");
     let core = new RegExp("assetsPublic\/", "i");
     let view = new RegExp("view\/", "i");
     let get = new RegExp("(get|app\/find|app\/search|app\/get)\/", "i");
@@ -90,12 +89,12 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(fetch(e.request));
 
     } else if(core.test(url)) {
-        let cacheName = (viewJs.test(url) ? 'viewUserJs' : (viewCss.test(url) ? 'viewUserCss' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core'))));
+        let cacheName = (viewJs.test(url) ? 'viewUserJs' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core')));
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if(!response && (cacheName === "viewUserJs" || cacheName === "viewUserCss")) {
-                        return caches.open(cacheName.replace("User", "") + '-v' + VERSION).then(cache => {
+                    if(!response && cacheName === "viewUserJs") {
+                        return caches.open('viewJs-v' + VERSION).then(cache => {
                             return cache.match(url).then(response => {
                                 return response || fetch(e.request).then(networkResponse => {
                                     return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
@@ -193,6 +192,7 @@ self.addEventListener('fetch', function (e) {
                 return cache.match(url).then(response => {
                     return response || fetch(e.request).then(networkResponse => {
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+
                             if(["get/allow", "get/appFilesViewUser", "get/dicionarios", "get/graficos", "get/info", "get/load/sync", "get/menu", "get/navbar", "get/react", "get/templatesUser", "get/user"].indexOf(url) === -1)
                                 cache.put(url, networkResponse.clone());
 
