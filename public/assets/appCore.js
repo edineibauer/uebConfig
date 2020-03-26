@@ -1127,24 +1127,12 @@ function loadUserViews() {
         return caches.open('viewUser-v' + VERSION).then(cache => {
 
             /**
-             * Cache views
+             * Cache views and then Js
              */
-            return cache.addAll(g.view.map(s => "view/" + s));
-
-        }).then(() => {
-
-            /**
-             * Para cada view, carrega seus assets
-             */
-            let viewsAssets = [];
-            for (let i in g.view)
-                viewsAssets.push("assetsPublic/view/" + USER.setor + "/" + g.view[i] + ".min.js?v=" + VERSION);
-
-            /**
-             * Cache view Assets
-             */
-            return caches.open('viewUserJs-v' + VERSION).then(cache => {
-                return cache.addAll(viewsAssets);
+            return cache.addAll(g.view).then(() => {
+                return caches.open('viewUserJs-v' + VERSION).then(c => {
+                    return c.addAll(g.js);
+                });
             });
         })
     });
