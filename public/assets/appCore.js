@@ -320,9 +320,7 @@ function getJSON(url) {
 function get(file, retrying) {
     return getJSON(HOME + "get/" + file).then(data => {
         if (data.response === 1) {
-            if (typeof data.data.js === "undefined")
-                return data.data;
-            toast("sem conexão", 2500, "toast-warning")
+            return data.data;
         } else {
             switch (data.response) {
                 case 2:
@@ -1090,7 +1088,7 @@ function loadViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    return get("appFilesView/").then(g => {
+    return get("appFilesView").then(g => {
         return caches.open('view-v' + VERSION).then(cache => {
 
             /**
