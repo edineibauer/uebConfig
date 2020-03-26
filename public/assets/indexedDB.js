@@ -20,37 +20,45 @@ function exeReadApplyFilter(data, filter) {
 
                     } else if (typeof dd[filterOption.column] !== "undefined") {
 
-                        if (typeof dd[filterOption.column] === "string") {
-                            dd[filterOption.column] = dd[filterOption.column].toLowerCase();
-                            filterOption.value = filterOption.value.toLowerCase()
+                        let dataValor = dd[filterOption.column];
+                        if (typeof dataValor === "string") {
+                            if(!isNaN(filterOption.value)) {
+                                dataValor = parseFloat(dataValor);
+                                filterOption.value = parseFloat(filterOption.value);
+                            } else {
+                                dataValor = dataValor.toLowerCase();
+                                filterOption.value = filterOption.value.toLowerCase()
+                            }
                         }
+
                         switch (filterOption.operator) {
                             case 'contém':
-                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) > -1);
+                                passou = (typeof dataValor !== "string" || dataValor.indexOf(filterOption.value) > -1);
                                 break;
                             case 'igual a':
-                                passou = (dd[filterOption.column] == filterOption.value);
+                                passou = (dataValor == filterOption.value);
                                 break;
                             case 'diferente de':
-                                passou = (dd[filterOption.column] != filterOption.value);
+                                passou = (dataValor != filterOption.value);
                                 break;
                             case 'começa com':
-                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) === 0);
+                                passou = (typeof dataValor !== "string" || dataValor.indexOf(filterOption.value) === 0);
                                 break;
                             case 'termina com':
-                                passou = (typeof dd[filterOption.column] !== "string" || dd[filterOption.column].indexOf(filterOption.value) === (dd[filterOption.column].length - filterOption.value.length));
+                                passou = (typeof dataValor !== "string" || dataValor.indexOf(filterOption.value) === (dataValor.length - filterOption.value.length));
                                 break;
                             case 'maior que':
-                                passou = (dd[filterOption.column] > filterOption.value);
+                                console.log(dataValor + " > " + filterOption.value + " = " + (dataValor > filterOption.value));
+                                passou = (dataValor > filterOption.value);
                                 break;
                             case 'menor que':
-                                passou = (dd[filterOption.column] < filterOption.value);
+                                passou = (dataValor < filterOption.value);
                                 break;
                             case 'maior igual a':
-                                passou = (dd[filterOption.column] >= filterOption.value);
+                                passou = (dataValor >= filterOption.value);
                                 break;
                             case 'menor igual a':
-                                passou = (dd[filterOption.column] <= filterOption.value);
+                                passou = (dataValor <= filterOption.value);
                                 break
                         }
                     }
