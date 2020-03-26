@@ -388,24 +388,23 @@ class Config
 
     /**
      * Cria o Core JS e CSS do setor de acesso
-     *
-     * @param array|null $param
      */
-    public static function createCore(array $param = null)
+    public static function createCore()
     {
-        $param = $param ?? (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        $setor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
-
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
-
         //copia theme padrão para pasta do site
         if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
             copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
-        self::createCoreJs($param['js'], $setor);
-        self::createCoreCss($param['css'], $setor);
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
+
+        $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
+        foreach (self::getTiposUsuarios() as $listaUser) {
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $listaUser);
+
+            self::createCoreJs($param['js'], $listaUser);
+            self::createCoreCss($param['css'], $listaUser);
+        }
     }
 
     /**

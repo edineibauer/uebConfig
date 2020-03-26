@@ -224,7 +224,7 @@ class UpdateSystem
 
         //gera core novamente com base nos param.json em _config
         $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        Config::createCore($param);
+        Config::createCore();
         $this->createCoreFont($param['font'], $param['icon'], 'fonts');
         $this->createCoreImages($dados);
 
