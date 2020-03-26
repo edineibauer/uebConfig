@@ -938,6 +938,9 @@ function recoveryUser() {
 
         if (getCookie("accesscount") === "")
             return loadCacheUser();
+
+    }).catch(() => {
+        errorLoadingApp();
     });
 }
 
@@ -962,6 +965,9 @@ function setUserInNavigator(user) {
     return dbLocal.exeCreate("__login", userLogin).then(() => {
         if (getCookie("accesscount") === "")
             return loadCacheUser();
+
+    }).catch(() => {
+        errorLoadingApp();
     });
 }
 
@@ -1003,10 +1009,7 @@ function checkSessao() {
         /**
          * Ainda não existe sessão, começa como anônimo
          */
-        return setCookieAnonimo().then(() => {
-            if (getCookie("accesscount") === "")
-                return loadCacheUser();
-        });
+        return setCookieAnonimo();
 
     } else if (!navigator.onLine) {
         /**
@@ -1055,6 +1058,8 @@ function checkSessao() {
                 resolve(0)
             };
             xhttp.send("lib=route&file=sessao");
+        }).catch(() => {
+            errorLoadingApp();
         });
     } else {
         return setUserInNavigator();
@@ -1113,7 +1118,11 @@ function loadViews() {
             return caches.open('viewJs-v' + VERSION).then(cache => {
                 return cache.addAll(viewsAssets);
             });
+        }).catch(() => {
+            errorLoadingApp();
         })
+    }).catch(() => {
+        errorLoadingApp();
     });
 }
 
@@ -1196,6 +1205,8 @@ function loadCacheUser() {
              * Carrega as views para este usuário
              */
             return loadUserViews();
+        }).catch(() => {
+            errorLoadingApp();
         });
 
     } else {
@@ -1305,6 +1316,8 @@ function firstAccess() {
                         errorLoadingApp();
                     })
                 })
+            }).catch(() => {
+                errorLoadingApp();
             });
 
         }).then(() => {
@@ -1333,7 +1346,11 @@ function firstAccess() {
         }).then(() => {
             return loadViews();
 
+        }).catch(() => {
+            errorLoadingApp();
         });
+    }).catch(() => {
+        errorLoadingApp();
     });
 }
 
@@ -1366,17 +1383,12 @@ function updateAppOnDev() {
              */
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
-                    return caches.delete(cacheName);
+                    let corte = cacheName.split("-");
+                    if(["images", "misc", "fonts"].indexOf(corte[0]) === -1)
+                        return caches.delete(cacheName);
                 }))
             })
         }
-    }).then(() => {
-
-        clear = [];
-        for (let entity in dicionarios)
-            clear.push(dbLocal.clear(entity));
-
-        return Promise.all(clear);
 
     }).then(() => {
 
@@ -1386,24 +1398,6 @@ function updateAppOnDev() {
             return caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll(g.core).catch(() => {
                     errorLoadingApp()
-                })
-            }).then(() => {
-                return caches.open('fonts-v' + VERSION).then(cache => {
-                    return cache.addAll(g.fonts).catch(() => {
-                        errorLoadingApp()
-                    })
-                })
-            }).then(() => {
-                return caches.open('images-v' + VERSION).then(cache => {
-                    return cache.addAll(g.images).catch(() => {
-                        errorLoadingApp()
-                    })
-                })
-            }).then(() => {
-                return caches.open('misc-v' + VERSION).then(cache => {
-                    return cache.addAll(g.misc).catch(() => {
-                        errorLoadingApp()
-                    })
                 })
             });
 
@@ -1448,12 +1442,6 @@ function updateAppOnDev() {
             creates.push(dbLocal.exeCreate('__graficos', r[9]));
             dicionarios = r[1];
             return Promise.all(creates);
-
-        }).then(() => {
-            /**
-             * Baixa os dados das entidades para este usuário
-             */
-            return downloadEntityData();
 
         }).then(() => {
             /**
@@ -2327,6 +2315,8 @@ function startApplication() {
                 $("html").css("background", "#eeeeee");
                 $("#core-spinner").css("stroke", THEME);
             }
+        }).catch(() => {
+            errorLoadingApp();
         });
     });
 }

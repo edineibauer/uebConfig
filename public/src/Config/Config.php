@@ -168,29 +168,11 @@ class Config
         Helper::recurseDelete($libs);
         Helper::createFolderIfNoExist($libs);
         Helper::recurseCopy(PATH_HOME . "vendor", $libs);
-
-        /*
-        //para cada lib overload other lib
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
-            if (file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload")) {
-                foreach (Helper::listFolder(PATH_HOME . VENDOR . $pathOverload . "/overload") as $libOverloaded) {
-                    if (is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded))
-                        Helper::recurseCopy(PATH_HOME . VENDOR . $pathOverload . "/overload/" . $libOverloaded, PATH_HOME . VENDOR . $libOverloaded . "/public");
-                }
-            }
-        }
-
-        //public (projeto atual) overload libs
-        foreach (Helper::listFolder(PATH_HOME . "public/overload") as $libOverloaded) {
-            if (is_dir(PATH_HOME . "public/overload/" . $libOverloaded) && file_exists(PATH_HOME . VENDOR . $libOverloaded))
-                Helper::recurseCopy(PATH_HOME . "public/overload/" . $libOverloaded, PATH_HOME . VENDOR . $libOverloaded . "/public");
-        }
-        */
     }
 
     private static function getTiposUsuarios()
     {
-        $lista = ["0"];
+        $lista = ["0", "admin"];
         foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $info) {
             $infoData = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$info}"), !0);
             if (!empty($infoData['user']) && $infoData['user'] === 1)
