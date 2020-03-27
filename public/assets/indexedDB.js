@@ -147,10 +147,10 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                                 if(offset === -1) {
                                     moveSyncInfoToDb(entity).then(syncD => {
                                         let dd = (syncD ? syncD.concat(dados.data) : dados.data);
-                                        resolve({data: dd, length: dd.length})
+                                        resolve({data: dd, length: dados.total})
                                     })
                                 } else {
-                                    resolve({data: dados.data, length: dados.data.length});
+                                    resolve({data: dados.data, length: dados.total});
                                 }
                             });
                         } else {

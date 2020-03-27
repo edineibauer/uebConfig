@@ -643,6 +643,7 @@ input::-webkit-inner-spin-button {
 
 .pagination {
 	background: #f1f1f1;
+    border-top: solid 5px #ddd;
 }
 
 .pagination > .button {
