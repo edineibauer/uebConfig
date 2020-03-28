@@ -2277,7 +2277,6 @@ function onLoadDocument() {
 
 function startApplication() {
     $("#core-spinner").css("stroke", THEMETEXT);
-    $("html").css("background", THEME);
     onLoadDocument();
     checkSessao().then(() => {
         let promessa = [];
@@ -2298,7 +2297,6 @@ function startApplication() {
 
         }).then(() => {
 
-            $("html").css("background", "#eeeeee");
             $("#core-spinner").css("stroke", THEME);
 
         }).then(() => {
