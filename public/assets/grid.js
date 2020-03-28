@@ -408,6 +408,20 @@ function gridCrud(entity, fields, actions) {
                 return ucFirst(replaceAll(replaceAll(render(text), "_", " "), "-", " "))
             }
         },
+        putWaitingRegisters: function (registerPosition, registersWaitingPosition, $content) {
+            if(registersWaitingPosition.length) {
+                for(let i in registersWaitingPosition) {
+                    if(registersWaitingPosition[i].position === registerPosition) {
+                        $content.append(registersWaitingPosition[i].content);
+                        registerPosition++;
+                        registersWaitingPosition.splice(i, 1);
+                        return this.putWaitingRegisters(registerPosition, registersWaitingPosition, $content);
+                    }
+                }
+            }
+
+            return [registerPosition, registersWaitingPosition];
+        },
         applyFilters: function () {
             let $this = this;
             $this.readData()
@@ -451,11 +465,24 @@ function gridCrud(entity, fields, actions) {
                     $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
                     $this.filterTotal = -1;
                     let pp = [];
+                    let registerPosition = 0;
+                    let registersWaitingPosition = [];
                     $this.$content.html("");
+
                     for (let k in result.data) {
                         if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
                             pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
-                                $this.$content.append(Mustache.render(templates['grid-content'], tr))
+                                if(parseInt(k) === registerPosition) {
+                                    $this.$content.append(Mustache.render(templates['grid-content'], tr))
+                                    registerPosition++;
+                                    if(registersWaitingPosition.length) {
+                                        let r = $this.putWaitingRegisters(registerPosition, registersWaitingPosition, $this.$content);
+                                        registerPosition = r[0];
+                                        registersWaitingPosition = r[1];
+                                    }
+                                } else {
+                                    registersWaitingPosition.push({position: parseInt(k), content: Mustache.render(templates['grid-content'], tr)});
+                                }
                             }))
                         }
                     }
