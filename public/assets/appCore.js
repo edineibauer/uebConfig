@@ -1807,12 +1807,10 @@ var app = {
     removeLoading: function () {
         app.loading = !1;
         $("#core-loader").css("display", "none");
-        $("html").css("opacity", 1);
         clearInterval(loadingEffect);
     }, setLoading: function () {
         app.loading = !0;
         $("#core-loader").css("display", "block");
-        $("html").css("opacity", .9);
 
         loadingEffect = setInterval(function () {
             $("#core-header").loading();
