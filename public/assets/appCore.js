@@ -1964,6 +1964,10 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
+
+    if(!novaRota)
+        return Promise.all([])
+
     if (!app.loading && !aniTransitionPage) {
         clearPage();
         app.route = route;
