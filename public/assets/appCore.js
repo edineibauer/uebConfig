@@ -437,19 +437,6 @@ function CSV(array, comma) {
     return result;
 }
 
-function openKeyboradSimulate() {
-    if(window.innerWidth < 900 && DEV) {
-        $("html").css("transform", "translateY(-45%)");
-        $("#app").append("<div id='keyboard-simulate'>simulação de teclado abrindo.<br>A simulação só acontece enquanto estiver em Desenvolvimento.</div>");
-        $("input").one("blur", function () {
-            setTimeout(function () {
-                $("#keyboard-simulate").remove();
-                $("html").css("transform", "translateY(0)");
-            }, 200);
-        })
-    }
-}
-
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     exdays = typeof exdays === "undefined" ? 360 : exdays;
@@ -2298,13 +2285,6 @@ function onLoadDocument() {
          */
     }).off("submit", "form").on("submit", "form", function (e) {
         e.preventDefault()
-    });
-
-    /**
-     * Open Keyboard simulate
-     */
-    $("#app").on("focus", "input, textarea", function (e) {
-        openKeyboradSimulate();
     });
 
     /**
