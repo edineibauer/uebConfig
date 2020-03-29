@@ -1523,7 +1523,7 @@ function clearPage() {
     clearHeaderScrollPosition();
 }
 
-function defaultPageTransitionPosition(direction, $element) {
+function defaultPageTransitionPosition(direction, $element, route) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
     let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
@@ -1538,7 +1538,14 @@ function defaultPageTransitionPosition(direction, $element) {
 
     let file = app.file.split("/");
     file = file[0];
-    let $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
+
+    let $aux = null;
+    if($(".cache-content[rel='" + route + "']").length) {
+        $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
+    } else {
+        $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
+    }
+
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
@@ -1562,7 +1569,20 @@ function animateTimeout($element, $aux, scroll) {
         "left": "initial",
         "width": "100%"
     }).removeClass("notop");
-    $element.remove();
+
+    if($element.hasClass("cache-content")) {
+        /**
+         * Cria Page Cache
+         */
+        $aux.removeAttr("data-header").removeAttr("data-navbar").removeAttr("data-js").removeAttr("data-front").removeAttr("data-title").removeAttr("rel").removeClass("cache-content");
+        $element.addClass("hide");
+        if($element.attr("id") !== undefined)
+            $element.attr("id", "cache-" + $element.attr("id"));
+
+    } else {
+        $element.remove();
+    }
+
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
     clearHeaderScrollPosition();
@@ -1574,12 +1594,12 @@ function animateTimeout($element, $aux, scroll) {
         $("#core-content").removeClass("mb-50");
 }
 
-function animateForward(id, scroll) {
+function animateForward(id, file, scroll) {
     if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('forward', $element);
+    let $aux = defaultPageTransitionPosition('forward', $element, file);
     let left = $element[0].getBoundingClientRect().left;
 
     let t = setInterval(function () {
@@ -1606,12 +1626,12 @@ function animateForward(id, scroll) {
     return $aux
 }
 
-function animateBack(id, scroll) {
+function animateBack(id, file, scroll) {
     if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('back', $element);
+    let $aux = defaultPageTransitionPosition('back', $element, file);
     let left = $element[0].getBoundingClientRect().left;
 
     let t = setInterval(function () {
@@ -1637,12 +1657,12 @@ function animateBack(id, scroll) {
     return $aux
 }
 
-function animateFade(id, scroll) {
+function animateFade(id, file, scroll) {
     if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('fade', $element);
+    let $aux = defaultPageTransitionPosition('fade', $element, file);
 
     let t = setInterval(function () {
         if ($aux.html() !== "") {
@@ -1668,12 +1688,12 @@ function animateFade(id, scroll) {
     return $aux
 }
 
-function animateNone(id, scroll) {
+function animateNone(id, file, scroll) {
     if (aniTransitionPage)
         return aniTransitionPage;
 
     let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('fade', $element);
+    let $aux = defaultPageTransitionPosition('fade', $element, file);
 
     let t = setInterval(function () {
         if ($aux.html() !== "") {
@@ -1818,69 +1838,89 @@ var app = {
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
-        /* SET LOADING */
-        app.setLoading();
+        if($div.html() !== "") {
+            let pageHeader = $div.data('header');
+            let pageNavbar = $div.data('navbar');
 
-        return view(file, function (g) {
-            if (g) {
-                if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                    TITLE = g.title;
-                    headerShow(g.header);
-                    checkMenuActive();
+            TITLE = $div.data('title');
+            headerShow(pageHeader);
+            checkMenuActive();
+            $("#core-title").text(TITLE);
 
-                    $("#core-title").text(g.title);
+            FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
+            let frontVar = $div.data('front');
+            if (!isEmpty(frontVar)) {
+                for (let col in frontVar)
+                    FRONT[col.toUpperCase()] = frontVar[col];
+            }
 
-                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
-                    $div.append(g.content);
+            if (!pageHeader)
+                $div.addClass("notop");
 
-                    /**
-                     * Define as constantes do front
-                     */
-                    FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
-                    if (!isEmpty(g.front) && typeof g.front === "object") {
-                        for (let col in g.front)
-                            FRONT[col.toUpperCase()] = g.front[col];
-                    }
+            if (pageNavbar)
+                $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-                    if (!g.header)
-                        $div.addClass("notop");
+            let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(pageHeader, pageNavbar) : 0);
+            $div.css("min-height", minHeightContent + "px");
+            if (file === "dashboard")
+                $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
 
-                    if (g.navbar)
-                        $("#core-header-nav-bottom").addClass("core-show-header-navbar");
-                    else
-                        $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+            return Promise.all([]);
 
-                    let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : 0);
-                    $div.css("min-height", minHeightContent + "px");
-                    if (file === "dashboard")
-                        $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
+        } else {
+            app.setLoading();
+            return view(file, function (g) {
+                if (g) {
+                    if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
+                        TITLE = g.title;
+                        headerShow(g.header);
+                        checkMenuActive();
+                        $("#core-title").text(g.title);
+                        $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
+                        $div.append(g.content);
+                        FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
+                        if (!isEmpty(g.front) && typeof g.front === "object") {
+                            for (let col in g.front)
+                                FRONT[col.toUpperCase()] = g.front[col]
+                        }
 
-                    if (g.js.length) {
-                        $.cachedScript(g.js).then(() => {
-                            app.removeLoading();
-                        }).catch(() => {
-                            app.removeLoading();
-                        })
+                        if(g.cache)
+                            $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-front", JSON.stringify(g.front));
+
+                        if (!g.header)
+                            $div.addClass("notop");
+                        if (g.navbar)
+                            $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                        let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : 0);
+                        $div.css("min-height", minHeightContent + "px");
+                        if (file === "dashboard")
+                            $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
+                        if (g.js.length) {
+                            $.cachedScript(g.js).then(() => {
+                                app.removeLoading()
+                            }).catch(() => {
+                                app.removeLoading()
+                            })
+                        } else {
+                            app.removeLoading()
+                        }
+                        if (g.font.length) {
+                            $.each(g.font, function (i, url) {
+                                if (!$("head").find("link[href='" + url + "']").length)
+                                    $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').data("assets", "core-assets").appendTo("head")
+                            })
+                        }
                     } else {
-                        app.removeLoading();
-                    }
-                    if (g.font.length) {
-                        $.each(g.font, function (i, url) {
-                            if (!$("head").find("link[href='" + url + "']").length)
-                                $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').data("assets", "core-assets").appendTo("head")
-                        })
+                        if (USER.setor === 0 && getCookie("redirectOnLogin") === "")
+                            setCookie("redirectOnLogin", file);
+                        location.href = HOME + g.redirect
                     }
                 } else {
-                    if (USER.setor === 0 && getCookie("redirectOnLogin") === "")
-                        setCookie("redirectOnLogin", file);
-
-                    location.href = HOME + g.redirect;
+                    $div.html("");
+                    app.removeLoading()
                 }
-            } else {
-                $div.html("");
-                app.removeLoading()
-            }
-        });
+            })
+        }
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
         let meuSetor = USER.setor.toString();
@@ -1989,7 +2029,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
 
             if (historyReqPosition)
                 animation = "none";
-            let $page = window["animate" + ucFirst(animation)](target, scroll);
+            let $page = window["animate" + ucFirst(animation)](target, file, scroll);
 
             if (type === 'route') {
                 return app.applyView(file, $page)

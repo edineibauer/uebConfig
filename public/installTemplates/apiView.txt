@@ -49,6 +49,7 @@ if (!empty($url)) {
                 "setor" => $link->getParam()['setor'],
                 "!setor" => $link->getParam()['!setor'],
                 "redirect" => $link->getParam()['redirect'] ?? "403",
+                "cache" => $link->getParam()['cache'] ?? !1,
                 "content" => $data['data']
             ];
 
