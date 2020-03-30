@@ -1752,7 +1752,8 @@ var dicionarios,
     historyReqPosition = 0,
     loadingEffect = null,
     appInstalled = !1,
-    deferredPrompt;
+    deferredPrompt,
+    timeWaitClick = 0;
 
 const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -2282,20 +2283,25 @@ function onLoadDocument() {
     /**
      * Intercepta clicks em links e traduz na função "pageTransition()"
      */
-    $("body").off("click", "a").on("click", "a", function (e) {
-        let url = $(this).attr("href").replace(HOME, '');
+    $("body").off("mousedown", "a").on("mousedown", "a", function () {
+        timeWaitClick = ($("input, textarea").is(':focus') ? 200 : 0);
 
-        if($("input").is(':focus')){
-            setTimeout(function () {
-                goLinkPageTransition(url, $(this), e);
-            }, 200);
+    }).off("click", "a").on("click", "a", function (e) {
+        let $this = $(this);
+        let url = $this.attr("href").replace(HOME, '');
+
+        if(timeWaitClick > 0) {
+            let p = new RegExp(/^#/i);
+            let pjs = new RegExp(/^javascript/i);
+            if ($this.attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+                e.preventDefault();
+                setTimeout(function () {
+                    goLinkPageTransition($this, e);
+                }, timeWaitClick);
+            }
         } else {
-            goLinkPageTransition(url, $(this), e);
+            goLinkPageTransition($this, e);
         }
-
-        /**
-         * Intercepta todos os submits de formulários
-         */
     }).off("submit", "form").on("submit", "form", function (e) {
         e.preventDefault()
     });
