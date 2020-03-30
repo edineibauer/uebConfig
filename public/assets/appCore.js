@@ -2296,11 +2296,11 @@ function onLoadDocument() {
             if ($this.attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
                 setTimeout(function () {
-                    goLinkPageTransition($this, e);
+                    goLinkPageTransition(url, $this, e);
                 }, timeWaitClick);
             }
         } else {
-            goLinkPageTransition($this, e);
+            goLinkPageTransition(url, $this, e);
         }
     }).off("submit", "form").on("submit", "form", function (e) {
         e.preventDefault()
