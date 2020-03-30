@@ -1965,9 +1965,6 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
 
-    if(!novaRota)
-        return Promise.all([])
-
     if (!app.loading && !aniTransitionPage) {
         clearPage();
         app.route = route;
@@ -2280,7 +2277,9 @@ function onLoadDocument() {
             let pjs = new RegExp(/^javascript/i);
             if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
                 e.preventDefault();
-                pageTransition(url, route, animation, target);
+
+                if(url !== app.route)
+                    pageTransition(url, route, animation, target);
             }
         }
 
