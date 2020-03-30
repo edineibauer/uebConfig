@@ -2198,6 +2198,25 @@ function updateHeaderPosition(revision) {
     lastPositionScroll = $(window).scrollTop();
 }
 
+function goLinkPageTransition(url, $this, e) {
+    if (url === "#back") {
+        e.preventDefault();
+        history.back();
+    } else {
+        let animation = $this.data("animation") || "forward";
+        let target = $this.data("target") || "#core-content";
+        let route = $this.data("route") || "route";
+        let p = new RegExp(/^#/i);
+        let pjs = new RegExp(/^javascript/i);
+        if ($this.attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+            e.preventDefault();
+
+            if(url !== app.route)
+                pageTransition(url, route, animation, target);
+        }
+    }
+}
+
 /**
  * Ao carregar todo o documento executa esta função
  */
@@ -2266,21 +2285,12 @@ function onLoadDocument() {
     $("body").off("click", "a").on("click", "a", function (e) {
         let url = $(this).attr("href").replace(HOME, '');
 
-        if (url === "#back") {
-            e.preventDefault();
-            history.back();
+        if($("input").is(':focus')){
+            setTimeout(function () {
+                goLinkPageTransition(url, $(this), e);
+            }, 200);
         } else {
-            let animation = $(this).data("animation") || "forward";
-            let target = $(this).data("target") || "#core-content";
-            let route = $(this).data("route") || "route";
-            let p = new RegExp(/^#/i);
-            let pjs = new RegExp(/^javascript/i);
-            if ($(this).attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
-                e.preventDefault();
-
-                if(url !== app.route)
-                    pageTransition(url, route, animation, target);
-            }
+            goLinkPageTransition(url, $(this), e);
         }
 
         /**
