@@ -371,7 +371,7 @@ function view(file, funcao) {
 
 function download(filename, text) {
     let element = document.createElement('a');
-    let blobData = new Blob(['\ufeff' + text], {type: 'application/vnd.ms-excel'});
+    let blobData = new Blob([text], {type: 'application/vnd.ms-excel'});
     let url = window.URL.createObjectURL(blobData);
     element.setAttribute('href', url);
     element.setAttribute('download', filename);
