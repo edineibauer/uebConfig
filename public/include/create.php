@@ -1,7 +1,5 @@
 <?php
 
-use Config\Config;
-
 if(isset($_SESSION['userlogin']))
     unset($_SESSION['userlogin']);
 
