@@ -951,13 +951,15 @@ function getDefaultValue(meta, value) {
                 } else {
                     valor = value !== "" ? value : null
                 }
+
+                //00.000
                 break;
             case 'datetime':
                 if (['date', 'now', 'agora', 'data', 'hoje', 'datetime'].indexOf(value) > -1) {
                     let dataAgora = new Date(Date.now());
                     valor = dataAgora.getFullYear() + "-" + zeroEsquerda(dataAgora.getMonth() + 1) + "-" + zeroEsquerda(dataAgora.getDate()) + "T" + zeroEsquerda(dataAgora.getHours()) + ":" + zeroEsquerda(dataAgora.getMinutes())
                 } else {
-                    valor = value !== "" ? value : null
+                    valor = value !== "" ? value.replace(".000", "") : null;
                 }
                 break;
             case 'time':
@@ -965,7 +967,7 @@ function getDefaultValue(meta, value) {
                     let dataAgora = new Date(Date.now());
                     valor = zeroEsquerda(dataAgora.getHours()) + ":" + zeroEsquerda(dataAgora.getMinutes())
                 } else {
-                    valor = value !== "" ? value : null
+                    valor = value !== "" ? value.replace(".000", "") : null;
                 }
                 break;
             case 'checkbox':
