@@ -654,8 +654,8 @@ function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 12500);
         setCookieAnonimo().then(() => {
-            if(typeof logout === "function") {
-                logout().then(() => {
+            if(typeof gapi !== "undefined") {
+                gapi.auth2.getAuthInstance().signOut().then(() => {
                     location.href = HOME + "login";
                 });
             } else {
