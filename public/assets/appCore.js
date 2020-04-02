@@ -2030,6 +2030,8 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 return app.applyView(file, $page)
             } else if (type === 'grid') {
                 $page.grid(history.state.route)
+            } else if (type === 'report') {
+                $page.reportTable(history.state.route)
             } else if (type === 'form') {
 
                 let id = typeof param === "object" && typeof param.id !== "undefined" && !isNaN(param.id) ? parseInt(param.id) : "";
@@ -2133,6 +2135,8 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                         form.modified = !0;
                     }
                 });
+            } else {
+                $page.html(history.state.route);
             }
         }).then(() => {
             if (historyReqPosition) {
