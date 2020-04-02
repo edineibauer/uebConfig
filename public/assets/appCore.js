@@ -654,7 +654,13 @@ function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 12500);
         setCookieAnonimo().then(() => {
-            location.href = HOME + "login";
+            if(typeof logout === "function") {
+                logout().then(() => {
+                    location.href = HOME + "login";
+                });
+            } else {
+                location.href = HOME + "login";
+            }
         })
     } else {
         toast("Sem Conexão", 1200)
