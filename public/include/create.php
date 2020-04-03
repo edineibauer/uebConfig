@@ -290,7 +290,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             copy($dados['base'] . "/public/_config/general_info.json", $dados['path_home'] . "entity/general/general_info.json");
 
             if(file_exists($dados['base'] . "/public/_config/offline"))
-                Helper::recurseCopy($dados['base'] . "/public/_config/offline", $dados['path_home'] . "_config/offline");
+                recurseCopy($dados['base'] . "/public/_config/offline", $dados['path_home'] . "_config/offline");
 
         } else {
             Config\Config::writeFile("_config/permissoes.json", "{}");
