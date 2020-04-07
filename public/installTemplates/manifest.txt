@@ -12,18 +12,8 @@
     "type": "image/png",
     "purpose": "any maskable"
   },{
-    "src": "assetsPublic/img/favicon-128.png?v={$version}",
-    "sizes": "128x128",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }, {
     "src": "assetsPublic/img/favicon-144.png?v={$version}",
     "sizes": "144x144",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }, {
-    "src": "assetsPublic/img/favicon-152.png?v={$version}",
-    "sizes": "152x152",
     "type": "image/png",
     "purpose": "any maskable"
   }, {
@@ -36,16 +26,11 @@
     "sizes": "256x256",
     "type": "image/png",
     "purpose": "any maskable"
-  }, {
-    "src": "assetsPublic/img/favicon-512.png?v={$version}",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any maskable"
- }],
+  }],
   "start_url": "./",
   "display": "standalone",
   "lang" : "Portuguese",
-  "orientation" : "any",
+  "orientation" : "portrait",
   "background_color": "{$theme}",
   "theme_color": "{$theme}"
 }

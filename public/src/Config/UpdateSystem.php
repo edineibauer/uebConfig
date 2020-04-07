@@ -463,7 +463,6 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
-        copy(PATH_HOME . VENDOR . "config/public/assets/file_type.svg", PATH_HOME . "assetsPublic/img/file_type.svg");
         copy(PATH_HOME . VENDOR . "config/public/assets/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
         if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png")))
