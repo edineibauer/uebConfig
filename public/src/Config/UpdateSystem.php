@@ -247,15 +247,17 @@ class UpdateSystem
         /**
          * AppCore Dashboard JS Generator
          */
-        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/mask.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
+        if(file_exists(PATH_HOME . VENDOR . "dashboard/public/view/dashboard.php")) {
+            $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/mask.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
+            $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
 
-        $m->minify(PATH_HOME . "assetsPublic/appCoreDashboard.min.js");
+            $m->minify(PATH_HOME . VENDOR . "dashboard/public/assets/appCoreDashboard.js");
+        }
 
         /**
          * AppCore CSS Generator
