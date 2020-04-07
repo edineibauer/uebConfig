@@ -787,6 +787,43 @@ function menuHeader() {
     });
 }
 
+function getRelevantTitle(entity, data, limit, etiqueta) {
+    if (typeof data !== "undefined" && data !== null) {
+        limit = limit || 1;
+        etiqueta = typeof etiqueta === "boolean" ? etiqueta : !0;
+        let field = "<div>";
+        let count = 0;
+        let pp = [];
+        return getFields(entity).then(fields => {
+            if (!isEmpty(fields)) {
+                $.each(fields, function (i, e) {
+                    if (count < limit && typeof data[e.column] !== "undefined" && data[e.column] !== null) {
+                        if (e.format === "list") {
+                            pp.push(dbLocal.exeRead(e.relation, parseInt(data[e.column])).then(d => {
+                                return getRelevantTitle(e.relation, d, 1, etiqueta).then(ff => {
+                                    field += ff
+                                })
+                            }))
+                        } else {
+                            field += (etiqueta ? "<small class='color-gray left opacity padding-tiny radius'>" + e.nome.toLowerCase() + "</small>" : "") + "<span style='padding: 1px 5px' class='left padding-right font-medium td-" + e.format + "'> " + data[e.column] + "</span>"
+                        }
+                        count++
+                    }
+                })
+            }
+            return Promise.all(pp).then(() => {
+                field += "</div>";
+                field = maskData($(field)).html();
+                return field
+            })
+        })
+    } else {
+        return new Promise((s, f) => {
+            return s("")
+        })
+    }
+}
+
 function loadSyncNotSaved() {
     return new Promise((resolve, f) => {
         $.ajax({
