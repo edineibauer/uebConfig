@@ -1314,29 +1314,6 @@ function firstAccess() {
             });
 
         }).then(() => {
-
-            /**
-             * Check support to webp images
-             * */
-            async function WebpIsSupported() {
-                // If the browser doesn't has the method createImageBitmap, you can't display webp format
-                if (!self.createImageBitmap) return !1;
-
-                // Base64 representation of a white point image
-                const webpData = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoCAAEAAQAcJaQAA3AA/v3AgAA=';
-
-                // Retrieve the Image in Blob Format
-                const blob = await fetch(webpData).then(r => r.blob());
-
-                // If the createImageBitmap method succeeds, return true, otherwise false
-                return createImageBitmap(blob).then(() => !0, () => !1);
-            }
-
-            (async () => {
-                setCookie("webp", await WebpIsSupported());
-            })();
-
-        }).then(() => {
             return loadViews();
 
         }).catch(() => {
@@ -1472,10 +1449,6 @@ function downloadEntityData() {
     down.push(loadSyncNotSaved());
 
     return Promise.all(down);
-}
-
-function webp(extension) {
-    return (getCookie('webp') === "true" ? 'webp' : extension);
 }
 
 function updateTemplates() {

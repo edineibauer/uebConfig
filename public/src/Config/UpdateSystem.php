@@ -318,7 +318,6 @@ class UpdateSystem
         Config::writeFile("apiSet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiSet.txt"));
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
-        Config::writeFile("image-convert.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/image-convert.txt"));
 
         if(!file_exists(PATH_HOME . "public/menu/menu.json"))
             Config::writeFile("public/menu/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menu.txt"));
@@ -456,10 +455,6 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
-        copy(PATH_HOME . VENDOR . "config/public/assets/dino.webp", PATH_HOME . "assetsPublic/img/dino.webp");
-        copy(PATH_HOME . VENDOR . "config/public/assets/file.webp", PATH_HOME . "assetsPublic/img/file.webp");
-        copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.webp", PATH_HOME . "assetsPublic/img/img.webp");
-        copy(PATH_HOME . VENDOR . "config/public/assets/loading.webp", PATH_HOME . "assetsPublic/img/loading.webp");
         copy(PATH_HOME . VENDOR . "config/public/assets/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/file_type.svg", PATH_HOME . "assetsPublic/img/file_type.svg");
         copy(PATH_HOME . VENDOR . "config/public/assets/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");

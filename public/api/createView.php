@@ -227,12 +227,7 @@ if (!empty($name)) {
             /**
              * Atualiza links da mídia em HTML, CSS e JS
              */
-            if ($midia['type'] === "webp") {
-                foreach (["png", "jpg", "jpeg", "gif", "bmp", "svg"] as $type)
-                    list($html, $cssContent, $jsContent) = changeMidia($midia['name'] . "." . $type, $url, $html, $cssContent, $jsContent);
-            } else {
-                list($html, $cssContent, $jsContent) = changeMidia($midia['name'] . "." . $midia['type'], $url, $html, $cssContent, $jsContent);
-            }
+            list($html, $cssContent, $jsContent) = changeMidia($midia['name'] . "." . $midia['type'], $url, $html, $cssContent, $jsContent);
         }
     }
 

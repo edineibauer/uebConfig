@@ -93,7 +93,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                             nome: '',
                             sizeName: '',
                             size: 1,
-                            url: HOME + "assetsPublic/img/loading." + webp("gif") + "?v=" + VERSION,
+                            url: HOME + "assetsPublic/img/loading.gif?v=" + VERSION,
                             isImage: !0,
                             icon: ""
                         }, $input, (dicionarios[entity][column].format === "source_list" ? 1 : 2));
@@ -105,9 +105,9 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                         let nome = replaceAll(replaceAll(name, '-', ' '), '_', ' ');
                         name = slug(name);
                         if (/^image\//.test(file.type)) {
-                            compressImage(file, 1920, 1080, webp("jpg"), function (resource) {
+                            compressImage(file, 1920, 1080, "jpg", function (resource) {
                                 var size = parseFloat(4 * Math.ceil(((resource.length - 'data:image/png;base64,'.length) / 3)) * 0.5624896334383812).toFixed(1);
-                                let mock = createMock(resource, nome, name, webp("jpg"), "image/" + webp("jpg"), size, !0);
+                                let mock = createMock(resource, nome, name, "jpg", "image/jpg", size, !0);
                                 value.push(mock);
                                 sendFileUpload(dataURLtoFile(mock.url, mock.name + "." + mock.type), mock, $input, entity, column, data[column], loading, now, max)
                             })
@@ -560,8 +560,8 @@ function setFormSaveStatus(form, status) {
     form.saving = typeof status === "undefined";
     if (form.saving) {
 		form.$element.find(".loadindTableSpace").find(".btn-form-list").addClass("disabled").prop("disabled", "disabled");
-		form.$element.find(".parent-save-form-mini").find("button").html("<img src='" + HOME + "assetsPublic/img/loading." + webp("gif") + "?v=" + VERSION + "' height='22' style='height: 22px;margin: 1px;' class='right'>");
-		form.$element.find(".parent-save-form").find("button").html("<img src='" + HOME + "assetsPublic/img/loading." + webp("gif") + "?v=" + VERSION + "' height='20' style='height: 20px;margin-bottom: -3px;margin-right: 12px;'>Salvando");
+		form.$element.find(".parent-save-form-mini").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='22' style='height: 22px;margin: 1px;' class='right'>");
+		form.$element.find(".parent-save-form").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='20' style='height: 20px;margin-bottom: -3px;margin-right: 12px;'>Salvando");
 	} else {
 		form.$element.find(".loadindTableSpace").find(".btn-form-list").removeClass("disabled").prop("disabled", "");
 		form.$element.find(".parent-save-form-mini").find("button").html("<i class='material-icons left'>save</i>")

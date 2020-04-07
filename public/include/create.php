@@ -10,7 +10,6 @@ setcookie('accesscount', '', time() -1, "/");
 setcookie('token', '', time() -1, "/");
 setcookie('update', '', time() -1, "/");
 setcookie('viewsLoaded', '', time() -1, "/");
-setcookie('webp', '', time() -1, "/");
 
 /**
  * @param array $dados
@@ -310,7 +309,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         }
 
         Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.txt"));
-        Config\Config::writeFile("image-convert.php", file_get_contents("public/installTemplates/image-convert.txt"));
         Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.txt"));
         Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.txt"));
         Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.txt"));
