@@ -787,6 +787,200 @@ function menuHeader() {
     });
 }
 
+function getFieldsData(entity, haveId, r) {
+    let fields = ["", "", "", "", "", "", ""];
+    relevants = r[0];
+    relation = r[1][entity];
+    info = r[2][entity];
+    let indices = [];
+    if (haveId) {
+        let data = {
+            'nome': "#",
+            'column': 'id',
+            'class': "",
+            'style': "",
+            'template': "",
+            'format': "number",
+            'relation': null,
+            'first': !0
+        };
+        pushToArrayIndex(fields, data, 0);
+        indices.push(0)
+    }
+
+    function getIndiceField(indice, indices) {
+        if (indices.indexOf(indice) > -1)
+            return getIndiceField((indice + 1), indices);
+        return indice
+    }
+
+    $.each(dicionarios[entity], function (i, e) {
+        if (!isEmpty(e.datagrid.grid_relevant)) {
+            let data = {
+                'nome': e.nome,
+                'column': e.column,
+                'class': e.datagrid.grid_class || "",
+                'style': e.datagrid.grid_style || "",
+                'template': e.datagrid.grid_template || "",
+                'format': e.format,
+                'relation': e.relation || null,
+                'first': !haveId && e.datagrid.grid_relevant === 1
+            };
+            let indice = getIndiceField(e.datagrid.grid_relevant - 1, indices);
+            indices.push(indice);
+            pushToArrayIndex(fields, data, indice);
+        }
+    });
+    if (!isEmpty(relation) && typeof relation === "object" && !isEmpty(relation.belongsTo)) {
+        $.each(relation.belongsTo, function (i, e) {
+            $.each(e, function (relEntity, relData) {
+                if (!isEmpty(relData.datagrid) && isEmpty(fields[relData.datagrid - 1])) {
+                    let data = {
+                        'nome': ucFirst(replaceAll(replaceAll(relEntity, "_", " "), "-", " ")),
+                        'column': relData.column,
+                        'class': relData.grid_class_relational || "",
+                        'style': relData.grid_style_relational || "",
+                        'template': relData.grid_template_relational || "",
+                        'format': 'text',
+                        'relation': relEntity,
+                        'first': !haveId && relData.datagrid === 1
+                    };
+                    let indice = getIndiceField(relData.datagrid - 1, indices);
+                    indices.push(indice);
+                    pushToArrayIndex(fields, data, indice)
+                }
+            })
+        })
+    }
+    for (let a = 0; a < 5; a++) {
+        if (isEmpty(fields[a])) {
+            $.each(dicionarios[entity], function (i, e) {
+                $.each(relevants, function (f, r) {
+                    if(e.datagrid !== !1 && relevants.indexOf(e.format) > -1) {
+                        let allReadyHave = !1;
+                        $.each(fields, function (g, h) {
+                            if (h.nome === e.nome) {
+                                allReadyHave = !0;
+                                return !1
+                            }
+                        });
+                        if (!allReadyHave) {
+                            let data = {
+                                'nome': e.nome,
+                                'column': e.column,
+                                'class': e.datagrid.grid_class || "",
+                                'style': e.datagrid.grid_style || "",
+                                'template': e.datagrid.grid_template || "",
+                                'format': e.format,
+                                'relation': e.relation || null,
+                                'first': !haveId && a === 0
+                            };
+                            let indice = getIndiceField(a, indices);
+                            indices.push(indice);
+                            pushToArrayIndex(fields, data, indice)
+                        }
+                    }
+                })
+            })
+        }
+    }
+    return fields.filter(function (data) {
+        if (!isEmpty(data))
+            return data
+    })
+}
+
+function maskData($data) {
+    let SP = {
+        tel: val => {
+            return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : (val.replace(/\D/g, '').length < 3 ? '' : '(00) 0000-00009')
+        }, ie: val => {
+            return val.replace(/\D/g, '').length > 0 ? '000.000.000.000' : ''
+        }, cpf: val => {
+            return val.replace(/\D/g, '').length > 0 ? '000.000.000-00' : ''
+        }, cnpj: val => {
+            return val.replace(/\D/g, '').length > 0 ? '00.000.000/0000-00' : ''
+        }, cep: val => {
+            return val.replace(/\D/g, '').length > 0 ? '00000-000' : ''
+        }, datetime: val => {
+            return val.length > 0 ? '00/00/0000 00:00:00' : ''
+        }, percent: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : ((v === 2 ? '00' : (v === 1 ? '0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1)) + ',00')) + "%")
+        }, valor: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',00'))
+        }, valor_decimal: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',000'))
+        }, valor_decimal_plus: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',0000'))
+        }, valor_decimal_minus: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.') + ',0'))
+        }, valor_decimal_none: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : "R$ " + (v === 2 ? '00,\0\0' : (v === 1 ? '0,\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1), '.')))
+        }, cardnumber: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : (v === 8 ? '0000 0000' : v === 12 ? '0000 0000 0000' : v === 16 ? '0000 0000 0000 0000' : '0000 0000 0000 0000 0000')
+        }, float: val => {
+            let v = val.replace(/\D/g, '').length;
+            return v === 0 ? '' : (v === 2 ? '00.\0\0' : (v === 1 ? '0.\0\0' : separaNumeroValor(Math.pow(10, (v - 2)).toString().substring(1)) + '.00'))
+        },
+    };
+
+    if($data.find(".td-tel").find(".td-value").length)
+        $data.find(".td-tel").find(".td-value").mask(SP.tel);
+    if($data.find(".td-ie").find(".td-value").length)
+        $data.find(".td-ie").find(".td-value").mask(SP.ie);
+    if($data.find(".td-cpf").find(".td-value").length)
+        $data.find(".td-cpf").find(".td-value").mask(SP.cpf);
+    if($data.find(".td-cnpj").find(".td-value").length)
+        $data.find(".td-cnpj").find(".td-value").mask(SP.cnpj);
+    if($data.find(".td-cep").find(".td-value").length)
+        $data.find(".td-cep").find(".td-value").mask(SP.cep);
+    if($data.find(".td-percent").find(".td-value").length)
+        $data.find('.td-percent').find(".td-value").mask(SP.percent);
+    if($data.find(".td-valor").find(".td-value").length)
+        $data.find(".td-valor").find(".td-value").mask(SP.valor);
+    if($data.find(".td-valor-decimal").find(".td-value").length)
+        $data.find(".td-valor-decimal").find(".td-value").mask(SP.valor_decimal);
+    if($data.find(".td-valor-decimal-plus").find(".td-value").length)
+        $data.find(".td-valor-decimal-plus").find(".td-value").mask(SP.valor_decimal_plus);
+    if($data.find(".td-valor-decimal-minus").find(".td-value").length)
+        $data.find(".td-valor-decimal-minus").find(".td-value").mask(SP.valor_decimal_minus);
+    if($data.find(".td-valor-decimal-none").find(".td-value").length)
+        $data.find(".td-valor-decimal-none").find(".td-value").mask(SP.valor_decimal_none);
+    if($data.find(".td-datetime").find(".td-value").length)
+        $data.find('.td-datetime').find(".td-value").mask(SP.datetime);
+    if($data.find(".td-card_number").find(".td-value").length)
+        $data.find('.td-card_number').find(".td-value").mask(SP.cardnumber);
+    if($data.find(".td-float").find(".td-value").length)
+        $data.find(".td-float").find(".td-value").mask(SP.float);
+
+    return $data
+}
+
+function getFields(entity, haveId) {
+    haveId = haveId || !1;
+    let relevants = dbLocal.exeRead("__relevant", 1);
+    let relation = dbLocal.exeRead("__general", 1);
+    let info = dbLocal.exeRead("__info", 1);
+    return Promise.all([relevants, relation, info]).then(r => {
+        if(isEmpty(r[0])) {
+            return new Promise(r => {
+                setTimeout(function () {
+                    r(getFields(entity, haveId));
+                }, 200);
+            })
+        } else {
+            return getFieldsData(entity, haveId, r);
+        }
+    })
+}
+
 function getRelevantTitle(entity, data, limit, etiqueta) {
     if (typeof data !== "undefined" && data !== null) {
         limit = limit || 1;
