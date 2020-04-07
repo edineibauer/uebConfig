@@ -2516,9 +2516,7 @@ function onLoadDocument() {
         let url = $this.attr("href").replace(HOME, '');
 
         if(timeWaitClick > 0) {
-            let p = new RegExp(/^#/i);
-            let pjs = new RegExp(/^javascript/i);
-            if ($this.attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
+            if ($this.attr("target") !== "_blank") {
                 e.preventDefault();
                 setTimeout(function () {
                     goLinkPageTransition(url, $this, e);
