@@ -239,16 +239,23 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/idb.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
+
+        $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+
+
+        /**
+         * AppCore Dashboard JS Generator
+         */
+        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/mask.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
         $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
 
-        $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+        $m->minify(PATH_HOME . "assetsPublic/appCoreDashboard.min.js");
 
         /**
          * AppCore CSS Generator
@@ -596,13 +603,11 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
         $fav = \WideImage\WideImage::load(PATH_HOME . str_replace($dados['home'], '', $dados['favicon']));
-        $fav->resize(512, 512, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-512.png");
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
-        $fav->resize(152, 152, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-152.png");
         $fav->resize(144, 144, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-144.png");
-        $fav->resize(128, 128, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-128.png");
         $fav->resize(96, 96, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-96.png");
+        $fav->resize(72, 72, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-72.png");
         $fav->resize(48, 48, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-48.png");
     }
 

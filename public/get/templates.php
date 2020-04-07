@@ -66,7 +66,8 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl") as $tpl) {
 }
 
 //search in VENDOR
-foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-    $list = getTemplates($lib, $list);
+//foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+//    $list = getTemplates($lib, $list);
+$list = getTemplates("config", $list);
 
 $data['data'] = $list;

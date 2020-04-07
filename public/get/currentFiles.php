@@ -27,8 +27,9 @@ if (file_exists(PATH_HOME . "_config/offline/assets.json")) {
 }
 
 //CORE, create cache from all 'assetsPublic' root and current view
+$coreNot = ["tableCore.min.js", "appCoreDashboard.min.js"];
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
-    if (!is_dir(PATH_HOME . "assetsPublic/{$item}") && strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
+    if (!is_dir(PATH_HOME . "assetsPublic/{$item}") && strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']) && !in_array($item, $coreNot))
         $data['data']['core'][] = HOME . "assetsPublic/{$item}?v=" . VERSION;
 }
 
