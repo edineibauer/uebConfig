@@ -474,7 +474,7 @@ function compressImage(file, MAX_WIDTH, MAX_HEIGHT, format, response) {
 function createSource(mock, $input, tipo, prepend) {
     if (!isEmpty(mock)) {
         let tpl = (tipo === 1 ? 'file_list_source' : 'file_source');
-        return dbLocal.exeRead('__template', 1).then(templates => {
+        return getTemplates().then(templates => {
             if (typeof prepend !== "undefined")
                 $input.siblings(".file_gallery").prepend(Mustache.render(templates[tpl], mock)); else $input.siblings(".file_gallery").append(Mustache.render(templates[tpl], mock))
         })
@@ -629,7 +629,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
             let action = !isEmpty(this.id) && !isNaN(this.id) && this.id > 0 ? "update" : "create";
             return permissionToAction(this.entity, action).then(have => {
                 if (have) {
-                    return dbLocal.exeRead('__template', 1).then(templates => {
+                    return getTemplates().then(templates => {
                         return Mustache.render(templates.form, this)
                     })
                 } else {
@@ -801,7 +801,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 }
 
 function getInputsTemplates(form, parent, col) {
-    return dbLocal.exeRead('__template', 1).then(templates => {
+    return getTemplates().then(templates => {
         let inputs = [];
         let promessas = [];
         let position = 0;

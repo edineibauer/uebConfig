@@ -335,7 +335,7 @@ function gridCrud(entity, fields, actions) {
                         return permissionToAction(this.entity, 'create').then(t => {
                             if (this.actions.create)
                                 this.actions.create = t;
-                            return dbLocal.exeRead('__template', 1).then(templates => {
+                            return getTemplates().then(templates => {
                                 return Mustache.render(templates.grid, {
                                     entity: entity,
                                     home: HOME,
@@ -376,7 +376,7 @@ function gridCrud(entity, fields, actions) {
                                 if (this.actions.create)
                                     this.actions.create = t;
 
-                                return dbLocal.exeRead('__template', 1).then(templates => {
+                                return getTemplates().then(templates => {
                                     return Mustache.render(templates.grid, {
                                         entity: entity,
                                         home: HOME,
