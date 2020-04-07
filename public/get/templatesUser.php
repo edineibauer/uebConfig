@@ -177,7 +177,9 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
  * Busca Templates Offline deste usuário
  */
 $templates = (file_exists(PATH_HOME . "_config/offline/{$setor}/templates.json") ? json_decode(file_get_contents(PATH_HOME . "_config/offline/{$setor}/templates.json"), !0) : []);
-foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-    $list = getTemplatesOffline($lib, $templates, $list);
+if(is_array($templates) && !empty($templates)) {
+    foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+        $list = getTemplatesOffline($lib, $templates, $list);
+}
 
 $data['data'] = $list;
