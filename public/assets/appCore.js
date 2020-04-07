@@ -665,14 +665,13 @@ function toggleSidebar(action = 'toggle') {
 function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 12500);
+        if(typeof gapi !== "undefined")
+            gapi.auth2.getAuthInstance().signOut();
+
         setCookieAnonimo().then(() => {
-            if(typeof gapi !== "undefined") {
-                gapi.auth2.getAuthInstance().signOut().then(() => {
-                    location.href = HOME + "login";
-                });
-            } else {
+            setTimeout(function () {
                 location.href = HOME + "login";
-            }
+            },500);
         })
     } else {
         toast("Sem Conexão", 1200)
