@@ -104,7 +104,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                         name = name.join('-');
                         let nome = replaceAll(replaceAll(name, '-', ' '), '_', ' ');
                         name = slug(name);
-                        if (/^image\//.test(file.type)) {
+                        if (/^image\//.test(file.type) && extensao !== "svg") {
                             compressImage(file, 1920, 1080, extensao, function (resource) {
                                 var size = parseFloat(4 * Math.ceil(((resource.length - 'data:image/png;base64,'.length) / 3)) * 0.5624896334383812).toFixed(1);
                                 let mock = createMock(resource, nome, name, extensao, file.type, size, !0);
