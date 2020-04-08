@@ -349,7 +349,7 @@ class UpdateSystem
             Config::writeFile("_config/offline/templates.json", "[]");
 
         if(!file_exists(PATH_HOME . "_config/offline/admin/templates.json"))
-            Config::writeFile("_config/offline/admin/templates.json", '["menu-li", "menu-card", "allow-entity-menu", "allow-list-entity", "allow-user-table", "autor-list-entity", "checkbox", "extend", "extend_folder", "extend_mult", "extend_register", "extend_register_folder", "file_list_source", "file_list", "file", "file_source", "folder", "form", "hidden", "input", "list", "list_mult", "list_result", "radio", "select", "span", "switch", "textarea", "chart_table", "report_table", "report_table_content", "filter-badge", "graficos-list", "grid-content", "grid"]');
+            Config::writeFile("_config/offline/admin/templates.json", '["note", "card", "menu-li", "menu-card", "allow-entity-menu", "allow-list-entity", "allow-user-table", "autor-list-entity", "checkbox", "extend", "extend_folder", "extend_mult", "extend_register", "extend_register_folder", "file_list_source", "file_list", "file", "file_source", "folder", "form", "hidden", "input", "list", "list_mult", "list_result", "radio", "select", "span", "switch", "textarea", "chart_table", "report_table", "report_table_content", "filter-badge", "graficos-list", "grid-content", "grid"]');
 
         //CONSTANTES EM CONFIG
         $contantes = [];
