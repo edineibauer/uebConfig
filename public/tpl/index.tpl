@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" style="background: {$theme}">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="index, follow"/>
