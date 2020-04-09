@@ -665,9 +665,6 @@ function toggleSidebar(action = 'toggle') {
 function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 12500);
-        if(typeof gapi !== "undefined")
-            gapi.auth2.getAuthInstance().signOut();
-
         setCookieAnonimo().then(() => {
             setTimeout(function () {
                 location.href = HOME + "login";
