@@ -1396,7 +1396,6 @@ function loadCacheUser() {
         gets.push(get("navbar"));
         gets.push(get("react"));
         gets.push(get("user"));
-        gets.push(get("graficos"));
 
         /**
          * Adiciona o core Js e core Css do meu atual usuário
@@ -1416,27 +1415,13 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__navbar', r[5]));
             creates.push(dbLocal.exeCreate('__react', r[6]));
             creates.push(dbLocal.exeCreate('__user', r[7]));
-            creates.push(dbLocal.exeCreate('__graficos', r[8]));
             dicionarios = r[1];
             return Promise.all(creates);
 
         }).then(() => {
-            /**
-             * Baixa os dados das entidades para este usuário
-             */
-            return downloadEntityData();
-
-        }).then(() => {
-            /**
-             * Seta a versão do app
-             */
-            return setVersionApplication();
-
-        }).then(() => {
-            /**
-             * Carrega as views para este usuário
-             */
-            return loadUserViews();
+            setTimeout(function () {
+                cacheAppAfterUser();
+            }, 700);
         }).catch(() => {
             errorLoadingApp();
         });
@@ -1513,6 +1498,32 @@ function firstAccess() {
     })
 }
 
+function cacheAppAfterUser() {
+    if (!SERVICEWORKER)
+        return Promise.all([]);
+
+    return get("graficos").then(r => {
+        return dbLocal.exeCreate('__graficos', r).then(() => {
+            /**
+             * Baixa os dados das entidades para este usuário
+             */
+            return downloadEntityData();
+
+        }).then(() => {
+            /**
+             * Seta a versão do app
+             */
+            return setVersionApplication();
+
+        }).then(() => {
+            /**
+             * Carrega as views para este usuário
+             */
+            return loadUserViews();
+        });
+    });
+}
+
 function cacheAppAfter() {
     if (!SERVICEWORKER)
         return Promise.all([]);
@@ -1529,7 +1540,7 @@ function cacheAppAfter() {
         g = r[2];
         let creates = [];
         creates.push(dbLocal.exeCreate('__relevant', r[0]));
-        creates.push(dbLocal.exeCreate('__general', r[1]))
+        creates.push(dbLocal.exeCreate('__general', r[1]));
 
         return Promise.all(creates).then(() => {
             return caches.open('core-v' + VERSION).then(cache => {
@@ -1556,7 +1567,8 @@ function cacheAppAfter() {
                 })
             })
         }).then(() => {
-            return loadViews()
+            return loadViews();
+
         }).catch(() => {
             errorLoadingApp()
         })
@@ -2567,7 +2579,7 @@ function startApplication() {
 
         setTimeout(function () {
             cacheAppAfter();
-        }, 500);
+        }, 1000);
 
         /**
          * Verifica se existe uma versão mais recente do app
