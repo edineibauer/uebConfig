@@ -1419,9 +1419,22 @@ function loadCacheUser() {
             return Promise.all(creates);
 
         }).then(() => {
-            setTimeout(function () {
-                cacheAppAfterUser();
-            }, 700);
+            /**
+             * Baixa os dados das entidades para este usuário
+             */
+            return downloadEntityData();
+
+        }).then(() => {
+            /**
+             * Seta a versão do app
+             */
+            return setVersionApplication();
+
+        }).then(() => {
+            /**
+             * Carrega as views para este usuário
+             */
+            return loadUserViews();
         }).catch(() => {
             errorLoadingApp();
         });
@@ -1498,32 +1511,6 @@ function firstAccess() {
     })
 }
 
-function cacheAppAfterUser() {
-    if (!SERVICEWORKER)
-        return Promise.all([]);
-
-    return get("graficos").then(r => {
-        return dbLocal.exeCreate('__graficos', r).then(() => {
-            /**
-             * Baixa os dados das entidades para este usuário
-             */
-            return downloadEntityData();
-
-        }).then(() => {
-            /**
-             * Seta a versão do app
-             */
-            return setVersionApplication();
-
-        }).then(() => {
-            /**
-             * Carrega as views para este usuário
-             */
-            return loadUserViews();
-        });
-    });
-}
-
 function cacheAppAfter() {
     if (!SERVICEWORKER)
         return Promise.all([]);
@@ -1531,16 +1518,18 @@ function cacheAppAfter() {
     let gets = [];
     gets.push(get("relevant"));
     gets.push(get("general"));
+    gets.push(get("graficos"));
     gets.push(get("currentFiles"));
 
     return Promise.all(gets).then(r => {
         if (!r[2])
             return Promise.all([]);
 
-        g = r[2];
+        g = r[3];
         let creates = [];
         creates.push(dbLocal.exeCreate('__relevant', r[0]));
         creates.push(dbLocal.exeCreate('__general', r[1]));
+        creates.push(dbLocal.exeCreate('__graficos', r[2]));
 
         return Promise.all(creates).then(() => {
             return caches.open('core-v' + VERSION).then(cache => {
@@ -1567,8 +1556,7 @@ function cacheAppAfter() {
                 })
             })
         }).then(() => {
-            return loadViews();
-
+            return loadViews()
         }).catch(() => {
             errorLoadingApp()
         })
@@ -2579,7 +2567,7 @@ function startApplication() {
 
         setTimeout(function () {
             cacheAppAfter();
-        }, 1000);
+        }, 500);
 
         /**
          * Verifica se existe uma versão mais recente do app
