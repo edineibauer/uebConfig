@@ -1506,61 +1506,63 @@ function setVersionApplication() {
 function firstAccess() {
     setCookie('accesscount', 1);
 
+    return get("templates").then(r => {
+        return dbLocal.exeCreate('__template', r);
+    }).catch(() => {
+        errorLoadingApp();
+    })
+}
+
+function cacheAppAfter() {
+    if (!SERVICEWORKER)
+        return Promise.all([]);
+
     let gets = [];
     gets.push(get("relevant"));
     gets.push(get("general"));
-    gets.push(get("templates"));
+    gets.push(get("currentFiles"));
 
     return Promise.all(gets).then(r => {
-        let creates = [];
-        creates.push(dbLocal.exeCreate('__relevant', r[0]));
-        creates.push(dbLocal.exeCreate('__general', r[1]));
-        creates.push(dbLocal.exeCreate('__template', r[2]));
-        return Promise.all(creates);
-
-    }).then(() => {
-        if (!SERVICEWORKER)
+        if (!r[2])
             return Promise.all([]);
 
-        return get("currentFiles").then(g => {
-            if (!g)
-                return Promise.all([]);
+        g = r[2];
+        let creates = [];
+        creates.push(dbLocal.exeCreate('__relevant', r[0]));
+        creates.push(dbLocal.exeCreate('__general', r[1]))
 
+        return Promise.all(creates).then(() => {
             return caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll(g.core).catch(() => {
-                    errorLoadingApp();
+                    errorLoadingApp()
                 })
-            }).then(() => {
-                return caches.open('fonts-v' + VERSION).then(cache => {
-                    return cache.addAll(g.fonts).catch(() => {
-                        errorLoadingApp();
-                    })
-                })
-            }).then(() => {
-                return caches.open('images-v' + VERSION).then(cache => {
-                    return cache.addAll(g.images).catch(() => {
-                        errorLoadingApp();
-                    })
-                })
-            }).then(() => {
-                return caches.open('misc-v' + VERSION).then(cache => {
-                    return cache.addAll(g.misc).catch(() => {
-                        errorLoadingApp();
-                    })
-                })
-            }).catch(() => {
-                errorLoadingApp();
-            });
-
+            })
         }).then(() => {
-            return loadViews();
-
+            return caches.open('fonts-v' + VERSION).then(cache => {
+                return cache.addAll(g.fonts).catch(() => {
+                    errorLoadingApp()
+                })
+            })
+        }).then(() => {
+            return caches.open('images-v' + VERSION).then(cache => {
+                return cache.addAll(g.images).catch(() => {
+                    errorLoadingApp()
+                })
+            })
+        }).then(() => {
+            return caches.open('misc-v' + VERSION).then(cache => {
+                return cache.addAll(g.misc).catch(() => {
+                    errorLoadingApp()
+                })
+            })
+        }).then(() => {
+            return loadViews()
         }).catch(() => {
-            errorLoadingApp();
-        });
+            errorLoadingApp()
+        })
     }).catch(() => {
-        errorLoadingApp();
-    });
+        errorLoadingApp()
+    })
 }
 
 /**
@@ -2535,8 +2537,7 @@ function onLoadDocument() {
 }
 
 function startApplication() {
-    $("#core-spinner").css("stroke", THEMETEXT);
-    onLoadDocument();
+    $("#core-spinner").css("stroke", THEME);
     checkSessao().then(() => {
         let promessa = [];
         promessa.push(getCookie("accesscount") === "" ? firstAccess() : thenAccess());
@@ -2558,15 +2559,20 @@ function startApplication() {
 
             $("#core-spinner").css("stroke", THEME);
 
-        }).then(() => {
-
-            /**
-             * Verifica se existe uma versão mais recente do app
-             */
-            return checkUpdate();
         }).catch(() => {
             errorLoadingApp();
         });
+    }).then(() => {
+        onLoadDocument();
+
+        setTimeout(function () {
+            cacheAppAfter();
+        }, 500);
+
+        /**
+         * Verifica se existe uma versão mais recente do app
+         */
+        return checkUpdate();
     });
 }
 
