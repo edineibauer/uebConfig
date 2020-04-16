@@ -61,7 +61,7 @@ self.addEventListener('push', function (event) {
     options.vibrate = [100, 50, 100];
 
     if (typeof title === "string" && title.length > 2) {
-        event.waitUntil(self.registration.showNotification(title, options)).then(() => {
+        event.waitUntil(self.registration.showNotification(title, options).then(() => {
                 return new Promise(function (resolve, reject) {
                     var req = new XMLHttpRequest();
                     req.open('GET', HOME + "get/receivePush/4");
