@@ -85,22 +85,25 @@ self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     event.waitUntil(
         clients.openWindow(event.notification.data).then(() => {
-            if (typeof options.id !== "undefined" && !isNaN(options.id)) {
-                return new Promise(function (resolve, reject) {
-                    var req = new XMLHttpRequest();
-                    req.open('GET', HOME + "get/openPush/" + options.id);
-                    req.onload = function () {
-                        if (req.status == 200) {
-                            resolve(req.response)
-                        } else {
+            if (isJson(event.data.text())) {
+                options = JSON.parse(event.data.text());
+                if (typeof options.id !== "undefined" && !isNaN(options.id)) {
+                    return new Promise(function (resolve, reject) {
+                        var req = new XMLHttpRequest();
+                        req.open('GET', HOME + "get/openPush/" + options.id);
+                        req.onload = function () {
+                            if (req.status == 200) {
+                                resolve(req.response)
+                            } else {
+                                resolve(0)
+                            }
+                        };
+                        req.onerror = function () {
                             resolve(0)
-                        }
-                    };
-                    req.onerror = function () {
-                        resolve(0)
-                    };
-                    req.send()
-                })
+                        };
+                        req.send()
+                    })
+                }
             }
         })
     );
