@@ -61,24 +61,23 @@ self.addEventListener('push', function (event) {
     options.vibrate = [100, 50, 100];
 
     if (typeof title === "string" && title.length > 2) {
-        if (typeof options.id !== "undefined" && !isNaN(options.id)) {
-            return new Promise(function (resolve, reject) {
-                var req = new XMLHttpRequest();
-                req.open('GET', HOME + "get/receivePush/" + options.id);
-                req.onload = function () {
-                    if (req.status == 200) {
-                        resolve(req.response)
-                    } else {
+        event.waitUntil(self.registration.showNotification(title, options)).then(() => {
+                return new Promise(function (resolve, reject) {
+                    var req = new XMLHttpRequest();
+                    req.open('GET', HOME + "get/receivePush/4");
+                    req.onload = function () {
+                        if (req.status == 200) {
+                            resolve(req.response)
+                        } else {
+                            resolve(0)
+                        }
+                    };
+                    req.onerror = function () {
                         resolve(0)
-                    }
-                };
-                req.onerror = function () {
-                    resolve(0)
-                };
-                req.send()
-            })
-        }
-        event.waitUntil(self.registration.showNotification(title, options)));
+                    };
+                    req.send()
+                })
+        }));
     }
 });
 
