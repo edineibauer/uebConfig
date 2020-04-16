@@ -62,21 +62,7 @@ self.addEventListener('push', function (event) {
 
     if (typeof title === "string" && title.length > 2) {
         event.waitUntil(self.registration.showNotification(title, options).then(() => {
-                return new Promise(function (resolve, reject) {
-                    var req = new XMLHttpRequest();
-                    req.open('GET', HOME + "get/receivePush/4");
-                    req.onload = function () {
-                        if (req.status == 200) {
-                            resolve(req.response)
-                        } else {
-                            resolve(0)
-                        }
-                    };
-                    req.onerror = function () {
-                        resolve(0)
-                    };
-                    req.send()
-                })
+            return fetch(HOME + "get/receivePush/" + options.id)
         }));
     }
 });
@@ -87,23 +73,8 @@ self.addEventListener('notificationclick', function (event) {
         clients.openWindow(event.notification.data).then(() => {
             if (isJson(event.data.text())) {
                 options = JSON.parse(event.data.text());
-                if (typeof options.id !== "undefined" && !isNaN(options.id)) {
-                    return new Promise(function (resolve, reject) {
-                        var req = new XMLHttpRequest();
-                        req.open('GET', HOME + "get/openPush/" + options.id);
-                        req.onload = function () {
-                            if (req.status == 200) {
-                                resolve(req.response)
-                            } else {
-                                resolve(0)
-                            }
-                        };
-                        req.onerror = function () {
-                            resolve(0)
-                        };
-                        req.send()
-                    })
-                }
+                if (typeof options.id !== "undefined" && !isNaN(options.id))
+                    return fetch(HOME + "get/openPush/" + options.id);
             }
         })
     );
