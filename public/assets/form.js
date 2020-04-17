@@ -1029,26 +1029,30 @@ function addListRegister(entity, form, column, parent, data, el) {
 function addListSetTitle(form, entity, column, parent, id, $input) {
     let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
     formData[column] = id;
-    db.exeRead(entity, parseInt(id)).then(data => {
-        let point = ".";
-        $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
-        let intt = setInterval(function () {
-            $input.find("input[type='text']").val("carregando valor " + point);
-            point = (point === "." ? ".." : (point === ".." ? "..." : "."))
-        }, 300);
-        getRelevantTitle(entity, data).then(title => {
-            clearInterval(intt);
-            $input.siblings(".btn").find(".list-btn-icon").html("edit");
-            $input.siblings(".btn").find("div").html("editar");
-            $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
-                "padding": "10px 2px 4px",
-                "margin-bottom": "20px"
-            }).html(title);
-            $input.siblings(".list-remove-btn").remove();
-            if (isNaN(form.id) || dicionarios[form.entity][column].update)
-                $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
-        })
-    })
+
+    getJSON(HOME + "app/get/" + entity + "/" + id).then(data => {
+        if(!isEmpty(data[entity])) {
+            data = data[entity][0];
+            let point = ".";
+            $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
+            let intt = setInterval(function () {
+                $input.find("input[type='text']").val("carregando valor " + point);
+                point = (point === "." ? ".." : (point === ".." ? "..." : "."))
+            }, 300);
+            getRelevantTitle(entity, data).then(title => {
+                clearInterval(intt);
+                $input.siblings(".btn").find(".list-btn-icon").html("edit");
+                $input.siblings(".btn").find("div").html("editar");
+                $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
+                    "padding": "10px 2px 4px",
+                    "margin-bottom": "20px"
+                }).html(title);
+                $input.siblings(".list-remove-btn").remove();
+                if (isNaN(form.id) || dicionarios[form.entity][column].update)
+                    $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
+            })
+        }
+    });
 }
 
 function addRegisterAssociation(entity, column) {
