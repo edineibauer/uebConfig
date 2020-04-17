@@ -989,7 +989,7 @@ function getRelevantTitle(entity, data, limit, etiqueta) {
                 $.each(fields, function (i, e) {
                     if (count < limit && typeof data[e.column] !== "undefined" && data[e.column] !== null) {
                         if (e.format === "list") {
-                            pp.push(dbLocal.exeRead(e.relation, parseInt(data[e.column])).then(d => {
+                            pp.push(db.exeRead(e.relation, parseInt(data[e.column])).then(d => {
                                 return getRelevantTitle(e.relation, d, 1, etiqueta).then(ff => {
                                     field += ff
                                 })
