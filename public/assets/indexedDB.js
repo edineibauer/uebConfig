@@ -694,11 +694,9 @@ const dbLocal = {
     }, exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             if (isNumberPositive(key)) {
-                return dbLocalTmp.transaction(entity).objectStore(entity).get(key).then(v => {
+                return dbLocalTmp.transaction(entity).objectStore(entity).get(parseInt(key)).then(v => {
                     return (typeof v !== "undefined" ? v : {})
-                }).catch(c => {
-                    return {};
-                });
+                }).catch(() => {});
             } else {
                 return checkToUpdateDbLocal(entity).then(() => {
                     return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
@@ -736,12 +734,12 @@ const dbLocal = {
             }
         })
     }, exeCreate(entity, val) {
-        let id = (/^__/.test(entity) ? 1 : (isNumberPositive(val.id) ? parseInt(val.id) : 0));
-        if (id > 0) {
-            if (isNumberPositive(val.id))
-                val.id = parseInt(val.id);
-            return dbLocal.insert(entity, val, id)
+        val.id = (/^__/.test(entity) ? 1 : (isNumberPositive(val.id) ? parseInt(val.id) : 0));
+
+        if (val.id > 0) {
+            return dbLocal.insert(entity, val, val.id)
         } else {
+            delete val.id;
             return dbLocal.newKey(entity).then(key => {
                 return dbLocal.insert(entity, val, key)
             })
