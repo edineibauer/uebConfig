@@ -157,10 +157,8 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             resolve(readOffline(data, filter, order, reverse, limit, offset));
                         }
                     },
-                    error: function (e) {
-                        resolve(readOffline(data, filter, order, reverse, limit, offset));
-                    },
-                    dataType: "json",
+                    error: () => resolve(readOffline(data, filter, order, reverse, limit, offset)),
+                    dataType: "json"
                 });
             })
 
@@ -177,32 +175,42 @@ function readOffline(data, filter, order, reverse, limit, offset) {
         length: 0
     };
 
-    //FILTER
-    if (!isEmpty(filter))
-        data = exeReadApplyFilter(data, filter);
+    if(isEmpty(data))
+        return result;
 
-    //ORDER
-    data.sort(dynamicSort(order));
+    if(data.constructor === Array) {
 
-    //REVERSE
-    if (reverse)
-        data.reverse();
+        //FILTER
+        if (!isEmpty(filter))
+            data = exeReadApplyFilter(data, filter);
 
-    //LIMIT OFFSET
-    let i = 0;
-    for (var k in data) {
-        if (typeof data[k] === "object") {
-            if (k > offset && i < limit) {
-                result.data.push(data[k]);
-                i++;
+        //ORDER
+        data.sort(dynamicSort(order));
 
-                if (i == limit)
-                    break;
+        //REVERSE
+        if (reverse)
+            data.reverse();
+
+        //LIMIT OFFSET
+        let i = 0;
+        for (var k in data) {
+            if (typeof data[k] === "object") {
+                if (k > offset && i < limit) {
+                    result.data.push(data[k]);
+                    i++;
+
+                    if (i == limit)
+                        break;
+                }
             }
         }
-    }
 
-    result.length = result.data.length;
+        result.length = result.data.length;
+
+    } else {
+
+        result.length = 1;
+    }
 
     return result;
 }
@@ -300,10 +308,10 @@ function exeReadOnline(entity, id) {
                         resolve(result);
                     }
                 }
-                resolve({})
+                resolve(id ? {} : []);
             },
             error: function () {
-                resolve({})
+                resolve(id ? {} : [])
             },
             dataType: "json"
         })
@@ -331,7 +339,7 @@ const db = {
                 if(!isEmpty(key) && !isNaN(key))
                     return exeReadOnline(entity, key);
 
-                return {};
+                return [];
             })
         });
 
