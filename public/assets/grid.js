@@ -90,11 +90,18 @@ function getTrClass(meta, value) {
 
 function gridTdFilterValue(value, meta) {
     if (typeof meta !== "undefined") {
-        if (['list_mult', 'selecao_mult', 'extend_folder', 'extend_mult'].indexOf(meta.format) > -1) {
+        if (['select', 'radio'].indexOf(meta.format) > -1) {
+            value = meta.allow.options.find(option => option.valor == value).representacao;
+        } else if ('checkbox' === meta.format) {
+            let resposta = "";
+            for(let i in meta.allow.options)
+                resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1  ? ((resposta !== "" ? ", " : "") + meta.allow.options[i].representacao) : "");
+
+            value = resposta;
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
-            return dbLocal.exeRead(meta.relation, parseInt(value)).then(data => {
+            return db.exeRead(meta.relation, parseInt(value)).then(data => {
                 return getRelevantTitle(meta.relation, data, 1, !1)
             })
         } else {
