@@ -1030,9 +1030,8 @@ function addListSetTitle(form, entity, column, parent, id, $input) {
     let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
     formData[column] = id;
 
-    getJSON(HOME + "app/get/" + entity + "/" + id).then(data => {
-        if(!isEmpty(data[entity])) {
-            data = data[entity][0];
+    db.exeRead(entity, id).then(data => {
+        if(!isEmpty(data)) {
             let point = ".";
             $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
             let intt = setInterval(function () {

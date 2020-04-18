@@ -274,6 +274,42 @@ function dbSendData(entity, dados, action) {
     });
 }
 
+function exeReadOnline(entity, id) {
+    id = typeof id !== "undefined" && !isNaN(id) && id > 0 ? id : null;
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "POST",
+            url: HOME + 'set',
+            data: {
+                lib: "entity",
+                file: "load/entity",
+                entity: entity,
+                id: id,
+                historic: null
+            },
+            success: function (data) {
+                if (data.response === 1 && !isEmpty(data.data.data)) {
+                    if (id) {
+                        resolve(getDefaultValues(entity, data.data.data[0]));
+
+                    } else {
+                        let result = [];
+                        $.each(data.data.data, function (i, e) {
+                            result.push(getDefaultValues(entity, e));
+                        });
+                        resolve(result);
+                    }
+                }
+                resolve({})
+            },
+            error: function () {
+                resolve({})
+            },
+            dataType: "json"
+        })
+    })
+}
+
 const db = {
     exeRead(entity, key) {
         let Reg = new RegExp('^(sync_|__)', 'i');
@@ -281,39 +317,24 @@ const db = {
             toast("[Erro de programação] não é possível LER registros Sync Online.", 5000, "toast-error");
             return;
         }
-        key = typeof key === "string" ? parseInt(key) : key;
 
-        if(SERVICEWORKER) {
-            return dbRemote.syncDownload(entity).then(() => {
-                return dbLocal.exeRead(entity, key)
-            });
-        } else {
-            return new Promise(function (resolve, reject) {
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {lib: "entity", file: "load/entity", entity: entity, id: key, historic: null},
-                    success: function (data) {
-                        if (data.response === 1 && data.data.historic !== 0) {
-                            if (!isNaN(key) && key > 0) {
-                                resolve(getDefaultValues(entity, data.data.data[0]));
-                            }else {
-                                let result = [];
-                                $.each(data.data.data, function (i, e) {
-                                    result.push(getDefaultValues(entity, e));
-                                });
-                                resolve(result);
-                            }
-                        }
-                        resolve(0)
-                    },
-                    error: function () {
-                        resolve(0)
-                    },
-                    dataType: "json"
-                })
+        key = typeof key !== "undefined" && !isNaN(key) && key > 0 ? parseInt(key) : null;
+
+        if(!SERVICEWORKER)
+            return exeReadOnline(entity, key);
+
+        return dbRemote.syncDownload(entity).then(() => {
+            return dbLocal.exeRead(entity, key).then(r => {
+                if(!isEmpty(r))
+                    return r;
+
+                if(!isEmpty(key) && !isNaN(key))
+                    return exeReadOnline(entity, key);
+
+                return {};
             })
-        }
+        });
+
     }, exeCreate(entity, dados, sync) {
         if(SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
