@@ -193,7 +193,7 @@ input::-webkit-inner-spin-button {
     transition: all ease .3s;
 	position: fixed;
 	z-index: 3;
-	bottom:0;
+	top: calc(100vh - 50px);
 	left:0;
 	width: 100%; 
 	padding: 0;
