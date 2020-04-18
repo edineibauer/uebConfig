@@ -803,16 +803,16 @@ input::-webkit-inner-spin-button {
     top: 0!important;
 }
 
-#keyboard-simulate {
-    position: fixed;
-    bottom: -45%;
-    height: 45%;
-    width: 100%;
-    background: #333333;
-    color: white;
-    padding: 30px;
-    text-align: center;
-    z-index: 99999999;
+.activeBoolean {
+    height: 16px;
+    width: 16px;
+    background: #ffabab;
+    border-radius: 15px;
+    margin: 5px auto 0;
+}
+
+.activeBoolean.active {
+    background: #62BAB2;
 }
 
 @media only screen and (min-width: 600px) {

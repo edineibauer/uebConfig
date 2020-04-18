@@ -98,6 +98,8 @@ function gridTdFilterValue(value, meta) {
                 resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1  ? ((resposta !== "" ? ", " : "") + meta.allow.options[i].representacao) : "");
 
             value = resposta;
+        } else if (meta.format === "boolean") {
+            value = "<div class='activeBoolean" + (value == 1 ? " active": "") + "'></div>";
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
