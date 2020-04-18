@@ -1424,7 +1424,7 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
     position: absolute;
     left: 0;
     bottom: 0;
-    background-color: #999;
+    background-color: #dddddd;
     height: 20px;
     width: 45px;
     border-radius: 34px;
@@ -1460,17 +1460,17 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
 }
 
 .switch-squad .slider {
-    border-radius: 0;
-    bottom: -3px;
-    height: 25px
+    border-radius: 40px;
+    bottom: 0;
+    height: 20px;
 }
 
 .switch-squad .slider:after {
-    border-radius: 0;
-    height: 20px;
+    border-radius: 30px;
+    height: 15px;
     bottom: 3px;
-    width: 18px;
-    left: 3px
+    width: 15px;
+    left: 5px;
 }
 
 .vertical {
