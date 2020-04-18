@@ -22,7 +22,7 @@ function exeReadApplyFilter(data, filter) {
 
                         let dataValor = dd[filterOption.column];
                         if (typeof dataValor === "string") {
-                            if(isNumber(filterOption.value)) {
+                            if (isNumber(filterOption.value)) {
                                 dataValor = parseFloat(dataValor);
                                 filterOption.value = parseFloat(filterOption.value);
                             } else {
@@ -99,7 +99,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
     return db.exeRead(entity).then(data => {
-        if(!SERVICEWORKER)
+        if (!SERVICEWORKER)
             return data;
 
         if (parseInt(data.length) >= parseInt(LIMITOFFLINE)) {
@@ -144,7 +144,7 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
                             }
 
                             moveSyncDataToDb(entity, dados.data).then(() => {
-                                if(offset === -1) {
+                                if (offset === -1) {
                                     moveSyncInfoToDb(entity).then(syncD => {
                                         let dd = (syncD ? syncD.concat(dados.data) : dados.data);
                                         resolve({data: dd, length: dados.total})
@@ -175,10 +175,10 @@ function readOffline(data, filter, order, reverse, limit, offset) {
         length: 0
     };
 
-    if(isEmpty(data))
+    if (isEmpty(data))
         return result;
 
-    if(data.constructor === Array) {
+    if (data.constructor === Array) {
 
         //FILTER
         if (!isEmpty(filter))
@@ -218,7 +218,7 @@ function readOffline(data, filter, order, reverse, limit, offset) {
 var syncGridCheck = [];
 
 function checkToUpdateDbLocal(entity) {
-    if(!SERVICEWORKER)
+    if (!SERVICEWORKER)
         return Promise.all([]);
 
     let Reg = new RegExp('^(sync_|__)', 'i');
@@ -239,7 +239,7 @@ function checkToUpdateDbLocal(entity) {
 
 function dbSendData(entity, dados, action) {
     dados.db_action = action;
-    if(action === "create")
+    if (action === "create")
         dados.id = 0;
     let t = [];
     t.push(dados);
@@ -263,17 +263,17 @@ function dbSendData(entity, dados, action) {
                 } else {
                     navigator.vibrate(100);
 
-                    if(!isEmpty(form)) {
+                    if (!isEmpty(form)) {
                         showErrorField(form.$element, dd.data.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
                         setFormSaveStatus(form, 1);
                     }
 
                     toast("Erro ao cadastrar, corrija o formulário", 7000, "toast-error");
 
-                    if(!isEmpty(form))
+                    if (!isEmpty(form))
                         f(Object.assign({db_errorback: 1}, dd.data.data[0].db_error[form.entity]));
                     else
-                        f(Object.assign({db_errorback : 1}, dd.data.data[0].db_error));
+                        f(Object.assign({db_errorback: 1}, dd.data.data[0].db_error));
                 }
             },
             dataType: "json",
@@ -321,22 +321,22 @@ function exeReadOnline(entity, id) {
 const db = {
     exeRead(entity, key) {
         let Reg = new RegExp('^(sync_|__)', 'i');
-        if(Reg.test(entity)) {
+        if (Reg.test(entity)) {
             toast("[Erro de programação] não é possível LER registros Sync Online.", 5000, "toast-error");
             return;
         }
 
         key = isNumberPositive(key) ? parseInt(key) : null;
 
-        if(!SERVICEWORKER)
+        if (!SERVICEWORKER)
             return exeReadOnline(entity, key);
 
         return dbRemote.syncDownload(entity).then(() => {
             return dbLocal.exeRead(entity, key).then(r => {
-                if(!isEmpty(r))
+                if (!isEmpty(r))
                     return r;
 
-                if(key)
+                if (key)
                     return exeReadOnline(entity, key);
 
                 return [];
@@ -344,7 +344,7 @@ const db = {
         });
 
     }, exeCreate(entity, dados, sync) {
-        if(SERVICEWORKER) {
+        if (SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
             dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
             let idAction = getIdAction(entity, dados.id);
@@ -363,7 +363,7 @@ const db = {
                                 /**
                                  * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
                                  */
-                                if(syncReturn[0].db_errorback !== 0 && action === "create") {
+                                if (syncReturn[0].db_errorback !== 0 && action === "create") {
                                     dbLocal.exeDelete(entity, dadosCreated);
                                     dbLocal.exeDelete("sync_" + entity, syncCreated);
                                 }
@@ -372,7 +372,7 @@ const db = {
                             });
                         }
 
-                        return [Object.assign({db_errorback : 0}, dados)];
+                        return [Object.assign({db_errorback: 0}, dados)];
                     });
                 }).then(dados => {
                     dados = dados[0];
@@ -386,7 +386,7 @@ const db = {
             return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
         }
     }, exeDelete(entity, id) {
-        if(SERVICEWORKER) {
+        if (SERVICEWORKER) {
             return dbLocal.exeRead("__react").then(react => {
                 let allDelete = [];
                 let ids = [];
@@ -404,7 +404,10 @@ const db = {
                             allDelete.push(deleteDB(entity, idU, react).then(() => {
                                 return dbLocal.exeRead("sync_" + entity, idU).then(d => {
                                     if (isEmpty(d) || d.db_action === "update") {
-                                        return dbLocal.exeCreate("sync_" + entity, {'id': idU, 'db_action': 'delete'}).then(id => {
+                                        return dbLocal.exeCreate("sync_" + entity, {
+                                            'id': idU,
+                                            'db_action': 'delete'
+                                        }).then(id => {
                                             return dbRemote.syncPost(entity, idU);
                                         });
                                     } else if (d.db_action === "create") {
@@ -491,7 +494,7 @@ const dbRemote = {
                                 if (isNumber(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
 
-                                    if(typeof dicionarios[entity] === "undefined") {
+                                    if (typeof dicionarios[entity] === "undefined") {
                                         toast("Erro: '" + entity + "' não esta acessível", 5000, "toast-error");
                                         break;
                                     }
@@ -524,7 +527,7 @@ const dbRemote = {
 
                 return Promise.all([sync, lastKey, lastKeySync]).then(r => {
                     let prom = [];
-                    if(!isEmpty(r[0])) {
+                    if (!isEmpty(r[0])) {
                         lastKey = r[1] > r[2] ? r[1] : r[2];
                         $.each(r[0], function (i, s) {
                             //depois de criar esse registro, verifica possível conflito com sync ID
@@ -652,8 +655,8 @@ const dbRemote = {
                     });
                     Promise.all(promises).then(p => {
                         if (feedback) {
-                            if(total === 1) {
-                                if(p[0].db_errorback === 1) {
+                            if (total === 1) {
+                                if (p[0].db_errorback === 1) {
                                     delete p[0].db_errorback;
                                     msg = Object.keys(p[0])[0] + ": " + Object.values(p[0])[0];
                                 }
@@ -696,13 +699,14 @@ const dbLocal = {
             if (isNumberPositive(key)) {
                 return dbLocalTmp.transaction(entity).objectStore(entity).get(parseInt(key)).then(v => {
                     return (typeof v !== "undefined" ? v : {})
-                }).catch(() => {});
+                }).catch(() => {
+                });
             } else {
                 return checkToUpdateDbLocal(entity).then(() => {
                     return dbLocalTmp.transaction(entity).objectStore(entity).getAll().then(v => {
                         return (typeof v !== "undefined" ? v : {})
                     }).catch(err => {
-                        navigator.webkitTemporaryStorage.queryUsageAndQuota ((usedBytes, grantedBytes) => {
+                        navigator.webkitTemporaryStorage.queryUsageAndQuota((usedBytes, grantedBytes) => {
                             toast((err.message === "Maximum IPC message size exceeded." ? "Isso pode demorar, carregando " + (usedBytes / 1000000).toFixed(0) + " MB" : err.messsage), 4000, "toast-warning");
                         });
 
@@ -745,12 +749,18 @@ const dbLocal = {
             })
         }
     }, exeDelete(entity, key) {
+        if (!isNumberPositive(key))
+            return new Promise.all([]);
+
         return dbLocal.conn(entity).then(dbLocalTmp => {
             const tx = dbLocalTmp.transaction(entity, 'readwrite');
             tx.objectStore(entity).delete(parseInt(key));
             return tx.complete
         })
     }, exeUpdate(entity, dados, key) {
+        if (!isNumberPositive(key))
+            return new Promise.all([]);
+
         key = parseInt(key);
         return dbLocal.exeRead(entity, key).then(data => {
             for (let name in dados)
@@ -842,7 +852,7 @@ function moveSyncDataToDb(entity, dados, db_status) {
                     // if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(USER.id)) {
                     //     movedAsync.push(dbLocal.exeDelete(entity, d.id))
                     // } else {
-                        movedAsync.push(dbLocal.exeCreate(entity, d))
+                    movedAsync.push(dbLocal.exeCreate(entity, d))
                     // }
                     break;
                 case 'delete':
@@ -873,7 +883,7 @@ function getDefaultValues(entity, values) {
         }
     });
 
-    if(typeof values !== "undefined" && isNumber(values.id))
+    if (typeof values !== "undefined" && isNumber(values.id))
         valores.id = parseInt(values.id);
 
     return valores
@@ -883,11 +893,11 @@ function getDefaultValue(meta, value) {
     let valor = "";
     if (typeof meta === "object" && meta !== null) {
         let jsonStringWrongValidation = new RegExp("^\\[\\s*\\w+\\s*(,\\s*\\w+\\s*)*\\]$", "i");
-        if(meta.type === "json" && typeof value === "string" && isNaN(value) && !isJson(value) && jsonStringWrongValidation.test(value)) {
+        if (meta.type === "json" && typeof value === "string" && isNaN(value) && !isJson(value) && jsonStringWrongValidation.test(value)) {
             let testValue = value.replace("[", '["').replace(']', '"]').split(",").join('", "');
-            if(isJson(testValue)) {
+            if (isJson(testValue)) {
                 testValue = JSON.parse(testValue);
-                if(testValue.constructor === Array && testValue.length > 0)
+                if (testValue.constructor === Array && testValue.length > 0)
                     value = testValue.map(s => s.toString().trim());
             }
         }
@@ -899,10 +909,10 @@ function getDefaultValue(meta, value) {
         else if (meta.group === "date")
             value = value.replace(" ", "T");
 
-        if(typeof value === "object" && value.constructor === Array) {
-            if(meta.key === "relation") {
+        if (typeof value === "object" && value.constructor === Array) {
+            if (meta.key === "relation") {
                 $.each(value, function (i, e) {
-                    if(typeof e.columnTituloExtend !== "string") {
+                    if (typeof e.columnTituloExtend !== "string") {
                         value[i].id = Date.now();
                         value[i].columnTituloExtend = "";
                         getRelevantTitle(meta.relation, value[i]).then(title => {
@@ -914,10 +924,10 @@ function getDefaultValue(meta, value) {
                     }
                 });
 
-            } else if(meta.key === "source") {
+            } else if (meta.key === "source") {
                 let reg = new RegExp("^image", "i");
                 $.each(value, function (i, e) {
-                    if(typeof e.isImage === "undefined")
+                    if (typeof e.isImage === "undefined")
                         value[i].isImage = reg.test(e.fileType);
                 })
             }
@@ -961,7 +971,7 @@ function getDefaultValue(meta, value) {
                     break;
                 }
 
-                if(value.split(",").length > 1)
+                if (value.split(",").length > 1)
                     value = replaceAll(value, ".", "").replace(",", ".");
 
                 let decimal = (meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : (meta.format === 'valor_decimal_plus' ? 4 : 1)));
@@ -1052,8 +1062,8 @@ function syncDataBtn(entity) {
 
     if (navigator.onLine) {
         dbRemote.sync(entity, null, !0).then(isUpdated => {
-            for(let i in grids) {
-                if(typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
+            for (let i in grids) {
+                if (typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
                     grids[i].reload();
                     break;
                 }
