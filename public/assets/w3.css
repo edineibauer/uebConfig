@@ -1461,7 +1461,7 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
 
 .switch-squad .slider {
     border-radius: 40px;
-    bottom: 0;
+    bottom: 1px;
     height: 20px;
 }
 
