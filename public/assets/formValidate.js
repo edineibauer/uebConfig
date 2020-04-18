@@ -68,7 +68,7 @@ function validateRules(entity, meta, value, error, data, dataOld, action) {
 }
 
 function validateForm(id) {
-    let action = !isNaN(form.id) && form.id > 0 ? 'update' : 'create';
+    let action = isNumberPositive(form.id) ? 'update' : 'create';
     clearFormError(form);
     return havePermission(form, action).then(permission => {
         if (permission) {
@@ -86,7 +86,7 @@ function permissionToChange(entity, data) {
             return !0;
 
         let id = parseInt(USER.id);
-        if (typeof info[entity].autor === "number" && info[entity].autor === 1 && !isNaN(data.id) && data.id > 0) {
+        if (typeof info[entity].autor === "number" && info[entity].autor === 1 && isNumberPositive(data.id)) {
             return db.exeRead(entity, data.id).then(dados => {
                 return typeof dados.autorpub === "number" && dados.autorpub === id;
             })
@@ -159,7 +159,7 @@ function validateMetaNull(meta, value, error) {
 function validateMetaSize(meta, value, error) {
     if (typeof meta.size === "number") {
         if (["float", "decimal", "smallint", "int", "tinyint"].indexOf(meta.type) > -1) {
-            if (!isNaN(value) && value > meta.size)
+            if (isNumber(value) && value > meta.size)
                 error[meta.column] = "Informe um valor menor ou igual a " + meta.size
         } else if (meta.type !== "json" && typeof value === "string" && value.length > meta.size) {
             error[meta.column] = "Tamanho excedido. Máximo de " + meta.size + " caracteres."
@@ -169,7 +169,7 @@ function validateMetaSize(meta, value, error) {
     }
     if (typeof meta.minimo === "number") {
         if (["float", "decimal", "smallint", "int", "tinyint"].indexOf(meta.type) > -1) {
-            if (!isNaN(value) && value < meta.minimo)
+            if (isNumber(value) && value < meta.minimo)
                 error[meta.column] = "Informe um valor maior ou igual a " + meta.minimo
         } else if (meta.type !== "json" && typeof value === "string" && value.length < meta.minimo) {
             error[meta.column] = "Mínimo de " + meta.minimo + " caracteres."
@@ -186,7 +186,7 @@ function validateMetaUnique(meta, value, id, entityData, error) {
                 if (isEmpty(id)) {
                     if (entityData.some(el => el[meta.column] === value))
                         error[meta.column] = "Valor já existe! Informe outro.";
-                } else if (!isNaN(id) && id > 0) {
+                } else if (isNumberPositive(id)) {
                     if (entityData.some(el => el['id'] != id && el[meta.column] === value))
                         error[meta.column] = "Valor já existe! Informe outro.";
                 }

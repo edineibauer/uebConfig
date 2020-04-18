@@ -22,7 +22,7 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
         gridContent.button.status = {have: !1, status: !1};
         gridContent.button.autor = {have: !1, id: !1, list: []};
 
-        if (actions.status && gridContent.button.update && typeof info.status !== "undefined" && !isNaN(info.status) && info.status > 0) {
+        if (actions.status && gridContent.button.update && isNumberPositive(info.status)) {
             gridContent.button.status.have = !0;
             $.each(dicionarios[entity], function (col, dic) {
                 if (dic.id === info.status) {
@@ -32,7 +32,7 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
                 }
             })
         }
-        if (actions.autor && USER.setor === "admin" && typeof info.autor !== "undefined" && !isNaN(info.autor) && info.autor > 0) {
+        if (actions.autor && USER.setor === "admin" && isNumberPositive(info.autor)) {
             gridContent.button.autor.have = !0;
             let colAutor = info.autor === 2 ? "ownerpub" : "autorpub";
             if (isEmpty(data[colAutor]))

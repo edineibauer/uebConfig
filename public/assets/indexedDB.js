@@ -22,7 +22,7 @@ function exeReadApplyFilter(data, filter) {
 
                         let dataValor = dd[filterOption.column];
                         if (typeof dataValor === "string") {
-                            if(!isNaN(filterOption.value)) {
+                            if(isNumber(filterOption.value)) {
                                 dataValor = parseFloat(dataValor);
                                 filterOption.value = parseFloat(filterOption.value);
                             } else {
@@ -283,7 +283,7 @@ function dbSendData(entity, dados, action) {
 }
 
 function exeReadOnline(entity, id) {
-    id = typeof id !== "undefined" && !isNaN(id) && id > 0 ? id : null;
+    id = isNumberPositive(id) ? id : null;
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
@@ -326,7 +326,7 @@ const db = {
             return;
         }
 
-        key = typeof key !== "undefined" && !isNaN(key) && key > 0 ? parseInt(key) : null;
+        key = isNumberPositive(key) ? parseInt(key) : null;
 
         if(!SERVICEWORKER)
             return exeReadOnline(entity, key);
@@ -336,7 +336,7 @@ const db = {
                 if(!isEmpty(r))
                     return r;
 
-                if(!isEmpty(key) && !isNaN(key))
+                if(key)
                     return exeReadOnline(entity, key);
 
                 return [];
@@ -346,7 +346,7 @@ const db = {
     }, exeCreate(entity, dados, sync) {
         if(SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
-            dados.id = !isNaN(dados.id) && dados.id > 0 ? parseInt(dados.id) : 0;
+            dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
             let idAction = getIdAction(entity, dados.id);
             let react = dbLocal.exeRead("__react");
             return Promise.all([idAction, react]).then(r => {
@@ -392,14 +392,14 @@ const db = {
                 let ids = [];
 
                 //Aceita id sendo número ou array
-                if (typeof id !== "undefined" && !isNaN(id) && id > 0)
+                if (isNumberPositive(id))
                     ids.push(id);
                 else if (typeof id === "object" && id !== null && id.constructor === Array)
                     ids = id;
 
                 if (ids.length) {
                     for (let k in ids) {
-                        if (!isNaN(ids[k]) && ids[k] > 0) {
+                        if (isNumberPositive(ids[k])) {
                             let idU = parseInt(ids[k]);
                             allDelete.push(deleteDB(entity, idU, react).then(() => {
                                 return dbLocal.exeRead("sync_" + entity, idU).then(d => {
@@ -488,7 +488,7 @@ const dbRemote = {
                         let cc = [];
                         if (response.data.length) {
                             for (let k in response.data) {
-                                if (!isNaN(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
+                                if (isNumber(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
 
                                     if(typeof dicionarios[entity] === "undefined") {
@@ -610,7 +610,7 @@ const dbRemote = {
                                         /**
                                          * Atualização realizada, remove sync desta atualização
                                          * */
-                                        if (!isNaN(d.id)) {
+                                        if (isNumber(d.id)) {
                                             dbLocal.exeDelete('sync_' + entity, d.id);
                                             dbLocal.exeDelete(entity, d.id);
                                             if (d.db_action !== "delete")
@@ -693,7 +693,7 @@ const dbLocal = {
         return conn[entity]
     }, exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
-            if (typeof key !== "undefined" && !isNaN(key)) {
+            if (isNumberPositive(key)) {
                 return dbLocalTmp.transaction(entity).objectStore(entity).get(key).then(v => {
                     return (typeof v !== "undefined" ? v : {})
                 }).catch(c => {
@@ -736,9 +736,9 @@ const dbLocal = {
             }
         })
     }, exeCreate(entity, val) {
-        let id = (/^__/.test(entity) ? 1 : (!isNaN(val.id) && val.id > 0 ? parseInt(val.id) : 0));
+        let id = (/^__/.test(entity) ? 1 : (isNumberPositive(val.id) ? parseInt(val.id) : 0));
         if (id > 0) {
-            if (!isNaN(val.id) && val.id > 0)
+            if (isNumberPositive(val.id))
                 val.id = parseInt(val.id);
             return dbLocal.insert(entity, val, id)
         } else {
@@ -832,7 +832,7 @@ function moveSyncDataToDb(entity, dados, db_status) {
         let ac = d.db_action;
         delete (d.db_action);
         delete (d.id_old);
-        if (d.constructor === Object && !isEmpty(d) && !isNaN(d.id)) {
+        if (d.constructor === Object && !isEmpty(d) && isNumber(d.id)) {
             switch (ac) {
                 case 'create':
                 case 'update':
@@ -848,7 +848,7 @@ function moveSyncDataToDb(entity, dados, db_status) {
                     // }
                     break;
                 case 'delete':
-                    if (!isNaN(d.id) && d.id > 0)
+                    if (isNumberPositive(d.id))
                         movedAsync.push(dbLocal.exeDelete(entity, d.id));
                     break
             }
@@ -875,7 +875,7 @@ function getDefaultValues(entity, values) {
         }
     });
 
-    if(typeof values !== "undefined" && typeof values.id !== "undefined" && !isNaN(values.id))
+    if(typeof values !== "undefined" && isNumber(values.id))
         valores.id = parseInt(values.id);
 
     return valores
@@ -897,7 +897,7 @@ function getDefaultValue(meta, value) {
         if ((['boolean', 'status'].indexOf(meta.format) === -1 && value === !1) || value === null)
             value = "";
         else if (meta.type === "json")
-            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : ((typeof value === 'number' || typeof value === 'string') && value !== "" && !isNaN(value) ? JSON.parse("[" + value + "]") : ""));
+            value = typeof value === "object" ? value : (isJson(value) ? JSON.parse(value) : (isNumber(value) ? JSON.parse("[" + value + "]") : ""));
         else if (meta.group === "date")
             value = value.replace(" ", "T");
 
@@ -933,7 +933,7 @@ function getDefaultValue(meta, value) {
             case 'publisher':
             case 'number':
             case 'year':
-                valor = value !== "" && !isNaN(value) ? parseInt(value) : null;
+                valor = isNumberPositive(value) ? parseInt(value) : null;
                 break;
             case 'percent':
                 valor = value !== "" ? value.toString().replace(',', '').replace('.', '').replace('%', '') : null;
@@ -949,7 +949,7 @@ function getDefaultValue(meta, value) {
 
                 value = replaceAll(replaceAll(value, ".", ""), ",", "");
 
-                valor = (!isNaN(value) ? parseInt(value) : null);
+                valor = (isNumber(value) ? parseInt(value) : null);
                 break;
             case 'valor':
             case 'valor_decimal':
@@ -967,11 +967,11 @@ function getDefaultValue(meta, value) {
                     value = replaceAll(value, ".", "").replace(",", ".");
 
                 let decimal = (meta.format === 'valor' ? 2 : (meta.format === 'valor_decimal' ? 3 : (meta.format === 'valor_decimal_plus' ? 4 : 1)));
-                valor = (!isNaN(value) ? parseFloat(value).toFixed(decimal) : null);
+                valor = (isNumber(value) ? parseFloat(value).toFixed(decimal) : null);
                 break;
             case 'float':
                 value = (typeof value === "string" ? value.replace(',', '.') : value);
-                valor = value !== "" && !isNaN(value) ? parseFloat(value) : null;
+                valor = isNumber(value) ? parseFloat(value) : null;
                 break;
             case 'date':
                 if (['date', 'now', 'agora', 'data', 'hoje'].indexOf(value) > -1) {

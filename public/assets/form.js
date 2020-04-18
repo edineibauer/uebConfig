@@ -6,7 +6,7 @@ $(function ($) {
         if(typeof entity === "string") {
             fields = typeof fields === "object" && fields !== null && fields.constructor === Array && fields.length ? fields : null;
             let data = (typeof id === "object" ? id : null);
-            id = (typeof id !== "undefined" && !isNaN(id) ? parseInt(id) : null);
+            id = (isNumberPositive(id) ? parseInt(id) : null);
 
             form = formCrud(entity, this, parent, parentColumn, store);
 
@@ -626,7 +626,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         },
         getShow: function () {
             this.loading = !0
-            let action = !isEmpty(this.id) && !isNaN(this.id) && this.id > 0 ? "update" : "create";
+            let action = isNumberPositive(this.id) ? "update" : "create";
             return permissionToAction(this.entity, action).then(have => {
                 if (have) {
                     return getTemplates().then(templates => {
@@ -641,7 +641,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
             let $this = this;
             $.each(dados, function (col, value) {
                 if (col === "id") {
-                    $this.id = (typeof value !== "undefined" && value !== null && !isNaN(value) && value > 0 ? parseInt(value) : "");
+                    $this.id = (isNumberPositive(value) ? parseInt(value) : "");
                     $this.data.id = parseInt($this.id);
                 } else if(typeof dicionarios !== "undefined") {
                     if(typeof dicionarios[$this.entity] === "undefined")
@@ -673,7 +673,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
             let $this = this;
             if (typeof fields === "object")
                 $this.fields = fields;
-            if (typeof id !== "undefined" && !isNaN(id) && id > 0) {
+            if (isNumberPositive(id)) {
                 $this.id = parseInt(id);
                 var loadData = loadEntityData(this.entity, id)
             } else if (isEmpty($this.data)) {
@@ -724,7 +724,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                              * Obtém dados do formulário
                              * */
                             let dados = Object.assign({}, form.data);
-                            if (typeof form.id !== "undefined" && !isNaN(form.id) && form.id > 0)
+                            if (isNumberPositive(form.id))
                                 dados.id = form.id;
 
                             form.saved = !0;
@@ -741,7 +741,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                                         if (form.id === "" || (typeof syncData.id_old !== "undefined" && parseInt(form.id) === parseInt(syncData.id_old))) {
                                             syncData.id = parseInt(syncData.id);
                                             id = syncData.id;
-                                            if (form.id === "" && typeof syncData.id_old !== "undefined" && !isNaN(syncData.id_old) && parseInt(syncData.id_old) !== parseInt(syncData.id))
+                                            if (form.id === "" && isNumberPositive(syncData.id_old) && parseInt(syncData.id_old) !== parseInt(syncData.id))
                                                 dbLocal.exeDelete(form.entity, syncData.id_old);
                                             delete (syncData.id_old);
                                             delete (syncData.db_action);
@@ -811,9 +811,9 @@ function getInputsTemplates(form, parent, col) {
                 metaInput.parent = parent;
                 metaInput.value = form.data[column] || "";
                 metaInput.isNumeric = ["float", "decimal", "smallint", "int", "tinyint"].indexOf(metaInput.type) > -1;
-                metaInput.valueLenght = (metaInput.isNumeric && !isNaN(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
+                metaInput.valueLenght = (metaInput.isNumeric && isNumber(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
                 metaInput.isFull = metaInput.valueLenght === metaInput.size;
-                metaInput.disabled = !isNaN(form.id) && form.id > 0 && !metaInput.update;
+                metaInput.disabled = isNumberPositive(form.id) && !metaInput.update;
                 if (!isEmpty(metaInput.default) && metaInput.default.length > 7)
                     metaInput.default = Mustache.render(metaInput.default, {
                         vendor: VENDOR,
@@ -982,7 +982,7 @@ function loadMask(form) {
     $.each($form.find(".list"), function () {
         let v = $(this).data("value");
         let parent = $(this).attr('data-parent').replace(form.entity + ".", "").replace(form.entity, "");
-        if (v !== "" && !isNaN(v))
+        if (isNumber(v))
             addListSetTitle(form, $(this).data("entity"), $(this).data("column"), parent, $(this).attr('data-value'), $(this).parent())
     });
     checkUserOptions();
@@ -1012,7 +1012,7 @@ function loadFolderDrag() {
 }
 
 function addListRegister(entity, form, column, parent, data, el) {
-    if (!isEmpty(form.data[column]) && !isNaN(form.data[column])) {
+    if (isNumberPositive(form.data[column])) {
         return db.exeCreate(entity, data).then(() => {
             return addListSetTitle(form, entity, column, parent, data.id, $(el).siblings('.list-input'))
         })
@@ -1059,7 +1059,7 @@ function addRegisterAssociation(entity, column) {
 	history.state.param.data = Object.assign({id: form.id}, form.data);
 	history.replaceState(history.state, null, HOME + app.route);
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
-	if (!isEmpty(form.data[column]) && !isNaN(form.data[column])) {
+	if (isNumber(form.data[column])) {
 		db.exeRead(entity, parseInt(form.data[column])).then(data => {
 			if (data)
 				pageTransition(entity, "form", "forward", "#dashboard", {
@@ -1167,14 +1167,14 @@ function deleteExtendMult(column, id) {
         }
         if (columnReal !== column) {
             $.each(form.data[columnReal][column], function (i, val) {
-                if (typeof val === "object" && !isNaN(val.id) && parseInt(val.id) === parseInt(id)) {
+                if (typeof val === "object" && isNumber(val.id) && parseInt(val.id) === parseInt(id)) {
                     form.data[columnReal][column].splice(i, 1);
                     return !1
                 }
             })
         } else {
             $.each(form.data[column], function (i, val) {
-                if (typeof val === "object" && !isNaN(val.id) && parseInt(val.id) === parseInt(id)) {
+                if (typeof val === "object" && isNumber(val.id) && parseInt(val.id) === parseInt(id)) {
                     form.data[column].splice(i, 1);
                     return !1
                 }

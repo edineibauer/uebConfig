@@ -69,7 +69,7 @@ if (typeof Grafico !== 'function') {
         }
 
         setMaximo(maximo) {
-            if (!isNaN(maximo) && maximo > 0)
+            if (isNumberPositive(maximo))
                 this.maximo = parseInt(maximo);
         }
 
@@ -513,7 +513,7 @@ if (typeof Grafico !== 'function') {
          */
         findXType() {
             if (typeof this.x === "string" && typeof this.data[0] !== "undefined" && typeof this.data[0][this.x] !== "undefined")
-                this.xType = (!isNaN(this.data[0][this.x]) ? "numeric" : (moment(this.data[0][this.x], "YYYY-MM-DD", true).isValid() || moment(this.data[0][this.x], "YYYY-MM-DD[T]HH:mm:ss", true).isValid() ? "datetime" : "category"));
+                this.xType = (isNumber(this.data[0][this.x]) ? "numeric" : (moment(this.data[0][this.x], "YYYY-MM-DD", true).isValid() || moment(this.data[0][this.x], "YYYY-MM-DD[T]HH:mm:ss", true).isValid() ? "datetime" : "category"));
         }
 
         workData() {

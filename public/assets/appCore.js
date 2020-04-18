@@ -115,6 +115,24 @@ function orderBy(data, order) {
 }
 
 /**
+ * Verifica se variável é numérica
+ * @param n
+ * @returns {boolean|boolean}
+ */
+function isNumber(n) {
+    return n !== null && !isNaN(n) && (n.constructor === String || n.constructor === Number);
+}
+
+/**
+ * Verifica se variável é numérica e positiva
+ * @param n
+ * @returns {boolean|boolean}
+ */
+function isNumberPositive(n) {
+    return n !== null && !isNaN(n) && (n.constructor === String || n.constructor === Number) && n > 0;
+}
+
+/**
  * Obtém o número de parametros do objeto
  * @param obj
  * @returns {number}
@@ -2180,7 +2198,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
-    scroll = typeof scroll !== "undefined" && !isNaN(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
+    scroll = isNumberPositive(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
@@ -2248,7 +2266,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 $page.reportTable(history.state.route)
             } else if (type === 'form') {
 
-                let id = typeof param === "object" && typeof param.id !== "undefined" && !isNaN(param.id) ? parseInt(param.id) : "";
+                let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
                 let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
                 let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
