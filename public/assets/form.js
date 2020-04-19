@@ -3,7 +3,7 @@ var checkformSaved = !1;
 
 $(function ($) {
     $.fn.form = function (entity, id, fields, parent, parentColumn, store, callback) {
-        if(typeof entity === "string") {
+        if (typeof entity === "string") {
             fields = typeof fields === "object" && fields !== null && fields.constructor === Array && fields.length ? fields : null;
             let data = (typeof id === "object" ? id : null);
             id = (isNumberPositive(id) ? parseInt(id) : null);
@@ -13,7 +13,7 @@ $(function ($) {
             if (typeof callback === "function")
                 form.setFuncao(callback);
 
-            if(data)
+            if (data)
                 form.setData(data);
 
             form.show(id, fields);
@@ -166,7 +166,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                 $input.siblings(".info-container").find(".input-info").html(size)
             }
         }
-        if(!form.loading) {
+        if (!form.loading) {
             form.modified = !0;
             form.saved = !1;
         }
@@ -294,7 +294,7 @@ function applyRules(entity, rule, column) {
 }
 
 function createMock(resource, nome, name, extensao, type, size, isImage) {
-    if(typeof isImage === "undefined") {
+    if (typeof isImage === "undefined") {
         let reg = new RegExp("^image", "i");
         isImage = reg.test(type)
     }
@@ -530,27 +530,27 @@ function searchList($input) {
  * Limpa uploads em andamento
  * */
 function clearUploadProgress() {
-	$.each(ajaxUploadProgress, function (name, ajax) {
-		clearInterval(checkUploadStoped[name]);
-		ajax.abort();
-		delete (ajaxUploadProgress[name]);
-		delete (checkUploadStoped[name]);
-		removeFileForm($(".remove-file-gallery[rel='" + name + "']"))
-	});
+    $.each(ajaxUploadProgress, function (name, ajax) {
+        clearInterval(checkUploadStoped[name]);
+        ajax.abort();
+        delete (ajaxUploadProgress[name]);
+        delete (checkUploadStoped[name]);
+        removeFileForm($(".remove-file-gallery[rel='" + name + "']"))
+    });
 }
 
 /**
  * Salva formulários internos
  * */
 function saveInternalForm() {
-	return Promise.all([]);
-	let saveInterno = [];
-	$.each(form.$element.find(".form-crud"), function (e) {
-		if(typeof form === "object")
-			saveInterno.push(form.save(0, 1))
-	});
+    return Promise.all([]);
+    let saveInterno = [];
+    $.each(form.$element.find(".form-crud"), function (e) {
+        if (typeof form === "object")
+            saveInterno.push(form.save(0, 1))
+    });
 
-	return Promise.all(saveInterno);
+    return Promise.all(saveInterno);
 }
 
 /**
@@ -559,21 +559,21 @@ function saveInternalForm() {
 function setFormSaveStatus(form, status) {
     form.saving = typeof status === "undefined";
     if (form.saving) {
-		form.$element.find(".loadindTableSpace").find(".btn-form-list").addClass("disabled").prop("disabled", "disabled");
-		form.$element.find(".parent-save-form-mini").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='22' style='height: 22px;margin: 1px;' class='right'>");
-		form.$element.find(".parent-save-form").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='20' style='height: 20px;margin-bottom: -3px;margin-right: 12px;'>Salvando");
-	} else {
-		form.$element.find(".loadindTableSpace").find(".btn-form-list").removeClass("disabled").prop("disabled", "");
-		form.$element.find(".parent-save-form-mini").find("button").html("<i class='material-icons left'>save</i>")
-		form.$element.find(".parent-save-form").find("button").html(form.options.buttonText);
-	}
+        form.$element.find(".loadindTableSpace").find(".btn-form-list").addClass("disabled").prop("disabled", "disabled");
+        form.$element.find(".parent-save-form-mini").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='22' style='height: 22px;margin: 1px;' class='right'>");
+        form.$element.find(".parent-save-form").find("button").html("<img src='" + HOME + "assetsPublic/img/loading.gif?v=" + VERSION + "' height='20' style='height: 20px;margin-bottom: -3px;margin-right: 12px;'>Salvando");
+    } else {
+        form.$element.find(".loadindTableSpace").find(".btn-form-list").removeClass("disabled").prop("disabled", "");
+        form.$element.find(".parent-save-form-mini").find("button").html("<i class='material-icons left'>save</i>")
+        form.$element.find(".parent-save-form").find("button").html(form.options.buttonText);
+    }
 }
 
 function callback() {
-	if (typeof form.funcao === "function")
-		return form.funcao(dados);
+    if (typeof form.funcao === "function")
+        return form.funcao(dados);
 
-	return 0;
+    return 0;
 }
 
 function saveForm(id) {
@@ -612,7 +612,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         modified: !1,
         saved: !0,
         saving: !1,
-		loading: !0,
+        loading: !0,
         $element: $this || "",
         options: {
             saveButton: !0,
@@ -643,8 +643,8 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 if (col === "id") {
                     $this.id = (isNumberPositive(value) ? parseInt(value) : "");
                     $this.data.id = parseInt($this.id);
-                } else if(typeof dicionarios !== "undefined") {
-                    if(typeof dicionarios[$this.entity] === "undefined")
+                } else if (typeof dicionarios !== "undefined") {
+                    if (typeof dicionarios[$this.entity] === "undefined")
                         toast("Erro: '" + entity + "' não esta acessível", 5000, "toast-warning");
                     else if (typeof dicionarios[$this.entity][col] === "object")
                         $this.data[col] = getDefaultValue(dicionarios[$this.entity][col], value)
@@ -707,10 +707,10 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         save: function (showMessages, destroy) {
             showMessages = typeof showMessages === "undefined" || ["false", "0", 0, false].indexOf(showMessages) === -1;
             let form = this;
-			
-			if(form.saving)
-				return Promise.all([]);
-			
+
+            if (form.saving)
+                return Promise.all([]);
+
             setFormSaveStatus(form);
 
             return validateForm(form.identificador).then(validado => {
@@ -732,10 +732,10 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                                 return db.exeCreate(form.entity, dados).then(syncData => {
                                     let error = syncData.db_errorback;
                                     delete syncData.db_errorback;
-									
+
                                     let pp = [];
                                     pp.push(callback());
-									
+
                                     let id = parseInt(dados.id);
                                     if (error === 0) {
                                         if (form.id === "" || (typeof syncData.id_old !== "undefined" && parseInt(form.id) === parseInt(syncData.id_old))) {
@@ -756,7 +756,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                                         privateFormSetError(form, syncData, showMessages, destroy);
                                     }
                                 }).then(() => {
-                                    if(typeof history.state.param.column !== "undefined")
+                                    if (typeof history.state.param.column !== "undefined")
                                         history.back();
                                 })
 
@@ -778,12 +778,12 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                             }
 
                         }).then(() => {
-							setFormSaveStatus(form, 1);
-							
+                            setFormSaveStatus(form, 1);
+
                             if (showMessages)
                                 toast("Salvo", 2000, 'toast-success')
                         })
-                    } else  {
+                    } else {
                         setFormSaveStatus(form, 1);
                     }
                 } else {
@@ -856,12 +856,12 @@ function getInputsTemplates(form, parent, col) {
                             break
                     }
 
-                    if(!isEmpty(metaInput.value) && typeof metaInput.value === "object" && metaInput.value.constructor === Array && (metaInput.format === 'source_list' || metaInput.format === "file_list_source")) {
+                    if (!isEmpty(metaInput.value) && typeof metaInput.value === "object" && metaInput.value.constructor === Array && (metaInput.format === 'source_list' || metaInput.format === "file_list_source")) {
                         $.each(metaInput.value, function (i, e) {
                             metaInput.value[i].isImage = e.isImage === "true" || e.isImage === 1 || e.isImage === true;
                         })
                     }
-					
+
                     inputs.splice(position, 0, Mustache.render(templates[metaInput.form.input], metaInput, {file_source: templates[file_source]}))
                 }
                 position++
@@ -929,25 +929,25 @@ function loadMask(form) {
         }
     };
 
-    if($form.find("input[type='tel']").length)
+    if ($form.find("input[type='tel']").length)
         $form.find("input[type='tel']").mask(SPMaskBehavior, spOptions);
 
-    if($form.find(".ie").length)
+    if ($form.find(".ie").length)
         $form.find(".ie").find("input").mask('999.999.999.999', {reverse: !0});
 
-    if($form.find(".cpf").length)
+    if ($form.find(".cpf").length)
         $form.find(".cpf").find("input").mask('999.999.999-99', {reverse: !0});
 
-    if($form.find(".cnpj").length)
+    if ($form.find(".cnpj").length)
         $form.find(".cnpj").find("input").mask('99.999.999/9999-99', {reverse: !0});
 
-    if($form.find(".cep").length)
+    if ($form.find(".cep").length)
         $form.find(".cep").find("input").mask('99999-999', {reverse: !0});
 
-    if($form.find(".percent").length)
+    if ($form.find(".percent").length)
         $form.find('.percent').find("input").mask('##0,00%', {reverse: !0});
 
-    if($form.find(".valor").length)
+    if ($form.find(".valor").length)
         $form.find(".valor").find("input").mask('#.##0,00', {reverse: !0});
 
     if ($form.find(".valor_decimal").length)
@@ -962,13 +962,13 @@ function loadMask(form) {
     if ($form.find(".valor_decimal_none").length)
         $form.find(".valor_decimal_none").find("input").mask('#.##0', {reverse: !0});
 
-    if($form.find(".date_time").length)
+    if ($form.find(".date_time").length)
         $form.find('.date_time').find("input").mask('00/00/0000 00:00:00');
 
-    if($form.find(".card_number").length)
+    if ($form.find(".card_number").length)
         $form.find('.card_number').find("input").mask('0000 0000 0000 0000 0000', {reverse: !0});
 
-    if($form.find("input[data-format='float']").length)
+    if ($form.find("input[data-format='float']").length)
         $form.find("input[data-format='float']").mask("#0.00", {reverse: !0});
 
     $form.find("input[data-format='float'], input[data-format='number']").off("keypress").on("keypress", function (evt) {
@@ -1027,61 +1027,62 @@ function addListRegister(entity, form, column, parent, data, el) {
 }
 
 function addListSetTitle(form, entity, column, parent, id, $input) {
-    let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
-    formData[column] = id;
-
-    db.exeRead(entity, id).then(data => {
-        if(!isEmpty(data)) {
-            let point = ".";
-            $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
-            let intt = setInterval(function () {
-                $input.find("input[type='text']").val("carregando valor " + point);
-                point = (point === "." ? ".." : (point === ".." ? "..." : "."))
-            }, 300);
-            getRelevantTitle(entity, data).then(title => {
-                clearInterval(intt);
-                $input.siblings(".btn").find(".list-btn-icon").html("edit");
-                $input.siblings(".btn").find("div").html("editar");
-                $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
-                    "padding": "10px 2px 4px",
-                    "margin-bottom": "20px"
-                }).html(title);
-                $input.siblings(".list-remove-btn").remove();
-                if (isNaN(form.id) || dicionarios[form.entity][column].update)
-                    $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
-            })
-        }
-    });
+    if (isNumberPositive(id)) {
+        let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
+        formData[column] = id;
+        db.exeRead(entity, id).then(data => {
+            if (!isEmpty(data)) {
+                let point = ".";
+                $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
+                let intt = setInterval(function () {
+                    $input.find("input[type='text']").val("carregando valor " + point);
+                    point = (point === "." ? ".." : (point === ".." ? "..." : "."))
+                }, 300);
+                getRelevantTitle(entity, data).then(title => {
+                    clearInterval(intt);
+                    $input.siblings(".btn").find(".list-btn-icon").html("edit");
+                    $input.siblings(".btn").find("div").html("editar");
+                    $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
+                        "padding": "10px 2px 4px",
+                        "margin-bottom": "20px"
+                    }).html(title);
+                    $input.siblings(".list-remove-btn").remove();
+                    if (isNaN(form.id) || dicionarios[form.entity][column].update)
+                        $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
+                })
+            }
+        });
+    }
 }
 
 function addRegisterAssociation(entity, column) {
-	let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
-	history.state.param.data = Object.assign({id: form.id}, form.data);
-	history.replaceState(history.state, null, HOME + app.route);
+    let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
+    history.state.param.data = Object.assign({id: form.id}, form.data);
+    history.replaceState(history.state, null, HOME + app.route);
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
-	if (isNumber(form.data[column])) {
-		db.exeRead(entity, parseInt(form.data[column])).then(data => {
-			if (data)
-				pageTransition(entity, "form", "forward", "#dashboard", {
-					data: data,
-					parent: entity,
-					column: column,
-					store: !0,
-					identificador: identificadorExtend
-				}); else toast("Registro não encontrado", 2500, "toast-warning")
-		})
-	} else {
-		pageTransition(entity, "form", "forward", "#dashboard", {
-			parent: entity,
-			column: column,
-			store: !0,
-			identificador: identificadorExtend
-		})
-	}
+    if (isNumber(form.data[column])) {
+        db.exeRead(entity, parseInt(form.data[column])).then(data => {
+            if (data)
+                pageTransition(entity, "form", "forward", "#dashboard", {
+                    data: data,
+                    parent: entity,
+                    column: column,
+                    store: !0,
+                    identificador: identificadorExtend
+                }); else toast("Registro não encontrado", 2500, "toast-warning")
+        })
+    } else {
+        pageTransition(entity, "form", "forward", "#dashboard", {
+            parent: entity,
+            column: column,
+            store: !0,
+            identificador: identificadorExtend
+        })
+    }
 }
 
 function deleteRegisterRelation(column) {
-    if(confirm("Remover Registro Vinculado?")) {
+    if (confirm("Remover Registro Vinculado?")) {
         let $btn = $(".deleteRegisterRelation[rel='" + column + "']").siblings(".btn");
         $btn.find("i.material-icons").html("add");
         $btn.find("div").html("adicionar");
@@ -1091,13 +1092,13 @@ function deleteRegisterRelation(column) {
 }
 
 function deleteRegisterAssociation(col, el) {
-    if(confirm("Remover Associação com este registro?")) {
-		form.data[col] = "";
-		form.modified = !0;
+    if (confirm("Remover Associação com este registro?")) {
+        form.data[col] = "";
+        form.modified = !0;
         form.saved = !1;
-		getInputsTemplates(form, form.entity, col).then(inputTemplate => {
-			$(el).closest(".parent-input").parent().replaceWith(inputTemplate[0])
-		})
+        getInputsTemplates(form, form.entity, col).then(inputTemplate => {
+            $(el).closest(".parent-input").parent().replaceWith(inputTemplate[0])
+        })
     }
 }
 
@@ -1105,13 +1106,18 @@ function deleteRegisterAssociation(col, el) {
  * Mult relation extend add
  * */
 function addRegisterRelation(entity, column) {
-    if(dicionarios[form.entity][column].size === !1 || typeof form.data[column] === "string" || form.data[column] === null || dicionarios[form.entity][column].size > form.data[column].length) {
+    if (dicionarios[form.entity][column].size === !1 || typeof form.data[column] === "string" || form.data[column] === null || dicionarios[form.entity][column].size > form.data[column].length) {
         let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
         history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
         history.state.param.data = Object.assign({id: form.id}, form.data);
         history.state.param.modified = form.modified;
         history.replaceState(history.state, null, HOME + app.route);
-        pageTransition(entity, "form", "forward", "#dashboard", {parent: entity, column: column, store: !1, identificador: identificadorExtend});
+        pageTransition(entity, "form", "forward", "#dashboard", {
+            parent: entity,
+            column: column,
+            store: !1,
+            identificador: identificadorExtend
+        });
     } else {
         toast("máximo de registros atingido", 2500, "toast-warning");
     }
@@ -1128,12 +1134,18 @@ function editRegisterRelation(entity, column, id) {
     history.replaceState(history.state, null, HOME + app.route);
     let data = {};
     $.each(form.data[column], function (i, e) {
-        if(e.id == id) {
+        if (e.id == id) {
             data = e;
             return !1;
         }
     })
-    pageTransition(entity, "form", "forward", "#dashboard", {data: data, parent: entity, column: column, store: !1, identificador: identificadorExtend});
+    pageTransition(entity, "form", "forward", "#dashboard", {
+        data: data,
+        parent: entity,
+        column: column,
+        store: !1,
+        identificador: identificadorExtend
+    });
 }
 
 /**
@@ -1146,10 +1158,21 @@ function editFormRelation(entity, column) {
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.replaceState(history.state, null, HOME + app.route);
 
-    if(typeof form.data[column] === "object" && form.data[column] !== null && form.data[column].constructor === Array && form.data[column].length && typeof form.data[column][0] === "object")
-        pageTransition(entity, "form", "forward", "#dashboard", {data: form.data[column][0], parent: entity, column: column, store: !1, identificador: identificadorExtend});
+    if (typeof form.data[column] === "object" && form.data[column] !== null && form.data[column].constructor === Array && form.data[column].length && typeof form.data[column][0] === "object")
+        pageTransition(entity, "form", "forward", "#dashboard", {
+            data: form.data[column][0],
+            parent: entity,
+            column: column,
+            store: !1,
+            identificador: identificadorExtend
+        });
     else
-        pageTransition(entity, "form", "forward", "#dashboard", {parent: entity, column: column, store: !1, identificador: identificadorExtend});
+        pageTransition(entity, "form", "forward", "#dashboard", {
+            parent: entity,
+            column: column,
+            store: !1,
+            identificador: identificadorExtend
+        });
 }
 
 function deleteExtendMult(column, id) {
