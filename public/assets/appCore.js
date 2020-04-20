@@ -1969,6 +1969,13 @@ if (SERVICEWORKER) {
                     if (p === "granted" && PUSH_PUBLIC_KEY !== "")
                         return subscribeUser(1);
                 });
+            } else {
+                post('dashboard', 'push', {
+                    "push": JSON.stringify(subscription),
+                    'p1': navigator.appName,
+                    'p2': navigator.appCodeName,
+                    'p3': navigator.platform
+                });
             }
         });
     });
