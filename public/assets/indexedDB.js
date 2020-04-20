@@ -741,7 +741,11 @@ const dbLocal = {
         val.id = (/^__/.test(entity) ? 1 : (isNumberPositive(val.id) ? parseInt(val.id) : 0));
 
         if (val.id > 0) {
-            return dbLocal.insert(entity, val, val.id)
+            let id = val.id;
+            if(/^__/.test(entity))
+                delete val.id;
+
+            return dbLocal.insert(entity, val, id)
         } else {
             delete val.id;
             return dbLocal.newKey(entity).then(key => {
