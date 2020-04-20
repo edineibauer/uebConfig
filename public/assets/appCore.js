@@ -1475,7 +1475,7 @@ function getGraficos() {
     return dbLocal.exeRead("__graficos", 1);
 }
 
-function getTemplates() {
+async function getTemplates() {
     return dbLocal.exeRead("__templateUser", 1).then(tplUser => {
         return dbLocal.exeRead("__template", 1).then(tpl => {
             mergeObject(tpl, tplUser);
