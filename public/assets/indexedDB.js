@@ -742,7 +742,7 @@ const dbLocal = {
 
         if (val.id > 0) {
             let id = val.id;
-            if(/^__/.test(entity))
+            if (/^__/.test(entity))
                 delete val.id;
 
             return dbLocal.insert(entity, val, id)
@@ -802,6 +802,33 @@ const dbLocal = {
             });
             return tx.complete.then(() => keys)
         })
+    }
+};
+
+const DB = {
+    exeRead: async (entity, id) => {
+        return db.exeRead(entity, id);
+    },
+    exeCreate: async (entity, dados, async) => {
+        return db.exeCreate(entity, dados, async);
+    },
+    exeDelete: async (entity, id) => {
+        return db.exeDelete(entity, id);
+    }
+};
+
+const DBLOCAL = {
+    exeRead: async (entity, id) => {
+        return dbLocal.exeRead(entity, id);
+    },
+    exeCreate: async (entity, dados) => {
+        return dbLocal.exeCreate(entity, dados);
+    },
+    exeUpdate: async (entity, dados, id) => {
+        return dbLocal.exeUpdate(entity, dados, id);
+    },
+    exeDelete: async (entity, id) => {
+        return dbLocal.exeDelete(entity, id);
     }
 };
 
