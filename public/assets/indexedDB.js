@@ -319,7 +319,7 @@ function exeReadOnline(entity, id) {
 }
 
 const db = {
-    exeRead(entity, key) {
+    async exeRead(entity, key) {
         let Reg = new RegExp('^(sync_|__)', 'i');
         if (Reg.test(entity)) {
             toast("[Erro de programação] não é possível LER registros Sync Online.", 5000, "toast-error");
@@ -343,7 +343,7 @@ const db = {
             })
         });
 
-    }, exeCreate(entity, dados, sync) {
+    }, async exeCreate(entity, dados, sync) {
         if (SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
             dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
@@ -385,7 +385,7 @@ const db = {
         } else {
             return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
         }
-    }, exeDelete(entity, id) {
+    }, async exeDelete(entity, id) {
         if (SERVICEWORKER) {
             return dbLocal.exeRead("__react").then(react => {
                 let allDelete = [];
@@ -694,7 +694,7 @@ const dbLocal = {
             })
         }
         return conn[entity]
-    }, exeRead(entity, key) {
+    }, async exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             if (isNumberPositive(key)) {
                 return dbLocalTmp.transaction(entity).objectStore(entity).get(parseInt(key)).then(v => {
@@ -737,7 +737,7 @@ const dbLocal = {
                 });
             }
         })
-    }, exeCreate(entity, val) {
+    }, async exeCreate(entity, val) {
         val.id = (/^__/.test(entity) ? 1 : (isNumberPositive(val.id) ? parseInt(val.id) : 0));
 
         if (val.id > 0) {
@@ -752,7 +752,7 @@ const dbLocal = {
                 return dbLocal.insert(entity, val, key)
             })
         }
-    }, exeDelete(entity, key) {
+    }, async exeDelete(entity, key) {
         if (!isNumberPositive(key))
             return new Promise.all([]);
 
@@ -761,7 +761,7 @@ const dbLocal = {
             tx.objectStore(entity).delete(parseInt(key));
             return tx.complete
         })
-    }, exeUpdate(entity, dados, key) {
+    }, async exeUpdate(entity, dados, key) {
         if (!isNumberPositive(key))
             return new Promise.all([]);
 
@@ -802,33 +802,6 @@ const dbLocal = {
             });
             return tx.complete.then(() => keys)
         })
-    }
-};
-
-const DB = {
-    exeRead: async (entity, id) => {
-        return db.exeRead(entity, id);
-    },
-    exeCreate: async (entity, dados, async) => {
-        return db.exeCreate(entity, dados, async);
-    },
-    exeDelete: async (entity, id) => {
-        return db.exeDelete(entity, id);
-    }
-};
-
-const DBLOCAL = {
-    exeRead: async (entity, id) => {
-        return dbLocal.exeRead(entity, id);
-    },
-    exeCreate: async (entity, dados) => {
-        return dbLocal.exeCreate(entity, dados);
-    },
-    exeUpdate: async (entity, dados, id) => {
-        return dbLocal.exeUpdate(entity, dados, id);
-    },
-    exeDelete: async (entity, id) => {
-        return dbLocal.exeDelete(entity, id);
     }
 };
 
