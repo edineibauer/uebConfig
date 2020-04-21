@@ -1509,7 +1509,7 @@ async function closeNote(id, notification) {
     /**
      * Deleta card de notificação
      */
-    let $note = $(".notification-card[rel='" + id + "']");
+    let $note = $(".notification-item[rel='" + id + "']");
     $note.addClass("activeRemove");
     setTimeout(function () {
         $note.remove();

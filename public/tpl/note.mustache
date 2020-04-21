@@ -1,17 +1,19 @@
 {{#notificacoes}}
-    <div data-href="{{notificacaoData.url}}" class="col mb-2 pt-3 pb-2 notification-card" rel="{{id}}">
-        <i class='material-icons font-xlarge right opacity hover-opacity-off padding-medium pointer' style="position: absolute;top: 4px;right: 4px;" onclick="closeNote({{id}}, {{notificacao}})">close</i>
-        <div class="float-left" style="width: 50px">
-            <img src="{{notificacaoData.imagem}}" width="50" height="50" class="imagem-notificacao" />
-            <div class="float-left pt-2 note-time">{{notificacaoData.data}}</div>
-        </div>
-        <div class="float-left" style="width: calc(100% - 50px)">
-            <h6 class="col mb-1">
-                {{{notificacaoData.titulo}}}
-            </h6>
-            <div class="col" style="font-size: 13px">
-                {{{notificacaoData.descricao}}}
+    <div data-href="{{notificacaoData.url}}" class="notification-item" rel="{{id}}">
+        <div data-href="{{notificacaoData.url}}" class="notification-card no-select">
+            <div class="notification-content-left">
+                <img src="{{notificacaoData.imagem}}" width="50" height="50" class="imagem-notificacao"/>
+                <div class="note-time">{{notificacaoData.data}}</div>
+            </div>
+            <div class="notification-content-right">
+                <h6 class="notification-content notification-title">
+                    {{{notificacaoData.titulo}}}
+                </h6>
+                <div class="notification-content notification-desc">
+                    {{{notificacaoData.descricao}}}
+                </div>
             </div>
         </div>
+        <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
     </div>
 {{/notificacoes}}

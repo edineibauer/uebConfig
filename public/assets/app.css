@@ -816,7 +816,26 @@ input::-webkit-inner-spin-button {
     background: #62BAB2;
 }
 
+.notification-item {
+    position: relative;
+    padding-bottom: 10px;
+    float: left;
+    width: 100%;
+}
+
+.notification-item > i.material-icons {
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    top: calc(50% - 25px);
+    right: 10px;
+    color: #e26a6a;
+    z-index: 1;
+}
+
 .notification-card {
+    position: relative;
     background: #ffffff;
     color: #555555;
     border-radius: 5px;
@@ -824,10 +843,44 @@ input::-webkit-inner-spin-button {
     width: 100%;
     box-shadow: 1px 1px 11px -8px black;
     transition: all ease .15s;
+    z-index: 2;
+    padding: 16px 15px 8px;
 }
 
-.notification-card.activeRemove {
-    transform: translateX(100px);
+.notification-content-left {
+    float: left;
+    width: 50px;
+}
+
+.notification-content-right {
+    float: left;
+    width: calc(100% - 50px);
+}
+
+.notification-title {
+    margin-bottom: 5px;
+}
+
+.notification-desc {
+    font-size: 13px
+}
+
+.notification-content {
+    float: left;
+    width: 100%;
+    padding-left: 15px;
+}
+
+.imagem-notificacao {
+    border-radius: 50px;
+}
+
+.notification-item.activeRemove > .notification-card {
+    transform: translateX(-170px);
+    opacity: 0;
+}
+
+.notification-item.activeRemove > i.material-icons {
     opacity: 0;
 }
 
@@ -837,6 +890,12 @@ input::-webkit-inner-spin-button {
     color: #999999;
     text-align: center;
     line-height: 12px;
+    padding-top: 5px;
+    float: left;
+}
+
+.touching {
+    transition: transform 0s!important;
 }
 
 @media only screen and (min-width: 600px) {
