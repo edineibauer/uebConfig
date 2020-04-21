@@ -1485,14 +1485,16 @@ async function getTemplates() {
 }
 
 async function getNotifications() {
-    let myNotifications = [];
     let notifications = await db.exeRead("notifications_report");
 
+    let myNotifications = [];
     if (!isEmpty(notifications)) {
         for (let i in notifications) {
             if (notifications[i].usuario == USER.id) {
                 let notify = await db.exeRead("notifications", notifications[i].notificacao);
                 notify.data = moment(notifications[i].data_de_envio).calendar().toLowerCase();
+                notify.imagem = notify.imagem || HOME + "assetsPublic/img/img.png";
+                console.log(notify.imagem);
                 notifications[i].notificacaoData = notify;
                 myNotifications.push(notifications[i]);
             }
