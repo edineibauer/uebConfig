@@ -317,7 +317,7 @@ function post(lib, file, param, funcao) {
     })
 }
 
-function getRequest(url) {
+async function getRequest(url) {
     return new Promise(function (resolve, reject) {
         var req = new XMLHttpRequest();
         req.open('GET', url);
@@ -335,7 +335,7 @@ function getRequest(url) {
     })
 }
 
-function getJSON(url) {
+async function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
         url = url.replace(HOME, "");
         let isView = new RegExp("^view\/", "i");
@@ -347,7 +347,7 @@ function getJSON(url) {
     })
 }
 
-function get(file, retrying) {
+async function get(file, retrying) {
     return getJSON(HOME + "get/" + file).then(data => {
         if (data.response === 1) {
             return data.data;
@@ -1502,6 +1502,31 @@ async function getNotifications() {
     }
 
     return myNotifications;
+}
+
+async function closeNote(id, notification) {
+
+    /**
+     * Deleta card de notificação
+     */
+    let $note = $(".notification-card[rel='" + id + "']");
+    $note.addClass("activeRemove");
+    setTimeout(function () {
+        $note.remove();
+    },150);
+
+    /**
+     * Deleta notification report
+     */
+    await db.exeDelete("notifications_report", id);
+
+    /**
+     * Check if some notification report use the notification
+     * case not, delete notification not used
+     */
+    let note = await getJSON(HOME + "app/find/notifications_report/notificacao/" + notification);
+    if(isEmpty(note.notifications_report))
+        await db.exeDelete("notifications", notification);
 }
 
 function errorLoadingApp() {
