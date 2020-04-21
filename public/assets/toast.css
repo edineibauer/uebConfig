@@ -19,7 +19,7 @@
 }
 
 .toast {
-	border-radius: 50px;
+	border-radius: 7px;
     max-width: 100%;
     margin: 0;
     height: 55px;
@@ -63,6 +63,11 @@
 .toast-success {
     background: #dff0d8 !important;
     color: #3c763d !important
+}
+
+.toast-infor {
+    background: #f4f9ff !important;
+    color: #4682b4 !important
 }
 
 .toast-warning {
