@@ -39,7 +39,7 @@ function toast(message, duration, className, completeCallback) {
         // Create toast
         var $toast = $('<div class="toast ' + settings.className + '" style="top: -75px; opacity: 0">' + html + '</div>');
 
-        new TouchLeft($toast, -300, 80, 10, function ($this, $el) {
+        new TouchHorizontal($toast, -300, 80, 10, function ($this, $el) {
             clearTimeout(toastTime);
             $el.remove();
             $("#toast-container").remove();

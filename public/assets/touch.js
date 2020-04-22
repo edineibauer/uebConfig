@@ -1,6 +1,7 @@
 class TouchTrack {
     constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
         this.$el = $el;
+        this.directionTrack = "up";
         this.directionTrackVertical = !0;
         this.folga = isNumber(folga) ? folga : 10;
         this.startLeft = 0;
@@ -8,7 +9,6 @@ class TouchTrack {
         this.maxDown = 0;
         this.maxLeft = 0;
         this.minBound = 70;
-        this.moviment = -1;
         this.tracking = !1;
         this.ignoreQueryElements = ignoreQueryElements || [];
         this.translateY = $el.css("transform") === "none" ? 0 : parseInt($el.css("transform").replace("matrix(1, 0, 0, 1, 0, ", "").replace(")", ""));
@@ -16,16 +16,13 @@ class TouchTrack {
         this.distancia = distancia;
         this.distanciaAlvo = distanciaAlvo;
         this.funcao = funcao;
-        this.lastMoviment = {
-            up: -1,
-            left: -1
-        };
 
         this.events();
     }
 
-    setDirectionHorizontal() {
-        this.directionTrackVertical = !1;
+    setDirection(type) {
+        this.directionTrack = ["up", "down", "left", "right", "horizontal", "vertical"].indexOf(type) > -1 ? type : "up";
+        this.directionTrackVertical = ["up", "down", "vertical"].indexOf(type) > -1;
     }
 
     setDistancia(d) {
@@ -53,7 +50,6 @@ class TouchTrack {
     }
 
     moveToStart(index) {
-        this.moviment = -1;
         if (this.translateYStart === null) {
             this.translateYStart = this.translateY;
             this.distanciaAlvo += this.translateYStart;
@@ -63,7 +59,6 @@ class TouchTrack {
     }
 
     moveToTarget(index) {
-        this.moviment = -1;
         if (this.translateYStart === null) {
             this.translateYStart = this.translateY;
             this.distanciaAlvo += this.translateYStart;
@@ -109,7 +104,6 @@ class TouchTrack {
 
                 let touches = evt.changedTouches[0];
                 $this.tracking = !0;
-                $this.moviment = -1;
 
                 if ($this.directionTrackVertical) {
                     $this.startUp = touches.pageY;
@@ -125,11 +119,6 @@ class TouchTrack {
                     $this.translateYStart = $this.translateY;
                     $this.distanciaAlvo += $this.translateYStart;
                 }
-
-                $this.lastMoviment = {
-                    up: -1,
-                    left: -1
-                };
 
                 $(el).addClass('touching');
             }, false);
@@ -157,15 +146,43 @@ class TouchTrack {
                     } else {
                         let left = touches.pageX - $this.startLeft;
 
-                        if ($(el).hasClass("touchOpen") && left < ($this.folga * -1))
-                            left = $this.folga * -1;
-                        else if (!$(el).hasClass("touchOpen") && left > $this.folga)
-                            left = $this.folga;
+                        /**
+                         * Horizontal
+                         */
+                        if($this.directionTrack === "horizontal") {
+                            if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
+                                left = ($this.startLeft - $this.minBound) * -1;
+                            else if (left > 0 && left > $this.maxLeft)
+                                left = $this.maxLeft;
 
-                        if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
-                            left = ($this.startLeft - $this.minBound) * -1;
-                        else if (left > 0 && left > $this.maxLeft)
-                            left = $this.maxLeft;
+                            /**
+                             * Rigth
+                             */
+                        } else if($this.directionTrack === "right") {
+                            if (!$(el).hasClass("touchOpen") && left < ($this.folga * -1))
+                                left = $this.folga * -1;
+                            else if ($(el).hasClass("touchOpen") && left > $this.folga)
+                                left = $this.folga;
+
+                            if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
+                                left = ($this.startLeft - $this.minBound) * -1;
+                            else if (left > 0 && left > $this.maxLeft)
+                                left = $this.maxLeft;
+
+                            /**
+                             * Left
+                             */
+                        } else {
+                            if (($(el).hasClass("touchOpen") || $this.directionTrack === "right") && left < ($this.folga * -1))
+                                left = $this.folga * -1;
+                            else if (!$(el).hasClass("touchOpen") && left > $this.folga)
+                                left = $this.folga;
+
+                            if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
+                                left = ($this.startLeft - $this.minBound) * -1;
+                            else if (left > 0 && left > $this.maxLeft)
+                                left = $this.maxLeft;
+                        }
 
                         $(el).css("transform", "translateX(" + ($this.translateY + left) + "px)");
                     }
@@ -198,6 +215,9 @@ class TouchTrack {
                         let left = $this.startLeft - touches.pageX;
 
                         if (!$(el).hasClass("touchOpen")) {
+                            if(($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
+                                left *=-1;
+
                             if ($this.distancia < left) {
                                 $this.moveToTarget(index);
                                 if (typeof $this.funcao === "function")
@@ -207,7 +227,7 @@ class TouchTrack {
                             }
 
                         } else {
-                            if (($this.distancia * -1) > left)
+                            if (($this.directionTrack === "left" && $this.distancia * -1 > left) || ($this.directionTrack === "horizontal" && (left > $this.distancia || left < $this.distancia)) || ($this.directionTrack === "right" && $this.distancia < left))
                                 $this.moveToStart(index);
                             else
                                 $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
@@ -230,25 +250,41 @@ class TouchTrack {
 class TouchUp extends TouchTrack {
     constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
         super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
+        this.setDirection("up");
     }
 }
 
-/*class TouchDown extends TouchTrack {
+class TouchDown extends TouchTrack {
     constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
         super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
+        this.setDirection("down");
     }
 }
 
-class TouchRigth extends TouchTrack {
+class TouchRight extends TouchTrack {
     constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
         super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
-        this.setDirectionHorizontal();
+        this.setDirection("right");
     }
-}*/
+}
 
 class TouchLeft extends TouchTrack {
     constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
         super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
-        this.setDirectionHorizontal();
+        this.setDirection("left");
+    }
+}
+
+class TouchHorizontal extends TouchTrack {
+    constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
+        super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
+        this.setDirection("horizontal");
+    }
+}
+
+class TouchVertical extends TouchTrack {
+    constructor($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements) {
+        super($el, distanciaAlvo, distancia, folga, funcao, ignoreQueryElements);
+        this.setDirection("vertical");
     }
 }
