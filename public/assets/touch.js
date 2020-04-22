@@ -132,17 +132,46 @@ class TouchTrack {
                     if ($this.directionTrackVertical) {
                         let up = touches.pageY - $this.startUp;
 
-                        if ($(el).hasClass("touchOpen") && up < ($this.folga * -1))
-                            up = $this.folga * -1;
-                        else if (!$(el).hasClass("touchOpen") && up > $this.folga)
-                            up = $this.folga;
+                        /**
+                         * Vertical
+                         */
+                        if($this.directionTrack === "vertical") {
+                            if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
+                                up = ($this.startUp - $this.minBound) * -1;
+                            else if (up > 0 && up > $this.maxDown)
+                                up = $this.maxDown;
 
-                        if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
-                            up = ($this.startUp - $this.minBound) * -1;
-                        else if (up > 0 && up > $this.maxDown)
-                            up = $this.maxDown;
+                            /**
+                             * Down
+                             */
+                        } else if($this.directionTrack === "down") {
+                            if (!$(el).hasClass("touchOpen") && up < ($this.folga * -1))
+                                up = $this.folga * -1;
+                            else if ($(el).hasClass("touchOpen") && up > $this.folga)
+                                up = $this.folga;
+
+                            if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
+                                up = ($this.startUp - $this.minBound) * -1;
+                            else if (up > 0 && up > $this.maxDown)
+                                up = $this.maxDown;
+
+                            /**
+                             * Up
+                             */
+                        } else {
+                            if (($(el).hasClass("touchOpen") || $this.directionTrack === "right") && up < ($this.folga * -1))
+                                up = $this.folga * -1;
+                            else if (!$(el).hasClass("touchOpen") && up > $this.folga)
+                                up = $this.folga;
+
+                            if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
+                                up = ($this.startUp - $this.minBound) * -1;
+                            else if (up > 0 && up > $this.maxDown)
+                                up = $this.maxDown;
+                        }
 
                         $(el).css("transform", "translateY(" + ($this.translateY + up) + "px)");
+
                     } else {
                         let left = touches.pageX - $this.startLeft;
 
@@ -194,9 +223,16 @@ class TouchTrack {
                     let touches = evt.changedTouches[0];
 
                     if ($this.directionTrackVertical) {
+
+                        /**
+                         * Vertical (up and down)
+                         */
                         let up = $this.startUp - touches.pageY;
 
                         if (!$(el).hasClass("touchOpen")) {
+                            if(($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
+                                up *=-1;
+
                             if ($this.distancia < up) {
                                 $this.moveToTarget(index);
                                 if (typeof $this.funcao === "function")
@@ -206,12 +242,16 @@ class TouchTrack {
                             }
 
                         } else {
-                            if (($this.distancia * -1) > up)
+                            if (($this.directionTrack === "up" && $this.distancia * -1 > up) || ($this.directionTrack === "vertical" && (up > $this.distancia || up < $this.distancia)) || ($this.directionTrack === "down" && $this.distancia < up))
                                 $this.moveToStart(index);
                             else
                                 $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
                         }
                     } else {
+
+                        /**
+                         * Horizontal (left and right)
+                         */
                         let left = $this.startLeft - touches.pageX;
 
                         if (!$(el).hasClass("touchOpen")) {
