@@ -2306,8 +2306,12 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         }
         return Promise.all([]).then(() => {
 
+            if(typeof destruct === "function")
+                destruct();
+
             if (historyReqPosition)
                 animation = "none";
+
             let $page = window["animate" + ucFirst(animation)](target, file, scroll);
 
             if (type === 'route') {
