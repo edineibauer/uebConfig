@@ -33,14 +33,14 @@ class TouchTrack {
     setDistanciaStart(d) {
         this.translateYStart = d;
         if (!this.$el.hasClass("touchOpen"))
-            touchElements.menu.moveToStart();
+            this.moveToStart();
         return this;
     }
 
     setDistanciaTarget(d) {
         this.distanciaAlvo = d;
         if (this.$el.hasClass("touchOpen"))
-            touchElements.menu.moveToTarget();
+            this.moveToTarget();
         return this;
     }
 
