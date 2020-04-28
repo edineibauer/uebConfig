@@ -18,6 +18,8 @@ class TouchTrack {
         this.distanciaAlvo = distanciaAlvo;
         this.funcao = funcao;
 
+        this.$el.addClass("touchElement");
+
         this.events();
     }
 
