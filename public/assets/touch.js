@@ -157,17 +157,18 @@ class TouchTrack {
             $this.maxLeft = window.innerWidth - $this.minBound - $this.startLeft;
         }
 
-        $this.translateY = $(el).css("transform");
+        $this.translateY = $this.$el.css("transform");
         $this.translateY = $this.translateY === "none" ? 0 : parseInt($this.directionTrackVertical ? $this.translateY.replace("matrix(1, 0, 0, 1, 0, ", "").replace(")", "") : $this.translateY.replace("matrix(1, 0, 0, 1, ", "").replace(", )", ""));
         if ($this.translateYStart === null) {
             $this.translateYStart = $this.translateY;
             $this.distanciaAlvo += $this.translateYStart;
         }
 
-        $(el).addClass('touching');
+        $this.$el.addClass('touching');
     }
 
     eventTouchMove(evt) {
+        let $this = this;
         if ($this.tracking) {
             evt.preventDefault();
 
@@ -189,9 +190,9 @@ class TouchTrack {
                      * Down
                      */
                 } else if($this.directionTrack === "down") {
-                    if (!$(el).hasClass("touchOpen") && up < ($this.folga * -1))
+                    if (!$this.$el.hasClass("touchOpen") && up < ($this.folga * -1))
                         up = $this.folga * -1;
-                    else if ($(el).hasClass("touchOpen") && up > $this.folga)
+                    else if ($this.$el.hasClass("touchOpen") && up > $this.folga)
                         up = $this.folga;
 
                     if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
@@ -203,9 +204,9 @@ class TouchTrack {
                      * Up
                      */
                 } else {
-                    if (($(el).hasClass("touchOpen") || $this.directionTrack === "right") && up < ($this.folga * -1))
+                    if (($this.$el.hasClass("touchOpen") || $this.directionTrack === "right") && up < ($this.folga * -1))
                         up = $this.folga * -1;
-                    else if (!$(el).hasClass("touchOpen") && up > $this.folga)
+                    else if (!$this.$el.hasClass("touchOpen") && up > $this.folga)
                         up = $this.folga;
 
                     if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
@@ -214,7 +215,7 @@ class TouchTrack {
                         up = $this.maxDown;
                 }
 
-                $(el).css("transform", "translateY(" + ($this.translateY + up) + "px)");
+                $this.$el.css("transform", "translateY(" + ($this.translateY + up) + "px)");
 
             } else {
                 let left = touches.pageX - $this.startLeft;
@@ -232,9 +233,9 @@ class TouchTrack {
                      * Rigth
                      */
                 } else if($this.directionTrack === "right") {
-                    if (!$(el).hasClass("touchOpen") && left < ($this.folga * -1))
+                    if (!$this.$el.hasClass("touchOpen") && left < ($this.folga * -1))
                         left = $this.folga * -1;
-                    else if ($(el).hasClass("touchOpen") && left > $this.folga)
+                    else if ($this.$el.hasClass("touchOpen") && left > $this.folga)
                         left = $this.folga;
 
                     if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
@@ -246,9 +247,9 @@ class TouchTrack {
                      * Left
                      */
                 } else {
-                    if (($(el).hasClass("touchOpen") || $this.directionTrack === "right") && left < ($this.folga * -1))
+                    if (($this.$el.hasClass("touchOpen") || $this.directionTrack === "right") && left < ($this.folga * -1))
                         left = $this.folga * -1;
-                    else if (!$(el).hasClass("touchOpen") && left > $this.folga)
+                    else if (!$this.$el.hasClass("touchOpen") && left > $this.folga)
                         left = $this.folga;
 
                     if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
@@ -257,7 +258,7 @@ class TouchTrack {
                         left = $this.maxLeft;
                 }
 
-                $(el).css("transform", "translateX(" + ($this.translateY + left) + "px)");
+                $this.$el.css("transform", "translateX(" + ($this.translateY + left) + "px)");
             }
         }
     }
@@ -274,14 +275,14 @@ class TouchTrack {
                  */
                 let up = $this.startUp - touches.pageY;
 
-                if (!$(el).hasClass("touchOpen")) {
+                if (!$this.$el.hasClass("touchOpen")) {
                     if(($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
                         up *=-1;
 
                     if ($this.distancia < up) {
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $(el));
+                            $this.funcao($this, $this.$el);
                     } else {
                         $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
                     }
@@ -299,14 +300,14 @@ class TouchTrack {
                  */
                 let left = $this.startLeft - touches.pageX;
 
-                if (!$(el).hasClass("touchOpen")) {
+                if (!$this.$el.hasClass("touchOpen")) {
                     if(($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
                         left *=-1;
 
                     if ($this.distancia < left) {
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $(el));
+                            $this.funcao($this, $this.$el);
                     } else {
                         $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
                     }
