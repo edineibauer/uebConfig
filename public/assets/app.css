@@ -216,16 +216,17 @@ input::-webkit-inner-spin-button {
 }
 
 .badge-notification {
-    position: absolute;
+    position: absolute!important;
     top: 3px;
     left: 50%;
     background: #ff0100;
-    width: 15px;
-    height: 15px;
-    border-radius: 50px;
-    font-size: 11px;
-    padding: 2px 0;
-    text-align: center;
+    width: auto!important;
+    min-width: 15px!important;
+    height: 15px!important;
+    border-radius: 50px!important;
+    font-size: 11px!important;
+    padding: 2px!important;
+    text-align: center!important;
 }
 
 #core-menu-custom-bottom li a, #core-menu-custom-bottom li span, #core-menu-custom-bottom li div {
