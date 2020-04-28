@@ -178,7 +178,7 @@ $(function ($) {
         mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO});
         return getTemplates().then(templates => {
             let includes = {};
-            for(let i in includeTpls)
+            for (let i in includeTpls)
                 includes[includeTpls[i]] = templates[includeTpls[i]];
             $this.html(Mustache.render(templates[tpl], param, includes));
         });
@@ -339,7 +339,7 @@ async function getJSON(url) {
     return getRequest(url).then(JSON.parse).catch(function (err) {
         url = url.replace(HOME, "");
         let isView = new RegExp("^view\/", "i");
-        if(isView.test(url))
+        if (isView.test(url))
             location.reload();
         else
             toast("Sem Conexão!", 7000, "toast-error");
@@ -371,7 +371,7 @@ async function get(file, retrying) {
             }, 2000);
         } else {
             toast("Sem Conexão!", 7000, "toast-error");
-            console.log("OFFLINE: arquivo '" + file  + "'");
+            console.log("OFFLINE: arquivo '" + file + "'");
         }
     })
 }
@@ -686,7 +686,7 @@ function logoutDashboard() {
         setCookieAnonimo().then(() => {
             setTimeout(function () {
                 location.href = HOME + "login";
-            },500);
+            }, 500);
         })
     } else {
         toast("Sem Conexão", 1200)
@@ -870,7 +870,7 @@ function getFieldsData(entity, haveId, r) {
         if (isEmpty(fields[a])) {
             $.each(dicionarios[entity], function (i, e) {
                 $.each(relevants, function (f, r) {
-                    if(e.datagrid !== !1 && relevants.indexOf(e.format) > -1) {
+                    if (e.datagrid !== !1 && relevants.indexOf(e.format) > -1) {
                         let allReadyHave = !1;
                         $.each(fields, function (g, h) {
                             if (h.nome === e.nome) {
@@ -945,33 +945,33 @@ function maskData($data) {
         },
     };
 
-    if($data.find(".td-tel").find(".td-value").length)
+    if ($data.find(".td-tel").find(".td-value").length)
         $data.find(".td-tel").find(".td-value").mask(SP.tel);
-    if($data.find(".td-ie").find(".td-value").length)
+    if ($data.find(".td-ie").find(".td-value").length)
         $data.find(".td-ie").find(".td-value").mask(SP.ie);
-    if($data.find(".td-cpf").find(".td-value").length)
+    if ($data.find(".td-cpf").find(".td-value").length)
         $data.find(".td-cpf").find(".td-value").mask(SP.cpf);
-    if($data.find(".td-cnpj").find(".td-value").length)
+    if ($data.find(".td-cnpj").find(".td-value").length)
         $data.find(".td-cnpj").find(".td-value").mask(SP.cnpj);
-    if($data.find(".td-cep").find(".td-value").length)
+    if ($data.find(".td-cep").find(".td-value").length)
         $data.find(".td-cep").find(".td-value").mask(SP.cep);
-    if($data.find(".td-percent").find(".td-value").length)
+    if ($data.find(".td-percent").find(".td-value").length)
         $data.find('.td-percent').find(".td-value").mask(SP.percent);
-    if($data.find(".td-valor").find(".td-value").length)
+    if ($data.find(".td-valor").find(".td-value").length)
         $data.find(".td-valor").find(".td-value").mask(SP.valor);
-    if($data.find(".td-valor-decimal").find(".td-value").length)
+    if ($data.find(".td-valor-decimal").find(".td-value").length)
         $data.find(".td-valor-decimal").find(".td-value").mask(SP.valor_decimal);
-    if($data.find(".td-valor-decimal-plus").find(".td-value").length)
+    if ($data.find(".td-valor-decimal-plus").find(".td-value").length)
         $data.find(".td-valor-decimal-plus").find(".td-value").mask(SP.valor_decimal_plus);
-    if($data.find(".td-valor-decimal-minus").find(".td-value").length)
+    if ($data.find(".td-valor-decimal-minus").find(".td-value").length)
         $data.find(".td-valor-decimal-minus").find(".td-value").mask(SP.valor_decimal_minus);
-    if($data.find(".td-valor-decimal-none").find(".td-value").length)
+    if ($data.find(".td-valor-decimal-none").find(".td-value").length)
         $data.find(".td-valor-decimal-none").find(".td-value").mask(SP.valor_decimal_none);
-    if($data.find(".td-datetime").find(".td-value").length)
+    if ($data.find(".td-datetime").find(".td-value").length)
         $data.find('.td-datetime').find(".td-value").mask(SP.datetime);
-    if($data.find(".td-card_number").find(".td-value").length)
+    if ($data.find(".td-card_number").find(".td-value").length)
         $data.find('.td-card_number').find(".td-value").mask(SP.cardnumber);
-    if($data.find(".td-float").find(".td-value").length)
+    if ($data.find(".td-float").find(".td-value").length)
         $data.find(".td-float").find(".td-value").mask(SP.float);
 
     return $data
@@ -983,7 +983,7 @@ function getFields(entity, haveId) {
     let relation = dbLocal.exeRead("__general", 1);
     let info = dbLocal.exeRead("__info", 1);
     return Promise.all([relevants, relation, info]).then(r => {
-        if(isEmpty(r[0])) {
+        if (isEmpty(r[0])) {
             return new Promise(r => {
                 setTimeout(function () {
                     r(getFields(entity, haveId));
@@ -1512,21 +1512,23 @@ async function getNotifications() {
  * @returns {Promise<void>}
  */
 async function checkNotifications() {
-    let pendentes = 0;
-    let notifications = await db.exeRead("notifications_report");
-    if(!isEmpty(notifications)) {
-        for(let i in notifications) {
-            console.log(notifications[i]);
-            if(notifications[i].abriu === 0)
-                pendentes++
+    if (!$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
+        let pendentes = 0;
+        let notifications = await db.exeRead("notifications_report");
+        if (!isEmpty(notifications)) {
+            for (let i in notifications) {
+                console.log(notifications[i]);
+                if (notifications[i].abriu === 0)
+                    pendentes++
+            }
         }
-    }
 
-    /**
-     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
-     */
-    if(pendentes !== 0)
-        $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<div class='badge-notification'>" + pendentes + "</div>");
+        /**
+         * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+         */
+        if (pendentes !== 0)
+            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<div class='badge-notification'>" + pendentes + "</div>");
+    }
 }
 
 async function closeNote(id, notification) {
@@ -1538,7 +1540,7 @@ async function closeNote(id, notification) {
     $note.addClass("activeRemove");
     setTimeout(function () {
         $note.remove();
-    },150);
+    }, 150);
 
     /**
      * Deleta notification report
@@ -1550,7 +1552,7 @@ async function closeNote(id, notification) {
      * case not, delete notification not used
      */
     let note = await getJSON(HOME + "app/find/notifications_report/notificacao/" + notification);
-    if(isEmpty(note.notifications_report))
+    if (isEmpty(note.notifications_report))
         await db.exeDelete("notifications", notification);
 }
 
@@ -1683,7 +1685,7 @@ function updateAppOnDev() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-");
-                    if(["images", "misc", "fonts"].indexOf(corte[0]) === -1)
+                    if (["images", "misc", "fonts"].indexOf(corte[0]) === -1)
                         return caches.delete(cacheName);
                 }))
             })
@@ -1835,7 +1837,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
     file = file[0];
 
     let $aux = null;
-    if($(".cache-content[rel='" + route + "']").length) {
+    if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
         $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
@@ -1865,13 +1867,13 @@ function animateTimeout($element, $aux, scroll) {
         "width": "100%"
     }).removeClass("notop");
 
-    if($element.hasClass("cache-content")) {
+    if ($element.hasClass("cache-content")) {
         /**
          * Cria Page Cache
          */
         $aux.removeAttr("data-header").removeAttr("data-navbar").removeAttr("data-js").removeAttr("data-front").removeAttr("data-title").removeAttr("rel").removeClass("cache-content");
         $element.addClass("hide");
-        if($element.attr("id") !== undefined)
+        if ($element.attr("id") !== undefined)
             $element.attr("id", "cache-" + $element.attr("id"));
 
     } else {
@@ -2141,7 +2143,7 @@ var app = {
     }, applyView: function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
-        if($div.html() !== "") {
+        if ($div.html() !== "") {
             let pageHeader = $div.data('header');
             let pageNavbar = $div.data('navbar');
 
@@ -2187,7 +2189,7 @@ var app = {
                                 FRONT[col.toUpperCase()] = g.front[col]
                         }
 
-                        if(g.cache)
+                        if (g.cache)
                             $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-front", JSON.stringify(g.front));
 
                         if (!g.header)
@@ -2331,7 +2333,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
         }
         return Promise.all([]).then(() => {
 
-            if(typeof destruct === "function")
+            if (typeof destruct === "function")
                 destruct();
 
             if (historyReqPosition)
@@ -2535,7 +2537,7 @@ function goLinkPageTransition(url, $this, e) {
         if ($this.attr("target") !== "_blank" && !p.test(url) && !pjs.test(url)) {
             e.preventDefault();
 
-            if(url !== app.route)
+            if (url !== app.route)
                 pageTransition(url, route, animation, target);
         }
     }
@@ -2613,7 +2615,7 @@ function onLoadDocument() {
         let $this = $(this);
         let url = $this.attr("href").replace(HOME, '');
 
-        if(timeWaitClick > 0) {
+        if (timeWaitClick > 0) {
             if ($this.attr("target") !== "_blank") {
                 e.preventDefault();
                 setTimeout(function () {
