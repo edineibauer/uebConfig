@@ -1517,7 +1517,6 @@ async function checkNotifications() {
         let notifications = await db.exeRead("notifications_report");
         if (!isEmpty(notifications)) {
             for (let i in notifications) {
-                console.log(notifications[i]);
                 if (notifications[i].abriu === 0)
                     pendentes++
             }
