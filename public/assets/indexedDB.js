@@ -48,7 +48,6 @@ function exeReadApplyFilter(data, filter) {
                                 passou = (typeof dataValor !== "string" || dataValor.indexOf(filterOption.value) === (dataValor.length - filterOption.value.length));
                                 break;
                             case 'maior que':
-                                console.log(dataValor + " > " + filterOption.value + " = " + (dataValor > filterOption.value));
                                 passou = (dataValor > filterOption.value);
                                 break;
                             case 'menor que':

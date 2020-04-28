@@ -1494,7 +1494,6 @@ async function getNotifications() {
                 let notify = await db.exeRead("notifications", notifications[i].notificacao);
                 notify.data = moment(notifications[i].data_de_envio).calendar().toLowerCase();
                 notify.imagem = notify.imagem || HOME + "assetsPublic/img/img.png";
-                console.log(notify.imagem);
                 notifications[i].notificacaoData = notify;
                 myNotifications.push(notifications[i]);
             }
