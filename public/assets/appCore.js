@@ -1484,6 +1484,10 @@ async function getTemplates() {
     });
 }
 
+/**
+ * Obtem as notificações
+ * @returns {Promise<[]>}
+ */
 async function getNotifications() {
     let notifications = await db.exeRead("notifications_report");
 
@@ -1501,6 +1505,28 @@ async function getNotifications() {
     }
 
     return myNotifications;
+}
+
+/**
+ * Verifica se tem notificações pendentes
+ * @returns {Promise<void>}
+ */
+async function checkNotifications() {
+    let pendentes = 0;
+    let notifications = await db.exeRead("notifications_report");
+    if(!isEmpty(notifications)) {
+        for(let i in notifications) {
+            console.log(notifications[i]);
+            if(notifications[i].abriu === 0)
+                pendentes++
+        }
+    }
+
+    /**
+     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+     */
+    if(pendentes !== 0)
+        $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<div class='badge-notification'>" + pendentes + "</div>");
 }
 
 async function closeNote(id, notification) {
@@ -2607,6 +2633,13 @@ function onLoadDocument() {
     $(".core-open-menu").off("click").on("click", function () {
         toggleSidebar();
     });
+
+    /**
+     * Busca notificações pendentes
+     */
+    setInterval(function () {
+        checkNotifications();
+    }, 4000);
 }
 
 function startApplication() {
