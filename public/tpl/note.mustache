@@ -1,6 +1,6 @@
 {{#notificacoes}}
-    <div data-href="{{notificacaoData.url}}" class="notification-item" rel="{{id}}">
-        <div data-href="{{notificacaoData.url}}" class="notification-card no-select">
+    <div class="notification-item" rel="{{id}}">
+        <a href="{{notificacaoData.url}}" class="notification-card no-select">
             <div class="notification-content-left">
                 <img src="{{notificacaoData.imagem}}" width="50" height="50" class="imagem-notificacao"/>
                 <div class="note-time">{{notificacaoData.data}}</div>
@@ -13,7 +13,7 @@
                     {{{notificacaoData.descricao}}}
                 </div>
             </div>
-        </div>
+        </a>
         <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
     </div>
 {{/notificacoes}}
