@@ -852,8 +852,8 @@ input::-webkit-inner-spin-button {
 
 .notification-card {
     position: relative;
-    background: #ffffff;
-    color: #555555;
+    background: #ffffff!important;
+    color: #555555!important;
     border-radius: 5px;
     float: left;
     width: 100%;
