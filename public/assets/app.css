@@ -217,9 +217,10 @@ input::-webkit-inner-spin-button {
 
 .badge-notification {
     position: absolute!important;
-    top: 3px;
-    left: 50%;
+    top: 3px!important;
+    left: 50%!important;
     background: #ff0100;
+    color: #ffffff!important;
     width: auto!important;
     min-width: 15px!important;
     height: 15px!important;

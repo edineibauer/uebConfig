@@ -1526,7 +1526,7 @@ async function checkNotifications() {
          * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
          */
         if (pendentes !== 0)
-            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<div class='badge-notification'>" + pendentes + "</div>");
+            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
     }
 }
 
