@@ -77,10 +77,10 @@ class TouchTrack {
 
     events() {
         let $this = this;
-        this.$el.addClass("no-select");
-        this.$el.each(function (index, el) {
+        $this.$el.addClass("no-select");
+        $this.$el.each(function (index, el) {
 
-            if(this.isTouchCapable) {
+            if($this.isTouchCapable) {
                 el.addEventListener("touchstart", (evt) => {
                     $this.eventTouchStart(evt);
                 }, !1);
@@ -90,7 +90,7 @@ class TouchTrack {
                 }, !1);
 
                 el.addEventListener("touchend", evt => {
-                    $this.eventTouchEnd(evt);
+                    $this.eventTouchEnd(evt, index);
                 }, !1);
 
                 el.addEventListener("touchcancel", () => {
@@ -111,7 +111,7 @@ class TouchTrack {
                 }, !1);
 
                 el.addEventListener("mouseup", evt => {
-                    $this.eventTouchEnd(evt);
+                    $this.eventTouchEnd(evt, index);
                 }, !1);
 
                 el.addEventListener("mouseleave", () => {
@@ -263,7 +263,7 @@ class TouchTrack {
         }
     }
 
-    eventTouchEnd(evt) {
+    eventTouchEnd(evt, index) {
         let $this = this;
         if ($this.tracking) {
             let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;
