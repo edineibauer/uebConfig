@@ -80,7 +80,7 @@ class TouchTrack {
         $this.$el.addClass("no-select").each(function (index, el) {
 
             if($this.isTouchCapable) {
-                el.addEventListener("touchstart", (evt) => {
+                el.addEventListener("touchstart", evt => {
                     $this.eventTouchStart(evt);
                 }, !1);
 
@@ -101,7 +101,7 @@ class TouchTrack {
                 }, !1);
 
             } else {
-                el.addEventListener("mousedown", (evt) => {
+                el.addEventListener("mousedown", evt => {
                     $this.eventTouchStart(evt);
                 }, !1);
 
