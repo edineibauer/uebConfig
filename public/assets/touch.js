@@ -77,8 +77,7 @@ class TouchTrack {
 
     events() {
         let $this = this;
-        $this.$el.addClass("no-select");
-        $this.$el.each(function (index, el) {
+        $this.$el.addClass("no-select").each(function (index, el) {
 
             if($this.isTouchCapable) {
                 el.addEventListener("touchstart", (evt) => {
@@ -157,18 +156,19 @@ class TouchTrack {
             $this.maxLeft = window.innerWidth - $this.minBound - $this.startLeft;
         }
 
-        $this.translateY = $this.$el.css("transform");
+        $this.translateY = $target.css("transform");
         $this.translateY = $this.translateY === "none" ? 0 : parseInt($this.directionTrackVertical ? $this.translateY.replace("matrix(1, 0, 0, 1, 0, ", "").replace(")", "") : $this.translateY.replace("matrix(1, 0, 0, 1, ", "").replace(", )", ""));
         if ($this.translateYStart === null) {
             $this.translateYStart = $this.translateY;
             $this.distanciaAlvo += $this.translateYStart;
         }
 
-        $this.$el.addClass('touching');
+        $target.addClass('touching');
     }
 
     eventTouchMove(evt) {
         let $this = this;
+        let $target = $(evt.target);
         if ($this.tracking) {
             evt.preventDefault();
 
@@ -190,9 +190,9 @@ class TouchTrack {
                      * Down
                      */
                 } else if($this.directionTrack === "down") {
-                    if (!$this.$el.hasClass("touchOpen") && up < ($this.folga * -1))
+                    if (!$target.hasClass("touchOpen") && up < ($this.folga * -1))
                         up = $this.folga * -1;
-                    else if ($this.$el.hasClass("touchOpen") && up > $this.folga)
+                    else if ($target.hasClass("touchOpen") && up > $this.folga)
                         up = $this.folga;
 
                     if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
@@ -204,9 +204,9 @@ class TouchTrack {
                      * Up
                      */
                 } else {
-                    if (($this.$el.hasClass("touchOpen") || $this.directionTrack === "right") && up < ($this.folga * -1))
+                    if (($target.hasClass("touchOpen") || $this.directionTrack === "right") && up < ($this.folga * -1))
                         up = $this.folga * -1;
-                    else if (!$this.$el.hasClass("touchOpen") && up > $this.folga)
+                    else if (!$target.hasClass("touchOpen") && up > $this.folga)
                         up = $this.folga;
 
                     if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
@@ -215,7 +215,7 @@ class TouchTrack {
                         up = $this.maxDown;
                 }
 
-                $this.$el.css("transform", "translateY(" + ($this.translateY + up) + "px)");
+                $target.css("transform", "translateY(" + ($this.translateY + up) + "px)");
 
             } else {
                 let left = touches.pageX - $this.startLeft;
@@ -233,9 +233,9 @@ class TouchTrack {
                      * Rigth
                      */
                 } else if($this.directionTrack === "right") {
-                    if (!$this.$el.hasClass("touchOpen") && left < ($this.folga * -1))
+                    if (!$target.hasClass("touchOpen") && left < ($this.folga * -1))
                         left = $this.folga * -1;
-                    else if ($this.$el.hasClass("touchOpen") && left > $this.folga)
+                    else if ($target.hasClass("touchOpen") && left > $this.folga)
                         left = $this.folga;
 
                     if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
@@ -247,9 +247,9 @@ class TouchTrack {
                      * Left
                      */
                 } else {
-                    if (($this.$el.hasClass("touchOpen") || $this.directionTrack === "right") && left < ($this.folga * -1))
+                    if (($target.hasClass("touchOpen") || $this.directionTrack === "right") && left < ($this.folga * -1))
                         left = $this.folga * -1;
-                    else if (!$this.$el.hasClass("touchOpen") && left > $this.folga)
+                    else if (!$target.hasClass("touchOpen") && left > $this.folga)
                         left = $this.folga;
 
                     if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
@@ -258,13 +258,14 @@ class TouchTrack {
                         left = $this.maxLeft;
                 }
 
-                $this.$el.css("transform", "translateX(" + ($this.translateY + left) + "px)");
+                $target.css("transform", "translateX(" + ($this.translateY + left) + "px)");
             }
         }
     }
 
     eventTouchEnd(evt, index) {
         let $this = this;
+        let $target = $(evt.target);
         if ($this.tracking) {
             let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;
 
@@ -275,14 +276,14 @@ class TouchTrack {
                  */
                 let up = $this.startUp - touches.pageY;
 
-                if (!$this.$el.hasClass("touchOpen")) {
+                if (!$target.hasClass("touchOpen")) {
                     if(($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
                         up *=-1;
 
                     if ($this.distancia < up) {
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $this.$el);
+                            $this.funcao($this, $target);
                     } else {
                         $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
                     }
@@ -300,14 +301,14 @@ class TouchTrack {
                  */
                 let left = $this.startLeft - touches.pageX;
 
-                if (!$this.$el.hasClass("touchOpen")) {
+                if (!$target.hasClass("touchOpen")) {
                     if(($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
                         left *=-1;
 
                     if ($this.distancia < left) {
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $this.$el);
+                            $this.funcao($this, $target);
                     } else {
                         $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
                     }
