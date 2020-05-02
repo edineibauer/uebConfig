@@ -202,6 +202,11 @@ function gridCrud(entity, fields, actions) {
         order: 'id',
         orderPosition: !0,
         filter: [],
+        filterGroupIndex: 0,
+        filterRegraIndex: 0,
+        filterOperador: "",
+        filterRegraOperador: "",
+        $filterGroup: null,
         historic: 0,
         filterTotal: -1,
         actions: actions || {autor: !1, create: !0, update: !0, delete: !0, status: !0},
@@ -420,6 +425,9 @@ function gridCrud(entity, fields, actions) {
             loadMaskTable(this.$content);
             clearForm();
             $.cachedScript(HOME + "assetsPublic/tableCore.min.js?v=" + VERSION).then(() => {
+                if(USER.setor === "admin")
+                    $.cachedScript(HOME + "assetsPublic/tableReportCore.min.js?v=" + VERSION);
+
                 this.$element.find(".pagination").remove();
                 let total = parseInt(this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
                 if (total > this.limit) {

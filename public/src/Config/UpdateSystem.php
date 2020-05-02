@@ -272,8 +272,21 @@ class UpdateSystem
          */
         if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
             $minifier = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
+            $minifier->add(PATH_HOME . VENDOR . "table/public/assets/pagination.js");
 
             $f = fopen(PATH_HOME . "assetsPublic/tableCore.min.js", "w");
+            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
+            fclose($f);
+        }
+
+        /**
+         * tableReportCore Generator
+         */
+        if (!file_exists(PATH_HOME . "assetsPublic/tableReportCore.min.js")) {
+            $minifier = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/report.js"));
+            $minifier->add(PATH_HOME . VENDOR . "table/public/assets/grafico.js");
+
+            $f = fopen(PATH_HOME . "assetsPublic/tableReportCore.min.js", "w");
             fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
             fclose($f);
         }
