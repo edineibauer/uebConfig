@@ -281,7 +281,7 @@ function gridCrud(entity, fields, actions) {
                         if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
                             pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
                                 if(parseInt(k) === registerPosition) {
-                                    $this.$content.append(Mustache.render(templates['grid-content'], tr))
+                                    $this.$content.append(Mustache.render(templates.grid_content, tr))
                                     registerPosition++;
                                     if(registersWaitingPosition.length) {
                                         let r = $this.putWaitingRegisters(registerPosition, registersWaitingPosition, $this.$content);
@@ -289,7 +289,7 @@ function gridCrud(entity, fields, actions) {
                                         registersWaitingPosition = r[1];
                                     }
                                 } else {
-                                    registersWaitingPosition.push({position: parseInt(k), content: Mustache.render(templates['grid-content'], tr)});
+                                    registersWaitingPosition.push({position: parseInt(k), content: Mustache.render(templates.grid_content, tr)});
                                 }
                             }))
                         }
