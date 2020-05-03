@@ -97,6 +97,9 @@ function exeRead(entity, filter, order, reverse, limit, offset) {
     limit = limit < parseInt(localStorage.limitGrid) ? parseInt(localStorage.limitGrid) : limit;
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
 
+    if(!isEmpty(filter))
+        return reportRead(entity, filter, order, reverse, limit, offset);
+
     return db.exeRead(entity).then(data => {
         if (!SERVICEWORKER)
             return data;
