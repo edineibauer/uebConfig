@@ -244,7 +244,13 @@ function gridCrud(entity, fields, actions) {
             let selecteds = [];
             let offset = ($this.page * $this.limit) - $this.limit;
             let info = dbLocal.exeRead("__info", 1);
-            let result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
+            let result = "";
+
+            if(!isEmpty($this.filter) && typeof reportRead !== "undefined" && USER.setor === "admin")
+                result = reportRead(entity, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.order, $this.orderPosition, $this.limit, offset);
+            else
+                result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
+
             let users = dbLocal.exeRead("__user", 1);
             let templates = getTemplates();
             let $loadingLoading = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));

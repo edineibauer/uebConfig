@@ -89,16 +89,13 @@ function moveSyncInfoToDb(entity, id) {
     });
 }
 
-function exeRead(entity, filter, order, reverse, limit, offset) {
+async function exeRead(entity, filter, order, reverse, limit, offset) {
     filter = typeof filter === "object" ? filter : {};
     order = typeof order === "string" ? order : "id";
     reverse = (typeof reverse !== "undefined" ? (reverse ? !0 : !1) : !1);
     limit = parseInt(typeof limit === "number" ? limit : (localStorage.limitGrid ? localStorage.limitGrid : 15));
     limit = limit < parseInt(localStorage.limitGrid) ? parseInt(localStorage.limitGrid) : limit;
     offset = parseInt((typeof offset === "number" ? offset : 0) - 1);
-
-    if(!isEmpty(filter))
-        return reportRead(entity, filter, order, reverse, limit, offset);
 
     return db.exeRead(entity).then(data => {
         if (!SERVICEWORKER)
