@@ -246,7 +246,7 @@ function gridCrud(entity, fields, actions) {
             let info = dbLocal.exeRead("__info", 1);
             let result = "";
 
-            if(!isEmpty($this.filter) && typeof reportRead !== "undefined" && USER.setor === "admin")
+            if((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin")
                 result = reportRead(entity, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.order, $this.orderPosition, $this.limit, offset);
             else
                 result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
