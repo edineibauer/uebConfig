@@ -422,11 +422,17 @@ function gridCrud(entity, fields, actions) {
             }
         },
         posData: function () {
+            let $this = this;
             loadMaskTable(this.$content);
             clearForm();
+
             $.cachedScript(HOME + "assetsPublic/tableCore.min.js?v=" + VERSION).then(() => {
-                if(USER.setor === "admin")
+                if(USER.setor === "admin") {
                     $.cachedScript(HOME + "assetsPublic/tableReportCore.min.js?v=" + VERSION);
+                    let $aggroup = $this.$element.find(".aggroup").html("<option value='' selected='selected'>agrupar por...</option>");
+                    for (let col in dicionarios[$this.entity])
+                        $aggroup.append("<option value='" + col + "'>" + dicionarios[$this.entity][col].nome + "</option>");
+                }
 
                 this.$element.find(".pagination").remove();
                 let total = parseInt(this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
