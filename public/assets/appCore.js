@@ -1511,7 +1511,7 @@ async function getNotifications() {
  * Verifica se tem notificações pendentes
  * @returns {Promise<void>}
  */
-async function checkNotifications() {
+async function updateNotificationsBadge() {
     if (!$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
         let pendentes = 0;
         let notifications = await db.exeRead("notifications_report");
@@ -2639,8 +2639,8 @@ function onLoadDocument() {
      * Busca notificações pendentes
      */
     setInterval(function () {
-        checkNotifications();
-    }, 4000);
+        updateNotificationsBadge();
+    }, 5000);
 }
 
 function startApplication() {
