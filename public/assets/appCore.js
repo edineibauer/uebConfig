@@ -811,6 +811,7 @@ function getFieldsData(entity, haveId, r) {
         let data = {
             'nome': "#",
             'column': 'id',
+            'show': !0,
             'class': "",
             'style': "",
             'template': "",
@@ -833,6 +834,7 @@ function getFieldsData(entity, haveId, r) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
+                'show': !0,
                 'class': e.datagrid.grid_class || "",
                 'style': e.datagrid.grid_style || "",
                 'template': e.datagrid.grid_template || "",
@@ -852,6 +854,7 @@ function getFieldsData(entity, haveId, r) {
                     let data = {
                         'nome': ucFirst(replaceAll(replaceAll(relEntity, "_", " "), "-", " ")),
                         'column': relData.column,
+                        'show': !0,
                         'class': relData.grid_class_relational || "",
                         'style': relData.grid_style_relational || "",
                         'template': relData.grid_template_relational || "",
@@ -866,35 +869,26 @@ function getFieldsData(entity, haveId, r) {
             })
         })
     }
-    for (let a = 0; a < 5; a++) {
+
+    for (let a = 0; a < 20; a++) {
         if (isEmpty(fields[a])) {
             $.each(dicionarios[entity], function (i, e) {
-                $.each(relevants, function (f, r) {
-                    if (e.datagrid !== !1 && relevants.indexOf(e.format) > -1) {
-                        let allReadyHave = !1;
-                        $.each(fields, function (g, h) {
-                            if (h.nome === e.nome) {
-                                allReadyHave = !0;
-                                return !1
-                            }
-                        });
-                        if (!allReadyHave) {
-                            let data = {
-                                'nome': e.nome,
-                                'column': e.column,
-                                'class': e.datagrid.grid_class || "",
-                                'style': e.datagrid.grid_style || "",
-                                'template': e.datagrid.grid_template || "",
-                                'format': e.format,
-                                'relation': e.relation || null,
-                                'first': !haveId && a === 0
-                            };
-                            let indice = getIndiceField(a, indices);
-                            indices.push(indice);
-                            pushToArrayIndex(fields, data, indice)
-                        }
-                    }
-                })
+                if(e.format !== "password" && e.key !== "information" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
+                    let data = {
+                        'nome': e.nome,
+                        'column': e.column,
+                        'show': e.datagrid !== !1 && relevants.indexOf(e.format) > -1,
+                        'class': e.datagrid.grid_class || "",
+                        'style': e.datagrid.grid_style || "",
+                        'template': e.datagrid.grid_template || "",
+                        'format': e.format,
+                        'relation': e.relation || null,
+                        'first': !haveId && a === 0
+                    };
+                    let indice = getIndiceField(a, indices);
+                    indices.push(indice);
+                    pushToArrayIndex(fields, data, indice)
+                }
             })
         }
     }

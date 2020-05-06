@@ -673,14 +673,6 @@ input::-webkit-inner-spin-button {
     background-size: 96%
 }
 
-.table-all thead th, .table-all tbody td {
-    display: none !important;
-}
-
-.table-all thead th:first-child, .table-all thead th:nth-child(2), .table-all thead th:last-child, .table-all tbody td:first-child, .table-all tbody td:nth-child(2), .table-all tbody td:last-child {
-    display: table-cell !important;
-}
-
 .extend_register_title {
     max-width: calc(100% - 43px);
 }
@@ -920,10 +912,6 @@ input::-webkit-inner-spin-button {
 }
 
 @media only screen and (min-width: 600px) {
-    .table-all thead th:nth-child(2), .table-all thead th:nth-child(3), .table-all tbody td:nth-child(2), .table-all tbody td:nth-child(3) {
-        display: table-cell !important
-    }
-
     .sub-header-table {
         width: 250px !important;
         padding-top: 0 !important;
@@ -941,10 +929,6 @@ input::-webkit-inner-spin-button {
 
     #core-sidebar-perfil {
         height: 135px;
-    }
-
-    .table-all thead th:nth-child(4), .table-all thead th:nth-child(5), .table-all thead th:nth-child(6), .table-all tbody td:nth-child(4), .table-all tbody td:nth-child(5), .table-all tbody td:nth-child(6) {
-        display: table-cell !important
     }
 
     #core-content {

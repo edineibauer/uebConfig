@@ -46,6 +46,8 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
             if (typeof data[e.column] !== "undefined") {
                 let tr = {
                     id: data.id,
+                    show: e.show,
+                    column: e.column,
                     entity: gridContent.entity,
                     style: '',
                     class: '',
@@ -306,7 +308,7 @@ function gridCrud(entity, fields, actions) {
                     return Promise.all(pp).then(d => {
                         if (isEmpty(d)) {
                             $this.$content.parent().find("thead").addClass("hide");
-                            $("<div class='color-text-gray-dark font-xlarge font-light color-white padding-48 align-center table-info-result'><p class='margin-bottom' style='margin-top: 0;'><i class='material-icons font-xxlarge color-text-gray-dark'>priority_high</i></p>sem registros</div>").insertAfter($this.$content.parent())
+                            $this.$content.parent().after(Mustache.render(templates.no_registers));
                         }
                         $loadingLoading.remove();
                         clearInterval(loadingContent);
