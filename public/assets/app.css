@@ -72,7 +72,7 @@ input::-webkit-inner-spin-button {
 }
 
 .r-network {
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 120px);
 }
 
 #core-header-nav {

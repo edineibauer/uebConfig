@@ -2158,8 +2158,8 @@ var app = {
             if (pageNavbar)
                 $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-            let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(pageHeader, pageNavbar) : 0);
-            $div.css("min-height", minHeightContent + "px");
+            let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(pageHeader, pageNavbar) : "none");
+            $div.css("min-height", minHeightContent);
             if (file === "dashboard")
                 $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
 
@@ -2189,7 +2189,7 @@ var app = {
                             $div.addClass("notop");
                         if (g.navbar)
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
-                        let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : 0);
+                        let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : "none");
                         $div.css("min-height", minHeightContent + "px");
                         if (file === "dashboard")
                             $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
