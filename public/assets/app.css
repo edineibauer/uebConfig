@@ -821,7 +821,7 @@ input::-webkit-inner-spin-button {
     width: 16px;
     background: #ffabab;
     border-radius: 15px;
-    margin: 5px auto 0;
+    margin: 5px 10px 0;
 }
 
 .activeBoolean.active {
