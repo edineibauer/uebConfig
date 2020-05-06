@@ -71,6 +71,10 @@ input::-webkit-inner-spin-button {
     float: left
 }
 
+.r-network {
+    min-height: calc(100vh - 70px);
+}
+
 #core-header-nav {
     padding: 0
 }
