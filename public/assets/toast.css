@@ -65,16 +65,12 @@
 
 @media only screen and (min-width: 993px) {
     .toast {
-		top: initial;
+		top: initial!important;
         bottom: 3%;
         right: 5%;
         width: auto;
         border-radius: 7px;
         height: 55px;
-    }
-	
-	.toast {
-		height: auto;
 		padding: 16px 24px;
 	}
 }

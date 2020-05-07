@@ -301,7 +301,6 @@ input::-webkit-inner-spin-button {
     width: 80%;
     z-index: 10001;
     display: block;
-    transition: all 0.15s;
     -webkit-box-shadow: 4px 5px 9px -5px rgba(61, 61, 61, .6);
     -moz-box-shadow: 4px 5px 9px -5px rgba(61, 61, 61, .6);
     box-shadow: 4px 5px 9px -5px rgba(61, 61, 61, .6);

@@ -40,7 +40,7 @@ function toast(message, duration, className, completeCallback) {
 
 function createToast(html, className) {
     let $toast = $('<div class="toast ' + className + '" style="top: -75px; opacity: 0">' + html + '</div>');
-    new TouchHorizontal($toast, -300, 50, 0, () => clearToast());
+    new TouchHorizontal($toast, 1000, 30, 0, () => clearToast());
     return $toast;
 }
 
