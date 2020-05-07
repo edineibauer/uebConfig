@@ -27,10 +27,9 @@ function toast(message, duration, className, completeCallback) {
     let $toast = createToast(settings.message, settings.className).appendTo('body');
 
     // Animate toast in
-    $toast.animate({"top": "0px", opacity: 1}, {
-        duration: 300,
-        queue: false
-    });
+    setTimeout(function () {
+        $toast.addClass("active");
+    }, 1);
 
     //setTimeout
     toastTime = setTimeout(function () {
@@ -39,7 +38,7 @@ function toast(message, duration, className, completeCallback) {
 }
 
 function createToast(html, className) {
-    let $toast = $('<div class="toast ' + className + '" style="top: -75px; opacity: 0">' + html + '</div>');
+    let $toast = $('<div class="toast ' + className + '">' + html + '</div>');
     new TouchHorizontal($toast, 1000, 30, 0, () => clearToast());
     return $toast;
 }

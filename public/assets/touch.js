@@ -277,10 +277,18 @@ class TouchTrack {
                 let up = $this.startUp - touches.pageY;
 
                 if (!$target.hasClass("touchOpen")) {
+                    let originalUp = up;
                     if(($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
                         up *=-1;
 
                     if ($this.distancia < up) {
+
+                        /**
+                         * Permite fazer a ação para o target em ambos os lados
+                         */
+                        if ($this.directionTrack === "vertical" && ((originalUp > 0 && $this.distanciaAlvo > 0) || ($this.distanciaAlvo < 0 && originalUp < 0)))
+                            $this.distanciaAlvo *= -1;
+
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
                             $this.funcao($this, $target);
@@ -302,10 +310,18 @@ class TouchTrack {
                 let left = $this.startLeft - touches.pageX;
 
                 if (!$target.hasClass("touchOpen")) {
+                    let originalLeft = left;
                     if(($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
                         left *=-1;
 
                     if ($this.distancia < left) {
+
+                        /**
+                         * Permite fazer a ação para o target em ambos os lados
+                         */
+                        if ($this.directionTrack === "horizontal" && ((originalLeft > 0 && $this.distanciaAlvo > 0) || ($this.distanciaAlvo < 0 && originalLeft < 0)))
+                            $this.distanciaAlvo *= -1;
+
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
                             $this.funcao($this, $target);
