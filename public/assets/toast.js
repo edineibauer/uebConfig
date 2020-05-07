@@ -6,7 +6,12 @@ function toast(message, duration, className, completeCallback) {
     if (typeof className === "undefined" && typeof duration === "string") {
         className = duration;
         duration = 4000;
+    } else if (typeof className === "number" && typeof duration === "string") {
+        let d = duration;
+        duration = className;
+        className = d;
     }
+
     var settings = $.extend({
         message: message || '',
         displayLength: duration || 4000,
@@ -14,19 +19,12 @@ function toast(message, duration, className, completeCallback) {
         completeCallback: completeCallback || $.noop
     }, $.isPlainObject(message) ? message : {});
 
-    // Get container
-    var $container = $('#toast-container');
-
-    // Create toast container if it does not exist
-    if (!$container.length)
-        $container = $('<div id="toast-container">').appendTo('body');
-
     // If no message, no toast
     if (!settings.message || $.isPlainObject(settings.message))
         return false;
 
     // Append toast
-    var $toast = createToast(settings.message).appendTo($container);
+    var $toast = createToast(settings.message).appendTo('body');
 
     // Animate toast in
     $toast.animate({"top": "0px", opacity: 1}, {
@@ -34,24 +32,20 @@ function toast(message, duration, className, completeCallback) {
         queue: false
     });
 
-    function createToast(html) {
+    //setTimeout
+    toastTime = setTimeout(function () {
+        clearToast();
+    }, settings.displayLength);
+}
 
-        // Create toast
-        var $toast = $('<div class="toast ' + settings.className + '" style="top: -75px; opacity: 0">' + html + '</div>');
-
-        new TouchHorizontal($toast, -300, 80, 10, function ($this, $el) {
-            clearTimeout(toastTime);
-            $el.remove();
-            $("#toast-container").remove();
-        });
-
-        return $toast;
-    }
-};
+function createToast(html) {
+    let $toast = $('<div class="toast ' + settings.className + '" style="top: -75px; opacity: 0">' + html + '</div>');
+    new TouchHorizontal($toast, -300, 50, 0, () => clearToast());
+    return $toast;
+}
 
 function clearToast() {
     clearTimeout(toastTime);
-    $("#toast-container").remove();
     let $toasts = $(".toast");
     $toasts.fadeOut(300);
     setTimeout(function () {

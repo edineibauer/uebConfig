@@ -1,28 +1,6 @@
-/*
-    Materialize's toast redone for standalone jQuery
-    
-    Author: André Luiz Rabêllo
-    Version: 1.0.0
-*/
-
-#toast-container {
-    display: block;
-    position: fixed;
-    text-align: center;
-	z-index: 10002;
-	height: 85px;
-    overflow: hidden;
-	width: 100%;
-    top: 0;
-    right: 0;
-    padding: 8px 9px 0;
-}
-
 .toast {
-	border-radius: 7px;
     max-width: 100%;
     margin: 0;
-    height: 55px;
     background-color: #323232;
 	border-style: solid;
 	border-width: 1px;
@@ -37,9 +15,14 @@
     font-weight: 600;
     line-height: 1.5;
     min-height: 48px;
-    position: relative;
+    position: fixed;
     top: 0;
-    width: auto;
+    right: 0;
+    width: 100%;
+    border-radius: 0;
+    transform: translateX(0px);
+    height: 70px;
+    z-index: 10002;
     padding: 16px 16px 16px 20px;
     -webkit-align-items: center;
          -ms-flex-align: center;
@@ -81,14 +64,13 @@
 }
 
 @media only screen and (min-width: 993px) {
-    #toast-container {
+    .toast {
 		top: initial;
         bottom: 3%;
         right: 5%;
-        max-width: 86%;
-		width: auto;
-		padding-left: 10px;
-		padding-right: 10px;
+        width: auto;
+        border-radius: 7px;
+        height: 55px;
     }
 	
 	.toast {
