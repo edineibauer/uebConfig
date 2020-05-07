@@ -241,7 +241,7 @@ if (typeof Grafico !== 'function') {
             /**
              * Faz a leitura dos dados da lingua nativa
              */
-            return getJSON(VENDOR + "assetsPublic/language/pt-br.json").then(language => {
+            return getJSON("assetsPublic/language/pt-br.json").then(language => {
 
                 /**
                  * Monta retorno
