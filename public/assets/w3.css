@@ -1966,6 +1966,11 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
     background-color: transparent !important
 }
 
+.tableList {
+    min-height: calc(100vh - 120px);
+    overflow-x: hidden;
+}
+
 @-webkit-keyframes fading {
     0%, 100% {
         opacity: 0
