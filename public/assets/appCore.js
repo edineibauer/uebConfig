@@ -1818,7 +1818,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
     let left = $element[0].getBoundingClientRect().left;
     let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
-        "min-height": ($element.attr("id") === "core-content" ? (window.innerHeight - topHeader - (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0)) : 0) + "px",
+        "min-height": "calc(100vh - 120px)",
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
@@ -2046,12 +2046,12 @@ if (SERVICEWORKER) {
     });
 }
 
-function getPageHeight(haveHeader, navbar) {
+/*function getPageHeight(haveHeader, navbar) {
     haveHeader = typeof haveHeader === "undefined" ? $("#core-header").css("opacity") === "1" : haveHeader;
     navbar = typeof navbar === "undefined" || navbar;
     let topHeader = haveHeader ? $("#core-header")[0].clientHeight : 0;
     return (window.innerHeight - topHeader - (window.innerWidth < 900 && navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0));
-}
+}*/
 
 var dicionarios,
     swRegistration = null,
@@ -2158,11 +2158,6 @@ var app = {
             if (pageNavbar)
                 $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-            let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(pageHeader, pageNavbar) : "none");
-            $div.css("min-height", minHeightContent);
-            if (file === "dashboard")
-                $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
-
             return Promise.all([]);
 
         } else {
@@ -2189,10 +2184,7 @@ var app = {
                             $div.addClass("notop");
                         if (g.navbar)
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
-                        let minHeightContent = ($div.attr("id") === "core-content" || typeof $div.attr("id") === "undefined" ? getPageHeight(g.header, g.navbar) : "none");
-                        $div.css("min-height", minHeightContent + "px");
-                        if (file === "dashboard")
-                            $(".dashboard-main, #dashboard").css("min-height", minHeightContent + "px");
+
                         if (g.js.length) {
                             $.cachedScript(g.js).then(() => {
                                 app.removeLoading()
@@ -2592,7 +2584,6 @@ function onLoadDocument() {
 
     window.onresize = function () {
         clearHeaderScrollPosition();
-        $("#core-content, .dashboard-main, #dashboard").css("min-height", getPageHeight() + "px");
 
         if (window.innerWidth < 994)
             updateHeaderPosition();
