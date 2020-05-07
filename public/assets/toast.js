@@ -12,7 +12,7 @@ function toast(message, duration, className, completeCallback) {
         className = d;
     }
 
-    var settings = $.extend({
+    let settings = $.extend({
         message: message || '',
         displayLength: duration || 4000,
         className: className || '',
@@ -24,7 +24,7 @@ function toast(message, duration, className, completeCallback) {
         return false;
 
     // Append toast
-    var $toast = createToast(settings.message).appendTo('body');
+    let $toast = createToast(settings.message, settings.className).appendTo('body');
 
     // Animate toast in
     $toast.animate({"top": "0px", opacity: 1}, {
@@ -38,8 +38,8 @@ function toast(message, duration, className, completeCallback) {
     }, settings.displayLength);
 }
 
-function createToast(html) {
-    let $toast = $('<div class="toast ' + settings.className + '" style="top: -75px; opacity: 0">' + html + '</div>');
+function createToast(html, className) {
+    let $toast = $('<div class="toast ' + className + '" style="top: -75px; opacity: 0">' + html + '</div>');
     new TouchHorizontal($toast, -300, 50, 0, () => clearToast());
     return $toast;
 }
