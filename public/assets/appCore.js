@@ -1835,6 +1835,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
     file = file[0];
 
     let $aux = null;
+    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
