@@ -696,7 +696,7 @@ class UpdateSystem
         $data = "";
         try {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
-            $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=" . ucfirst($item) . "+Icons";
+            $urlOnline = $tipo === "font" ? "https://fonts.googleapis.com/css?family=" . ucfirst($item) . ":100,300,400,700" : "https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp";
             $data = @file_get_contents($urlOnline);
             foreach (explode('url(', $data) as $i => $u) {
                 if ($i > 0) {
