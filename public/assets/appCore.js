@@ -1813,12 +1813,17 @@ function clearPage() {
     clearHeaderScrollPosition();
 }
 
+function getPageContentHeight() {
+    let heightHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+    let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0);
+    return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
+}
+
 function defaultPageTransitionPosition(direction, $element, route) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
-    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
     $element.css({
-        "min-height": "calc(100vh - 120px)",
+        "min-height": getPageContentHeight(),
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
