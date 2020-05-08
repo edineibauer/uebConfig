@@ -96,12 +96,12 @@ function gridTdFilterValue(value, meta) {
             value = meta.allow.options.find(option => option.valor == value).representacao;
         } else if ('checkbox' === meta.format) {
             let resposta = "";
-            for(let i in meta.allow.options)
-                resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1  ? ((resposta !== "" ? ", " : "") + meta.allow.options[i].representacao) : "");
+            for (let i in meta.allow.options)
+                resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1 ? ((resposta !== "" ? ", " : "") + meta.allow.options[i].representacao) : "");
 
             value = resposta;
         } else if (meta.group === "boolean") {
-            value = "<div class='activeBoolean" + (value == 1 ? " active": "") + "'></div>";
+            value = "<div class='activeBoolean" + (value == 1 ? " active" : "") + "'></div>";
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
@@ -224,9 +224,9 @@ function gridCrud(entity, fields, actions) {
             }
         },
         putWaitingRegisters: function (registerPosition, registersWaitingPosition, $content) {
-            if(registersWaitingPosition.length) {
-                for(let i in registersWaitingPosition) {
-                    if(registersWaitingPosition[i].position === registerPosition) {
+            if (registersWaitingPosition.length) {
+                for (let i in registersWaitingPosition) {
+                    if (registersWaitingPosition[i].position === registerPosition) {
                         $content.append(registersWaitingPosition[i].content);
                         registerPosition++;
                         registersWaitingPosition.splice(i, 1);
@@ -250,7 +250,7 @@ function gridCrud(entity, fields, actions) {
             let info = dbLocal.exeRead("__info", 1);
             let result = "";
 
-            if((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin")
+            if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin")
                 result = reportRead(entity, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             else
                 result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
@@ -293,16 +293,19 @@ function gridCrud(entity, fields, actions) {
                     for (let k in result.data) {
                         if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
                             pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
-                                if(parseInt(k) === registerPosition) {
+                                if (parseInt(k) === registerPosition) {
                                     $this.$content.append(Mustache.render(templates.grid_content, tr))
                                     registerPosition++;
-                                    if(registersWaitingPosition.length) {
+                                    if (registersWaitingPosition.length) {
                                         let r = $this.putWaitingRegisters(registerPosition, registersWaitingPosition, $this.$content);
                                         registerPosition = r[0];
                                         registersWaitingPosition = r[1];
                                     }
                                 } else {
-                                    registersWaitingPosition.push({position: parseInt(k), content: Mustache.render(templates.grid_content, tr)});
+                                    registersWaitingPosition.push({
+                                        position: parseInt(k),
+                                        content: Mustache.render(templates.grid_content, tr)
+                                    });
                                 }
                             }))
                         }
@@ -336,91 +339,66 @@ function gridCrud(entity, fields, actions) {
         },
         getShow: function () {
             var pT = dbLocal.keys(entity);
-            var pF = (isEmpty(grid.fields) ? getFields(entity, !0) : new Promise());
+            var pF = (isEmpty(grid.fields) ? getFields(entity, !0, 'grid') : new Promise());
             let perm = permissionToAction(this.entity, 'read');
             let sync = dbLocal.exeRead("sync_" + this.entity);
             return Promise.all([pT, perm, pF, sync]).then(r => {
 
-                if(SERVICEWORKER) {
-                    this.total = r[0].length;
-                    let have = r[1];
-                    let haveSync = r[3].length > 0 && navigator.onLine ? r[3].length : 0;
-                    if (isEmpty(grid.fields))
-                        this.fields = r[2];
-                    if (have) {
-                        if (!localStorage.limitGrid)
-                            localStorage.limitGrid = 15;
-                        limits = {
-                            a: this.limit === 15,
-                            b: this.limit === 25,
-                            c: this.limit === 50,
-                            d: this.limit === 100,
-                            e: this.limit === 250,
-                            f: this.limit === 500,
-                            g: this.limit === 1000
-                        };
-                        return permissionToAction(this.entity, 'create').then(t => {
-                            if (this.actions.create)
-                                this.actions.create = t;
-                            return getTemplates().then(templates => {
-                                return Mustache.render(templates.grid, {
-                                    entity: entity,
-                                    home: HOME,
-                                    sync: haveSync,
-                                    limits: limits,
-                                    novo: this.actions.create,
-                                    identificador: this.identificador,
-                                    goodName: this.goodName,
-                                    total: this.total,
-                                    fields: this.fields
-                                })
-                            })
-                        })
-                    }
+                if (isEmpty(grid.fields))
+                    this.fields = r[2];
+
+                if (!r[1])
                     return "<h2 class='align-center padding-32 color-text-gray-dark'>Sem Permissao para Leitura</h2>"
-                } else {
-                    var pF = (isEmpty(grid.fields) ? getFields(entity, !0) : new Promise());
-                    let perm = permissionToAction(this.entity, 'read');
-                    return Promise.all([perm, pF]).then(r => {
-                        if(r[0]) {
-                            if (isEmpty(grid.fields))
-                                this.fields = r[1];
 
-                            if (!localStorage.limitGrid)
-                                localStorage.limitGrid = 15;
+                if (!localStorage.limitGrid)
+                    localStorage.limitGrid = 15;
 
-                            limits = {
-                                a: this.limit === 15,
-                                b: this.limit === 25,
-                                c: this.limit === 50,
-                                d: this.limit === 100,
-                                e: this.limit === 250,
-                                f: this.limit === 500,
-                                g: this.limit === 1000
-                            };
+                limits = {
+                    a: this.limit === 15,
+                    b: this.limit === 25,
+                    c: this.limit === 50,
+                    d: this.limit === 100,
+                    e: this.limit === 250,
+                    f: this.limit === 500,
+                    g: this.limit === 1000
+                };
 
-                            return permissionToAction(this.entity, 'create').then(t => {
-                                if (this.actions.create)
-                                    this.actions.create = t;
+                return permissionToAction(this.entity, 'create').then(t => {
+                    if (this.actions.create)
+                        this.actions.create = t;
 
-                                return getTemplates().then(templates => {
-                                    return Mustache.render(templates.grid, {
-                                        entity: entity,
-                                        home: HOME,
-                                        sync: !1,
-                                        limits: limits,
-                                        novo: this.actions.create,
-                                        identificador: this.identificador,
-                                        goodName: this.goodName,
-                                        total: "-",
-                                        fields: this.fields
-                                    })
-                                })
+                    return getTemplates().then(templates => {
+                        if (SERVICEWORKER) {
+
+                            this.total = r[0].length;
+                            let haveSync = r[3].length > 0 && navigator.onLine ? r[3].length : 0;
+                            return Mustache.render(templates.grid, {
+                                entity: entity,
+                                home: HOME,
+                                sync: haveSync,
+                                limits: limits,
+                                novo: this.actions.create,
+                                identificador: this.identificador,
+                                goodName: this.goodName,
+                                total: this.total,
+                                fields: this.fields
+                            })
+                        } else {
+
+                            return Mustache.render(templates.grid, {
+                                entity: entity,
+                                home: HOME,
+                                sync: !1,
+                                limits: limits,
+                                novo: this.actions.create,
+                                identificador: this.identificador,
+                                goodName: this.goodName,
+                                total: "-",
+                                fields: this.fields
                             })
                         }
-                        return "<h2 class='align-center padding-32 color-text-gray-dark'>Sem Permissao para Leitura</h2>"
-                    });
-                }
+                    })
+                })
             })
         },
         show: function ($element) {
@@ -440,7 +418,7 @@ function gridCrud(entity, fields, actions) {
             clearForm();
 
             $.cachedScript(HOME + "assetsPublic/tableCore.min.js?v=" + VERSION).then(() => {
-                if(USER.setor === "admin")
+                if (USER.setor === "admin")
                     $.cachedScript(HOME + "assetsPublic/tableReportCore.min.js?v=" + VERSION);
 
                 this.$element.find(".pagination").remove();

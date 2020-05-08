@@ -971,8 +971,8 @@ function maskData($data) {
     return $data
 }
 
-function getFields(entity, haveId) {
-    return get("recoveryFieldsCustom").then(rec => {
+function getFields(entity, haveId, type) {
+    return get("recoveryFieldsCustom/" + type + "/" + entity).then(rec => {
         if(!isEmpty(rec)) {
             for(let r of rec) {
                 r.show = r.show === "true";
