@@ -212,6 +212,8 @@ function gridCrud(entity, fields, actions) {
         filterAggroup: "",
         filterAggroupSum: [],
         filterAggroupMedia: [],
+        filterAggroupMaior: [],
+        filterAggroupMenor: [],
         historic: 0,
         filterTotal: -1,
         actions: actions || {autor: !1, create: !0, update: !0, delete: !0, status: !0},
