@@ -2172,7 +2172,11 @@ var app = {
                 $div.addClass("notop");
 
             if (pageNavbar)
-                $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                $("#core-header-nav-bottom").addClass("core-show-header-navbar");
+            else
+                $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+
+            $div.css("min-height", getPageContentHeight());
 
             return Promise.all([]);
 
