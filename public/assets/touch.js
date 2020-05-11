@@ -159,7 +159,7 @@ class TouchTrack {
     eventTouchStart(evt) {
         let $this = this;
         let ignore = !1;
-        let $target = $(evt.target).hasClass("touchElement") ? $(evt.target) : $(evt.target).closest(".touchElement");
+        let $target = $(evt.target);
         for (let i in $this.ignoreQueryElements) {
             if ($target.closest($this.ignoreQueryElements[i]).length) {
                 ignore = !0;
@@ -181,6 +181,7 @@ class TouchTrack {
         if (ignore)
             return;
 
+        $target = $(evt.target).hasClass("touchElement") ? $(evt.target) : $(evt.target).closest(".touchElement");
         let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;
         $this.tracking = !0;
 
