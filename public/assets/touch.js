@@ -33,18 +33,36 @@ class TouchTrack {
         return this;
     }
 
-    setDistanciaStart(d) {
-        this.translateYStart = d;
-        if (!this.$el.hasClass("touchOpen"))
-            this.moveToStart();
-        return this;
+    setDistanciaStart(d, index) {
+        let $this = this;
+        $this.translateYStart = d;
+
+        if(typeof index === "undefined") {
+            $this.$el.each(function (i, el) {
+                if (!$(el).hasClass("touchOpen"))
+                    $this.moveToStart(i);
+            });
+        } else if (!$this.$el.eq(index).hasClass("touchOpen")) {
+            $this.moveToStart(index);
+        }
+
+        return this
     }
 
-    setDistanciaTarget(d) {
-        this.distanciaAlvo = d;
-        if (this.$el.hasClass("touchOpen"))
-            this.moveToTarget();
-        return this;
+    setDistanciaTarget(d, index) {
+        let $this = this;
+        $this.distanciaAlvo = d;
+
+        if(typeof index === "undefined") {
+            $this.$el.each(function (i, el) {
+                if ($this.$el.hasClass("touchOpen"))
+                    $this.moveToStart(i);
+            });
+        } else if ($this.$el.eq(index).hasClass("touchOpen")) {
+            $this.moveToTarget(index);
+        }
+
+        return this
     }
 
     stopMove(index) {
@@ -55,19 +73,37 @@ class TouchTrack {
     moveToStart(index) {
         if (this.translateYStart === null) {
             this.translateYStart = this.translateY;
-            this.distanciaAlvo += this.translateYStart;
+            this.distanciaAlvo += this.translateYStart
         }
-        this.stopMove(index).removeClass("touchOpen").css({transform: "translate" + (this.directionTrackVertical ? "Y" : "X") + "(" + this.translateYStart + "px)"});
-        return this;
+
+        let $this = this;
+        if(typeof index === "undefined") {
+            $this.$el.each(function (i, el) {
+                $this.moveToStart(i);
+            });
+        } else {
+            this.stopMove(index).removeClass("touchOpen").css({transform: "translate" + (this.directionTrackVertical ? "Y" : "X") + "(" + this.translateYStart + "px)"});
+        }
+
+        return this
     }
 
     moveToTarget(index) {
         if (this.translateYStart === null) {
             this.translateYStart = this.translateY;
-            this.distanciaAlvo += this.translateYStart;
+            this.distanciaAlvo += this.translateYStart
         }
-        this.stopMove(index).addClass("touchOpen").css({transform: "translate" + (this.directionTrackVertical ? "Y" : "X") + "(" + this.distanciaAlvo + "px)"});
-        return this;
+
+        let $this = this;
+        if(typeof index === "undefined") {
+            $this.$el.each(function (i, el) {
+                $this.moveToTarget(i);
+            });
+        } else {
+            this.stopMove(index).addClass("touchOpen").css({transform: "translate" + (this.directionTrackVertical ? "Y" : "X") + "(" + this.distanciaAlvo + "px)"});
+        }
+
+        return this
     }
 
     setFuncao(f) {
