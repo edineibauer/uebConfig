@@ -1515,8 +1515,8 @@ async function getNotifications() {
  * Verifica se tem notificações pendentes
  * @returns {Promise<void>}
  */
-async function updateNotificationsBadge() {
-    if (!$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
+async function updateNotificationsBadge(allow) {
+    if (allow && !$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
         let pendentes = 0;
         let notifications = await db.exeRead("notifications_report");
         if (!isEmpty(notifications)) {
@@ -2551,7 +2551,7 @@ function goLinkPageTransition(url, $this, e) {
 /**
  * Ao carregar todo o documento executa esta função
  */
-function onLoadDocument() {
+async function onLoadDocument() {
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -2643,9 +2643,12 @@ function onLoadDocument() {
     /**
      * Busca notificações pendentes
      */
-    setInterval(function () {
-        updateNotificationsBadge();
-    }, 5000);
+    if(USER.setor !== 0) {
+        let allow = await db.exeRead("__allow", 1);
+        setInterval(function () {
+            updateNotificationsBadge(allow.notifications_report.read);
+        }, 5000);
+    }
 }
 
 function startApplication() {
