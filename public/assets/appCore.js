@@ -1515,8 +1515,8 @@ async function getNotifications() {
  * Verifica se tem notificações pendentes
  * @returns {Promise<void>}
  */
-async function updateNotificationsBadge(allow) {
-    if (allow && !$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
+async function updateNotificationsBadge() {
+    if (!$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
         let pendentes = 0;
         let notifications = await db.exeRead("notifications_report");
         if (!isEmpty(notifications)) {
@@ -2645,9 +2645,11 @@ async function onLoadDocument() {
      */
     if(USER.setor !== 0) {
         let allow = await db.exeRead("__allow", 1);
-        setInterval(function () {
-            updateNotificationsBadge(allow.notifications_report.read);
-        }, 5000);
+        if(allow.notifications_report?.read) {
+            setInterval(function () {
+                updateNotificationsBadge();
+            }, 5000);
+        }
     }
 }
 
