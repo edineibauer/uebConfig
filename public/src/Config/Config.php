@@ -825,7 +825,10 @@ class Config
      */
     private static function getAssetsContent(string $asset, string $pathFile, string $extension, string $lib, string $setor = null)
     {
-        if (DOMINIO !== $lib && (!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}")) {
+        if(preg_match('/^http/i', $asset)) {
+            return @file_get_contents($asset);
+
+        } elseif (DOMINIO !== $lib && (!empty($setor) || $setor === "0") && file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/overload/" . $setor . "/" . $lib . "/assets/" . $asset . ".{$extension}");
 
         } elseif (DOMINIO !== $lib && file_exists(PATH_HOME . "public/overload/" . $lib . "/assets/" . $asset . ".{$extension}")) {
