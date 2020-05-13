@@ -321,7 +321,7 @@ const db = {
     async exeRead(entity, key) {
         let Reg = new RegExp('^(sync_|__)', 'i');
         if (Reg.test(entity)) {
-            toast("[Erro de programação] não é possível LER registros Sync Online.", 5000, "toast-error");
+            toast("[Erro de programação] não é possível LER registros Sync Online. " + entity, 5000, "toast-error");
             return;
         }
 
