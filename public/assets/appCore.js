@@ -968,8 +968,10 @@ function maskData($data) {
     return $data
 }
 
-function getFields(entity, haveId, type) {
-    return get("recoveryFieldsCustom/" + type + "/" + entity).then(rec => {
+async function getFields(entity, haveId, type) {
+    if(navigator.onLine) {
+        let rec = await get("recoveryFieldsCustom/" + type + "/" + entity);
+
         if(!isEmpty(rec)) {
             for(let r of rec) {
                 r.show = r.show === "true";
@@ -977,22 +979,23 @@ function getFields(entity, haveId, type) {
             }
             return rec;
         }
+    }
 
-        haveId = haveId || !1;
-        let relevants = dbLocal.exeRead("__relevant", 1);
-        let relation = dbLocal.exeRead("__general", 1);
-        let info = dbLocal.exeRead("__info", 1);
-        return Promise.all([relevants, relation, info]).then(r => {
-            if (isEmpty(r[0])) {
-                return new Promise(r => {
-                    setTimeout(function () {
-                        r(getFields(entity, haveId));
-                    }, 200);
-                })
-            } else {
-                return getFieldsData(entity, haveId, r);
-            }
-        })
+    haveId = haveId || !1;
+    let relevants = dbLocal.exeRead("__relevant", 1);
+    let relation = dbLocal.exeRead("__general", 1);
+    let info = dbLocal.exeRead("__info", 1);
+
+    return Promise.all([relevants, relation, info]).then(r => {
+        if (isEmpty(r[0])) {
+            return new Promise(r => {
+                setTimeout(function () {
+                    r(getFields(entity, haveId));
+                }, 200);
+            })
+        } else {
+            return getFieldsData(entity, haveId, r);
+        }
     })
 }
 
