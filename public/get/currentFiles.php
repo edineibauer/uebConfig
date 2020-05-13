@@ -6,25 +6,77 @@
 
 use \Helpers\Helper;
 
+/**
+ * Obtém os templates utilizados nas views que este usuário tem acesso
+ * @param string $path
+ * @param string $setor
+ * @param array $list
+ * @return array
+ */
+function getOfflineAssetsPath(string $path, string $setor, array $list)
+{
+    if (file_exists($path)) {
+        foreach (\Helpers\Helper::listFolder($path) as $param) {
+            $p = json_decode(file_get_contents($path . "/" . $param), !0);
+
+            if (!empty($p['templates']) && is_array($p['templates'])) {
+
+                $permissionToView = $setor === "" || ((empty($p['setor']) || in_array($setor, $p['setor'])) && (empty($p['!setor']) || !in_array($setor, $p["!setor"])));
+
+                /**
+                 * Se tiver permissão para acessar a view e
+                 * Se este template ainda não foi adicionado na lista
+                 * Então adiciona o template a lista de templates do usuário
+                 */
+                if ($permissionToView) {
+                    foreach ($p['templates'] as $template) {
+                        if (!in_array($template, array_keys($list)))
+                            $list[$template] = \Config\Config::getTemplateContent($template);
+                    }
+                }
+            }
+        }
+    }
+
+    return $list;
+}
+
+/**
+ * Obtém lista de assets para armazenar offline
+ * @return string[]
+ */
+function getOfflineAssets(): array
+{
+    $list = [HOME . "manifest.json?v=" . VERSION];
+
+    if (!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['imagem']))
+        $list[] = $_SESSION['userlogin']['imagem']['urls']['100'];
+
+    $assetsDir = \Config\Config::getRoutesTo("assets");
+    foreach (\Config\Config::getRoutesFilesTo("param", "json") as $asset => $fileDir) {
+        $p = \Config\Config::getJsonFile($fileDir);
+        if (!empty($p['offlineAssets']) && \Config\Config::paramPermission($p)) {
+            foreach ($p['offlineAssets'] as $offlineAsset) {
+                foreach ($assetsDir as $assetDir) {
+                    if (file_exists($assetDir . $offlineAsset)) {
+                        $list[] = $assetDir . $offlineAsset;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return array_unique($list);
+}
+
 // return values
 $data['data'] = [
     "core" => [HOME, HOME . "index", HOME . "set"],
     "fonts" => [],
     "images" => [],
-    "misc" => [HOME . "manifest.json?v=" . VERSION]
+    "misc" => getOfflineAssets()
 ];
-
-if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['imagem']))
-    $data['data']['misc'][] = $_SESSION['userlogin']['imagem']['urls']['100'];
-
-
-/**
- * View Misc Offline
- */
-if (file_exists(PATH_HOME . "_config/offline/assets.json")) {
-    foreach (json_decode(file_get_contents(PATH_HOME . "_config/offline/assets.json"), !0) as $item)
-        $data['data']['misc'][] = HOME . $item;
-}
 
 //CORE, create cache from all 'assetsPublic' root and current view
 $coreNot = ["tableCore.min.js", "appCoreDashboard.min.js"];

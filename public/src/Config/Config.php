@@ -274,18 +274,18 @@ class Config
              * in DEV
              */
         } elseif (!empty($lib)) {
-            $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+            $setor = self::getSetor();
             $param = (!empty($param) && isset($param['js']) && isset($param['css']) ? $param : ['js' => [], 'css' => []]);
 
-            if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js")) {
+            if (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js")) {
                 self::createPageJs($view, $param['js'], $lib, $setor);
-            } elseif(file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.js")) {
+            } elseif (file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.js")) {
                 self::createPageJs($view, $param['js'], $lib);
             }
 
-            if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css")) {
+            if (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css")) {
                 self::createPageCss($view, $param['css'], $lib, $setor);
-            } elseif(file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.css")) {
+            } elseif (file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.css")) {
                 self::createPageCss($view, $param['css'], $lib);
             }
         }
@@ -382,7 +382,7 @@ class Config
      */
     public static function getTemplateContent(string $template)
     {
-        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        $setor = self::getSetor();
 
         /**
          * Busca template em setor public
@@ -390,24 +390,128 @@ class Config
          * Busca template nas libs setor
          * Busca tempalte nas libs
          */
-        if(file_exists(PATH_HOME . "public/tpl/{$setor}/{$template}.mustache"))
+        if (file_exists(PATH_HOME . "public/tpl/{$setor}/{$template}.mustache"))
             return file_get_contents(PATH_HOME . "public/tpl/{$setor}/{$template}.mustache");
 
-        if(file_exists(PATH_HOME . "public/tpl/{$template}.mustache"))
+        if (file_exists(PATH_HOME . "public/tpl/{$template}.mustache"))
             return file_get_contents(PATH_HOME . "public/tpl/{$template}.mustache");
 
         $libs = Helper::listFolder(PATH_HOME . VENDOR);
         foreach ($libs as $lib) {
-            if(file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$template}.mustache"))
+            if (file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$template}.mustache"))
                 return file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$template}.mustache");
         }
 
         foreach ($libs as $lib) {
-            if(file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$template}.mustache"))
+            if (file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$template}.mustache"))
                 return file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$template}.mustache");
         }
 
         return "";
+    }
+
+    /**
+     * Obtém json from a file
+     * @param string $file
+     * @return array
+     */
+    public static function getJsonFile(string $file): array
+    {
+        if (file_exists($file))
+            return json_decode(file_get_contents($file), !0);
+
+        return [];
+    }
+
+    /**
+     * Obtém setor do usuário
+     * @return string
+     */
+    public static function getSetor(): string
+    {
+        return !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+    }
+
+    /**
+     * Verifica se tem permissão de acesso a este param route
+     * @param array $param
+     * @return bool
+     */
+    public static function paramPermission(array $param): bool
+    {
+        $setor = self::getSetor();
+        return (empty($param['setor']) || in_array($setor, $param['setor'])) && (empty($param['!setor']) || !in_array($setor, $param["!setor"]));
+    }
+
+    /**
+     * Obtém lista de todos os diretórios para o caminho em public
+     * considerando bibliotecas e overloads
+     * @param string $dir
+     * @return array
+     */
+    public static function getRoutesTo(string $dir) :array
+    {
+        $setor = self::getSetor();
+
+        /**
+         * Public Setor
+         */
+        $list = [PATH_HOME . "public/{$dir}/" . $setor . "/"];
+
+        /**
+         * Public
+         */
+        $list[] = PATH_HOME . "public/{$dir}/";
+
+        /**
+         * Overload in Public
+         */
+        if (file_exists(PATH_HOME . "public/overload")) {
+            foreach (Helper::listFolder(PATH_HOME . "public/overload") as $libOverload) {
+                $list[] = PATH_HOME . "public/overload/" . $libOverload . "/{$dir}/" . $setor . "/";
+                $list[] = PATH_HOME . "public/overload/" . $libOverload . "/{$dir}/";
+            }
+        }
+
+        /**
+         * Overload in Libs
+         */
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+            if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload")) {
+                foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/overload") as $libOverload) {
+                    $list[] = PATH_HOME . VENDOR . $lib . "/public/overload/" . $libOverload . "/{$dir}/" . $setor . "/";
+                    $list[] = PATH_HOME . VENDOR . $lib . "/public/overload/" . $libOverload . "/{$dir}/";
+                }
+            }
+        }
+
+        /**
+         * Libs Setor
+         */
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+            $list[] = PATH_HOME . VENDOR . $lib . "/public/{$dir}/" . $setor . "/";
+
+        /**
+         * Libs
+         */
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+            $list[] = PATH_HOME . VENDOR . $lib . "/public/{$dir}/";
+
+        return $list;
+    }
+
+    /**
+     * @param string $dir
+     * @param string $extensao
+     * @return array
+     */
+    public static function getRoutesFilesTo(string $dir, string $extensao = "") :array
+    {
+        $list = [];
+        foreach (self::getRoutesTo($dir) as $path)
+            $list = self::getFilesRoute($path, $extensao, $list);
+
+        return $list;
     }
 
     /**
@@ -429,6 +533,24 @@ class Config
             self::createCoreJs($param['js'], $listaUser);
             self::createCoreCss($param['css'], $listaUser);
         }
+    }
+
+    /**
+     * @param string $path
+     * @param string $extensao
+     * @param array $list
+     * @return array
+     */
+    private static function getFilesRoute(string $path, string $extensao = "", array $list = []): array
+    {
+        if (file_exists($path)) {
+            foreach (Helper::listFolder($path) as $item) {
+                if ($item !== ".htaccess" && !is_dir($path . $item) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao) && !in_array($item, array_keys($list)))
+                    $list[$item] = $path . $item;
+            }
+        }
+
+        return $list;
     }
 
     /**
@@ -556,7 +678,7 @@ class Config
         $file = file_get_contents(PATH_HOME . $pathCss);
         $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
 
-        if($view)
+        if ($view)
             $file = self::setPrefixToCssDefinition($file, ".r-" . $view);
 
         //Salva CSS novamente
