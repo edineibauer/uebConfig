@@ -1,7 +1,7 @@
 <?php
 
 $data['data'] = ["view" => [], "js" => []];
-$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+$setor = \Config\Config::getSetor();
 
 /**
  * View Offline

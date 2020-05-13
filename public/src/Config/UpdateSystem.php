@@ -307,9 +307,6 @@ class UpdateSystem
         Config::createDir("uploads");
         Config::createDir("uploads/site");
         Config::createDir("_config");
-        Config::createDir("_config/offline");
-        Config::createDir("_config/offline/admin");
-        Config::createDir("_config/offline/0");
         Config::createDir("_cdn");
         Config::createDir("_cdn/vendor");
         Config::createDir("libs");
@@ -354,15 +351,6 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
             Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
 
-        if(!file_exists(PATH_HOME . "_config/offline/view.json"))
-            Config::writeFile("_config/offline/view.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewOffline.txt"));
-
-        if(!file_exists(PATH_HOME . "_config/offline/assets.json"))
-            Config::writeFile("_config/offline/assets.json", "[]");
-
-        if(!file_exists(PATH_HOME . "_config/offline/templates.json"))
-            Config::writeFile("_config/offline/templates.json", "[]");
-
         if(!file_exists(PATH_HOME . "assetsPublic/language/pt-br.json"))
             Config::writeFile("assetsPublic/language/pt-br.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/pt-br.json"));
 
@@ -371,9 +359,6 @@ class UpdateSystem
 
         if(!file_exists(PATH_HOME . "assetsPublic/language/es.json"))
             Config::writeFile("assetsPublic/language/es.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/es.json"));
-
-        if(!file_exists(PATH_HOME . "_config/offline/admin/templates.json"))
-            Config::writeFile("_config/offline/admin/templates.json", '["note", "card", "menu-li", "menu-card", "allow-entity-menu", "allow-list-entity", "allow-user-table", "autor-list-entity", "checkbox", "extend", "extend_folder", "extend_mult", "extend_register", "extend_register_folder", "file_list_source", "file_list", "file", "file_source", "folder", "form", "hidden", "input", "list", "list_mult", "list_result", "radio", "select", "span", "switch", "textarea", "chart_table", "report_table", "report_table_content", "filter_badge", "filter_group", "no_registers", "grid_content_card_edit", "grid_content_card_header", "grid_content", "grid", "graficos_list", "relatorios_card"]');
 
         //CONSTANTES EM CONFIG
         $contantes = [];
