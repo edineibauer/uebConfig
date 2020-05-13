@@ -303,20 +303,19 @@ class Config
     {
         $base = [
             "version" => VERSION,
-            "meta" => "",
             "css" => [],
             "js" => [],
+            "meta" => "",
             "font" => "",
+            "title" => "",
             "descricao" => "",
             "data" => 0,
             "front" => [],
-            "isAdmin" => !empty($_SESSION['userlogin']['setor']) && $_SESSION['userlogin']['setor'] === "admin",
             "header" => !0,
             "navbar" => !0,
             "setor" => "",
             "!setor" => "",
             "redirect" => "403",
-            "analytics" => defined("ANALYTICS") ? ANALYTICS : "",
             "vendor" => VENDOR
         ];
 
@@ -351,7 +350,7 @@ class Config
         }
 
         /**
-         * Por fim, se não tiver overload, carrega o view assets padrão da lib
+         * Por fim, se não tiver overload, carrega o param padrão da lib
          */
         if (!$findParamView) {
             $pathFile = ($lib === DOMINIO ? "public/" : PATH_HOME . VENDOR . $lib . "/public/");
@@ -361,13 +360,54 @@ class Config
                 $param = json_decode(@file_get_contents($pathFile . "param/{$view}.json"), !0);
         }
 
+        /**
+         * Convert js para array caso seja string
+         */
         if (!isset($param['js']) || !is_array($param['js']))
             $param['js'] = (!empty($param['js']) && is_string($param['js']) ? [$param['js']] : []);
 
+        /**
+         * Convert css para array caso seja string
+         */
         if (!isset($param['css']) || !is_array($param['css']))
             $param['css'] = (!empty($param['css']) && is_string($param['css']) ? [$param['css']] : []);
 
         return array_merge($base, $param);
+    }
+
+    /**
+     * Obtém o HTML do template
+     * @param string $template
+     * @return string
+     */
+    public static function getTemplateContent(string $template)
+    {
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
+        /**
+         * Busca template em setor public
+         * Busca template em public
+         * Busca template nas libs setor
+         * Busca tempalte nas libs
+         */
+        if(file_exists(PATH_HOME . "public/tpl/{$setor}/{$template}.mustache"))
+            return file_get_contents(PATH_HOME . "public/tpl/{$setor}/{$template}.mustache");
+
+        if(file_exists(PATH_HOME . "public/tpl/{$template}.mustache"))
+            return file_get_contents(PATH_HOME . "public/tpl/{$template}.mustache");
+
+        $libs = Helper::listFolder(PATH_HOME . VENDOR);
+        foreach ($libs as $lib) {
+            if(file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$template}.mustache"))
+                return file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$setor}/{$template}.mustache");
+        }
+
+        foreach ($libs as $lib) {
+            if(file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl/{$template}.mustache"))
+                return file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$template}.mustache");
+        }
+
+        return "";
     }
 
     /**

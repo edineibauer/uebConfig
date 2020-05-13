@@ -1096,7 +1096,6 @@ function clearCacheUser() {
     clear.push(dbLocal.clear('__dicionario'));
     clear.push(dbLocal.clear('__info'));
     clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__templateUser'));
     clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
@@ -1146,7 +1145,6 @@ function clearCacheAll() {
     clear.push(dbLocal.clear('__react'));
     clear.push(dbLocal.clear('__relevant'));
     clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__templateUser'));
     clear.push(dbLocal.clear('__user'));
     clear.push(dbLocal.clear('__menu'));
     clear.push(dbLocal.clear('__graficos'));
@@ -1413,7 +1411,7 @@ function loadCacheUser() {
         gets.push(get("allow"));
         gets.push(get("dicionarios"));
         gets.push(get("info"));
-        gets.push(get("templatesUser"));
+        gets.push(get("templates"));
         gets.push(get("menu"));
         gets.push(get("navbar"));
         gets.push(get("react"));
@@ -1432,7 +1430,7 @@ function loadCacheUser() {
             creates.push(dbLocal.exeCreate('__allow', r[0]));
             creates.push(dbLocal.exeCreate('__dicionario', r[1]));
             creates.push(dbLocal.exeCreate('__info', r[2]));
-            creates.push(dbLocal.exeCreate('__templateUser', r[3]));
+            creates.push(dbLocal.exeCreate('__template', r[3]));
             creates.push(dbLocal.exeCreate('__menu', r[4]));
             creates.push(dbLocal.exeCreate('__navbar', r[5]));
             creates.push(dbLocal.exeCreate('__react', r[6]));
@@ -1480,12 +1478,7 @@ function getGraficos() {
 }
 
 async function getTemplates() {
-    return dbLocal.exeRead("__templateUser", 1).then(tplUser => {
-        return dbLocal.exeRead("__template", 1).then(tpl => {
-            mergeObject(tpl, tplUser);
-            return tpl;
-        })
-    });
+    return dbLocal.exeRead("__template", 1);
 }
 
 /**
@@ -1674,7 +1667,6 @@ function updateAppOnDev() {
     clear.push(dbLocal.clear('__info'));
     clear.push(dbLocal.clear('__menu'));
     clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__templateUser'));
     clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
     clear.push(dbLocal.clear('__panel'));
@@ -1717,7 +1709,6 @@ function updateAppOnDev() {
         gets.push(get("dicionarios"));
         gets.push(get("info"));
         gets.push(get("templates"));
-        gets.push(get("templatesUser"));
         gets.push(get("menu"));
         gets.push(get("navbar"));
         gets.push(get("react"));
@@ -1738,12 +1729,11 @@ function updateAppOnDev() {
             creates.push(dbLocal.exeCreate('__dicionario', r[1]));
             creates.push(dbLocal.exeCreate('__info', r[2]));
             creates.push(dbLocal.exeCreate('__template', r[3]));
-            creates.push(dbLocal.exeCreate('__templateUser', r[4]));
-            creates.push(dbLocal.exeCreate('__menu', r[5]));
-            creates.push(dbLocal.exeCreate('__navbar', r[6]));
-            creates.push(dbLocal.exeCreate('__react', r[7]));
-            creates.push(dbLocal.exeCreate('__user', r[8]));
-            creates.push(dbLocal.exeCreate('__graficos', r[9]));
+            creates.push(dbLocal.exeCreate('__menu', r[4]));
+            creates.push(dbLocal.exeCreate('__navbar', r[5]));
+            creates.push(dbLocal.exeCreate('__react', r[6]));
+            creates.push(dbLocal.exeCreate('__user', r[7]));
+            creates.push(dbLocal.exeCreate('__graficos', r[8]));
             dicionarios = r[1];
             return Promise.all(creates);
 
@@ -1787,11 +1777,7 @@ function downloadEntityData() {
 
 function updateTemplates() {
     return get("templates").then(tpl => {
-        return dbLocal.exeCreate('__template', tpl).then(() => {
-            return get("templatesUser").then(tpl => {
-                return dbLocal.exeCreate('__templateUser', tpl);
-            });
-        })
+        return dbLocal.exeCreate('__template', tpl);
     });
 }
 

@@ -1,51 +1,32 @@
 <?php
 
 /**
+ * Obtém os templates utilizados nas views que este usuário tem acesso
  * @param string $lib
+ * @param string $setor
  * @param array $list
  * @return array
  */
-function getTemplates(string $lib, array $list)
+function getTemplatesView(string $lib, string $setor, array $list)
 {
-    /**
-     * Se existir templates nesta lib
-     */
-    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/tpl")) {
+    if(file_exists(PATH_HOME . VENDOR . $lib . "/public/param")) {
+        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/param") as $param) {
+            $p = json_decode(file_get_contents($param), !0);
 
-        /**
-         * Para cada template dentro desta lib
-         */
-        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/tpl") as $tpl) {
-            if (preg_match("/\.(mst|mustache)$/i", $tpl)) {
-                $nameTpl = str_replace(['.mst', '.mustache'], '', $tpl);
+            if(!empty($p['templates']) && is_array($p['templates'])) {
+
+                $permissionToView = (empty($p['setor']) || in_array($setor, $p['setor'])) && (empty($p['!setor']) || !in_array($setor, $p["!setor"]));
 
                 /**
-                 * Se este template ainda não foi adicionado na lista, então adiciona
+                 * Se tiver permissão para acessar a view e
+                 * Se este template ainda não foi adicionado na lista
+                 * Então adiciona o template a lista de templates do usuário
                  */
-                if (!in_array($nameTpl, array_keys($list))) {
-
-                    /**
-                     * busca overload do template atual da lib em PUBLIC
-                     */
-                    if (file_exists(PATH_HOME . "public/overload/{$lib}/tpl/{$nameTpl}.mustache")) {
-                        $list[$nameTpl] = file_get_contents(PATH_HOME . "public/overload/{$lib}/tpl/{$nameTpl}.mustache");
-
-                    } else {
-
-                        /**
-                         * Busta overload do template atual da lib em outras libs
-                         */
-                        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $libOverload) {
-                            if ($libOverload !== $lib && file_exists(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache"))
-                                $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $libOverload . "/public/overload/{$lib}/tpl/{$nameTpl}.mustache");
-                        }
+                if ($permissionToView) {
+                    foreach ($p['templates'] as $template) {
+                        if (!in_array($template, array_keys($list)))
+                            $list[$template] = Config\Config::getTemplateContent($template);
                     }
-
-                    /**
-                     * Caso não tenha encontrado overload do template, adiciona o template original
-                     */
-                    if (!in_array($nameTpl, array_keys($list)))
-                        $list[$nameTpl] = file_get_contents(PATH_HOME . VENDOR . $lib . "/public/tpl/{$tpl}");
                 }
             }
         }
@@ -54,24 +35,13 @@ function getTemplates(string $lib, array $list)
     return $list;
 }
 
+/**
+ * Para cada biblioteca
+ * busca as views que tenho acesso e obtém os templates utilizados nessa view
+ */
 $list = [];
-
-// busca os templates em PUBLIC
-foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl") as $tpl) {
-    if (preg_match('/\.(mst|mustache)$/i', $tpl)) {
-        $nameTpl = str_replace(['.mst', '.mustache'], '', $tpl);
-        if (!in_array($nameTpl, array_keys($list)))
-            $list[$nameTpl] = file_get_contents(PATH_HOME . "public/tpl/" . $tpl);
-    }
-}
-
-//search in VENDOR
-foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-    if(file_exists(PATH_HOME . VENDOR . "{$lib}/public/_config/config.json")) {
-        $list = getTemplates($lib, $list);
-        break;
-    }
-}
-$list = getTemplates("config", $list);
+$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+    $list = getTemplatesView($lib, $setor, $list);
 
 $data['data'] = $list;
