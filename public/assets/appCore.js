@@ -344,7 +344,7 @@ async function getJSON(url) {
         url = url.replace(HOME, "");
         let isView = new RegExp("^view\/", "i");
         if (isView.test(url))
-            location.reload();
+            location.href = HOME + "network";
         else
             toast("Sem Conexão!", 7000, "toast-error");
         throw err
