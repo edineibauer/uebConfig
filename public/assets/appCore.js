@@ -222,12 +222,16 @@ function fetchCreateObject(obj, prop) {
 }
 
 function setUpdateVersion() {
-    $.ajax({
-        type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: function (data) {
-            if (data.data !== "no-network" && data.response === 1)
-                setCookie("update", data.data > 2 ? data.data : 2)
-        }, dataType: "json", async: !1
-    })
+    return new Promise((s, f) => {
+        $.ajax({
+            type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: data => {
+                if (data.data !== "no-network" && data.response === 1)
+                    setCookie("update", data.data > 2 ? data.data : 2);
+
+                s(1);
+            }, error: () => {s(1)}, dataType: "json", async: !1
+        })
+    });
 }
 
 function checkUserOptions() {
