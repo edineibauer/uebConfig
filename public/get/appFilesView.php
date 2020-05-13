@@ -1,5 +1,7 @@
 <?php
 
+$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
 /**
  * Obtém as views que este usuário tem acesso
  * @param string $path
@@ -9,10 +11,10 @@
  */
 function getViewOffline(string $path, string $setor, array $list)
 {
-    if (file_exists($path . "public/param")) {
-        foreach (\Helpers\Helper::listFolder($path . "public/param") as $param) {
+    if (file_exists($path)) {
+        foreach (\Helpers\Helper::listFolder($path) as $param) {
             $view = str_replace(".json", "", $param);
-            $p = json_decode(file_get_contents($path . "public/param/" . $param), !0);
+            $p = json_decode(file_get_contents($path . "/" . $param), !0);
 
             /**
              * Se tiver permissão para acessar a view e
@@ -28,12 +30,47 @@ function getViewOffline(string $path, string $setor, array $list)
 }
 
 /**
- * Para cada biblioteca
- * busca as views que tenho acesso e obtém os templates utilizados nessa view
+ * Public Setor
  */
-$setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-$list = getViewOffline("", $setor, []);
+$list = getViewOffline("public/param/" . $setor, $setor, []);
+
+/**
+ * Public
+ */
+$list = getViewOffline("public/param", $setor, $list);
+
+/**
+ * Overload in Public
+ */
+if(file_exists(PATH_HOME. "public/overload")) {
+    foreach (\Helpers\Helper::listFolder(PATH_HOME. "public/overload") as $libOverload) {
+        $list = getViewOffline(PATH_HOME. "public/overload/" . $libOverload . "/param/" . $setor, "", []);
+        $list = getViewOffline(PATH_HOME. "public/overload/" . $libOverload . "/param", $setor, []);
+    }
+}
+
+/**
+ * Overload in Libs
+ */
+foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload")) {
+        foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/overload") as $libOverload) {
+            $list = getViewOffline(PATH_HOME . VENDOR . $lib . "/public/overload/" . $libOverload . "/param/" . $setor, "", []);
+            $list = getViewOffline(PATH_HOME . VENDOR . $lib . "/public/overload/" . $libOverload . "/param", $setor, []);
+        }
+    }
+}
+
+/**
+ * Libs Setor
+ */
 foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
-    $list = getViewOffline(PATH_HOME . VENDOR . $lib . "/", $setor, $list);
+    $list = getViewOffline(PATH_HOME . VENDOR . $lib . "/public/param/" . $setor, $setor, $list);
+
+/**
+ * Libs
+ */
+foreach (\Helpers\Helper::listFolder(PATH_HOME . VENDOR) as $lib)
+    $list = getViewOffline(PATH_HOME . VENDOR . $lib . "/public/param", $setor, $list);
 
 $data['data']['view'] = $list;
