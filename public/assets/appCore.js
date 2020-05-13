@@ -721,7 +721,7 @@ function menuHeader() {
             $menuCustom.html("");
             for (let m in menu) {
                 if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                    $menuCustom.append(Mustache.render(tpl['menu-header'], menu[m]));
+                    $menuCustom.append(Mustache.render(tpl.menuHeader, menu[m]));
             }
         }
 
@@ -737,7 +737,7 @@ function menuHeader() {
 
             for (let m in navbar) {
                 if (typeof navbar[m].html === "string" && navbar[m].html !== "undefined" && !isEmpty(navbar[m].html))
-                    $menu.append(Mustache.render(tpl['menu-header'], navbar[m]));
+                    $menu.append(Mustache.render(tpl.menuHeader, navbar[m]));
             }
 
             if ((HOMEPAGE === "0" && navbar.length === 1) || (HOMEPAGE !== "0" && navbar.length === 0)) {

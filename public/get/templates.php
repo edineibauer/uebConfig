@@ -1,6 +1,6 @@
 <?php
 
-$data['data'] = [];
+$data['data'] = ["header", "aside", "menuHeader", "note", "notificacoesEmpty", "installAppCard"];
 foreach (\Config\Config::getRoutesFilesTo("param", "json") as $fileDir) {
     $p = \Config\Config::getJsonFile($fileDir);
 
