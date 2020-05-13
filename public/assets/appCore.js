@@ -2020,7 +2020,7 @@ function headerShow(show) {
     }
 }
 
-if (SERVICEWORKER) {
+if (SERVICEWORKER && navigator.onLine) {
     Promise.all([]).then(() => {
         if (navigator.serviceWorker.controller) {
             return navigator.serviceWorker.ready.then(function (swReg) {
