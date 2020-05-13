@@ -351,7 +351,7 @@ async function getJSON(url) {
     })
 }
 
-async function get(file, retrying) {
+async function get(file) {
     return getJSON(HOME + "get/" + file).then(data => {
         if (data.response === 1) {
             return data.data;
@@ -368,15 +368,8 @@ async function get(file, retrying) {
                         toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
-        if (typeof retrying === "undefined") {
-            toast("Comunicação perdida! tentando...", 5000, "toast-warning");
-            setTimeout(function () {
-                return get(file, 1);
-            }, 2000);
-        } else {
-            toast("Sem Conexão!", 7000, "toast-error");
-            console.log("OFFLINE: arquivo '" + file + "'");
-        }
+        toast("Sem Conexão!", 3000, "toast-warning");
+        console.log("OFFLINE: arquivo '" + file + "'");
     })
 }
 
