@@ -327,6 +327,9 @@ const db = {
 
         key = isNumberPositive(key) ? parseInt(key) : null;
 
+        if(!navigator.onLine)
+            return dbLocal.exeRead(entity, key);
+
         if (!SERVICEWORKER)
             return exeReadOnline(entity, key);
 
