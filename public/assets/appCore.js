@@ -1192,7 +1192,7 @@ function recoveryUser() {
             return loadCacheUser();
 
     }).catch(() => {
-        errorLoadingApp();
+        errorLoadingApp("recuperar usuário");
     });
 }
 
@@ -1219,7 +1219,7 @@ function setUserInNavigator(user) {
             return loadCacheUser();
 
     }).catch(() => {
-        errorLoadingApp();
+        errorLoadingApp("obter __login");
     });
 }
 
@@ -1311,7 +1311,7 @@ function checkSessao() {
             };
             xhttp.send("lib=route&file=sessao");
         }).catch(() => {
-            errorLoadingApp();
+            errorLoadingApp("post route/sessao");
         });
     } else {
         return setUserInNavigator();
@@ -1371,10 +1371,10 @@ function loadViews() {
                 return cache.addAll(viewsAssets);
             });
         }).catch(() => {
-            errorLoadingApp();
+            errorLoadingApp("create cache view");
         })
     }).catch(() => {
-        errorLoadingApp();
+        errorLoadingApp("appFilesView");
     });
 }
 
@@ -1456,7 +1456,7 @@ function loadCacheUser() {
              */
             return loadUserViews();
         }).catch(() => {
-            errorLoadingApp();
+            errorLoadingApp("loadCacheUser");
         });
 
     } else {
@@ -1552,8 +1552,8 @@ async function closeNote(id, notification) {
         await db.exeDelete("notifications", notification);
 }
 
-function errorLoadingApp() {
-    toast("Erro ao carregar Aplicativo", 3000, "toast-warning");
+function errorLoadingApp(id) {
+    toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
     setTimeout(function () {
         updateCache();
     }, 3000);
@@ -1593,7 +1593,7 @@ function firstAccess() {
     return get("templates").then(r => {
         return dbLocal.exeCreate('__template', r);
     }).catch(() => {
-        errorLoadingApp();
+        errorLoadingApp("get templates");
     })
 }
 
@@ -1620,34 +1620,34 @@ function cacheAppAfter() {
         return Promise.all(creates).then(() => {
             return caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll(g.core).catch(() => {
-                    errorLoadingApp()
+                    errorLoadingApp("cacheAppAfter: cache core")
                 })
             })
         }).then(() => {
             return caches.open('fonts-v' + VERSION).then(cache => {
                 return cache.addAll(g.fonts).catch(() => {
-                    errorLoadingApp()
+                    errorLoadingApp("cacheAppAfter: cache fonts")
                 })
             })
         }).then(() => {
             return caches.open('images-v' + VERSION).then(cache => {
                 return cache.addAll(g.images).catch(() => {
-                    errorLoadingApp()
+                    errorLoadingApp("cacheAppAfter: cache images")
                 })
             })
         }).then(() => {
             return caches.open('misc-v' + VERSION).then(cache => {
                 return cache.addAll(g.misc).catch(() => {
-                    errorLoadingApp()
+                    errorLoadingApp("cacheAppAfter: cache misc")
                 })
             })
         }).then(() => {
             return loadViews()
         }).catch(() => {
-            errorLoadingApp()
+            errorLoadingApp("cacheAppAfter 1")
         })
     }).catch(() => {
-        errorLoadingApp()
+        errorLoadingApp("cacheAppAfter 2")
     })
 }
 
@@ -1693,7 +1693,7 @@ function updateAppOnDev() {
                 return Promise.all([]);
             return caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll(g.core).catch(() => {
-                    errorLoadingApp()
+                    errorLoadingApp("get currentFiles")
                 })
             });
 
@@ -2663,7 +2663,7 @@ function startApplication() {
             $("#core-spinner").css("stroke", THEME);
 
         }).catch(() => {
-            errorLoadingApp();
+            errorLoadingApp("core");
         });
     }).then(() => {
         onLoadDocument();
@@ -2676,6 +2676,8 @@ function startApplication() {
          * Verifica se existe uma versão mais recente do app
          */
         return checkUpdate();
+    }).catch(() => {
+        errorLoadingApp("checkSessao")
     });
 }
 
