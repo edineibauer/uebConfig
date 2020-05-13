@@ -9,14 +9,6 @@ class Config
 {
 
     /**
-     * @return array
-     */
-    public static function getViewPermissoes(): array
-    {
-        return Helper::listFolder(PATH_HOME . VENDOR);
-    }
-
-    /**
      * Gera arquivo de configurações
      * @param array $dados
      */

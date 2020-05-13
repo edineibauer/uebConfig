@@ -2630,7 +2630,7 @@ async function onLoadDocument() {
      * Busca notificações pendentes
      */
     if(USER.setor !== 0) {
-        let allow = await db.exeRead("__allow", 1);
+        let allow = await dbLocal.exeRead("__allow", 1);
         if(allow.notifications_report?.read) {
             setInterval(function () {
                 updateNotificationsBadge();
