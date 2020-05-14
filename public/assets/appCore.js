@@ -1049,7 +1049,7 @@ function loadSyncNotSaved() {
                             dbLocal.newKey(entity).then(key => {
                                 $.each(registros, function (i, reg) {
                                     let d = Object.assign({}, reg);
-                                    d.id = (d.db_action !== "update" ? key++ : parseInt(d.id));
+                                    d.id = (d.db_action === "create" ? key++ : parseInt(d.id));
                                     delete d.id_old;
                                     delete d.db_error;
                                     delete d.db_errorback;
