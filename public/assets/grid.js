@@ -93,11 +93,11 @@ function getTrClass(meta, value) {
 function gridTdFilterValue(value, meta) {
     if (typeof meta !== "undefined") {
         if (['select', 'radio'].indexOf(meta.format) > -1) {
-            value = meta.allow.options.find(option => option.valor == value).representacao;
+            value = meta.allow.options.find(option => option.valor == value)?.representacao;
         } else if ('checkbox' === meta.format) {
             let resposta = "";
             for (let i in meta.allow.options)
-                resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1 ? ((resposta !== "" ? ", " : "") + meta.allow.options[i].representacao) : "");
+                resposta += (value.indexOf(meta.allow.options[i].valor.toString()) > -1 ? ((resposta !== "" ? ", " : "") + meta.allow.options[i]?.representacao) : "");
 
             value = resposta;
         } else if (meta.group === "boolean") {
