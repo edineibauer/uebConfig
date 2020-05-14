@@ -534,7 +534,7 @@ const dbRemote = {
                         $.each(r[0], function (i, s) {
                             //depois de criar esse registro, verifica possível conflito com sync ID
                             prom.push(dbLocal.exeRead(entity, parseInt(s.id)).then(e => {
-                                if (!isEmpty(e) && e.db_status === !0) {
+                                if (!isEmpty(e) && e.db_status === !0 && s.db_action !== "update") {
                                     let idS = s.id;
                                     s.id = lastKey;
                                     lastKey++;
