@@ -1067,7 +1067,8 @@ function syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if (navigator.onLine) {
-        dbRemote.sync(entity, null, !0).then(isUpdated => {
+        $(".btn-sync-all").remove();
+        dbRemote.sync(entity, null, !0).then(() => {
             for (let i in grids) {
                 if (typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
                     grids[i].reload();
