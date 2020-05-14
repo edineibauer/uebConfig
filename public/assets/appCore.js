@@ -1816,7 +1816,7 @@ function clearPage() {
 }
 
 function getPageContentHeight() {
-    let heightHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+    let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
     let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0);
     return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
 }
@@ -2196,6 +2196,8 @@ var app = {
                             $div.addClass("notop");
                         if (g.navbar)
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+
+                        $div.css("min-height", getPageContentHeight());
 
                         if (g.js.length) {
                             $.cachedScript(g.js).then(() => {
