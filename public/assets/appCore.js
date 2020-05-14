@@ -1049,7 +1049,7 @@ function loadSyncNotSaved() {
                             dbLocal.newKey(entity).then(key => {
                                 $.each(registros, function (i, reg) {
                                     let d = Object.assign({}, reg);
-                                    d.id = key++;
+                                    d.id = (d.db_action !== "update" ? key++ : parseInt(d.id));
                                     delete d.id_old;
                                     delete d.db_error;
                                     delete d.db_errorback;
@@ -1445,6 +1445,13 @@ function loadCacheUser() {
             return downloadEntityData();
 
         }).then(() => {
+
+            /**
+             * Recupera syncs pendentes deste usuário
+             */
+            return loadSyncNotSaved();
+
+        }).then(() => {
             /**
              * Seta a versão do app
              */
@@ -1770,8 +1777,6 @@ function downloadEntityData() {
     $.each(dicionarios, function (entity, meta) {
         down.push(dbRemote.syncDownload(entity));
     });
-
-    down.push(loadSyncNotSaved());
 
     return Promise.all(down);
 }
