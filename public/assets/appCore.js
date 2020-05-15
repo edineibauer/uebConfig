@@ -2564,6 +2564,7 @@ async function onLoadDocument() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
+        openInstallAppPrompt();
     });
 
     window.onpopstate = function (event) {
@@ -2660,7 +2661,6 @@ async function onLoadDocument() {
             updateNotificationsBadge();
             setInterval(function () {
                 updateNotificationsBadge();
-                openInstallAppPrompt();
             }, 5000);
         }
     }
