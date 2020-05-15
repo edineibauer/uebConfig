@@ -1512,7 +1512,7 @@ async function getNotifications() {
         }
     }
 
-    return myNotifications;
+    return myNotifications.reverse();
 }
 
 /**
