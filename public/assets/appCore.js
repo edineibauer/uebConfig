@@ -969,34 +969,24 @@ function maskData($data) {
 }
 
 async function getFields(entity, haveId, type) {
-    if(navigator.onLine) {
+    if (navigator.onLine) {
         let rec = await get("recoveryFieldsCustom/" + type + "/" + entity);
-
-        if(!isEmpty(rec)) {
-            for(let r of rec) {
+        if (!isEmpty(rec)) {
+            for (let r of rec) {
                 r.show = r.show === "true";
-                r.first = r.first === "true";
+                r.first = r.first === "true"
             }
-            return rec;
+            return rec
         }
     }
 
     haveId = haveId || !1;
-    let relevants = dbLocal.exeRead("__relevant", 1);
-    let relation = dbLocal.exeRead("__general", 1);
-    let info = dbLocal.exeRead("__info", 1);
 
-    return Promise.all([relevants, relation, info]).then(r => {
-        if (isEmpty(r[0])) {
-            return new Promise(r => {
-                setTimeout(function () {
-                    r(getFields(entity, haveId));
-                }, 200);
-            })
-        } else {
-            return getFieldsData(entity, haveId, r);
-        }
-    })
+    let relevants = await dbLocal.exeRead("__relevant", 1);
+    let relation = await dbLocal.exeRead("__general", 1);
+    let info = await dbLocal.exeRead("__info", 1);
+
+    return getFieldsData(entity, haveId, [relevants, relation, info])
 }
 
 function getRelevantTitle(entity, data, limit, etiqueta) {
