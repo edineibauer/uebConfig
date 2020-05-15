@@ -882,6 +882,7 @@ input::-webkit-inner-spin-button {
     font-size: 15px;
     max-height: 38px;
     overflow: hidden;
+    color: #555555
 }
 
 .notification-desc {
