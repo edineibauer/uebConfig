@@ -1832,7 +1832,7 @@ function clearPage() {
 
 function getPageContentHeight() {
     let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-    let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0);
+    let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar") ? 50 : 0);
     return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
 }
 
