@@ -1551,6 +1551,17 @@ async function closeNote(id, notification) {
     await db.exeDelete("notifications_report", id);
 
     /**
+     * Revisa os badge para atualizar as notificações pendentes
+     */
+    $(".badge-notification").each(function(i, e) {
+         let n = parseInt($(e).text());
+         if(n === 1)
+             $(e).remove();
+         else
+             $(e).text(n - 1);
+    });
+
+    /**
      * Check if some notification report use the notification
      * case not, delete notification not used
      */
@@ -2640,6 +2651,7 @@ async function onLoadDocument() {
     if(USER.setor !== 0) {
         let allow = await dbLocal.exeRead("__allow", 1);
         if(allow.notifications_report?.read) {
+            updateNotificationsBadge();
             setInterval(function () {
                 updateNotificationsBadge();
             }, 5000);
