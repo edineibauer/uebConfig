@@ -969,7 +969,7 @@ function maskData($data) {
 }
 
 async function getFields(entity, haveId, type) {
-    if (navigator.onLine) {
+    if (navigator.onLine && typeof type === "string") {
         let rec = await get("recoveryFieldsCustom/" + type + "/" + entity);
         if (!isEmpty(rec)) {
             for (let r of rec) {
