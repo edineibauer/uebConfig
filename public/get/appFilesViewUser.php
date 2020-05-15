@@ -3,11 +3,21 @@
 $data['data'] = ["view" => [], "js" => []];
 $setor = \Config\Config::getSetor();
 
-/**
- * View Offline
- */
-$views = (file_exists(PATH_HOME . "_config/offline/{$setor}/view.json") ? json_decode(file_get_contents(PATH_HOME . "_config/offline/{$setor}/view.json"), !0) : []);
-foreach ($views as $view) {
-    $data['data']['view'][] = "view/" . $view;
-    $data['data']['js'][] = (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js") ? "assetsPublic/view/{$setor}/{$view}.min.js?v=" . VERSION : "assetsPublic/view/{$view}.min.js?v=" . VERSION);
+foreach (\Config\Config::getRoutesFilesTo("param", "json") as $file => $fileDir) {
+
+    $p = \Config\Config::getJsonFile($fileDir);
+    $view = str_replace(".json", "", $file);
+
+    /**
+     * Se tiver permissão para acessar a view e
+     * Se esta view ainda não foi adicionado na lista
+     * Se estiver setada para funcionar offline
+     * Se a view for específica do meu setor
+     *
+     * Então adiciona a view a lista de views do usuário
+     */
+    if (!empty($p['offline']) && $p['offline'] && \Config\Config::paramPermission($p) && !in_array($view, $data['data']['view']) && preg_match("/\/param\/{$setor}\//i", $fileDir)) {
+        $data['data']['view'][] = "view/" . $view;
+        $data['data']['js'][] = (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js") ? "assetsPublic/view/{$setor}/{$view}.min.js?v=" . VERSION : "assetsPublic/view/{$view}.min.js?v=" . VERSION);
+    }
 }
