@@ -1488,6 +1488,10 @@ async function getTemplates() {
     return dbLocal.exeRead("__template", 1);
 }
 
+async function setNotificationOpen(id) {
+    db.exeCreate("notifications_report", {id: id, abriu: 1});
+}
+
 /**
  * Obtem as notificações
  * @returns {Promise<[]>}
@@ -2623,6 +2627,9 @@ async function onLoadDocument() {
     }).off("click", "a").on("click", "a", function (e) {
         let $this = $(this);
         let url = $this.attr("href").replace(HOME, '');
+
+        if($this.hasClass(".notification-title"))
+            setNotificationOpen($this.data("id"));
 
         if (timeWaitClick > 0) {
             if ($this.attr("target") !== "_blank") {

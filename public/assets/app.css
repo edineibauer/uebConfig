@@ -885,17 +885,16 @@ input::-webkit-inner-spin-button {
 }
 
 .notification-desc {
-    font-size: 13px
+    font-size: 12px;
+    line-height: 15px;
+    max-height: 46px;
+    overflow: hidden;
 }
 
 .notification-content {
     float: left;
     width: 100%;
     padding-left: 15px;
-    font-size: 12px;
-    line-height: 15px;
-    max-height: 46px;
-    overflow: hidden;
 }
 
 .imagem-notificacao {
