@@ -2628,7 +2628,7 @@ async function onLoadDocument() {
         let $this = $(this);
         let url = $this.attr("href").replace(HOME, '');
 
-        if($this.hasClass(".notification-title"))
+        if($this.hasClass("notification-title"))
             setNotificationOpen($this.data("id"));
 
         if (timeWaitClick > 0) {
