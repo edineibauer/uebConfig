@@ -1501,7 +1501,7 @@ async function getNotifications() {
             if (notifications[i].usuario == USER.id) {
                 let notify = await db.exeRead("notifications", notifications[i].notificacao);
                 notify.data = moment(notifications[i].data_de_envio).calendar().toLowerCase();
-                notify.imagem = notify.imagem || HOME + "assetsPublic/img/img.png";
+                notify.imagem = notify.imagem || HOME + "assetsPublic/img/favicon-256.png";
                 notifications[i].notificacaoData = notify;
                 myNotifications.push(notifications[i]);
             }

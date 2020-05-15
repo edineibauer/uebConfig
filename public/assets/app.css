@@ -860,6 +860,11 @@ input::-webkit-inner-spin-button {
     padding: 16px 15px 8px;
 }
 
+.notification-card.readed {
+    background: #f7f7f7!important;
+    color: #949494!important;
+}
+
 .notification-content-left {
     float: left;
     width: 50px;
@@ -868,10 +873,15 @@ input::-webkit-inner-spin-button {
 .notification-content-right {
     float: left;
     width: calc(100% - 50px);
+    margin-top: -2px;
+    margin-bottom: 5px;
 }
 
 .notification-title {
     margin-bottom: 5px;
+    font-size: 15px;
+    max-height: 38px;
+    overflow: hidden;
 }
 
 .notification-desc {
@@ -882,6 +892,10 @@ input::-webkit-inner-spin-button {
     float: left;
     width: 100%;
     padding-left: 15px;
+    font-size: 12px;
+    line-height: 15px;
+    max-height: 46px;
+    overflow: hidden;
 }
 
 .imagem-notificacao {
@@ -899,7 +913,7 @@ input::-webkit-inner-spin-button {
 
 .note-time {
     width: 100%;
-    font-size: 11px;
+    font-size: 9px;
     color: #999999;
     text-align: center;
     line-height: 12px;
