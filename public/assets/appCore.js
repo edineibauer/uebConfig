@@ -1525,7 +1525,7 @@ async function updateNotificationsBadge() {
         let notifications = await db.exeRead("notifications_report");
         if (!isEmpty(notifications)) {
             for (let i in notifications) {
-                if (notifications[i].abriu === 0)
+                if (notifications[i].recebeu === 0)
                     pendentes++
             }
         }
