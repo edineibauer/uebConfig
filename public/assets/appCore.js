@@ -2089,9 +2089,10 @@ var dicionarios,
     timeWaitClick = 0;
 
 const isIos = () => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent);
+    let userAgent = window.navigator.userAgent;
+    return (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i));
 };
+
 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
 function acceptInstallApp() {
@@ -2123,18 +2124,16 @@ function closeInstallAppPrompt(onInstall) {
 }
 
 function openInstallAppPrompt(force) {
-    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined") {
-        if ((typeof force === "boolean" && force) || getCookie("installAppAction") === "") {
-            getTemplates().then(tpl => {
-                $("#core-overlay").addClass("active activeBold");
-                $("#app").append(Mustache.render((isIos() ? tpl.installAppCard : tpl.installAppCard), {
-                    home: HOME,
-                    favicon: FAVICON,
-                    sitename: SITENAME,
-                    nome: USER.nome
-                }));
-            });
-        }
+    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined" && ((typeof force === "boolean" && force) || getCookie("installAppAction") === "")) {
+        getTemplates().then(tpl => {
+            $("#core-overlay").addClass("active activeBold");
+            $("#app").append(Mustache.render(tpl.installAppCard, {
+                home: HOME,
+                favicon: FAVICON,
+                sitename: SITENAME,
+                nome: USER.nome
+            }));
+        });
     }
 }
 
@@ -2661,6 +2660,7 @@ async function onLoadDocument() {
             updateNotificationsBadge();
             setInterval(function () {
                 updateNotificationsBadge();
+                openInstallAppPrompt();
             }, 5000);
         }
     }
