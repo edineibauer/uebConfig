@@ -432,7 +432,7 @@ class Config
     public static function paramPermission(array $param): bool
     {
         $setor = self::getSetor();
-        return (empty($param['setor']) || in_array($setor, $param['setor'])) && (empty($param['!setor']) || !in_array($setor, $param["!setor"]));
+        return ((empty($param['setor']) || ((is_string($param['setor']) && $param['setor'] === $setor) || (is_array($param['setor']) && in_array($setor, $param['setor'])))) && (empty($param['!setor']) || ((is_string($param["!setor"]) && $param["!setor"] !== $setor) || (is_array($param["!setor"]) &&!in_array($setor, $param["!setor"])))));
     }
 
     /**
