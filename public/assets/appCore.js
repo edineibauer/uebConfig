@@ -827,7 +827,7 @@ function getFieldsData(entity, haveId, r) {
     }
 
     $.each(dicionarios[entity], function (i, e) {
-        if (!isEmpty(e.datagrid.grid_relevant)) {
+        if (fields.length < 6 && !isEmpty(e.datagrid.grid_relevant)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
@@ -847,7 +847,7 @@ function getFieldsData(entity, haveId, r) {
     if (!isEmpty(relation) && typeof relation === "object" && !isEmpty(relation.belongsTo)) {
         $.each(relation.belongsTo, function (i, e) {
             $.each(e, function (relEntity, relData) {
-                if (!isEmpty(relData.datagrid) && isEmpty(fields[relData.datagrid - 1])) {
+                if (fields.length < 6 && !isEmpty(relData.datagrid) && isEmpty(fields[relData.datagrid - 1])) {
                     let data = {
                         'nome': ucFirst(replaceAll(replaceAll(relEntity, "_", " "), "-", " ")),
                         'column': relData.column,
@@ -867,7 +867,7 @@ function getFieldsData(entity, haveId, r) {
         })
     }
 
-    for (let a = 0; a < 20; a++) {
+    for (let a = 0; a < 6; a++) {
         if (isEmpty(fields[a])) {
             $.each(dicionarios[entity], function (i, e) {
                 if(e.format !== "password" && e.key !== "information" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
