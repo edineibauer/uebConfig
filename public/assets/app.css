@@ -244,6 +244,8 @@ input::-webkit-inner-spin-button {
     padding: 8px calc(50% - 15px);
     font-size: 25px;
     color: #AAAAAA;
+    text-align: center;
+    display: block;
 }
 
 .spinnerClass {
