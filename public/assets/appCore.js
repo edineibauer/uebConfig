@@ -2124,7 +2124,7 @@ function closeInstallAppPrompt(onInstall) {
 }
 
 function openInstallAppPrompt(force) {
-    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined" && ((typeof force === "boolean" && force) || getCookie("installAppAction") === "")) {
+    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined" && getCookie("accesscount") > 3 && ((typeof force === "boolean" && force) || getCookie("installAppAction") === "")) {
         getTemplates().then(tpl => {
             $("#core-overlay").addClass("active activeBold");
             $("#app").append(Mustache.render(tpl.installAppCard, {
