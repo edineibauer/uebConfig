@@ -62,17 +62,19 @@ self.addEventListener('push', function (event) {
     options.tag = options.id || "";
 
     if (typeof title === "string" && title.length > 2) {
-        event.waitUntil(self.registration.showNotification(title, options).then(() => {
-            return fetch(HOME + "get/receivePush/" + options.id)
-        }));
+        event.waitUntil(
+            fetch(HOME + "get/receivePush/" + options.id).then(() => {
+                self.registration.showNotification(title, options)
+            })
+        );
     }
 });
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     event.waitUntil(
-        clients.openWindow(event.notification.data).then(() => {
-            return fetch(HOME + "get/openPush/" + event.notification.tag);
+        fetch(HOME + "get/openPush/" + event.notification.tag).then(() => {
+            clients.openWindow(event.notification.data)
         })
     );
 });
