@@ -860,7 +860,7 @@ input::-webkit-inner-spin-button {
     padding: 16px 15px 8px;
 }
 
-.notification-card.readed {
+.notification-card.readed, .notification-card.readed > .notification-content-right > .notification-title {
     background: #f7f7f7!important;
     color: #949494!important;
 }
@@ -878,11 +878,11 @@ input::-webkit-inner-spin-button {
 }
 
 .notification-title {
-    margin-bottom: 5px;
-    font-size: 15px;
-    max-height: 38px;
-    overflow: hidden;
-    color: #555555
+    margin-bottom: 5px!important;
+    font-size: 15px!important;
+    max-height: 38px!important;
+    overflow: hidden!important;
+    color: #555555!important;
 }
 
 .notification-desc {
