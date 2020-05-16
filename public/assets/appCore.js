@@ -867,26 +867,28 @@ function getFieldsData(entity, haveId, r) {
         })
     }
 
-    for (let a = 0; a < 6; a++) {
-        if (isEmpty(fields[a])) {
-            $.each(dicionarios[entity], function (i, e) {
-                if(e.format !== "password" && e.key !== "information" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
-                    let data = {
-                        'nome': e.nome,
-                        'column': e.column,
-                        'show': e.datagrid !== !1 && relevants.indexOf(e.format) > -1,
-                        'class': e.datagrid.grid_class || "",
-                        'style': e.datagrid.grid_style || "",
-                        'template': e.datagrid.grid_template || "",
-                        'format': e.format,
-                        'relation': e.relation || null,
-                        'first': !haveId && a === 0
-                    };
-                    let indice = getIndiceField(a, indices);
-                    indices.push(indice);
-                    pushToArrayIndex(fields, data, indice)
-                }
-            })
+    if(!isEmpty(relevants)) {
+        for (let a = 0; a < 6; a++) {
+            if (isEmpty(fields[a])) {
+                $.each(dicionarios[entity], function (i, e) {
+                    if (e.format !== "password" && e.key !== "information" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
+                        let data = {
+                            'nome': e.nome,
+                            'column': e.column,
+                            'show': e.datagrid !== !1 && relevants.indexOf(e.format) > -1,
+                            'class': e.datagrid.grid_class || "",
+                            'style': e.datagrid.grid_style || "",
+                            'template': e.datagrid.grid_template || "",
+                            'format': e.format,
+                            'relation': e.relation || null,
+                            'first': !haveId && a === 0
+                        };
+                        let indice = getIndiceField(a, indices);
+                        indices.push(indice);
+                        pushToArrayIndex(fields, data, indice)
+                    }
+                })
+            }
         }
     }
     return fields.filter(function (data) {
