@@ -2661,7 +2661,7 @@ async function onLoadDocument() {
     if (USER.setor !== 0) {
         let allow = await dbLocal.exeRead("__allow", 1);
         if (allow.notifications_report?.read) {
-            updateNotificationsBadge();
+            await updateNotificationsBadge();
             setInterval(function () {
                 updateNotificationsBadge();
             }, 5000);
