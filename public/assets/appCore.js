@@ -2687,7 +2687,9 @@ async function startApplication() {
 
 $(function () {
     if (location.href !== HOME + "updateSystem") {
-        startApplication();
+        (async () => {
+            await startApplication();
+        })();
 
     } else {
         return clearCacheAll().then(() => {
