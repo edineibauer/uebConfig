@@ -1434,7 +1434,7 @@ function loadCacheUser() {
             dicionarios = r[1];
             return Promise.all(gets);
 
-        // }).then(() => {
+            // }).then(() => {
             /**
              * Baixa os dados das entidades para este usuário
              */
@@ -1629,29 +1629,27 @@ async function cacheAppAfter() {
             return cache.addAll(g.core).catch(e => {
                 errorLoadingApp("cacheAppAfter: cache core", e)
             })
-        })
-    }).then(() => {
-        return caches.open('fonts-v' + VERSION).then(cache => {
-            return cache.addAll(g.fonts).catch(e => {
-                errorLoadingApp("cacheAppAfter: cache fonts", e)
+        }).then(() => {
+            return caches.open('fonts-v' + VERSION).then(cache => {
+                return cache.addAll(g.fonts).catch(e => {
+                    errorLoadingApp("cacheAppAfter: cache fonts", e)
+                })
             })
-        })
-    }).then(() => {
-        return caches.open('images-v' + VERSION).then(cache => {
-            return cache.addAll(g.images).catch(e => {
-                errorLoadingApp("cacheAppAfter: cache images", e)
+        }).then(() => {
+            return caches.open('images-v' + VERSION).then(cache => {
+                return cache.addAll(g.images).catch(e => {
+                    errorLoadingApp("cacheAppAfter: cache images", e)
+                })
             })
-        })
-    }).then(() => {
-        return caches.open('misc-v' + VERSION).then(cache => {
-            return cache.addAll(g.misc).catch(e => {
-                errorLoadingApp("cacheAppAfter: cache misc", e)
+        }).then(() => {
+            return caches.open('misc-v' + VERSION).then(cache => {
+                return cache.addAll(g.misc).catch(e => {
+                    errorLoadingApp("cacheAppAfter: cache misc", e)
+                })
             })
+        }).then(() => {
+            return loadViews()
         })
-    }).then(() => {
-        return loadViews()
-    }).catch(e => {
-        errorLoadingApp("cacheAppAfter 1", e)
     })
 }
 
