@@ -1620,53 +1620,38 @@ async function cacheAppAfter() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    let gets = [];
-    gets.push(get("relevant"));
-    gets.push(get("general"));
-    gets.push(get("graficos"));
-    gets.push(get("currentFiles"));
+    await dbLocal.exeCreate('__relevant', await get("relevant"));
+    await dbLocal.exeCreate('__general', await get("general"));
+    await dbLocal.exeCreate('__graficos', await get("graficos"));
 
-    return Promise.all(gets).then(r => {
-        if (!r[2])
-            return Promise.all([]);
-
-        g = r[3];
-        let creates = [];
-        creates.push(dbLocal.exeCreate('__relevant', r[0]));
-        creates.push(dbLocal.exeCreate('__general', r[1]));
-        creates.push(dbLocal.exeCreate('__graficos', r[2]));
-
-        return Promise.all(creates).then(() => {
-            return caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll(g.core).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache core", e)
-                })
+    return get("currentFiles").then(g => {
+        return caches.open('core-v' + VERSION).then(cache => {
+            return cache.addAll(g.core).catch(e => {
+                errorLoadingApp("cacheAppAfter: cache core", e)
             })
-        }).then(() => {
-            return caches.open('fonts-v' + VERSION).then(cache => {
-                return cache.addAll(g.fonts).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache fonts", e)
-                })
-            })
-        }).then(() => {
-            return caches.open('images-v' + VERSION).then(cache => {
-                return cache.addAll(g.images).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache images", e)
-                })
-            })
-        }).then(() => {
-            return caches.open('misc-v' + VERSION).then(cache => {
-                return cache.addAll(g.misc).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache misc", e)
-                })
-            })
-        }).then(() => {
-            return loadViews()
-        }).catch(e => {
-            errorLoadingApp("cacheAppAfter 1", e)
         })
+    }).then(() => {
+        return caches.open('fonts-v' + VERSION).then(cache => {
+            return cache.addAll(g.fonts).catch(e => {
+                errorLoadingApp("cacheAppAfter: cache fonts", e)
+            })
+        })
+    }).then(() => {
+        return caches.open('images-v' + VERSION).then(cache => {
+            return cache.addAll(g.images).catch(e => {
+                errorLoadingApp("cacheAppAfter: cache images", e)
+            })
+        })
+    }).then(() => {
+        return caches.open('misc-v' + VERSION).then(cache => {
+            return cache.addAll(g.misc).catch(e => {
+                errorLoadingApp("cacheAppAfter: cache misc", e)
+            })
+        })
+    }).then(() => {
+        return loadViews()
     }).catch(e => {
-        errorLoadingApp("cacheAppAfter 2", e)
+        errorLoadingApp("cacheAppAfter 1", e)
     })
 }
 
