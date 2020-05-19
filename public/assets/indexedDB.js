@@ -204,7 +204,7 @@ function readOffline(data, filter, order, reverse, limit, offset) {
             }
         }
 
-        result.length = result.data.length;
+        result.length = data.length;
 
     } else {
 
