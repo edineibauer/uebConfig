@@ -327,6 +327,7 @@ class UpdateSystem
         Config::createDir("public/entity");
         Config::createDir("assetsPublic");
         Config::createDir("assetsPublic/img");
+        Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
     }
 
@@ -612,6 +613,17 @@ class UpdateSystem
     }
 
     /**
+     * Copia SplashScreen se existir
+     * @param string $file
+     * @param string $dir
+     */
+    private function copySplashScreen(string $file, string $dir)
+    {
+        if(file_exists($dir . "public/assets/splashscreens/{$file}.png"))
+            copy($dir . "public/assets/splashscreens/{$file}.png", PATH_HOME . "assetsPublic/img/splashscreens/{$file}.png");
+    }
+
+    /**
      * @param array $dados
      */
     private function createFaviconSizes(array $dados)
@@ -633,45 +645,39 @@ class UpdateSystem
 
         /**
          * Copia a launch screen
+         * Gerador das splashScreen: https://appsco.pe/developer/splash-screens
          */
-        $launch = "";
-        $launchIpad = "";
-        if(file_exists(PATH_HOME . "public/assets/img/launch.png")) {
-            $launch = PATH_HOME . "public/assets/img/launch.png";
+        if(file_exists(PATH_HOME . "public/assets/splashscreens/iphone5_splash.png")) {
+            $this->copySplashScreen("iphone5_splash", PATH_HOME);
+            $this->copySplashScreen("iphone6_splash", PATH_HOME);
+            $this->copySplashScreen("iphoneplus_splash", PATH_HOME);
+            $this->copySplashScreen("iphonex_splash", PATH_HOME);
+            $this->copySplashScreen("iphonexr_splash", PATH_HOME);
+            $this->copySplashScreen("iphonexsmax_splash", PATH_HOME);
+            $this->copySplashScreen("ipad_splash", PATH_HOME);
+            $this->copySplashScreen("ipadpro1_splash", PATH_HOME);
+            $this->copySplashScreen("ipadpro3_splash", PATH_HOME);
+            $this->copySplashScreen("ipadpro2_splash", PATH_HOME);
+
         } else {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png")) {
-                    $launch = PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png";
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone5_splash.png")) {
+
+                    $this->copySplashScreen("iphone5_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("iphone6_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("iphoneplus_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("iphonex_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("iphonexr_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("iphonexsmax_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("ipad_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("ipadpro1_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("ipadpro3_splash", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreen("ipadpro2_splash", PATH_HOME . VENDOR . "/{$lib}/");
+
                     break;
                 }
             }
         }
-        if(file_exists(PATH_HOME . "public/assets/img/launch-ipad.png")) {
-            $launch = PATH_HOME . "public/assets/img/launch-ipad.png";
-        } else {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch-ipad.png")) {
-                    $launch = PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch-ipad.png";
-                    break;
-                }
-            }
-        }
-        if($launch === "")
-            $launch = $favicon;
-
-        if($launchIpad === "")
-            $launchIpad = $launch;
-
-        $fav = \WideImage\WideImage::load($launch);
-        $fav->resize(1125, 2436, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1125-2436.png");
-        $fav->resize(1242, 2208, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1242-2208.png");
-        $fav->resize(750, 1334, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-750-1334.png");
-        $fav->resize(640, 1136, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-640-1136.png");
-
-        $fav = \WideImage\WideImage::load($launchIpad);
-        $fav->resize(2048, 2732, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-2048-2732.png");
-        $fav->resize(1668, 2224, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1668-2224.png");
-        $fav->resize(1536, 2048, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1536-2048.png");
     }
 
     /**
