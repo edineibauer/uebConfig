@@ -1402,7 +1402,6 @@ function loadCacheUser() {
             toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
 
         let gets = [];
-        let creates = [];
         gets.push(get("allow"));
         gets.push(get("dicionarios"));
         gets.push(get("info"));
@@ -1422,22 +1421,23 @@ function loadCacheUser() {
         }
 
         return Promise.all(gets).then(r => {
-            creates.push(dbLocal.exeCreate('__allow', r[0]));
-            creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-            creates.push(dbLocal.exeCreate('__info', r[2]));
-            creates.push(dbLocal.exeCreate('__template', r[3]));
-            creates.push(dbLocal.exeCreate('__menu', r[4]));
-            creates.push(dbLocal.exeCreate('__navbar', r[5]));
-            creates.push(dbLocal.exeCreate('__react', r[6]));
-            creates.push(dbLocal.exeCreate('__user', r[7]));
+            gets = [];
+            gets.push(dbLocal.exeCreate('__allow', r[0]));
+            gets.push(dbLocal.exeCreate('__dicionario', r[1]));
+            gets.push(dbLocal.exeCreate('__info', r[2]));
+            gets.push(dbLocal.exeCreate('__template', r[3]));
+            gets.push(dbLocal.exeCreate('__menu', r[4]));
+            gets.push(dbLocal.exeCreate('__navbar', r[5]));
+            gets.push(dbLocal.exeCreate('__react', r[6]));
+            gets.push(dbLocal.exeCreate('__user', r[7]));
             dicionarios = r[1];
-            return Promise.all(creates);
+            return Promise.all(gets);
 
-        }).then(() => {
+        // }).then(() => {
             /**
              * Baixa os dados das entidades para este usuário
              */
-            return downloadEntityData();
+            // return downloadEntityData();
 
         }).then(() => {
 
@@ -1722,7 +1722,6 @@ function updateAppOnDev() {
     }).then(() => {
 
         let gets = [];
-        let creates = [];
         gets.push(get("allow"));
         gets.push(get("dicionarios"));
         gets.push(get("info"));
@@ -1743,17 +1742,17 @@ function updateAppOnDev() {
         }
 
         return Promise.all(gets).then(r => {
-            creates.push(dbLocal.exeCreate('__allow', r[0]));
-            creates.push(dbLocal.exeCreate('__dicionario', r[1]));
-            creates.push(dbLocal.exeCreate('__info', r[2]));
-            creates.push(dbLocal.exeCreate('__template', r[3]));
-            creates.push(dbLocal.exeCreate('__menu', r[4]));
-            creates.push(dbLocal.exeCreate('__navbar', r[5]));
-            creates.push(dbLocal.exeCreate('__react', r[6]));
-            creates.push(dbLocal.exeCreate('__user', r[7]));
-            creates.push(dbLocal.exeCreate('__graficos', r[8]));
+            gets.push(dbLocal.exeCreate('__allow', r[0]));
+            gets.push(dbLocal.exeCreate('__dicionario', r[1]));
+            gets.push(dbLocal.exeCreate('__info', r[2]));
+            gets.push(dbLocal.exeCreate('__template', r[3]));
+            gets.push(dbLocal.exeCreate('__menu', r[4]));
+            gets.push(dbLocal.exeCreate('__navbar', r[5]));
+            gets.push(dbLocal.exeCreate('__react', r[6]));
+            gets.push(dbLocal.exeCreate('__user', r[7]));
+            gets.push(dbLocal.exeCreate('__graficos', r[8]));
             dicionarios = r[1];
-            return Promise.all(creates);
+            return Promise.all(gets);
 
         }).then(() => {
             /**
