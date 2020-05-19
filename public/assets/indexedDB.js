@@ -492,7 +492,7 @@ const dbRemote = {
                     return dbLocal.clear(entity).then(() => {
                         let cc = [];
                         if (response.data.length) {
-                            for (let k in response.data) {
+                            for (let k in response.data.slice(0, parseInt(LIMITOFFLINE))) {
                                 if (isNumber(k) && typeof response.data[k] === "object" && typeof response.data[k].id !== "undefined") {
                                     let id = parseInt(response.data[k].id);
 
