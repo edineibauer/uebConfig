@@ -620,26 +620,58 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
         /**
-         * Copia a launch screen
+         * Icones
          */
-        if(file_exists(PATH_HOME . "public/assets/img/launch.png")) {
-            copy(PATH_HOME . "public/assets/img/launch.png", PATH_HOME . "assetsPublic/img/launch.png");
-        } else {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png")) {
-                    copy(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png", PATH_HOME . "assetsPublic/img/launch.png");
-                    break;
-                }
-            }
-        }
-
-        $fav = \WideImage\WideImage::load(PATH_HOME . str_replace($dados['home'], '', $dados['favicon']));
+        $favicon = PATH_HOME . str_replace($dados['home'], '', $dados['favicon']);
+        $fav = \WideImage\WideImage::load($favicon);
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
         $fav->resize(144, 144, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-144.png");
         $fav->resize(96, 96, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-96.png");
         $fav->resize(72, 72, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-72.png");
         $fav->resize(48, 48, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-48.png");
+
+        /**
+         * Copia a launch screen
+         */
+        $launch = "";
+        $launchIpad = "";
+        if(file_exists(PATH_HOME . "public/assets/img/launch.png")) {
+            $launch = PATH_HOME . "public/assets/img/launch.png";
+        } else {
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png")) {
+                    $launch = PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png";
+                    break;
+                }
+            }
+        }
+        if(file_exists(PATH_HOME . "public/assets/img/launch-ipad.png")) {
+            $launch = PATH_HOME . "public/assets/img/launch-ipad.png";
+        } else {
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch-ipad.png")) {
+                    $launch = PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch-ipad.png";
+                    break;
+                }
+            }
+        }
+        if($launch === "")
+            $launch = $favicon;
+
+        if($launchIpad === "")
+            $launchIpad = $launch;
+
+        $fav = \WideImage\WideImage::load($launch);
+        $fav->resize(1125, 2436, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1125-2436.png");
+        $fav->resize(1242, 2208, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1242-2208.png");
+        $fav->resize(750, 1334, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-750-1334.png");
+        $fav->resize(640, 1136, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-640-1136.png");
+
+        $fav = \WideImage\WideImage::load($launchIpad);
+        $fav->resize(2048, 2732, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-2048-2732.png");
+        $fav->resize(1668, 2224, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1668-2224.png");
+        $fav->resize(1536, 2048, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/launch-1536-2048.png");
     }
 
     /**
