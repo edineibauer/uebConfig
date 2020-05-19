@@ -795,6 +795,8 @@ function menuHeader() {
             if (USER.setor.toString() !== "0")
                 $("#core-sidebar-edit").css("display", "block");
         }
+    }).catch(e => {
+        errorLoadingApp("menuHeader", e);
     });
 }
 
@@ -1773,6 +1775,8 @@ function thenAccess() {
                 dicionarios = d;
             });
         }
+    }).catch(e => {
+        errorLoadingApp("updateAppOnDev", e);
     });
 }
 
@@ -2469,6 +2473,8 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                     }
                 }, 50)
             }
+        }).catch(e => {
+            errorLoadingApp("pageTransition", e)
         });
     }
 }
