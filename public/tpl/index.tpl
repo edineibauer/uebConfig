@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="robots" content="index, follow"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, user-scalable=no">
     <title id="core-title">{$title}</title>
     <link rel="canonical" href="{$home}">
     <link rel="shortcut icon" href="{$home}assetsPublic/img/favicon.png?v={$version}">
@@ -19,6 +19,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
+    <link rel="apple-touch-startup-image" href="{$home}assetsPublic/img/launch.png">
     <link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
     <link rel="apple-touch-icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png?v={$version}">
     <link rel="apple-touch-icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png?v={$version}">

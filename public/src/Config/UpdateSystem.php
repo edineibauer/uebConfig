@@ -619,6 +619,20 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "uploads");
         Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
 
+        /**
+         * Copia a launch screen
+         */
+        if(file_exists(PATH_HOME . "public/assets/img/launch.png")) {
+            copy(PATH_HOME . "public/assets/img/launch.png", PATH_HOME . "assetsPublic/img/launch.png");
+        } else {
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png")) {
+                    copy(PATH_HOME . VENDOR . "/{$lib}/public/assets/img/launch.png", PATH_HOME . "assetsPublic/img/launch.png");
+                    break;
+                }
+            }
+        }
+
         $fav = \WideImage\WideImage::load(PATH_HOME . str_replace($dados['home'], '', $dados['favicon']));
         $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
         $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
