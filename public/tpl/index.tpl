@@ -82,31 +82,31 @@
 
     <script src='{$home}assetsPublic/appCore.min.js?v={$version}' defer></script>
 </head>
-<body>
-<div id="app">
 
-    <div id="core-header" class="theme"></div>
+<body ontouchstart="">
+    <div id="app">
 
-    <aside id="core-sidebar" class="core-class-container hide"></aside>
+        <div id="core-header" class="theme"></div>
 
-    <div id="core-overlay"></div>
-    <div id="core-loader">
-        <svg viewBox="0 0 32 32" width="32" height="32">
-            <circle id="core-spinner" style="stroke: {($theme === "#fff" || $theme === "#ffffff" || $theme === "#FFF") ? "#555" : $theme}" cx="16" cy="16" r="14" fill="none"></circle>
-        </svg>
+        <aside id="core-sidebar" class="core-class-container hide"></aside>
+
+        <div id="core-overlay"></div>
+        <div id="core-loader">
+            <svg viewBox="0 0 32 32" width="32" height="32">
+                <circle id="core-spinner" style="stroke: {($theme === "#fff" || $theme === "#ffffff" || $theme === "#FFF") ? "#555" : $theme}" cx="16" cy="16" r="14" fill="none"></circle>
+            </svg>
+        </div>
+
+        <section id="core-content" class="core-class-container"></section>
+
+        <div id="core-upload-progress"><div id="core-upload-progress-bar"></div></div>
+        <div class="hide" id="core-header-nav-bottom">
+            <nav role="navigation">
+                <ul class="core-class-container" style="padding:0">
+                    <div id="core-menu-custom-bottom" style="float: left"></div>
+                </ul>
+            </nav>
+        </div>
     </div>
-
-    <section id="core-content" class="core-class-container"></section>
-
-    <div id="core-upload-progress"><div id="core-upload-progress-bar"></div></div>
-    <div class="hide" id="core-header-nav-bottom">
-        <nav role="navigation">
-            <ul class="core-class-container" style="padding:0">
-                <div id="core-menu-custom-bottom" style="float: left"></div>
-            </ul>
-        </nav>
-    </div>
-</div>
-
 </body>
 </html>

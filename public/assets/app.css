@@ -13,7 +13,7 @@ html {
 }
 
 body {
-    margin: 0
+    margin: 0;
 }
 
 ul {
@@ -1018,6 +1018,16 @@ input::-webkit-inner-spin-button {
 }
 
 @media only screen and (max-width: 1194px) {
+    body {
+        margin: 0;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
     .l-hide {
         display: none !important
     }
