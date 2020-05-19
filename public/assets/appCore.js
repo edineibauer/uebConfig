@@ -548,20 +548,24 @@ function pushNotification(title, body, url, image, background) {
 }
 
 function subscribeUser(showMessageSuccess) {
-    if (PUSH_PUBLIC_KEY !== "") {
-        showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
-        const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
-        swRegistration.pushManager.subscribe({
-            applicationServerKey: applicationServerKey,
-            userVisibleOnly: !0,
-        }).then(function (subscription) {
-            updateSubscriptionOnServer(subscription, showMessageSuccess);
-            $(".site-btn-push").remove()
-        }).catch(function (err) {
-            toast("Erro ao tentar receber as notificações", 7500, "toast-warning")
-        })
+    if(swRegistration.pushManager) {
+        if (PUSH_PUBLIC_KEY !== "") {
+            showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
+            const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
+            swRegistration.pushManager.subscribe({
+                applicationServerKey: applicationServerKey,
+                userVisibleOnly: !0,
+            }).then(function (subscription) {
+                updateSubscriptionOnServer(subscription, showMessageSuccess);
+                $(".site-btn-push").remove()
+            }).catch(function (err) {
+                toast("Erro ao tentar receber as notificações", 7500, "toast-warning")
+            })
+        } else {
+            toast("Chave pública do Push não definida", 7500, "toast-warning")
+        }
     } else {
-        toast("Chave pública do Push não definida", 7500, "toast-warning")
+        toast("Desculpa! Seu aparelho não tem suporte.", "toast-warning", 2500);
     }
 }
 
@@ -2047,21 +2051,23 @@ if (SERVICEWORKER && navigator.onLine) {
         /**
          * Check if have permission to send notification but not is registered on service worker
          * */
-        swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription === null) {
-                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted" && PUSH_PUBLIC_KEY !== "")
-                        return subscribeUser(1);
-                });
-            } else {
-                post('dashboard', 'push', {
-                    "push": JSON.stringify(subscription),
-                    'p1': navigator.appName,
-                    'p2': navigator.appCodeName,
-                    'p3': navigator.platform
-                });
-            }
-        });
+        if(swRegistration.pushManager) {
+            swRegistration.pushManager.getSubscription().then(function (subscription) {
+                if (subscription === null) {
+                    return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                        if (p === "granted" && PUSH_PUBLIC_KEY !== "")
+                            return subscribeUser(1);
+                    });
+                } else {
+                    post('dashboard', 'push', {
+                        "push": JSON.stringify(subscription),
+                        'p1': navigator.appName,
+                        'p2': navigator.appCodeName,
+                        'p3': navigator.platform
+                    });
+                }
+            });
+        }
     });
 }
 
