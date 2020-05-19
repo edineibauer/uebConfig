@@ -229,7 +229,9 @@ function setUpdateVersion() {
                     setCookie("update", data.data > 2 ? data.data : 2);
 
                 s(1);
-            }, error: () => {s(1)}, dataType: "json", async: !1
+            }, error: () => {
+                s(1)
+            }, dataType: "json", async: !1
         })
     });
 }
@@ -548,7 +550,7 @@ function pushNotification(title, body, url, image, background) {
 }
 
 function subscribeUser(showMessageSuccess) {
-    if(swRegistration.pushManager) {
+    if (swRegistration.pushManager) {
         if (PUSH_PUBLIC_KEY !== "") {
             showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
             const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
@@ -610,7 +612,7 @@ function updateVersionNumber() {
     });
 }
 
-function checkUpdate() {
+async function checkUpdate() {
     if (!navigator.onLine)
         return Promise.all([]);
 
@@ -713,7 +715,7 @@ async function menuHeader() {
     if (($menuCustom = $("#core-menu-custom")).length) {
         $menuCustom.html("");
         let menu = await dbLocal.exeRead("__menu", 1);
-        if(!isEmpty(menu)) {
+        if (!isEmpty(menu)) {
             for (let m of menu) {
                 if (typeof m.html === "string" && m.html !== "undefined" && !isEmpty(m.html))
                     $menuCustom.append(Mustache.render(tpl.menuHeader, m));
@@ -732,7 +734,7 @@ async function menuHeader() {
         let $menu = $("#core-menu-custom-bottom").html("");
 
         let navbar = await dbLocal.exeRead("__navbar", 1);
-        if(!isEmpty(navbar)) {
+        if (!isEmpty(navbar)) {
             for (let nav of navbar) {
                 if (typeof nav.html === "string" && nav.html !== "undefined" && !isEmpty(nav.html))
                     $menu.append(Mustache.render(tpl.menuHeader, nav));
@@ -868,7 +870,7 @@ function getFieldsData(entity, haveId, r) {
         })
     }
 
-    if(!isEmpty(relevants)) {
+    if (!isEmpty(relevants)) {
         for (let a = 0; a < 6; a++) {
             if (isEmpty(fields[a])) {
                 $.each(dicionarios[entity], function (i, e) {
@@ -1246,7 +1248,7 @@ function setCookieUser(user) {
     }
 }
 
-function checkSessao() {
+async function checkSessao() {
     /**
      * Verifica Sessão
      * */
@@ -1550,12 +1552,12 @@ async function closeNote(id, notification) {
     /**
      * Revisa os badge para atualizar as notificações pendentes
      */
-    $(".badge-notification").each(function(i, e) {
-         let n = parseInt($(e).text());
-         if(n === 1)
-             $(e).remove();
-         else
-             $(e).text(n - 1);
+    $(".badge-notification").each(function (i, e) {
+        let n = parseInt($(e).text());
+        if (n === 1)
+            $(e).remove();
+        else
+            $(e).text(n - 1);
     });
 
     /**
@@ -1603,7 +1605,7 @@ function setVersionApplication() {
     })
 }
 
-function firstAccess() {
+async function firstAccess() {
     setCookie('accesscount', 1);
 
     return get("templates").then(r => {
@@ -1613,7 +1615,7 @@ function firstAccess() {
     })
 }
 
-function cacheAppAfter() {
+async function cacheAppAfter() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
@@ -1762,7 +1764,7 @@ function updateAppOnDev() {
     });
 }
 
-function thenAccess() {
+async function thenAccess() {
     /**
      * Conta acesso
      */
@@ -2046,7 +2048,7 @@ if (SERVICEWORKER && navigator.onLine) {
         /**
          * Check if have permission to send notification but not is registered on service worker
          * */
-        if(swRegistration.pushManager) {
+        if (swRegistration.pushManager) {
             swRegistration.pushManager.getSubscription().then(function (subscription) {
                 if (subscription === null) {
                     return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
@@ -2560,6 +2562,8 @@ function goLinkPageTransition(url, $this, e) {
  */
 async function onLoadDocument() {
 
+    $("#core-spinner").css("stroke", THEME);
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -2627,7 +2631,7 @@ async function onLoadDocument() {
         let $this = $(this);
         let url = $this.attr("href").replace(HOME, '');
 
-        if($this.hasClass("notification-title"))
+        if ($this.hasClass("notification-title"))
             setNotificationOpen($this.data("id"));
 
         if (timeWaitClick > 0) {
@@ -2654,9 +2658,9 @@ async function onLoadDocument() {
     /**
      * Busca notificações pendentes
      */
-    if(USER.setor !== 0) {
+    if (USER.setor !== 0) {
         let allow = await dbLocal.exeRead("__allow", 1);
-        if(allow.notifications_report?.read) {
+        if (allow.notifications_report?.read) {
             updateNotificationsBadge();
             setInterval(function () {
                 updateNotificationsBadge();
@@ -2665,46 +2669,20 @@ async function onLoadDocument() {
     }
 }
 
-function startApplication() {
+async function startApplication() {
     $("#core-spinner").css("stroke", THEME);
-    checkSessao().then(() => {
-        let promessa = [];
-        promessa.push(getCookie("accesscount") === "" ? firstAccess() : thenAccess());
 
-        return Promise.all(promessa).then(() => {
-            $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
-            $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION + "'>");
+    await checkSessao();
 
-            return menuHeader();
+    (getCookie("accesscount") === "" ? await firstAccess() : await thenAccess());
+    $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
+    $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION + "'>");
 
-        }).then(() => {
-
-            /**
-             * Carrega a rota atual
-             */
-            return readRouteState();
-
-        }).then(() => {
-
-            $("#core-spinner").css("stroke", THEME);
-
-        }).catch(e => {
-            errorLoadingApp("core", e);
-        });
-    }).then(() => {
-        onLoadDocument();
-
-        setTimeout(function () {
-            cacheAppAfter();
-        }, 500);
-
-        /**
-         * Verifica se existe uma versão mais recente do app
-         */
-        return checkUpdate();
-    }).catch(e => {
-        errorLoadingApp("checkSessao", e)
-    });
+    await menuHeader();
+    await readRouteState();
+    await cacheAppAfter();
+    await onLoadDocument();
+    await checkUpdate();
 }
 
 $(function () {
