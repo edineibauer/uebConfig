@@ -698,110 +698,105 @@ function logoutDashboard() {
  * Ajusta os dados do Header, navbar, menu, sidebar, btn login, btn push
  * verifica visibilidade destes itens
  */
-function menuHeader() {
-    let requests = [];
-    requests.push(getTemplates());
-    requests.push(dbLocal.exeRead("__menu", 1));
-    requests.push(dbLocal.exeRead("__navbar", 1));
+async function menuHeader() {
+    let tpl = await getTemplates();
 
-    return Promise.all(requests).then(r => {
-        let tpl = r[0];
-        let menu = (typeof r[1] !== "object" || r[1].constructor !== Array || r[1] === null ? [] : r[1]);
-        let navbar = (typeof r[2] !== "object" || r[2].constructor !== Array || r[2] === null ? [] : r[2]);
+    $("#core-header").html(Mustache.render(tpl.header, {
+        version: VERSION,
+        sitename: SITENAME,
+        title: TITLE,
+        home: HOME,
+        homepage: (HOMEPAGE ? "dashboard" : "")
+    }));
 
-        $("#core-header").html(Mustache.render(tpl.header, {
-            version: VERSION,
-            sitename: SITENAME,
-            title: TITLE,
-            home: HOME,
-            homepage: (HOMEPAGE ? "dashboard" : "")
-        }));
+    let $menuCustom = null;
+    if (($menuCustom = $("#core-menu-custom")).length) {
+        $menuCustom.html("");
+        let menu = await dbLocal.exeRead("__menu", 1);
+        if(!isEmpty(menu)) {
+            for (let m of menu) {
+                if (typeof m.html === "string" && m.html !== "undefined" && !isEmpty(m.html))
+                    $menuCustom.append(Mustache.render(tpl.menuHeader, m));
+            }
+        }
+    }
 
-        let $menuCustom = $("#core-menu-custom");
-        if ($menuCustom.length) {
-            $menuCustom.html("");
-            for (let m in menu) {
-                if (typeof menu[m].html === "string" && menu[m].html !== "undefined" && !isEmpty(menu[m].html))
-                    $menuCustom.append(Mustache.render(tpl.menuHeader, menu[m]));
+    let $headerPerfil = $("#core-header-perfil");
+    if ($headerPerfil.length) {
+        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
+        $headerPerfil.html(src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+    }
+
+    let $menuNav = null;
+    if (($menuNav = $("#core-header-nav-bottom")).length) {
+        let $menu = $("#core-menu-custom-bottom").html("");
+
+        let navbar = await dbLocal.exeRead("__navbar", 1);
+        if(!isEmpty(navbar)) {
+            for (let nav of navbar) {
+                if (typeof nav.html === "string" && nav.html !== "undefined" && !isEmpty(nav.html))
+                    $menu.append(Mustache.render(tpl.menuHeader, nav));
             }
         }
 
-        let $headerPerfil = $("#core-header-perfil");
-        if ($headerPerfil.length) {
-            let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
-            $headerPerfil.html(src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+        if ((HOMEPAGE === "0" && navbar.length === 1) || (HOMEPAGE !== "0" && navbar.length === 0)) {
+            $menuNav.removeClass('s-show');
+        } else {
+            $menuNav.addClass('s-show');
+            $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
         }
+    }
 
-        let $menuNav = $("#core-header-nav-bottom");
-        if ($menuNav.length) {
-            let $menu = $("#core-menu-custom-bottom").html("");
+    $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
 
-            for (let m in navbar) {
-                if (typeof navbar[m].html === "string" && navbar[m].html !== "undefined" && !isEmpty(navbar[m].html))
-                    $menu.append(Mustache.render(tpl.menuHeader, navbar[m]));
-            }
-
-            if ((HOMEPAGE === "0" && navbar.length === 1) || (HOMEPAGE !== "0" && navbar.length === 0)) {
-                $menuNav.removeClass('s-show');
-            } else {
-                $menuNav.addClass('s-show');
-                $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
-            }
+    /**
+     * Sidebar Info
+     */
+    if ($("#core-sidebar-imagem").length) {
+        if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
+            document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
+        } else {
+            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
+            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
         }
+    }
 
-        $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
+    if ($("#core-sidebar-nome").length)
+        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
 
-        /**
-         * Sidebar Info
-         */
-        if ($("#core-sidebar-imagem").length) {
-            if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
-                document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
-            } else {
-                let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
-                document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
-            }
+    /**
+     * Botão de login
+     */
+    if ($("#login-aside").length) {
+        let btnLoginAside = document.querySelector("#login-aside");
+        if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
+            btnLoginAside.onclick = function () {
+                logoutDashboard()
+            };
+            btnLoginAside.children[0].innerHTML = "sair";
+            btnLoginAside.children[1].innerHTML = "exit_to_app";
+        } else {
+            btnLoginAside.onclick = function () {
+                pageTransition("login", "route", "forward", "#core-content", null, null, !1)
+            };
+            btnLoginAside.children[0].innerHTML = "login";
+            btnLoginAside.children[1].innerHTML = "lock_open";
         }
+    }
 
-        if ($("#core-sidebar-nome").length)
-            document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
+    /**
+     * Verifica se remove o botão de Notificação
+     * */
+    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+        $(".site-btn-push").remove();
 
-        /**
-         * Botão de login
-         */
-        if ($("#login-aside").length) {
-            let btnLoginAside = document.querySelector("#login-aside");
-            if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
-                btnLoginAside.onclick = function () {
-                    logoutDashboard()
-                };
-                btnLoginAside.children[0].innerHTML = "sair";
-                btnLoginAside.children[1].innerHTML = "exit_to_app";
-            } else {
-                btnLoginAside.onclick = function () {
-                    pageTransition("login", "route", "forward", "#core-content", null, null, !1)
-                };
-                btnLoginAside.children[0].innerHTML = "login";
-                btnLoginAside.children[1].innerHTML = "lock_open";
-            }
-        }
-
-        /**
-         * Verifica se remove o botão de Notificação
-         * */
-        if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
-            $(".site-btn-push").remove();
-
-        /**
-         * Edição do perfil somente usuários logados
-         */
-        if ($("#core-sidebar-edit").length) {
-            if (USER.setor.toString() !== "0")
-                $("#core-sidebar-edit").css("display", "block");
-        }
-    }).catch(e => {
-        errorLoadingApp("menuHeader", e);
-    });
+    /**
+     * Edição do perfil somente usuários logados
+     */
+    if ($("#core-sidebar-edit").length) {
+        if (USER.setor.toString() !== "0")
+            $("#core-sidebar-edit").css("display", "block");
+    }
 }
 
 function getFieldsData(entity, haveId, r) {
