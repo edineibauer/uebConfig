@@ -567,6 +567,7 @@ function subscribeUser(showMessageSuccess) {
             toast("Chave pública do Push não definida", 7500, "toast-warning")
         }
     } else {
+        $(".site-btn-push").remove();
         toast("Desculpa! Seu aparelho não tem suporte.", "toast-warning", 2500);
     }
 }
@@ -789,7 +790,7 @@ async function menuHeader() {
     /**
      * Verifica se remove o botão de Notificação
      * */
-    if (getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+    if (!swRegistration.pushManager || getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
         $(".site-btn-push").remove();
 
     /**
