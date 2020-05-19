@@ -16,7 +16,7 @@
     <link rel="icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="{{$theme}}">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
     <link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
