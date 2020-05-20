@@ -686,7 +686,7 @@ function toggleSidebar(action = 'toggle') {
 
 function logoutDashboard() {
     if (navigator.onLine) {
-        toast("Saindo...", 12500);
+        toast("Saindo...", 42000);
         setCookieAnonimo().then(() => {
             setTimeout(function () {
                 location.href = HOME + "login";
@@ -1033,6 +1033,9 @@ function getRelevantTitle(entity, data, limit, etiqueta) {
 }
 
 function loadSyncNotSaved() {
+    if(USER.setor === 0)
+        return;
+
     return new Promise((resolve, f) => {
         $.ajax({
             type: "GET",
