@@ -68,7 +68,11 @@ input::-webkit-inner-spin-button {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    float: left
+    float: left;
+    /* Status bar height on iOS 11.0 */
+    padding-top: constant(safe-area-inset-top);
+    /* Status bar height on iOS 11+ */
+    padding-top: env(safe-area-inset-top);
 }
 
 .r-network {
@@ -201,6 +205,8 @@ input::-webkit-inner-spin-button {
     left: 0;
     width: 100%;
     padding: 0;
+    /* Iphone 11+ */
+    padding-bottom: env(safe-area-inset-bottom, 0);
     height: 50px;
     background: #fff;
     box-shadow: 0 -3px 6px -6px #9E9E9E;
