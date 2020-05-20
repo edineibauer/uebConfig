@@ -1019,6 +1019,11 @@ input::-webkit-inner-spin-button {
         height: calc(70px + env(safe-area-inset-top));
     }
 
+    #core-content {
+        margin-top: calc(70px + constant(safe-area-inset-top));
+        margin-top: calc(70px + env(safe-area-inset-top));
+    }
+
     #core-sidebar {
         padding-top: constant(safe-area-inset-top);
         padding-bottom: constant(safe-area-inset-bottom);

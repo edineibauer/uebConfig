@@ -1817,13 +1817,12 @@ function clearPage() {
 function getPageContentHeight() {
     let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
     let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar") ? 50 : 0);
-    let heightNotche = $("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993 ? getNotche("top") : 0;
-    return "calc(100vh - " + (heightHeader + heightNavbar + heightNotche) + "px)"
+    return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
 }
 
 function getPaddingTopContent() {
     if(!$("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993)
-        return getNotche("top") + "px";
+        return getNotche("top");
 
     return 0;
 }
@@ -1841,7 +1840,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
     });
 
     if($element.attr("id") === "core-content")
-        $element.css("padding-top", getPaddingTopContent())
+        $element.css("padding-top", getPaddingTopContent() + "px")
 
     let file = app.file.split("/");
     file = file[0];
@@ -1854,7 +1853,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
         $aux = $element.clone().css({"top": topHeader + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
     }
 
-    $element.css("margin-top", 0);
+    $element.css("margin-top", getPaddingTopContent());
     if (direction === 'forward') {
         if (window.innerWidth < 900)
             $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 100) + 'px', opacity: 0}, 0);
@@ -2181,7 +2180,7 @@ var app = {
 
             $div.css("min-height", getPageContentHeight());
             if($div.attr("id") === "core-content")
-                $div.css("padding-top", getPaddingTopContent());
+                $div.css("padding-top", getPaddingTopContent() + "px");
 
             return Promise.all([]);
 
@@ -2194,7 +2193,7 @@ var app = {
                         headerShow(g.header);
                         checkMenuActive();
                         $("#core-title").text(g.title);
-                        $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px }" : "#core-content { margin-top: 0}") + "</style>");
+                        $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + ($("#core-header")[0].clientHeight + getPaddingTopContent() ) + "px }" : "#core-content { margin-top: " + getPaddingTopContent() + "px}") + "</style>");
                         $div.append(g.content);
                         FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
                         if (!isEmpty(g.front) && typeof g.front === "object") {
