@@ -15,10 +15,14 @@
     <link rel="icon" sizes="144x144" href="{$home}assetsPublic/img/favicon-144.png?v={$version}">
     <link rel="icon" sizes="192x192" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
 
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
+    <link rel="apple-touch-startup-image" href="{$home}assetsPublic/img/splashscreens/launch.png">
+    <link href="{$home}assetsPublic/img/splashscreens/iphone5_splash.png" rel="apple-touch-startup-image" />
     <link href="{$home}assetsPublic/img/splashscreens/iphone5_splash.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
     <link href="{$home}assetsPublic/img/splashscreens/iphone6_splash.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
     <link href="{$home}assetsPublic/img/splashscreens/iphoneplus_splash.png" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />

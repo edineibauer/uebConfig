@@ -643,6 +643,7 @@ class UpdateSystem
          * Gerador das splashScreen: https://appsco.pe/developer/splash-screens
          */
         if(file_exists(PATH_HOME . "public/assets/splashscreens/iphone5_splash.png")) {
+            $this->copySplashScreen("launch", PATH_HOME);
             $this->copySplashScreen("iphone5_splash", PATH_HOME);
             $this->copySplashScreen("iphone6_splash", PATH_HOME);
             $this->copySplashScreen("iphoneplus_splash", PATH_HOME);
@@ -658,6 +659,7 @@ class UpdateSystem
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
                 if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone5_splash.png")) {
 
+                    $this->copySplashScreen("launch", PATH_HOME);
                     $this->copySplashScreen("iphone5_splash", PATH_HOME . VENDOR . "/{$lib}/");
                     $this->copySplashScreen("iphone6_splash", PATH_HOME . VENDOR . "/{$lib}/");
                     $this->copySplashScreen("iphoneplus_splash", PATH_HOME . VENDOR . "/{$lib}/");
