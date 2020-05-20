@@ -76,12 +76,6 @@ input::-webkit-inner-spin-button {
     -ms-user-select: none;
     user-select: none;
     float: left;
-    /* Status bar height on iOS 11.0 */
-    padding-top: constant(safe-area-inset-top);
-    height: calc(70px + constant(safe-area-inset-top));
-    /* Status bar height on iOS 11+ */
-    padding-top: env(safe-area-inset-top);
-    height: calc(70px + env(safe-area-inset-top));
 }
 
 .r-network {
@@ -217,10 +211,6 @@ input::-webkit-inner-spin-button {
     background: #fff;
     box-shadow: 0 -3px 6px -6px #9E9E9E;
     padding: 0;
-    /* Iphone 11+ */
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    top: calc(100vh - 50px - env(safe-area-inset-bottom, 0));
-    height: calc(50px + env(safe-area-inset-bottom, 0));
 }
 
 #core-menu-custom-bottom {
@@ -1022,8 +1012,14 @@ input::-webkit-inner-spin-button {
         display: none !important
     }
 
+    #core-header {
+        padding-top: constant(safe-area-inset-top);
+        height: calc(70px + constant(safe-area-inset-top));
+        padding-top: env(safe-area-inset-top);
+        height: calc(70px + env(safe-area-inset-top));
+    }
+
     #core-sidebar {
-        /* Status bar height on iOS 11.0 or + */
         padding-top: constant(safe-area-inset-top);
         padding-bottom: constant(safe-area-inset-bottom);
         padding-top: env(safe-area-inset-top);
@@ -1033,6 +1029,15 @@ input::-webkit-inner-spin-button {
     .core-sidebar-bottom {
         bottom: constant(safe-area-inset-bottom);
         bottom: env(safe-area-inset-bottom);
+    }
+
+    #core-header-nav-bottom {
+        padding-bottom: constant(safe-area-inset-bottom, 0);
+        top: calc(100vh - 50px - constant(safe-area-inset-bottom, 0));
+        height: calc(50px + constant(safe-area-inset-bottom, 0));
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        top: calc(100vh - 50px - env(safe-area-inset-bottom, 0));
+        height: calc(50px + env(safe-area-inset-bottom, 0));
     }
 
     .s-show {
