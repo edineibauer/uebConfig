@@ -1817,8 +1817,15 @@ function clearPage() {
 function getPageContentHeight() {
     let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
     let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar") ? 50 : 0);
-    let heightNotche = getNotche("top");
+    let heightNotche = $("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993 ? getNotche("top") : 0;
     return "calc(100vh - " + (heightHeader + heightNavbar + heightNotche) + "px)"
+}
+
+function getPaddingTopContent() {
+    if(!$("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993)
+        return getNotche("top") + "px";
+
+    return 0;
 }
 
 function defaultPageTransitionPosition(direction, $element, route) {
@@ -1832,6 +1839,9 @@ function defaultPageTransitionPosition(direction, $element, route) {
         "left": left + "px",
         "overflow": "hidden"
     });
+
+    if($element.attr("id") === "core-content")
+        $element.css("padding-top", getPaddingTopContent())
 
     let file = app.file.split("/");
     file = file[0];
@@ -2170,6 +2180,8 @@ var app = {
                 $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
             $div.css("min-height", getPageContentHeight());
+            if($div.attr("id") === "core-content")
+                $div.css("padding-top", getPaddingTopContent());
 
             return Promise.all([]);
 
@@ -2199,6 +2211,8 @@ var app = {
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
                         $div.css("min-height", getPageContentHeight());
+                        if($div.attr("id") === "core-content")
+                            $div.css("padding-top", getPaddingTopContent());
 
                         if (g.js.length) {
                             $.cachedScript(g.js).then(() => {
