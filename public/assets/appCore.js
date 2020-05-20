@@ -1570,6 +1570,10 @@ async function closeNote(id, notification) {
         await db.exeDelete("notifications", notification);
 }
 
+function getNotche(side) {
+    return getComputedStyle(document.documentElement).getPropertyValue("--sa" + side.substring(0, 1));
+}
+
 function errorLoadingApp(id, e) {
     console.log(e);
     toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
@@ -2545,6 +2549,7 @@ function goLinkPageTransition(url, $this, e) {
  */
 async function onLoadDocument() {
 
+    alert(getNotche("top"));
     $("#core-spinner").css("stroke", THEME);
 
     window.addEventListener('beforeinstallprompt', (e) => {
