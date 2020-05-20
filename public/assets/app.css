@@ -208,7 +208,7 @@ input, select, textarea {
     transition: all ease .3s;
     position: fixed;
     z-index: 3;
-    top: calc(100vh - 50px);
+    bottom: 0;
     height: 50px;
     left: 0;
     width: 100%;
@@ -1048,10 +1048,8 @@ input, select, textarea {
 
     #core-header-nav-bottom {
         padding-bottom: constant(safe-area-inset-bottom, 0);
-        top: calc(100vh - 50px - constant(safe-area-inset-bottom, 0));
         height: calc(50px + constant(safe-area-inset-bottom, 0));
         padding-bottom: env(safe-area-inset-bottom, 0);
-        top: calc(100vh - 50px - env(safe-area-inset-bottom, 0));
         height: calc(50px + env(safe-area-inset-bottom, 0));
     }
 
