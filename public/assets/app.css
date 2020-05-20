@@ -328,7 +328,7 @@ input::-webkit-inner-spin-button {
     bottom: 0;
     left: 0;
     width: 250px;
-    height: 50px;
+    height: 51px;
     padding: 8px;
     background: #ffffff;
     border-top: solid 1px #EEEEEE;
@@ -1038,8 +1038,8 @@ input::-webkit-inner-spin-button {
     .core-sidebar-bottom {
         padding-bottom: constant(safe-area-inset-bottom);
         padding-bottom: env(safe-area-inset-bottom);
-        height: calc(50px + constant(safe-area-inset-bottom));
-        height: calc(50px + env(safe-area-inset-bottom));
+        height: calc(51px + constant(safe-area-inset-bottom));
+        height: calc(51px + env(safe-area-inset-bottom));
     }
 
     #core-header-nav-bottom {
