@@ -878,9 +878,13 @@ input::-webkit-inner-spin-button {
     padding: 16px 15px 8px;
 }
 
-.notification-card.readed, .notification-card.readed > .notification-content-right > .notification-title {
-    background: #f7f7f7 !important;
-    color: #949494 !important;
+.notification-card.readed {
+    box-shadow: none;
+    border: solid 1px #eee;
+}
+
+.notification-card.readed img {
+    opacity: .6;
 }
 
 .notification-content-left {
