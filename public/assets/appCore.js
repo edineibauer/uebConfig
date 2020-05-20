@@ -1895,7 +1895,7 @@ function animateTimeout($element, $aux, scroll) {
     clearHeaderScrollPosition();
 
     //add or not space on end content (navbar space)
-    if (window.innerWidth < 900 && $("#core-header-nav-bottom").css("opacity") !== "0" && $("#core-header-nav-bottom").hasClass("s-show"))
+    if (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar"))
         $("#core-content").addClass("mb-50");
     else
         $("#core-content").removeClass("mb-50");
