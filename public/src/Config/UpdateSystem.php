@@ -204,11 +204,6 @@ class UpdateSystem
                     Config::createConfig($config);
                 }
 
-                if(file_exists($base . "offline")) {
-                    Helper::recurseDelete(PATH_HOME . "_config/offline");
-                    Helper::recurseCopy($base . "offline", PATH_HOME . "_config/offline");
-                }
-
                 break;
             }
         }

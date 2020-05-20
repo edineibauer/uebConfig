@@ -35,6 +35,10 @@ input::-webkit-inner-spin-button {
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
+input, select, textarea {
+    -webkit-appearance: none;
+}
+
 :root {
     --sat: env(safe-area-inset-top);
     --sar: env(safe-area-inset-right);
