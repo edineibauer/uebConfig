@@ -1571,7 +1571,7 @@ async function closeNote(id, notification) {
 }
 
 function getNotche(side) {
-    return getComputedStyle(document.documentElement).getPropertyValue("--sa" + side.substring(0, 1));
+    return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sa" + side.substring(0, 1)));
 }
 
 function errorLoadingApp(id, e) {
@@ -1817,7 +1817,8 @@ function clearPage() {
 function getPageContentHeight() {
     let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
     let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar") ? 50 : 0);
-    return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
+    let heightNotche = getNotche("top");
+    return "calc(100vh - " + (heightHeader + heightNavbar + heightNotche) + "px)"
 }
 
 function defaultPageTransitionPosition(direction, $element, route) {
@@ -2548,8 +2549,6 @@ function goLinkPageTransition(url, $this, e) {
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
-
-    alert(getNotche("top"));
     $("#core-spinner").css("stroke", THEME);
 
     window.addEventListener('beforeinstallprompt', (e) => {
