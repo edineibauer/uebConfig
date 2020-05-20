@@ -1842,9 +1842,6 @@ function defaultPageTransitionPosition(direction, $element, route) {
         "overflow": "hidden"
     });
 
-    if($element.attr("id") === "core-content")
-        $element.css("padding-top", getPaddingTopContent() + "px")
-
     let file = app.file.split("/");
     file = file[0];
 
