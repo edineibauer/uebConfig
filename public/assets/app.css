@@ -237,18 +237,18 @@ input::-webkit-inner-spin-button {
 }
 
 .badge-notification {
-    position: absolute!important;
-    top: 3px!important;
-    left: 50%!important;
+    position: absolute !important;
+    top: 3px !important;
+    left: 50% !important;
     background: #ff0100;
-    color: #ffffff!important;
-    width: auto!important;
-    min-width: 15px!important;
-    height: 15px!important;
-    border-radius: 50px!important;
-    font-size: 11px!important;
-    padding: 2px!important;
-    text-align: center!important;
+    color: #ffffff !important;
+    width: auto !important;
+    min-width: 15px !important;
+    height: 15px !important;
+    border-radius: 50px !important;
+    font-size: 11px !important;
+    padding: 2px !important;
+    text-align: center !important;
 }
 
 #core-menu-custom-bottom li a, #core-menu-custom-bottom li span, #core-menu-custom-bottom li div {
@@ -331,6 +331,17 @@ input::-webkit-inner-spin-button {
     opacity: 0;
     transition: all ease .15s;
     transform: translateX(-270px);
+}
+
+.core-sidebar-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    height: 50px;
+    padding: 8px;
+    background: #ffffff;
+    box-shadow: 0 9px 12px 0;
 }
 
 #core-sidebar.active {
@@ -866,8 +877,8 @@ input::-webkit-inner-spin-button {
 
 .notification-card {
     position: relative;
-    background: #ffffff!important;
-    color: #555555!important;
+    background: #ffffff !important;
+    color: #555555 !important;
     border-radius: 5px;
     float: left;
     width: 100%;
@@ -878,8 +889,8 @@ input::-webkit-inner-spin-button {
 }
 
 .notification-card.readed, .notification-card.readed > .notification-content-right > .notification-title {
-    background: #f7f7f7!important;
-    color: #949494!important;
+    background: #f7f7f7 !important;
+    color: #949494 !important;
 }
 
 .notification-content-left {
@@ -895,11 +906,11 @@ input::-webkit-inner-spin-button {
 }
 
 .notification-title {
-    margin-bottom: 5px!important;
-    font-size: 15px!important;
-    max-height: 38px!important;
-    overflow: hidden!important;
-    color: #555555!important;
+    margin-bottom: 5px !important;
+    font-size: 15px !important;
+    max-height: 38px !important;
+    overflow: hidden !important;
+    color: #555555 !important;
 }
 
 .notification-desc {
@@ -943,7 +954,7 @@ input::-webkit-inner-spin-button {
 }
 
 .touching {
-    transition: transform 0s!important;
+    transition: transform 0s !important;
     cursor: grabbing;
 }
 
@@ -1009,6 +1020,19 @@ input::-webkit-inner-spin-button {
 @media only screen and (max-width: 993px) {
     .s-hide {
         display: none !important
+    }
+
+    #core-sidebar {
+        /* Status bar height on iOS 11.0 or + */
+        padding-top: constant(safe-area-inset-top);
+        padding-bottom: constant(safe-area-inset-bottom);
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .core-sidebar-bottom {
+        bottom: constant(safe-area-inset-bottom);
+        bottom: env(safe-area-inset-bottom);
     }
 
     .s-show {
