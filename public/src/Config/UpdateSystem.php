@@ -612,10 +612,33 @@ class UpdateSystem
      * @param string $file
      * @param string $dir
      */
-    private function copySplashScreen(string $file, string $dir)
+    private function copySplashScreenIphone(string $file, string $dir)
     {
-        if(file_exists($dir . "public/assets/splashscreens/{$file}.png"))
-            copy($dir . "public/assets/splashscreens/{$file}.png", PATH_HOME . "assetsPublic/img/splashscreens/{$file}.png");
+        if(file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
+            $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
+            $fav->resize(1242, 2688, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone6.png");
+            $fav->resize(1125, 2436, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone5.png");
+            $fav->resize(1242, 2208, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone4.png");
+            $fav->resize(828, 1792, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone3.png");
+            $fav->resize(750, 1334, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone2.png");
+            $fav->resize(640, 1136, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone1.png");
+        }
+    }
+
+    /**
+     * Copia SplashScreen se existir
+     * @param string $file
+     * @param string $dir
+     */
+    private function copySplashScreenIpad(string $file, string $dir)
+    {
+        if(file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
+            $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
+            $fav->resize(2048, 2732, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad4.png");
+            $fav->resize(1668, 2388, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad3.png");
+            $fav->resize(1668, 2224, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad2.png");
+            $fav->resize(1536, 2048, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad1.png");
+        }
     }
 
     /**
@@ -642,35 +665,14 @@ class UpdateSystem
          * Copia a launch screen
          * Gerador das splashScreen: https://appsco.pe/developer/splash-screens
          */
-        if(file_exists(PATH_HOME . "public/assets/splashscreens/iphone5_splash.png")) {
-            $this->copySplashScreen("launch", PATH_HOME);
-            $this->copySplashScreen("iphone5_splash", PATH_HOME);
-            $this->copySplashScreen("iphone6_splash", PATH_HOME);
-            $this->copySplashScreen("iphoneplus_splash", PATH_HOME);
-            $this->copySplashScreen("iphonex_splash", PATH_HOME);
-            $this->copySplashScreen("iphonexr_splash", PATH_HOME);
-            $this->copySplashScreen("iphonexsmax_splash", PATH_HOME);
-            $this->copySplashScreen("ipad_splash", PATH_HOME);
-            $this->copySplashScreen("ipadpro1_splash", PATH_HOME);
-            $this->copySplashScreen("ipadpro3_splash", PATH_HOME);
-            $this->copySplashScreen("ipadpro2_splash", PATH_HOME);
-
+        if(file_exists(PATH_HOME . "public/assets/splashscreens/iphone.png")) {
+            $this->copySplashScreenIphone("iphone", PATH_HOME);
+            $this->copySplashScreenIpad("ipad", PATH_HOME);
         } else {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone5_splash.png")) {
-
-                    $this->copySplashScreen("launch", PATH_HOME);
-                    $this->copySplashScreen("iphone5_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("iphone6_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("iphoneplus_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("iphonex_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("iphonexr_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("iphonexsmax_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("ipad_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("ipadpro1_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("ipadpro3_splash", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreen("ipadpro2_splash", PATH_HOME . VENDOR . "/{$lib}/");
-
+                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone.png")) {
+                    $this->copySplashScreenIphone("iphone",  PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreenIpad("ipad",  PATH_HOME . VENDOR . "/{$lib}/");
                     break;
                 }
             }

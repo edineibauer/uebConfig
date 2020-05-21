@@ -21,18 +21,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{$sitename}">
 
-    <link rel="apple-touch-startup-image" href="{$home}assetsPublic/img/splashscreens/launch.png">
-    <link href="{$home}assetsPublic/img/splashscreens/iphone5_splash.png" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphone5_splash.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphone6_splash.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphoneplus_splash.png" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphonex_splash.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphonexr_splash.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/iphonexsmax_splash.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/ipad_splash.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/ipadpro1_splash.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/ipadpro3_splash.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
-    <link href="{$home}assetsPublic/img/splashscreens/ipadpro2_splash.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone1.png" media="(device-width: 640px) and (device-height: 1136px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone2.png" media="(device-width: 750px) and (device-height: 1334px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone3.png" media="(device-width: 828px) and (device-height: 1792px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone4.png" media="(device-width: 1242px) and (device-height: 2208px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone5.png" media="(device-width: 1125px) and (device-height: 2436px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/iphone6.png" media="(device-width: 1242px) and (device-height: 2688px) and (-webkit-device-pixel-ratio: 3)" rel="apple-touch-startup-image" />
+
+    <link href="{$home}assetsPublic/img/splashscreens/ipad1.png" media="(device-width: 1536px) and (device-height: 2048px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/ipad2.png" media="(device-width: 1668px) and (device-height: 2224px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/ipad3.png" media="(device-width: 1668px) and (device-height: 2388px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
+    <link href="{$home}assetsPublic/img/splashscreens/ipad4.png" media="(device-width: 2048px) and (device-height: 2732px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image" />
 
     <link rel="apple-touch-icon" href="{$home}assetsPublic/img/favicon-192.png?v={$version}">
     <link rel="apple-touch-icon" sizes="96x96" href="{$home}assetsPublic/img/favicon-96.png?v={$version}">
