@@ -1,6 +1,6 @@
 <?php
 
-if ($_SESSION['userlogin']['id'] === "1" ||1===1) {
+if ($link->getVariaveis()[0] === "uebster") {
     if (file_exists(PATH_HOME . "_config/updates/version.txt"))
         unlink(PATH_HOME . "_config/updates/version.txt");
 
