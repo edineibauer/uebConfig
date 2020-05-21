@@ -1853,7 +1853,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
         $aux = $element.clone().css({"top": topHeader + "px", "padding-top": getPaddingTopContent() + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
     }
 
-    $element.css("margin-top", 0);
+    $element.css("margin-top", getNotche("top"));
     if (direction === 'forward') {
         if (window.innerWidth < 900)
             $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 100) + 'px', opacity: 0}, 0);
