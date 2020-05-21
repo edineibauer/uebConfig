@@ -582,7 +582,9 @@ function saveForm(id) {
 
 function privateFormSetError(form, error, showMessages, destroy) {
     if (showMessages) {
-        navigator.vibrate(100);
+        if(typeof navigator.vibrate !== "undefined")
+            navigator.vibrate(100);
+
         toast("Corrija o formulário", 1500, "toast-warning");
         showErrorField(form.$element, error, dicionarios[form.entity], form.entity, 1);
         setFormSaveStatus(form, 1)

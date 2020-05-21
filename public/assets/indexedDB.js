@@ -260,7 +260,8 @@ function dbSendData(entity, dados, action) {
                 if (dd.response === 1 && dd.data.error === 0) {
                     s(Object.assign({db_errorback: 0}, dd.data.data[0]));
                 } else {
-                    navigator.vibrate(100);
+                    if(typeof navigator.vibrate !== "undefined")
+                        navigator.vibrate(100);
 
                     if (!isEmpty(form)) {
                         showErrorField(form.$element, dd.data.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
