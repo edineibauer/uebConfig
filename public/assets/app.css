@@ -46,6 +46,11 @@ input, select, textarea {
     --sal: env(safe-area-inset-left);
 }
 
+#app {
+    height: 100vh;
+    width: 100%;
+}
+
 #core-header-container {
     padding: 10px 0;
     float: left;
