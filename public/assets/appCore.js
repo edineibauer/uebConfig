@@ -550,7 +550,7 @@ function pushNotification(title, body, url, image, background) {
 }
 
 function subscribeUser(showMessageSuccess) {
-    if (swRegistration.pushManager) {
+    if (swRegistration?.pushManager) {
         if (PUSH_PUBLIC_KEY !== "") {
             showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
             const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
@@ -790,7 +790,7 @@ async function menuHeader() {
     /**
      * Verifica se remove o botão de Notificação
      * */
-    if (!swRegistration.pushManager || getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+    if (!swRegistration?.pushManager || getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
         $(".site-btn-push").remove();
 
     /**
@@ -2045,7 +2045,7 @@ if (SERVICEWORKER && navigator.onLine) {
         /**
          * Check if have permission to send notification but not is registered on service worker
          * */
-        if (swRegistration.pushManager) {
+        if (swRegistration?.pushManager) {
             swRegistration.pushManager.getSubscription().then(function (subscription) {
                 if (subscription === null) {
                     return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
