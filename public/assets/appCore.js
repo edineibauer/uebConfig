@@ -1417,15 +1417,6 @@ function loadCacheUser() {
         gets.push(get("react"));
         gets.push(get("user"));
 
-        /**
-         * Adiciona o core Js e core Css do meu atual usuário
-         */
-        if (SERVICEWORKER) {
-            gets.push(caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
-            }));
-        }
-
         return Promise.all(gets).then(r => {
             gets = [];
             gets.push(dbLocal.exeCreate('__allow', r[0]));
@@ -1448,21 +1439,23 @@ function loadCacheUser() {
         }).then(() => {
 
             /**
+             * Carrega as views para este usuário
+             */
+            setTimeout(function () {
+                loadUserViews();
+            }, 3000);
+
+            /**
              * Recupera syncs pendentes deste usuário
              */
             return loadSyncNotSaved();
 
-        }).then(() => {
+        // }).then(() => {
             /**
              * Seta a versão do app
              */
-            return setVersionApplication();
+            // return setVersionApplication();
 
-        }).then(() => {
-            /**
-             * Carrega as views para este usuário
-             */
-            return loadUserViews();
         }).catch(e => {
             errorLoadingApp("loadCacheUser", e);
         });
