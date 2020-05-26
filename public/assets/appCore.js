@@ -1073,6 +1073,7 @@ function loadSyncNotSaved() {
 
 function clearCacheUser() {
     let clear = [];
+    setCookie('accesscount', "", -1);
 
     /**
      * Sobe pendências para o servidor e limpa base local
@@ -1439,13 +1440,6 @@ function loadCacheUser() {
         }).then(() => {
 
             /**
-             * Carrega as views para este usuário
-             */
-            setTimeout(function () {
-                loadUserViews();
-            }, 3000);
-
-            /**
              * Recupera syncs pendentes deste usuário
              */
             return loadSyncNotSaved();
@@ -1611,11 +1605,14 @@ function setVersionApplication() {
 async function firstAccess() {
     setCookie('accesscount', 1);
 
-    return get("templates").then(r => {
-        return dbLocal.exeCreate('__template', r);
-    }).catch(e => {
-        errorLoadingApp("get templates", e);
-    })
+    if(navigator.onLine) {
+        /**
+         * Carrega as views para este usuário
+         */
+        setTimeout(function () {
+            loadUserViews();
+        }, 3000);
+    }
 }
 
 async function cacheAppAfter() {
