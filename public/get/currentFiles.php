@@ -80,7 +80,7 @@ $data['data'] = [
 
 //CORE, create cache from all 'assetsPublic' root and current view
 foreach (Helper::listFolder(PATH_HOME . "assetsPublic") as $item) {
-    if (!is_dir(PATH_HOME . "assetsPublic/{$item}") && strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
+    if ($item !== "tableCore.min.js" && $item !== "tableReportCore.min" && !is_dir(PATH_HOME . "assetsPublic/{$item}") && strpos($item, ".") && !in_array(HOME . "assetsPublic/{$item}", $data['data']['core']))
         $data['data']['core'][] = HOME . "assetsPublic/{$item}?v=" . VERSION;
 }
 
