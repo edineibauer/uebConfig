@@ -424,6 +424,11 @@ class Config
         return !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
     }
 
+    public static function includeGoogleLogin()
+    {
+        include_once PATH_HOME . VENDOR . "login/public/view/inc/googleLogin.php";
+    }
+
     /**
      * Retorna os setores de um sistema
      * @param string|null $sistem
