@@ -425,6 +425,25 @@ class Config
     }
 
     /**
+     * Retorna os setores de um sistema
+     * @param string|null $sistem
+     * @return array
+     */
+    public static function getSetorSystem(string $sistem = null): array
+    {
+        $list = [];
+        foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $item) {
+            if(preg_match("/\.json$/i", $item)) {
+                $info = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$item}"), !0);
+                if($info['user'] === 1 && empty($sistem))
+                    $list[] = str_replace(".json", "", $item);
+            }
+        }
+
+        return $list;
+    }
+
+    /**
      * Verifica se tem permissão de acesso a este param route
      * @param array|string $param
      * @return bool
