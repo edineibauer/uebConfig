@@ -435,7 +435,7 @@ class Config
         foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $item) {
             if(preg_match("/\.json$/i", $item)) {
                 $info = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$item}"), !0);
-                if($info['user'] === 1 && empty($sistem))
+                if(isset($info['user']) && $info['user'] === 1 && empty($sistem))
                     $list[] = str_replace(".json", "", $item);
             }
         }
