@@ -1417,6 +1417,9 @@ function loadCacheUser() {
         gets.push(get("navbar"));
         gets.push(get("react"));
         gets.push(get("user"));
+        gets.push(get("relevant"));
+        gets.push(get("general"));
+        gets.push(get("graficos"));
 
         return Promise.all(gets).then(r => {
             gets = [];
@@ -1428,6 +1431,9 @@ function loadCacheUser() {
             gets.push(dbLocal.exeCreate('__navbar', r[5]));
             gets.push(dbLocal.exeCreate('__react', r[6]));
             gets.push(dbLocal.exeCreate('__user', r[7]));
+            gets.push(dbLocal.exeCreate('__relevant', r[8]));
+            gets.push(dbLocal.exeCreate('__general', r[9]));
+            gets.push(dbLocal.exeCreate('__graficos', r[10]));
             dicionarios = r[1];
             return Promise.all(gets);
 
@@ -1619,10 +1625,6 @@ async function firstAccess() {
 async function cacheAppAfter() {
     if (!SERVICEWORKER)
         return Promise.all([]);
-
-    await dbLocal.exeCreate('__relevant', await get("relevant"));
-    await dbLocal.exeCreate('__general', await get("general"));
-    await dbLocal.exeCreate('__graficos', await get("graficos"));
 
     return get("currentFiles").then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
