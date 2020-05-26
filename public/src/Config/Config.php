@@ -273,11 +273,15 @@ class Config
                 self::createPageJs($view, $param['js'], $lib, $setor);
             } elseif (file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.js")) {
                 self::createPageJs($view, $param['js'], $lib);
+            } elseif(DEV) {
+                self::createPageJs($view, $param['js'], $lib);
             }
 
             if (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css")) {
                 self::createPageCss($view, $param['css'], $lib, $setor);
             } elseif (file_exists(PATH_HOME . "assetsPublic/view/{$view}.min.css")) {
+                self::createPageCss($view, $param['css'], $lib);
+            } elseif(DEV) {
                 self::createPageCss($view, $param['css'], $lib);
             }
         }
