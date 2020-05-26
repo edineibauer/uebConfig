@@ -1610,7 +1610,7 @@ function setVersionApplication() {
 
 async function firstAccess() {
     setCookie('accesscount', 1);
-    await cacheAppAfter();
+    await cacheCoreApp();
 
     if(navigator.onLine) {
         /**
@@ -1622,31 +1622,31 @@ async function firstAccess() {
     }
 }
 
-async function cacheAppAfter() {
+async function cacheCoreApp() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
     return get("currentFiles").then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
             return cache.addAll(g.core).catch(e => {
-                errorLoadingApp("cacheAppAfter: cache core", e)
+                errorLoadingApp("cacheCoreApp: cache core", e)
             })
         }).then(() => {
             return caches.open('fonts-v' + VERSION).then(cache => {
                 return cache.addAll(g.fonts).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache fonts", e)
+                    errorLoadingApp("cacheCoreApp: cache fonts", e)
                 })
             })
         }).then(() => {
             return caches.open('images-v' + VERSION).then(cache => {
                 return cache.addAll(g.images).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache images", e)
+                    errorLoadingApp("cacheCoreApp: cache images", e)
                 })
             })
         }).then(() => {
             return caches.open('misc-v' + VERSION).then(cache => {
                 return cache.addAll(g.misc).catch(e => {
-                    errorLoadingApp("cacheAppAfter: cache misc", e)
+                    errorLoadingApp("cacheCoreApp: cache misc", e)
                 })
             })
         }).then(() => {
