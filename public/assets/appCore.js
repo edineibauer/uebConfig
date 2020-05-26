@@ -831,7 +831,7 @@ function getFieldsData(entity, haveId, r) {
     }
 
     $.each(dicionarios[entity], function (i, e) {
-        if (fields.length < 6 && !isEmpty(e.datagrid.grid_relevant)) {
+        if (!isEmpty(e.datagrid.grid_relevant)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
@@ -851,7 +851,7 @@ function getFieldsData(entity, haveId, r) {
     if (!isEmpty(relation) && typeof relation === "object" && !isEmpty(relation.belongsTo)) {
         $.each(relation.belongsTo, function (i, e) {
             $.each(e, function (relEntity, relData) {
-                if (fields.length < 6 && !isEmpty(relData.datagrid) && isEmpty(fields[relData.datagrid - 1])) {
+                if (!isEmpty(relData.datagrid) && isEmpty(fields[relData.datagrid - 1])) {
                     let data = {
                         'nome': ucFirst(replaceAll(replaceAll(relEntity, "_", " "), "-", " ")),
                         'column': relData.column,
@@ -888,8 +888,10 @@ function getFieldsData(entity, haveId, r) {
                             'first': !haveId && a === 0
                         };
                         let indice = getIndiceField(a, indices);
-                        indices.push(indice);
-                        pushToArrayIndex(fields, data, indice)
+                        if (indice < 7) {
+                            indices.push(indice);
+                            pushToArrayIndex(fields, data, indice)
+                        }
                     }
                 })
             }
@@ -1033,7 +1035,7 @@ function getRelevantTitle(entity, data, limit, etiqueta) {
 }
 
 function loadSyncNotSaved() {
-    if(USER.setor === 0)
+    if (USER.setor === 0)
         return;
 
     return new Promise((resolve, f) => {
@@ -1824,7 +1826,7 @@ function getPageContentHeight() {
 }
 
 function getPaddingTopContent() {
-    if(!$("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993)
+    if (!$("#core-header").hasClass("core-show-header-navbar") && window.innerWidth < 993)
         return getNotche("top");
 
     return 0;
@@ -1850,7 +1852,10 @@ function defaultPageTransitionPosition(direction, $element, route) {
     if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
-        $aux = $element.clone().css({"top": topHeader + "px", "padding-top": getPaddingTopContent() + "px"}).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
+        $aux = $element.clone().css({
+            "top": topHeader + "px",
+            "padding-top": getPaddingTopContent() + "px"
+        }).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
     }
 
     $element.css("margin-top", 0);
@@ -2179,7 +2184,7 @@ var app = {
                 $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
             $div.css("min-height", getPageContentHeight());
-            if($div.attr("id") === "core-content")
+            if ($div.attr("id") === "core-content")
                 $div.css("padding-top", getPaddingTopContent() + "px");
 
             return Promise.all([]);
@@ -2210,7 +2215,7 @@ var app = {
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
                         $div.css("min-height", getPageContentHeight());
-                        if($div.attr("id") === "core-content")
+                        if ($div.attr("id") === "core-content")
                             $div.css("padding-top", getPaddingTopContent());
 
                         if (g.js.length) {
