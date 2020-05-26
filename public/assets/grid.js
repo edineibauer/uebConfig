@@ -1,6 +1,6 @@
 var grids = [];
 
-function gridTr(identificador, entity, data, fields, info, autores, actions, selecteds) {
+function gridTr(identificador, entity, data, fields, info, actions, selecteds) {
     let gridContent = {
         id: data.id || 0,
         db_status: (typeof data.db_status !== "boolean" || data.db_status),
@@ -20,7 +20,6 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
         gridContent.button.update = r[1];
         gridContent.permission = r[2];
         gridContent.button.status = {have: !1, status: !1};
-        gridContent.button.autor = {have: !1, id: !1, list: []};
 
         if (actions.status && gridContent.button.update && isNumberPositive(info.status)) {
             gridContent.button.status.have = !0;
@@ -32,15 +31,7 @@ function gridTr(identificador, entity, data, fields, info, autores, actions, sel
                 }
             })
         }
-        if (actions.autor && USER.setor === "admin" && isNumberPositive(info.autor)) {
-            gridContent.button.autor.have = !0;
-            let colAutor = info.autor === 2 ? "ownerpub" : "autorpub";
-            if (isEmpty(data[colAutor]))
-                gridContent.button.autor.id = !0;
-            $.each(autores, function (i, e) {
-                gridContent.button.autor.list.push({id: e.id, nome: e.nome, selected: e.id == data[colAutor]})
-            })
-        }
+
         let wait = [];
         $.each(fields, function (i, e) {
             if (typeof data[e.column] !== "undefined") {
@@ -255,7 +246,6 @@ function gridCrud(entity, fields, actions) {
             else
                 result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
 
-            let users = dbLocal.exeRead("__user", 1);
             let templates = getTemplates();
             let $loadingLoading = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));
             $loadingLoading.loading();
@@ -269,11 +259,10 @@ function gridCrud(entity, fields, actions) {
             }
             $(".table-info-result").remove();
             $this.$content.parent().find("thead").removeClass("hide");
-            return Promise.all([info, result, users, templates]).then(r => {
+            return Promise.all([info, result, templates]).then(r => {
                 info = r[0];
                 result = r[1];
-                users = r[2];
-                templates = r[3];
+                templates = r[2];
                 dbLocal.exeRead('__historic', 1).then(hist => {
                     $this.historic = hist[$this.entity]
                 });
@@ -292,7 +281,7 @@ function gridCrud(entity, fields, actions) {
 
                     for (let k in result.data) {
                         if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
-                            pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], users, grid.actions, selecteds).then(tr => {
+                            pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], grid.actions, selecteds).then(tr => {
                                 if (parseInt(k) === registerPosition) {
                                     $this.$content.append(Mustache.render(templates.grid_content, tr))
                                     registerPosition++;

@@ -1147,7 +1147,6 @@ function clearCacheAll() {
     clear.push(dbLocal.clear('__react'));
     clear.push(dbLocal.clear('__relevant'));
     clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__user'));
     clear.push(dbLocal.clear('__menu'));
     clear.push(dbLocal.clear('__graficos'));
     clear.push(dbLocal.clear('__navbar'));
@@ -1416,7 +1415,6 @@ function loadCacheUser() {
         gets.push(get("menu"));
         gets.push(get("navbar"));
         gets.push(get("react"));
-        gets.push(get("user"));
         gets.push(get("relevant"));
         gets.push(get("general"));
         gets.push(get("graficos"));
@@ -1430,10 +1428,9 @@ function loadCacheUser() {
             gets.push(dbLocal.exeCreate('__menu', r[4]));
             gets.push(dbLocal.exeCreate('__navbar', r[5]));
             gets.push(dbLocal.exeCreate('__react', r[6]));
-            gets.push(dbLocal.exeCreate('__user', r[7]));
-            gets.push(dbLocal.exeCreate('__relevant', r[8]));
-            gets.push(dbLocal.exeCreate('__general', r[9]));
-            gets.push(dbLocal.exeCreate('__graficos', r[10]));
+            gets.push(dbLocal.exeCreate('__relevant', r[7]));
+            gets.push(dbLocal.exeCreate('__general', r[8]));
+            gets.push(dbLocal.exeCreate('__graficos', r[9]));
             dicionarios = r[1];
             return Promise.all(gets);
 
@@ -1735,7 +1732,6 @@ function updateAppOnDev() {
             gets.push(dbLocal.exeCreate('__menu', r[4]));
             gets.push(dbLocal.exeCreate('__navbar', r[5]));
             gets.push(dbLocal.exeCreate('__react', r[6]));
-            gets.push(dbLocal.exeCreate('__user', r[7]));
             gets.push(dbLocal.exeCreate('__graficos', r[8]));
             dicionarios = r[1];
             return Promise.all(gets);
