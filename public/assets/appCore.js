@@ -1604,6 +1604,7 @@ function setVersionApplication() {
 
 async function firstAccess() {
     setCookie('accesscount', 1);
+    await cacheAppAfter();
 
     if(navigator.onLine) {
         /**
@@ -1751,6 +1752,29 @@ async function thenAccess() {
      * Conta acesso
      */
     setCookie('accesscount', (parseInt(getCookie('accesscount')) + 1));
+
+    /**
+     * Check if have permission to send notification but not is registered on service worker
+     * */
+    setTimeout(function () {
+        if (swRegistration?.pushManager) {
+            swRegistration.pushManager.getSubscription().then(function (subscription) {
+                if (subscription === null) {
+                    return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                        if (p === "granted" && PUSH_PUBLIC_KEY !== "")
+                            return subscribeUser(1);
+                    });
+                } else {
+                    post('dashboard', 'push', {
+                        "push": JSON.stringify(subscription),
+                        'p1': navigator.appName,
+                        'p2': navigator.appCodeName,
+                        'p3': navigator.platform
+                    });
+                }
+            });
+        }
+    }, 4000);
 
     return updateAppOnDev().then(() => {
         if (!navigator.onLine || !DEV) {
@@ -2034,27 +2058,6 @@ if (SERVICEWORKER && navigator.onLine) {
         } else {
             return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
                 swRegistration = swReg;
-            });
-        }
-    }).then(() => {
-        /**
-         * Check if have permission to send notification but not is registered on service worker
-         * */
-        if (swRegistration?.pushManager) {
-            swRegistration.pushManager.getSubscription().then(function (subscription) {
-                if (subscription === null) {
-                    return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                        if (p === "granted" && PUSH_PUBLIC_KEY !== "")
-                            return subscribeUser(1);
-                    });
-                } else {
-                    post('dashboard', 'push', {
-                        "push": JSON.stringify(subscription),
-                        'p1': navigator.appName,
-                        'p2': navigator.appCodeName,
-                        'p3': navigator.platform
-                    });
-                }
             });
         }
     });
@@ -2675,7 +2678,6 @@ async function startApplication() {
 
     await menuHeader();
     await readRouteState();
-    await cacheAppAfter();
     await onLoadDocument();
     await checkUpdate();
 }
