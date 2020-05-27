@@ -1742,7 +1742,7 @@ async function thenAccess() {
         }
     }, 4000);
 
-    return dbLocal.exeCreate('__dicionario', 1).then(d => {
+    return dbLocal.exeRead('__dicionario', 1).then(d => {
         dicionarios = d;
     }).then(() => {
         return updateAppOnDev().then(() => {
