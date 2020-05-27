@@ -2056,14 +2056,14 @@ function acceptInstallApp() {
 }
 
 function closeInstallAppPrompt(onInstall) {
-    let $installCard = $("#installAppCard").addClass("activeClose");
+    let $installCard = $("#installAppCard").addClass("transformDown");
     $("#core-overlay").removeClass("active activeBold");
     setCookie("installAppAction", "false");
     post("config", "appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
 
     setTimeout(function () {
         $installCard.remove();
-    }, 300);
+    }, 200);
 }
 
 function openInstallAppPrompt(force) {

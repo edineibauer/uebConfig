@@ -1,4 +1,4 @@
-<div id="installAppCard">
+<div id="installAppCard transformDown">
     <i class="material-icons" onclick="closeInstallAppPrompt()">close</i>
     <img src="{{home}}{{favicon}}" alt="{{sitename}}"/>
     <h2>{{sitename}}</h2>
@@ -9,13 +9,18 @@
 <style>
     #installAppCard {
         position: fixed;
-        top: calc(50% + 95px);
-        left: 3%;
-        width: 94%;
+        bottom: 0;
+        left: 0;
+        width: 100%;
         background: #ffffff;
         border-radius: 7px;
         z-index: 99999;
-        box-shadow: 3px 3px 15px -6px black;
+        box-shadow: 3px -3px 15px -6px black;
+        transition: all ease .2s;
+    }
+
+    #installAppCard.transformDown {
+        transform: translateY(150px);
     }
 
     #installAppCard > i {
@@ -64,3 +69,7 @@
         background-color: rgba(0, 0, 0, 0.38)!important;
     }
 </style>
+
+<script>
+    $("#installAppCard").removeClass("transformDown");
+</script>
