@@ -1116,6 +1116,7 @@ function clearCacheAll() {
     /**
      * Sobe pendências para o servidor e limpa base local
      */
+    let clear = [];
     for (let entity in dicionarios) {
         clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
             if (!d.length)
