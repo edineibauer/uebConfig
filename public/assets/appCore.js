@@ -1572,6 +1572,8 @@ async function firstAccess() {
     setCookie('accesscount', 1);
     await cacheCoreApp();
 
+    setVersionApplication();
+
     if(navigator.onLine) {
         /**
          * Carrega as views para este usuário
