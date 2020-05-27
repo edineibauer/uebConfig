@@ -831,7 +831,7 @@ function getFieldsData(entity, haveId, r) {
     }
 
     $.each(dicionarios[entity], function (i, e) {
-        if (!isEmpty(e.datagrid.grid_relevant)) {
+        if (!isEmpty(e.datagrid?.grid_relevant)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
