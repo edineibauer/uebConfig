@@ -876,6 +876,7 @@ input, select, textarea {
 
 .notification-card {
     position: relative;
+    border: solid 1px #ddd;
     background: #ffffff !important;
     color: #555555 !important;
     border-radius: 5px;
