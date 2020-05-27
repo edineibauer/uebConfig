@@ -1725,14 +1725,18 @@ async function thenAccess() {
         }
     }, 4000);
 
-    return updateAppOnDev().then(() => {
-        if (!navigator.onLine || !DEV) {
-            return dbLocal.exeRead("__dicionario", 1).then(d => {
-                dicionarios = d;
-            });
-        }
-    }).catch(e => {
-        errorLoadingApp("updateAppOnDev", e);
+    return dbLocal.exeCreate('__dicionario', 1).then(d => {
+        dicionarios = d;
+    }).then(() => {
+        return updateAppOnDev().then(() => {
+            if (!navigator.onLine || !DEV) {
+                return dbLocal.exeRead("__dicionario", 1).then(d => {
+                    dicionarios = d;
+                });
+            }
+        }).catch(e => {
+            errorLoadingApp("updateAppOnDev", e);
+        });
     });
 }
 
