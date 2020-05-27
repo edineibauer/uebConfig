@@ -1090,32 +1090,22 @@ function clearCacheUser() {
         }));
     }
 
-    /**
-     * Limpa cache information
-     */
-    clear.push(dbLocal.clear('__historic'));
-    clear.push(dbLocal.clear('__allow'));
-    clear.push(dbLocal.clear('__dicionario'));
-    clear.push(dbLocal.clear('__info'));
-    clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__graficos'));
-    clear.push(dbLocal.clear('__navbar'));
-    clear.push(dbLocal.clear('__panel'));
-
     return Promise.all(clear).then(() => {
-        if (SERVICEWORKER) {
+        return clearIndexedDbGets().then(() => {
+            if (SERVICEWORKER) {
 
-            /**
-             * Clear cache pages
-             */
-            return caches.keys().then(cacheNames => {
-                return Promise.all(cacheNames.map(cacheName => {
-                    let corte = cacheName.split("-v");
-                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
-                        return caches.delete(cacheName);
-                }))
-            })
-        }
+                /**
+                 * Clear cache pages
+                 */
+                return caches.keys().then(cacheNames => {
+                    return Promise.all(cacheNames.map(cacheName => {
+                        let corte = cacheName.split("-v");
+                        if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
+                            return caches.delete(cacheName);
+                    }))
+                })
+            }
+        })
     })
 }
 
@@ -1126,7 +1116,6 @@ function clearCacheAll() {
     /**
      * Sobe pendências para o servidor e limpa base local
      */
-    let clear = [];
     for (let entity in dicionarios) {
         clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
             if (!d.length)
@@ -1139,20 +1128,7 @@ function clearCacheAll() {
         }));
     }
 
-    clear.push(dbLocal.clear('__historic'));
-    clear.push(dbLocal.clear('__dicionario'));
-    clear.push(dbLocal.clear('__info'));
-    clear.push(dbLocal.clear('__allow'));
-    clear.push(dbLocal.clear('__general'));
-    clear.push(dbLocal.clear('__react'));
-    clear.push(dbLocal.clear('__relevant'));
-    clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__graficos'));
-    clear.push(dbLocal.clear('__navbar'));
-    clear.push(dbLocal.clear('__panel'));
-
-    return Promise.all(clear).then(() => {
+    return clearIndexedDbGets().then(() => {
         if (!SERVICEWORKER)
             return Promise.all([]);
 
@@ -1407,40 +1383,13 @@ function loadCacheUser() {
         if (USER.setor !== "0" && app.file === "login")
             toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
 
-        let gets = [];
-        gets.push(get("allow"));
-        gets.push(get("dicionarios"));
-        gets.push(get("info"));
-        gets.push(get("templates"));
-        gets.push(get("menu"));
-        gets.push(get("navbar"));
-        gets.push(get("react"));
-        gets.push(get("relevant"));
-        gets.push(get("general"));
-        gets.push(get("graficos"));
-
-        return Promise.all(gets).then(r => {
-            gets = [];
-            gets.push(dbLocal.exeCreate('__allow', r[0]));
-            gets.push(dbLocal.exeCreate('__dicionario', r[1]));
-            gets.push(dbLocal.exeCreate('__info', r[2]));
-            gets.push(dbLocal.exeCreate('__template', r[3]));
-            gets.push(dbLocal.exeCreate('__menu', r[4]));
-            gets.push(dbLocal.exeCreate('__navbar', r[5]));
-            gets.push(dbLocal.exeCreate('__react', r[6]));
-            gets.push(dbLocal.exeCreate('__relevant', r[7]));
-            gets.push(dbLocal.exeCreate('__general', r[8]));
-            gets.push(dbLocal.exeCreate('__graficos', r[9]));
-            dicionarios = r[1];
-            return Promise.all(gets);
+        return getIndexedDbGets().then(() => {
 
             // }).then(() => {
             /**
              * Baixa os dados das entidades para este usuário
              */
             // return downloadEntityData();
-
-        }).then(() => {
 
             /**
              * Recupera syncs pendentes deste usuário
@@ -1652,6 +1601,41 @@ async function cacheCoreApp() {
     })
 }
 
+function clearIndexedDbGets() {
+    let clear = [];
+    clear.push(dbLocal.clear('__allow'));
+    clear.push(dbLocal.clear('__dicionario'));
+    clear.push(dbLocal.clear('__info'));
+    clear.push(dbLocal.clear('__menu'));
+    clear.push(dbLocal.clear('__template'));
+    clear.push(dbLocal.clear('__graficos'));
+    clear.push(dbLocal.clear('__navbar'));
+    clear.push(dbLocal.clear('__react'));
+    clear.push(dbLocal.clear('__relevant'));
+    clear.push(dbLocal.clear('__general'));
+
+    return Promise.all(clear);
+}
+
+function getIndexedDbGets() {
+    return get("userCache").then(r => {
+        let gets = [];
+        gets.push(dbLocal.exeCreate('__allow', r['allow']));
+        gets.push(dbLocal.exeCreate('__dicionario', r['dicionario']));
+        gets.push(dbLocal.exeCreate('__info', r['info']));
+        gets.push(dbLocal.exeCreate('__template', r['template']));
+        gets.push(dbLocal.exeCreate('__menu', r['menu']));
+        gets.push(dbLocal.exeCreate('__navbar', r['navbar']));
+        gets.push(dbLocal.exeCreate('__react', r['react']));
+        gets.push(dbLocal.exeCreate('__relevant', r['relevant']));
+        gets.push(dbLocal.exeCreate('__general', r['general']));
+        gets.push(dbLocal.exeCreate('__graficos', r['graficos']));
+        dicionarios = r[1];
+
+        return Promise.all(gets);
+    })
+}
+
 /**
  * Se estiver em Dev, atualiza dados
  */
@@ -1662,17 +1646,7 @@ function updateAppOnDev() {
     /**
      * Limpa cache information
      */
-    let clear = [];
-    clear.push(dbLocal.clear('__allow'));
-    clear.push(dbLocal.clear('__dicionario'));
-    clear.push(dbLocal.clear('__info'));
-    clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__graficos'));
-    clear.push(dbLocal.clear('__navbar'));
-    clear.push(dbLocal.clear('__panel'));
-
-    return Promise.all(clear).then(() => {
+    return clearIndexedDbGets().then(() => {
         if (SERVICEWORKER) {
 
             /**
@@ -1704,17 +1678,6 @@ function updateAppOnDev() {
 
     }).then(() => {
 
-        let gets = [];
-        gets.push(get("allow"));
-        gets.push(get("dicionarios"));
-        gets.push(get("info"));
-        gets.push(get("templates"));
-        gets.push(get("menu"));
-        gets.push(get("navbar"));
-        gets.push(get("react"));
-        gets.push(get("user"));
-        gets.push(get("graficos"));
-
         /**
          * Adiciona o core Js e core Css do meu atual usuário
          */
@@ -1724,19 +1687,7 @@ function updateAppOnDev() {
             }));
         }
 
-        return Promise.all(gets).then(r => {
-            gets.push(dbLocal.exeCreate('__allow', r[0]));
-            gets.push(dbLocal.exeCreate('__dicionario', r[1]));
-            gets.push(dbLocal.exeCreate('__info', r[2]));
-            gets.push(dbLocal.exeCreate('__template', r[3]));
-            gets.push(dbLocal.exeCreate('__menu', r[4]));
-            gets.push(dbLocal.exeCreate('__navbar', r[5]));
-            gets.push(dbLocal.exeCreate('__react', r[6]));
-            gets.push(dbLocal.exeCreate('__graficos', r[8]));
-            dicionarios = r[1];
-            return Promise.all(gets);
-
-        }).then(() => {
+        return getIndexedDbGets().then(() => {
             /**
              * Carrega as views para este usuário
              */

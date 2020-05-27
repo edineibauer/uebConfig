@@ -104,22 +104,36 @@ class Config
     }
 
     /**
+     * @param string|null $setor
      * @return array
      */
-    public static function getPermission(): array
+    public static function getPermission(string $setor = null): array
     {
         $file = [];
         if (file_exists(PATH_HOME . "_config/permissoes.json")) {
-            $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), true);
+            $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), !0);
 
             //convert true string para true boolean
             if (is_array($file)) {
-                foreach ($file as $setor => $datum) {
+                if(!empty($setor)) {
+                    $datum = $file[$setor];
+                    $file = [];
                     if (!empty($datum)) {
                         foreach ($datum as $entity => $dados) {
                             if (!empty($dados)) {
                                 foreach ($dados as $action => $value)
-                                    $file[$setor][$entity][$action] = $value === "true";
+                                    $file[$entity][$action] = $value === "true";
+                            }
+                        }
+                    }
+                } else {
+                    foreach ($file as $setor => $datum) {
+                        if (!empty($datum)) {
+                            foreach ($datum as $entity => $dados) {
+                                if (!empty($dados)) {
+                                    foreach ($dados as $action => $value)
+                                        $file[$setor][$entity][$action] = $value === "true";
+                                }
                             }
                         }
                     }
@@ -434,6 +448,16 @@ class Config
     }
 
     /**
+     * Retorna os setores de um sistema (alias to getSetorSystem)
+     * @param string|null $sistem
+     * @return array
+     */
+    public static function getSetores(string $sistem = null): array
+    {
+        return self::getSetorSystem($sistem);
+    }
+
+    /**
      * Retorna os setores de um sistema
      * @param string|null $sistem
      * @return array
@@ -461,6 +485,73 @@ class Config
     {
         $setor = self::getSetor();
         return ((empty($param['setor']) || ((is_string($param['setor']) && $param['setor'] === $setor) || (is_array($param['setor']) && in_array($setor, $param['setor'])))) && (empty($param['!setor']) || ((is_string($param["!setor"]) && $param["!setor"] !== $setor) || (is_array($param["!setor"]) &&!in_array($setor, $param["!setor"])))));
+    }
+
+    /**
+     * @param string $entity
+     * @param array $options
+     * @return bool
+     */
+    public static function haveEntityPermission(string $entity, array $options = []): bool
+    {
+        $setor = self::getSetor();
+        if($setor === "admin")
+            return !0;
+
+        if(empty($options))
+            $options = ["read", "create", "update", "delete"];
+
+        $permissoes = self::getPermission($entity);
+
+        if(in_array("read", $options) && (empty($permissoes['read']) || !$permissoes['read']))
+            return !1;
+
+        if(in_array("create", $options) && (empty($permissoes['create']) || !$permissoes['create']))
+            return !1;
+
+        if(in_array("update", $options) && (empty($permissoes['update']) || !$permissoes['update']))
+            return !1;
+
+        if(in_array("delete", $options) && (empty($permissoes['delete']) || !$permissoes['delete']))
+            return !1;
+
+        return !0;
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionRead(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["read"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionCreate(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["create"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionUpdate(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["update"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionDelete(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["delete"]);
     }
 
     /**
