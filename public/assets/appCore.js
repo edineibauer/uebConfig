@@ -1724,11 +1724,11 @@ async function thenAccess() {
     /**
      * Check if have permission to send notification but not is registered on service worker
      * */
-    if (USER.setor !== 0 && swRegistration?.pushManager) {
+    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && swRegistration?.pushManager) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
             if (subscription === null) {
                 return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted" && PUSH_PUBLIC_KEY !== "")
+                    if (p === "granted")
                         return subscribeUser(1);
                 });
             } else {
