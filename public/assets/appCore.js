@@ -1720,28 +1720,27 @@ async function thenAccess() {
      */
     setCookie('accesscount', (parseInt(getCookie('accesscount')) + 1));
 
+
     /**
      * Check if have permission to send notification but not is registered on service worker
      * */
-    setTimeout(function () {
-        if (swRegistration?.pushManager) {
-            swRegistration.pushManager.getSubscription().then(function (subscription) {
-                if (subscription === null) {
-                    return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                        if (p === "granted" && PUSH_PUBLIC_KEY !== "")
-                            return subscribeUser(1);
-                    });
-                } else {
-                    post('dashboard', 'push', {
-                        "push": JSON.stringify(subscription),
-                        'p1': navigator.appName,
-                        'p2': navigator.appCodeName,
-                        'p3': navigator.platform
-                    });
-                }
-            });
-        }
-    }, 4000);
+    if (USER.setor !== 0 && swRegistration?.pushManager) {
+        swRegistration.pushManager.getSubscription().then(function (subscription) {
+            if (subscription === null) {
+                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                    if (p === "granted" && PUSH_PUBLIC_KEY !== "")
+                        return subscribeUser(1);
+                });
+            } else {
+                post('dashboard', 'push', {
+                    "push": JSON.stringify(subscription),
+                    'p1': navigator.appName,
+                    'p2': navigator.appCodeName,
+                    'p3': navigator.platform
+                });
+            }
+        });
+    }
 
     return updateAppOnDev().catch(e => {
         errorLoadingApp("updateAppOnDev", e);
@@ -2008,20 +2007,6 @@ function headerShow(show) {
     } else {
         $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
     }
-}
-
-if (SERVICEWORKER && navigator.onLine) {
-    Promise.all([]).then(() => {
-        if (navigator.serviceWorker.controller) {
-            return navigator.serviceWorker.ready.then(function (swReg) {
-                swRegistration = swReg;
-            });
-        } else {
-            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-                swRegistration = swReg;
-            });
-        }
-    });
 }
 
 /*function getPageHeight(haveHeader, navbar) {
@@ -2644,6 +2629,20 @@ async function startApplication() {
     await readRouteState();
     await onLoadDocument();
     await checkUpdate();
+}
+
+if (SERVICEWORKER && navigator.onLine) {
+    Promise.all([]).then(() => {
+        if (navigator.serviceWorker.controller) {
+            return navigator.serviceWorker.ready.then(function (swReg) {
+                swRegistration = swReg;
+            });
+        } else {
+            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
+                swRegistration = swReg;
+            });
+        }
+    });
 }
 
 $(function () {
