@@ -1460,21 +1460,35 @@ async function getNotifications() {
  * @returns {Promise<void>}
  */
 async function updateNotificationsBadge() {
-    if (!$("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").length) {
-        let pendentes = 0;
-        let notifications = await db.exeRead("notifications_report");
-        if (!isEmpty(notifications)) {
-            for (let i in notifications) {
-                if (notifications[i].recebeu === 0)
-                    pendentes++
-            }
-        }
+    if ($("#core-header-nav-bottom").find("a[href='notificacoes']").length && USER.setor !== 0) {
+        if(typeof(EventSource) !== "undefined") {
+            let notefications = new EventSource("get/notifications_report", {withCredentials: true});
+            notefications.onmessage = function(event) {
+                $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
+                pendentes = event.data;
 
-        /**
-         * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
-         */
-        if (pendentes !== 0)
-            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
+                /**
+                 * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+                 */
+                if (pendentes !== "0")
+                    $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
+            };
+        } else {
+            setInterval(function() {
+                let pendentes = 0;
+                db.exeRead("notifications_report").then(notifications => {
+                    $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
+                    if (!isEmpty(notifications)) {
+                        for (let i in notifications) {
+                            if (notifications[i].recebeu === 0)
+                                pendentes++
+                        }
+                        if (pendentes !== 0)
+                            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
+                    }
+                });
+            }, 3000);
+        }
     }
 }
 
@@ -2612,12 +2626,8 @@ async function onLoadDocument() {
      */
     if (USER.setor !== 0) {
         let allow = await dbLocal.exeRead("__allow", 1);
-        if (allow.notifications_report?.read) {
+        if (allow.notifications_report?.read)
             await updateNotificationsBadge();
-            setInterval(function () {
-                updateNotificationsBadge();
-            }, 5000);
-        }
     }
 }
 
