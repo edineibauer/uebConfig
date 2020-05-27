@@ -1745,13 +1745,7 @@ async function thenAccess() {
     return dbLocal.exeRead('__dicionario', 1).then(d => {
         dicionarios = d;
     }).then(() => {
-        return updateAppOnDev().then(() => {
-            if (!navigator.onLine || !DEV) {
-                return dbLocal.exeRead("__dicionario", 1).then(d => {
-                    dicionarios = d;
-                });
-            }
-        }).catch(e => {
+        return updateAppOnDev().catch(e => {
             errorLoadingApp("updateAppOnDev", e);
         });
     });
