@@ -490,30 +490,42 @@ class Config
     /**
      * @param string $entity
      * @param array $options
+     * @param bool $anyOne
      * @return bool
      */
-    public static function haveEntityPermission(string $entity, array $options = []): bool
+    public static function haveEntityPermission(string $entity, array $options = [], bool $anyOne = false): bool
     {
         $setor = self::getSetor();
         if($setor === "admin")
             return !0;
 
-        if(empty($options))
+        if(empty($options)) {
             $options = ["read", "create", "update", "delete"];
+            $anyOne = !0;
+        }
 
-        $permissoes = self::getPermission($entity);
+        $permissoes = self::getPermission($setor);
+        $permissoes = $permissoes[$entity] ?? [];
 
         if(in_array("read", $options) && (empty($permissoes['read']) || !$permissoes['read']))
             return !1;
+        elseif($anyOne && in_array("read", $options) && !empty($permissoes['read']) && $permissoes['read'])
+            return !0;
 
         if(in_array("create", $options) && (empty($permissoes['create']) || !$permissoes['create']))
             return !1;
+        elseif($anyOne && in_array("create", $options) && !empty($permissoes['create']) && $permissoes['create'])
+            return !0;
 
         if(in_array("update", $options) && (empty($permissoes['update']) || !$permissoes['update']))
             return !1;
+        elseif($anyOne && in_array("update", $options) && !empty($permissoes['update']) && $permissoes['update'])
+            return !0;
 
         if(in_array("delete", $options) && (empty($permissoes['delete']) || !$permissoes['delete']))
             return !1;
+        elseif($anyOne && in_array("delete", $options) && !empty($permissoes['delete']) && $permissoes['delete'])
+            return !0;
 
         return !0;
     }
