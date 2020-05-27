@@ -58,7 +58,6 @@ self.addEventListener('push', function (event) {
     options.badge = options.badge || (HOME + "assetsPublic/img/favicon.png?v=" + VERSION);
     options.icon = options.icon || (HOME + "assetsPublic/img/favicon.png?v=" + VERSION);
     options.data = options.data || HOME;
-    options.vibrate = [100, 50, 100];
     options.tag = options.id || "";
 
     if (typeof title === "string" && title.length > 2) {
