@@ -104,6 +104,37 @@ class Config
     }
 
     /**
+     * Obtém lista de todos os dicionários de um setor
+     * convert string "true" e "false" para boolean
+     * Se o setor não tiver nenhuma permissão de acesso a entidade, então exclui
+     * Retorna permissoes revisadas
+     *
+     * @param array $setorPermissions
+     * @return array
+     */
+    private static function checkPermissionValues(array $setorPermissions): array
+    {
+        $file = [];
+        if (!empty($setorPermissions)) {
+            foreach ($setorPermissions as $entity => $permissoes) {
+                $entityAllowSee = !1;
+                if (!empty($permissoes)) {
+                    foreach ($permissoes as $action => $allow) {
+                        $file[$entity][$action] = $allow === "true";
+                        if($file[$entity][$action])
+                            $entityAllowSee = !0;
+                    }
+                }
+                if(!$entityAllowSee)
+                    unset($file[$entity]);
+            }
+        }
+
+        return $file;
+    }
+
+    /**
+     * Obtém lista de permissões de um setor
      * @param string|null $setor
      * @return array
      */
@@ -116,27 +147,10 @@ class Config
             //convert true string para true boolean
             if (is_array($file)) {
                 if(!empty($setor)) {
-                    $datum = $file[$setor];
-                    $file = [];
-                    if (!empty($datum)) {
-                        foreach ($datum as $entity => $dados) {
-                            if (!empty($dados)) {
-                                foreach ($dados as $action => $value)
-                                    $file[$entity][$action] = $value === "true";
-                            }
-                        }
-                    }
+                    $file = self::checkPermissionValues($file[$setor]);
                 } else {
-                    foreach ($file as $setor => $datum) {
-                        if (!empty($datum)) {
-                            foreach ($datum as $entity => $dados) {
-                                if (!empty($dados)) {
-                                    foreach ($dados as $action => $value)
-                                        $file[$setor][$entity][$action] = $value === "true";
-                                }
-                            }
-                        }
-                    }
+                    foreach ($file as $setor => $datum)
+                        $file[$setor] = self::checkPermissionValues($datum);
                 }
             } else {
                 $file = [];
@@ -144,6 +158,86 @@ class Config
         }
 
         return $file;
+    }
+
+    /**
+     * Verifica se tem permissão de acesso a este param route
+     * @param array|string $param
+     * @return bool
+     */
+    public static function paramPermission($param): bool
+    {
+        $setor = self::getSetor();
+        return ((empty($param['setor']) || ((is_string($param['setor']) && $param['setor'] === $setor) || (is_array($param['setor']) && in_array($setor, $param['setor'])))) && (empty($param['!setor']) || ((is_string($param["!setor"]) && $param["!setor"] !== $setor) || (is_array($param["!setor"]) &&!in_array($setor, $param["!setor"])))));
+    }
+
+    /**
+     * @param string $entity
+     * @param array $options
+     * @return bool
+     */
+    public static function haveEntityPermission(string $entity, array $options = []): bool
+    {
+        $setor = self::getSetor();
+        if($setor === "admin")
+            return !0;
+
+        $permissoes = self::getPermission($setor);
+        if(empty($options))
+            return isset($permissoes[$entity]);
+
+        if(empty($permissoes[$entity]))
+            return !1;
+
+        if(in_array("read", $options) && !$permissoes['read'])
+            return !1;
+
+        if(in_array("create", $options) && !$permissoes['create'])
+            return !1;
+
+        if(in_array("update", $options) && !$permissoes['update'])
+            return !1;
+
+        if(in_array("delete", $options) && !$permissoes['delete'])
+            return !1;
+
+        return !0;
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionRead(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["read"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionCreate(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["create"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionUpdate(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["update"]);
+    }
+
+    /**
+     * @param string $entity
+     * @return bool
+     */
+    public static function haveEntityPermissionDelete(string $entity): bool
+    {
+        return self::haveEntityPermission($entity, ["delete"]);
     }
 
     /**
@@ -474,96 +568,6 @@ class Config
         }
 
         return $list;
-    }
-
-    /**
-     * Verifica se tem permissão de acesso a este param route
-     * @param array|string $param
-     * @return bool
-     */
-    public static function paramPermission($param): bool
-    {
-        $setor = self::getSetor();
-        return ((empty($param['setor']) || ((is_string($param['setor']) && $param['setor'] === $setor) || (is_array($param['setor']) && in_array($setor, $param['setor'])))) && (empty($param['!setor']) || ((is_string($param["!setor"]) && $param["!setor"] !== $setor) || (is_array($param["!setor"]) &&!in_array($setor, $param["!setor"])))));
-    }
-
-    /**
-     * @param string $entity
-     * @param array $options
-     * @param bool $anyOne
-     * @return bool
-     */
-    public static function haveEntityPermission(string $entity, array $options = [], bool $anyOne = false): bool
-    {
-        $setor = self::getSetor();
-        if($setor === "admin")
-            return !0;
-
-        if(empty($options)) {
-            $options = ["read", "create", "update", "delete"];
-            $anyOne = !0;
-        }
-
-        $permissoes = self::getPermission($setor);
-        $permissoes = $permissoes[$entity] ?? [];
-
-        if(in_array("read", $options) && (empty($permissoes['read']) || !$permissoes['read']))
-            return !1;
-        elseif($anyOne && in_array("read", $options) && !empty($permissoes['read']) && $permissoes['read'])
-            return !0;
-
-        if(in_array("create", $options) && (empty($permissoes['create']) || !$permissoes['create']))
-            return !1;
-        elseif($anyOne && in_array("create", $options) && !empty($permissoes['create']) && $permissoes['create'])
-            return !0;
-
-        if(in_array("update", $options) && (empty($permissoes['update']) || !$permissoes['update']))
-            return !1;
-        elseif($anyOne && in_array("update", $options) && !empty($permissoes['update']) && $permissoes['update'])
-            return !0;
-
-        if(in_array("delete", $options) && (empty($permissoes['delete']) || !$permissoes['delete']))
-            return !1;
-        elseif($anyOne && in_array("delete", $options) && !empty($permissoes['delete']) && $permissoes['delete'])
-            return !0;
-
-        return !0;
-    }
-
-    /**
-     * @param string $entity
-     * @return bool
-     */
-    public static function haveEntityPermissionRead(string $entity): bool
-    {
-        return self::haveEntityPermission($entity, ["read"]);
-    }
-
-    /**
-     * @param string $entity
-     * @return bool
-     */
-    public static function haveEntityPermissionCreate(string $entity): bool
-    {
-        return self::haveEntityPermission($entity, ["create"]);
-    }
-
-    /**
-     * @param string $entity
-     * @return bool
-     */
-    public static function haveEntityPermissionUpdate(string $entity): bool
-    {
-        return self::haveEntityPermission($entity, ["update"]);
-    }
-
-    /**
-     * @param string $entity
-     * @return bool
-     */
-    public static function haveEntityPermissionDelete(string $entity): bool
-    {
-        return self::haveEntityPermission($entity, ["delete"]);
     }
 
     /**
