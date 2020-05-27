@@ -1742,12 +1742,8 @@ async function thenAccess() {
         }
     }, 4000);
 
-    return dbLocal.exeRead('__dicionario', 1).then(d => {
-        dicionarios = d;
-    }).then(() => {
-        return updateAppOnDev().catch(e => {
-            errorLoadingApp("updateAppOnDev", e);
-        });
+    return updateAppOnDev().catch(e => {
+        errorLoadingApp("updateAppOnDev", e);
     });
 }
 
@@ -2627,10 +2623,17 @@ async function onLoadDocument() {
     }
 }
 
+async function setDicionario() {
+    return dbLocal.exeRead('__dicionario', 1).then(d => {
+        dicionarios = d;
+    })
+}
+
 async function startApplication() {
     $("#core-spinner").css("stroke", THEME);
 
     await checkSessao();
+    await setDicionario();
 
     (getCookie("accesscount") === "" ? await firstAccess() : await thenAccess());
     $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
