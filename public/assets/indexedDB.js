@@ -89,7 +89,7 @@ function moveSyncInfoToDb(entity, id) {
     });
 }
 
-async function exeRead(entity, filter, order, reverse, limit, offset) {
+async function exeRead(entity, search, filter, order, reverse, limit, offset) {
     filter = typeof filter === "object" ? filter : {};
     order = typeof order === "string" ? order : "id";
     reverse = (typeof reverse !== "undefined" ? (reverse ? !0 : !1) : !1);
@@ -111,6 +111,7 @@ async function exeRead(entity, filter, order, reverse, limit, offset) {
                         lib: "entity",
                         file: "load/entity",
                         entity: entity,
+                        search: search,
                         filter: filter,
                         order: order,
                         reverse: reverse,

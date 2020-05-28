@@ -488,7 +488,7 @@ function searchList($input) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
         let templates = getTemplates();
-        let dataRead = exeRead(entity, {}, 'id', !1, 10);
+        let dataRead = exeRead(entity, {}, {}, 'id', !1, 10);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
             templates = r[0];

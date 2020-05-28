@@ -200,6 +200,7 @@ function gridCrud(entity, fields, actions) {
         page: 1,
         order: 'id',
         orderPosition: !0,
+        search: "",
         filter: [],
         filterGroupIndex: 0,
         filterRegraIndex: 0,
@@ -248,9 +249,9 @@ function gridCrud(entity, fields, actions) {
             let result = "";
 
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin")
-                result = reportRead(entity, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
+                result = reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             else
-                result = exeRead(entity, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
+                result = exeRead(entity, $this.search, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
 
             let templates = getTemplates();
             let $loadingLoading = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));
