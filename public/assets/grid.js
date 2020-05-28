@@ -23,13 +23,19 @@ function gridTr(identificador, entity, data, fields, info, actions, selecteds) {
 
         if (actions.status && gridContent.button.update && isNumberPositive(info.status)) {
             gridContent.button.status.have = !0;
-            $.each(dicionarios[entity], function (col, dic) {
-                if (dic.id === info.status) {
-                    if (dic.update && dic.datagrid !== !1)
-                        gridContent.button.status.status = (data[col] === "true" || data[col] === !0 || data[col] === 1 || data[col] === "1"); else gridContent.button.status.have = !1;
-                    return !1
+
+            for(let col in dicionarios[entity]) {
+                let meta = dicionarios[entity][col];
+
+                if (meta.id === info.status) {
+                    if (meta.update && meta.datagrid !== !1)
+                        gridContent.button.status.status = (data[col] === "true" || data[col] === !0 || data[col] === 1 || data[col] === "1");
+                    else
+                        gridContent.button.status.have = !1;
+
+                    break;
                 }
-            })
+            }
         }
 
         let wait = [];

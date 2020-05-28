@@ -807,11 +807,13 @@ function getInputsTemplates(form, parent, col) {
         let inputs = [];
         let promessas = [];
         let position = 0;
-        $.each(dicionarios[form.entity], function (column, meta) {
-            if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(column) > -1) || (!isEmpty(col) && col === column)) {
+
+        let dic = orderBy(dicionarios[form.entity], "indice").reverse();
+        for(let meta of dic) {
+            if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
                 let metaInput = Object.assign({}, meta);
                 metaInput.parent = parent;
-                metaInput.value = form.data[column] || "";
+                metaInput.value = form.data[meta.column] || "";
                 metaInput.isNumeric = ["float", "decimal", "smallint", "int", "tinyint"].indexOf(metaInput.type) > -1;
                 metaInput.valueLenght = (metaInput.isNumeric && isNumber(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
                 metaInput.isFull = metaInput.valueLenght === metaInput.size;
@@ -837,7 +839,7 @@ function getInputsTemplates(form, parent, col) {
                         dicionario: dicionarios[metaInput.relation],
                         identificador: form.identificador,
                         data: metaInput.value
-                    }, parent + "." + column).then(inp => {
+                    }, parent + "." + meta.column).then(inp => {
                         metaInput.inputs = inp;
                         inputs.splice(p, 0, Mustache.render(templates[metaInput.form.input], metaInput))
                     }))
@@ -868,7 +870,7 @@ function getInputsTemplates(form, parent, col) {
                 }
                 position++
             }
-        });
+        }
         return Promise.all(promessas).then(d => {
             return inputs
         })

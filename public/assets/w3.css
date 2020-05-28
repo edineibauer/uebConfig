@@ -251,7 +251,7 @@ h6 {
 input[type=checkbox] {
     position: relative;
     top: -.775rem;
-    margin: 20px 1rem 15px 8px;
+    margin: 20px 30px 15px 8px;
     cursor: pointer;
     height: 0
 }

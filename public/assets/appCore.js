@@ -1646,7 +1646,7 @@ function getIndexedDbGets() {
         gets.push(dbLocal.exeCreate('__relevant', r['relevant']));
         gets.push(dbLocal.exeCreate('__general', r['general']));
         gets.push(dbLocal.exeCreate('__graficos', r['graficos']));
-        dicionarios = r[1];
+        dicionarios = r['dicionario'];
 
         return Promise.all(gets);
     })
@@ -1698,9 +1698,9 @@ function updateAppOnDev() {
          * Adiciona o core Js e core Css do meu atual usuário
          */
         if (SERVICEWORKER) {
-            gets.push(caches.open('core-v' + VERSION).then(cache => {
+            caches.open('core-v' + VERSION).then(cache => {
                 return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
-            }));
+            });
         }
 
         return getIndexedDbGets().then(() => {
