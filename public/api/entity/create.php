@@ -210,7 +210,7 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
     {
         $result = [];
         $i = 0;
-        $defaults = json_decode(file_get_contents(PATH_HOME . VENDOR . "entity-ui/public/entity/input_type.json"), !0);
+        $default = json_decode(file_get_contents(PATH_HOME . VENDOR . "entity-ui/public/input_type/default.json"), !0)['default'];
         $campos = json_decode($campos, !0);
 
         foreach ($users as $user)
@@ -218,7 +218,11 @@ if (!empty($entity) && !empty($campos) && Check::isJson($campos)) {
 
         foreach ($campos as $item) {
             $tipo = $item['tipo_do_campo'] === "1" ? $item['generico'] : ($item['tipo_do_campo'] === "2" ? $item['semantico'] : ($item['tipo_do_campo'] === "3" ? $item['relacionamento'] : $item['tipo_do_campo']));
-            $base = Helper::arrayMerge($defaults['default'], $defaults[$tipo]);
+            if(file_exists(PATH_HOME . VENDOR . "entity-ui/public/input_type/{$tipo}.json"))
+                $base = Helper::arrayMerge($default, json_decode(file_get_contents(PATH_HOME . VENDOR . "entity-ui/public/input_type/{$tipo}.json"), !0)[$tipo]);
+            else
+                $base = $default;
+
             $result['cache'][$item['id']] = getConvertedCampos($item, $item['propriedades'], $base, $i);
 
             if (!empty($item['regras_de_usuario'])) {
