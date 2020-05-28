@@ -154,22 +154,22 @@ async function exeRead(entity, search, filter, order, reverse, limit, offset) {
                                 }
                             });
                         } else {
-                            resolve(readOffline(data, filter, order, reverse, limit, offset));
+                            resolve(readOffline(data, search, filter, order, reverse, limit, offset));
                         }
                     },
-                    error: () => resolve(readOffline(data, filter, order, reverse, limit, offset)),
+                    error: () => resolve(readOffline(data, search, filter, order, reverse, limit, offset)),
                     dataType: "json"
                 });
             })
 
         } else {
             //offline
-            return readOffline(data, filter, order, reverse, limit, offset);
+            return readOffline(data, search, filter, order, reverse, limit, offset);
         }
     });
 }
 
-function readOffline(data, filter, order, reverse, limit, offset) {
+function readOffline(data, search, filter, order, reverse, limit, offset) {
     let result = {
         data: [],
         length: 0
@@ -181,8 +181,25 @@ function readOffline(data, filter, order, reverse, limit, offset) {
     if (data.constructor === Array) {
 
         //FILTER
-        if (!isEmpty(filter))
-            data = exeReadApplyFilter(data, filter);
+        let data2 = (!isEmpty(filter) ? exeReadApplyFilter(data, filter) : data);
+
+        //SEARCH
+        if(isEmpty(search)) {
+            data = data2;
+        } else {
+            data = [];
+            for (let dd of data2) {
+                if (typeof dd === "object") {
+                    for (let col in dd) {
+                        let valor = dd[col];
+                        if (typeof valor === "string" && valor !== "" && col !== 'ownerpub' && col !== 'autorpub' && valor.toLowerCase().indexOf(search.toLowerCase()) > -1) {
+                            data.push(dd);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         //ORDER
         data.sort(dynamicSort(order));
