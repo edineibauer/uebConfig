@@ -2651,9 +2651,7 @@ $(function () {
 
     } else {
         return clearCacheAll().then(() => {
-            return setCookieAnonimo().then(() => {
-                return readRouteState();
-            });
+            return readRouteState();
         });
     }
 });
