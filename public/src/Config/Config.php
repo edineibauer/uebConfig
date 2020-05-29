@@ -147,7 +147,7 @@ class Config
             //convert true string para true boolean
             if (is_array($file)) {
                 if(!empty($setor)) {
-                    $file = self::checkPermissionValues($file[$setor]);
+                    $file = self::checkPermissionValues($file[$setor] ?? []);
                 } else {
                     foreach ($file as $setor => $datum)
                         $file[$setor] = self::checkPermissionValues($datum);
