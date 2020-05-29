@@ -149,8 +149,12 @@ class Config
                 if(!empty($setor)) {
                     $file = self::checkPermissionValues($file[$setor] ?? []);
                 } else {
-                    foreach ($file as $setor => $datum)
-                        $file[$setor] = self::checkPermissionValues($datum);
+                    if (is_array($file)) {
+                        foreach ($file as $setor => $datum) {
+                            if (is_array($datum))
+                                $file[$setor] = self::checkPermissionValues($datum);
+                        }
+                    }
                 }
             } else {
                 $file = [];
