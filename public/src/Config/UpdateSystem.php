@@ -172,7 +172,7 @@ class UpdateSystem
                 if(file_exists($base . "param.json"))
                     copy($base . "param.json", PATH_HOME . "_config/param.json");
 
-                if(file_exists($base . "permissoes.json"))
+                if(file_exists($base . "permissoes.json") && !file_exists(PATH_HOME . "_config/permissoes.json"))
                     copy($base . "permissoes.json", PATH_HOME . "_config/permissoes.json");
 
                 if(file_exists($base . "general_info.json"))
