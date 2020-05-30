@@ -394,7 +394,8 @@ select select:focus {
     border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
-    display: table
+    display: table;
+    table-layout: fixed;
 }
 
 .no-select {
@@ -406,7 +407,7 @@ select select:focus {
 }
 
 .table-all {
-    border: 1px solid #ccc
+    border: 1px solid #ccc;
 }
 
 .bordered tr, .table-all tr {
@@ -437,7 +438,8 @@ select select:focus {
     padding: 8px;
     display: table-cell;
     text-align: left;
-    vertical-align: top
+    vertical-align: top;
+    overflow: hidden;
 }
 
 .badge, .btn, .btn-block, .btn-floating, .btn-floating-large, .button, .sign, .tag {
