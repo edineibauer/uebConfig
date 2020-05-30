@@ -395,7 +395,6 @@ select select:focus {
     border-spacing: 0;
     width: 100%;
     display: table;
-    table-layout: fixed;
 }
 
 .no-select {
@@ -439,7 +438,6 @@ select select:focus {
     display: table-cell;
     text-align: left;
     vertical-align: top;
-    overflow: hidden;
 }
 
 .badge, .btn, .btn-block, .btn-floating, .btn-floating-large, .button, .sign, .tag {
