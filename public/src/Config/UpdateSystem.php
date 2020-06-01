@@ -309,6 +309,7 @@ class UpdateSystem
         Config::createDir("public/view");
         Config::createDir("public/set");
         Config::createDir("public/get");
+        Config::createDir("public/get/event");
         Config::createDir("public/api");
         Config::createDir("public/overload");
         Config::createDir("public/react");

@@ -201,7 +201,7 @@ self.addEventListener('fetch', function (e) {
                     return response || fetch(e.request).then(networkResponse => {
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
 
-                            if (["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1)
+                            if (["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1 && !/get\/event\//.test(url))
                                 cache.put(url, networkResponse.clone());
 
                             return networkResponse;
