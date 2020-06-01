@@ -914,7 +914,7 @@ function getFieldsData(entity, haveId, r) {
                 'relation': e.relation || null,
                 'first': !haveId && a === 0
             };
-            let indice = getIndiceField(a, indices);
+            let indice = getIndiceField(0, indices);
             indices.push(indice);
             pushToArrayIndex(fields, data, indice)
         }
