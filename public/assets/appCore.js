@@ -1484,7 +1484,7 @@ async function getNotifications() {
 async function updateNotificationsBadge() {
     if ($("#core-header-nav-bottom").find("a[href='notificacoes']").length && USER.setor !== 0) {
         if(typeof(EventSource) !== "undefined") {
-            let notefications = new EventSource("get/notifications_report", {withCredentials: true});
+            let notefications = new EventSource("get/event/notifications_badge", {withCredentials: true});
             notefications.onmessage = function(event) {
                 $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
                 pendentes = event.data;
