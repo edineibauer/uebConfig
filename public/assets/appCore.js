@@ -897,6 +897,29 @@ function getFieldsData(entity, haveId, r) {
             }
         }
     }
+
+    /**
+     * Preenche campos restantes para disponibilizar visualização por controle na tabela
+     */
+    $.each(dicionarios[entity], function (i, e) {
+        if(e.format !== "password" && e.key !== "information" && !fields.find(s => s.nome === e.nome)) {
+            let data = {
+                'nome': e.nome,
+                'column': e.column,
+                'show': !1,
+                'class': e.datagrid.grid_class || "",
+                'style': e.datagrid.grid_style || "",
+                'template': e.datagrid.grid_template || "",
+                'format': e.format,
+                'relation': e.relation || null,
+                'first': !haveId && a === 0
+            };
+            let indice = getIndiceField(a, indices);
+            indices.push(indice);
+            pushToArrayIndex(fields, data, indice)
+        }
+    })
+
     return fields.filter(function (data) {
         if (!isEmpty(data))
             return data
