@@ -2590,6 +2590,22 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
         width: 100%
     }
 
+    .s-border-0 {
+        border: 0 !important
+    }
+
+    .s-border {
+        border: 1px solid #ccc !important
+    }
+
+    .s-radius-0 {
+        border-radius: 0 !important
+    }
+
+    .s-radius {
+        border-radius: 4px !important
+    }
+
     .s-margin {
         margin: 16px !important
     }
