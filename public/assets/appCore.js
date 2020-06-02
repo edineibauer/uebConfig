@@ -912,7 +912,7 @@ function getFieldsData(entity, haveId, r) {
                 'template': e.datagrid.grid_template || "",
                 'format': e.format,
                 'relation': e.relation || null,
-                'first': !haveId && a === 0
+                'first': !1
             };
             let indice = getIndiceField(0, indices);
             indices.push(indice);
