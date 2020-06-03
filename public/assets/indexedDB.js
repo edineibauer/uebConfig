@@ -364,25 +364,52 @@ const db = {
             })
         });
 
+        /**
+         * Cria registro no banco de dados local indexedDB
+         * caso
+         */
     }, async exeCreate(entity, dados, sync) {
         if (SERVICEWORKER) {
+
+            /**
+             * Se estiver usando SERVICEWORKER para trabalhar com registro offline
+             */
             sync = typeof sync === "undefined" ? !0 : sync;
             dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
-            let idAction = getIdAction(entity, dados.id);
-            let react = dbLocal.exeRead("__react");
-            return Promise.all([idAction, react]).then(r => {
-                dados.id = r[0][0];
+
+            /**
+             * Busca o id e a ação a ser executada no banco
+             * caso tenha um ID, então a ação será `update`, senão `create`
+             */
+            return getIdAction(entity, dados.id).then(r => {
+                dados.id = r[0];
                 dados.db_status = !1;
-                let action = r[0][1];
-                react = r[1];
+                let action = r[1];
+
+                /**
+                 * Cria o registro no banco de dados local indexedDB
+                 */
                 return dbLocal.exeCreate(entity, dados).then(dadosCreated => {
                     dados.db_action = action;
+
+                    /**
+                     * Cria e salva a requisição no banco local para que esta ação seja enviada para o back-end
+                     * quando houver um pedido de sincronia dos dados
+                     */
                     return dbLocal.insert("sync_" + entity, dados, dados.id).then(syncCreated => {
+
                         if (sync) {
+
+                            /**
+                             * Executa a sincronia dos dados locais com os dados no back-end
+                             * fazendo o envia da requisição recém criada acima
+                             */
                             return dbRemote.syncPost(entity, dados.id).then(syncReturn => {
 
                                 /**
-                                 * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
+                                 * Se houver algum erro no back-end ao tentar executar a criação do registro,
+                                 * e caso seja uma requisição de criação de novo registro,
+                                 * então exclui o registro recém criado na base local e exclui a requisição.
                                  */
                                 if (syncReturn[0].db_errorback !== 0 && action === "create") {
                                     dbLocal.exeDelete(entity, dadosCreated);
@@ -396,14 +423,31 @@ const db = {
                         return [Object.assign({db_errorback: 0}, dados)];
                     });
                 }).then(dados => {
+
                     dados = dados[0];
-                    if (dados.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                        eval(react[0][entity][action]);
+                    if (dados.db_errorback === 0) {
+
+                        /**
+                         * Após criar o registro e não houver erros
+                         * busca as `react` para serem executadas
+                         */
+                        return dbLocal.exeRead("__react").then(react => {
+                            if(typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                                eval(react[0][entity][action]);
+                        }).then(() => {
+                            return dados;
+                        })
+                    }
 
                     return dados;
                 });
             })
         } else {
+
+            /**
+             * Caso não esteja sendo trabalhado com dados locais,
+             * então faz o envio direto para o back-end
+             */
             return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
         }
     }, async exeDelete(entity, id) {
