@@ -2606,7 +2606,7 @@ async function onLoadDocument() {
                     goLinkPageTransition(url, $this, e);
                 }, timeWaitClick);
             }
-        } else {
+        } else if(!$this.hasAttr("data-preventDefault")) {
             goLinkPageTransition(url, $this, e);
         }
     }).off("submit", "form").on("submit", "form", function (e) {
