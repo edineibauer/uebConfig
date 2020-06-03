@@ -2600,7 +2600,7 @@ async function onLoadDocument() {
             setNotificationOpen($this.data("id"));
 
         if (timeWaitClick > 0) {
-            if ($this.attr("target") !== "_blank") {
+            if ($this.attr("target") !== "_blank" && !$this.hasAttr("data-preventDefault")) {
                 e.preventDefault();
                 setTimeout(function () {
                     goLinkPageTransition(url, $this, e);
