@@ -18,6 +18,11 @@ function ucFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+// Quote regular expression characters plus an optional character
+function preg_quote(str, delimiter) {
+    return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
+}
+
 /**
  * Preenche com 2 zeros a esquerda caso tenha menos que 2 caracteres
  * @param n

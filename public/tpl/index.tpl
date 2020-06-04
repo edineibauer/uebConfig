@@ -75,7 +75,7 @@
         const THEMETEXT = '{$themeColor}';
         const LOGO = '{$logo}';
         const FAVICON = '{$favicon}';
-        const LIMITOFFLINE = '{$limitoffline}';
+        const LIMITOFFLINE = {$limitoffline};
         const PUSH_PUBLIC_KEY = '{$pushpublic}';
         var USER = {};
         var TITLE = '{$title}';
