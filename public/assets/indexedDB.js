@@ -300,8 +300,31 @@ function dbSendData(entity, dados, action) {
     });
 }
 
-function exeReadOnline(entity, id) {
-    id = isNumberPositive(id) ? id : null;
+
+
+/**
+ * Lê registros no back-end
+ * @param entity
+ * @param id
+ * @param search
+ * @param columnOrder
+ * @param orderReverse
+ * @param limit
+ * @param offset
+ * @returns {Promise<unknown>}
+ */
+function exeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
+    /**
+     * Filtra o id, garante que se for um número seja um dado inteiro
+     * caso contrário, seta null e ignora o id
+     */
+    id = isNumberPositive(id) ? parseInt(id) : null;
+    limit = isNumberPositive(limit) ? parseInt(limit) : null;
+    offset = isNumberPositive(offset) ? parseInt(offset) : 0;
+    columnOrder = typeof columnOrder === "string" && columnOrder !== "" ? columnOrder : "id";
+    orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
+    search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
+
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
@@ -311,6 +334,11 @@ function exeReadOnline(entity, id) {
                 file: "load/entity",
                 entity: entity,
                 id: id,
+                filter: search,
+                order: columnOrder,
+                reverse: orderReverse,
+                limit: limit,
+                offset: offset,
                 historic: null
             },
             success: function (data) {
@@ -334,6 +362,404 @@ function exeReadOnline(entity, id) {
             dataType: "json"
         })
     })
+}
+
+/**
+ * Converte modelo de comparação usado na função CompareString
+ * para modelo usado nos filtros de tabela no back-end
+ *
+ * @param search
+ * @returns {[]}
+ */
+function convertCompareStringToFilter(search) {
+
+    let filter = [];
+    /**
+     * Para cada filtro, aplica em cima de cada registro
+     */
+    for (let column in search) {
+        /**
+         * Se a coluna for um corringa, então aplica em cima de todas as colunas do registro
+         */
+        if (column === "*") {
+            filter.push({operator: "por", column: column.replace(/^\d+/, ""), value: search[column]});
+        } else {
+
+            let searchValor = !isEmpty(search[column]) ? search[column].toString().toLowerCase().trim() : "";
+
+            /**
+             * Se registroValor tiver o valor de searchValor em alguma parte
+             */
+            if(/^>/.test(searchValor)) {
+                filter.push({operator: "maior que", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^>/, "").trim()});
+
+                /**
+                 * Se registroValor tiver o valor de searchValor em alguma parte
+                 */
+            } else if(/^>=/.test(searchValor)) {
+                filter.push({operator: "maior igual a", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^>=/, "").trim()});
+
+                /**
+                 * Se registroValor tiver o valor de searchValor em alguma parte
+                 */
+            } else if(/^</.test(searchValor)) {
+                filter.push({operator: "menor que", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^</, "").trim()});
+
+                /**
+                 * Se registroValor tiver o valor de searchValor em alguma parte
+                 */
+            } else if(/^<=/.test(searchValor)) {
+                filter.push({operator: "menor igual a", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^<=/, "").trim()});
+
+                /**
+                 * Se registroValor não tiver o valor de searchValor em alguma parte
+                 */
+            } else if(/^!%.+%$/.test(searchValor)) {
+                filter.push({operator: "não contém", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^!%/, "").replace(/%$/, "").trim()});
+
+                /**
+                 * Se registroValor não termina com o mesmo valor que searchValor
+                 */
+            } else if(/^!%.+/.test(searchValor)) {
+                filter.push({operator: "não termina com", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^!%/, "").trim()});
+
+                /**
+                 * Se registroValor não começa com o mesmo valor que searchValor
+                 */
+            } else if(/^!.+%$/.test(searchValor)) {
+                filter.push({operator: "não começa com", column: column.replace(/^\d+/, ""), value: searchValor.replace(/%$/, "").replace(/^!/, "").trim()});
+
+                /**
+                 * Se registroValor tiver o valor de searchValor em alguma parte
+                 */
+            } else if(/^%.+%$/.test(searchValor)) {
+                filter.push({operator: "contém", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^%/, "").replace(/%$/, "").trim()});
+
+                /**
+                 * Se registroValor termina com o mesmo valor que searchValor
+                 */
+            } else if(/^%.+/.test(searchValor)) {
+                filter.push({operator: "termina com", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^%/, "").trim()});
+
+                /**
+                 * Se registroValor começa com o mesmo valor que searchValor
+                 */
+            } else if(/.+%$/.test(searchValor)) {
+                filter.push({operator: "começa com", column: column.replace(/^\d+/, ""), value: searchValor.replace(/%$/, "").trim()});
+
+                /**
+                 * Se registroValor for diferente de searchValor
+                 */
+            } else if(/^!=*/.test(searchValor)) {
+                filter.push({operator: "diferente de", column: column.replace(/^\d+/, ""), value: searchValor.replace(/^!=*/, "").trim()});
+
+                /**
+                 * Padrão igual a
+                 */
+            } else {
+                filter.push({operator: "igual a", column: column.replace(/^\d+/, ""), value: searchValor.trim()});
+            }
+        }
+    }
+
+    return filter;
+}
+
+/**
+ * Compara o valor de 2 strings,
+ * a segunda string pode conter regras de comparação
+ *
+ * @param registroValor
+ * @param searchValor
+ * @returns {boolean}
+ */
+function compareString(registroValor, searchValor) {
+
+    searchValor = !isEmpty(searchValor) ? searchValor.toString().toLowerCase().trim() : "";
+    registroValor = !isEmpty(registroValor) ? registroValor.toString().toLowerCase().trim() : "";
+
+    /**
+     * Se registroValor tiver o valor de searchValor em alguma parte
+     */
+    if(/^>/.test(searchValor)) {
+        return registroValor > searchValor.replace(/^>/, "").trim();
+
+        /**
+         * Se registroValor tiver o valor de searchValor em alguma parte
+         */
+    } else if(/^>=/.test(searchValor)) {
+        return registroValor >= searchValor.replace(/^>=/, "").trim();
+
+        /**
+         * Se registroValor tiver o valor de searchValor em alguma parte
+         */
+    } else if(/^</.test(searchValor)) {
+        return registroValor < searchValor.replace(/^</, "").trim();
+
+        /**
+         * Se registroValor tiver o valor de searchValor em alguma parte
+         */
+    } else if(/^<=/.test(searchValor)) {
+        return registroValor <= searchValor.replace(/^<=/, "").trim();
+
+        /**
+         * Se registroValor não tiver o valor de searchValor em alguma parte
+         */
+    } else if(/^!%.+%$/.test(searchValor)) {
+        return !registroValor.indexOf(searchValor.replace(/^!%/, "").replace(/%$/, "").trim()) > -1;
+
+        /**
+         * Se registroValor não termina com o mesmo valor que searchValor
+         */
+    } else if(/^!%.+/.test(searchValor)) {
+        let r = new RegExp(preg_quote(searchValor.replace(/^!%/, "").trim()) + "$", "i");
+        return !r.test(registroValor);
+
+        /**
+         * Se registroValor não começa com o mesmo valor que searchValor
+         */
+    } else if(/^!.+%$/.test(searchValor)) {
+        let r = new RegExp("^" + preg_quote(searchValor.replace(/%$/, "").replace(/^!/, "").trim()), "i");
+        return !r.test(registroValor);
+
+        /**
+         * Se registroValor tiver o valor de searchValor em alguma parte
+         */
+    } else if(/^%.+%$/.test(searchValor)) {
+        return registroValor.indexOf(searchValor.replace(/^%/, "").replace(/%$/, "").trim()) > -1;
+
+        /**
+         * Se registroValor termina com o mesmo valor que searchValor
+         */
+    } else if(/^%.+/.test(searchValor)) {
+        let r = new RegExp(preg_quote(searchValor.replace(/^%/, "").trim()) + "$", "i");
+        return r.test(registroValor);
+
+        /**
+         * Se registroValor começa com o mesmo valor que searchValor
+         */
+    } else if(/.+%$/.test(searchValor)) {
+        let r = new RegExp("^" + preg_quote(searchValor.replace(/%$/, "").trim()), "i");
+        return r.test(registroValor);
+
+        /**
+         * Se registroValor for diferente de searchValor
+         */
+    } else if(/^!=*/.test(searchValor)) {
+        return registroValor != searchValor.replace(/^!=*/, "").trim();
+    }
+
+    return registroValor === searchValor;
+}
+
+class Read {
+    constructor(entity, search) {
+        this.entity = "";
+        this.id = null;
+        this.filter = {};
+        this.columnOrder = "id";
+        this.orderReverse = !1;
+        this.limit = null;
+        this.offset = 0;
+
+        this.setEntity(entity);
+        this.setId(search);
+    }
+
+    setEntity(entity) {
+        if(typeof entity === "string" && entity !== "")
+            this.entity = entity;
+    }
+
+    setId(id) {
+        if(isNumberPositive(id))
+            this.id = parseInt(id);
+    }
+
+    setFilter(filter) {
+        if(typeof filter === "object" && filter !== null && filter.constructor === Object)
+            this.filter = filter;
+        else if(typeof filter === "string" && filter !== "")
+            this.filter = {"*": search};
+    }
+
+    setOrderColumn(columnOrder) {
+        if(typeof columnOrder === "string" && columnOrder !== "")
+            this.columnOrder = columnOrder;
+    }
+
+    setOrderReverse() {
+        this.orderReverse = !this.orderReverse;
+    }
+
+    setLimit(limit) {
+        if(isNumberPositive(limit))
+            this.limit = parseInt(limit);
+    }
+
+    setOffset(offset) {
+        if(isNumberPositive(offset))
+            this.offset = parseInt(offset);
+    }
+
+    async exeRead(entity, id) {
+        this.setEntity(entity);
+        this.setId(id);
+
+        if(!this.entity)
+            toast("entidade não informada na função de leitura", 3000, "toast-warning");
+        else if(typeof dicionarios[this.entity] === "undefined")
+            toast("entidade não existe na função de leitura", 3000, "toast-warning");
+
+        /**
+         * Se o navegador estiver sem conexão com a internet, ou
+         * se a leitura for em uma tabela de sincronização ou se
+         * for em uma tabela de controle de dados,
+         * então lê somente os registros locais do navegador.
+         */
+        if (!navigator.onLine || /^(sync_|__)/.test(this.entity))
+            return dbLocal.exeRead(this.entity, this.id);
+
+        /**
+         * Caso não esteja trabalhando com dados locais indexedDB
+         * então realiza a leitura dos dados online
+         */
+        if (!SERVICEWORKER)
+            return exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+
+        /**
+         * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
+         * atualizando a base local com os registros do back-end
+         */
+        await dbRemote.syncDownload(this.entity);
+
+        /**
+         * Primeiro tenta verificar se uma busca local é suficiente
+         */
+        let local = await dbLocal.exeRead(this.entity, this.id);
+
+        /**
+         * Se estiver procurando um ID em específico
+         * Caso tenha encontrado o registro específico na base local
+         * então retorna, senão busca no no back-end
+         */
+        if (this.id)
+            return (!isEmpty(local) ? local : exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+
+        /**
+         * Se tiver um limit de registros estabelecido então verifica
+         * se o número de registros retorna é menor que o limit, retorna os registros
+         * se o limit for maior que o LIMITOFFLINE, então lê registros online
+         * se o limit for maior, então retorna somente a quantidade desejada
+         */
+        if (this.limit)
+            return (local.length > this.limit && this.limit <= LIMITOFFLINE ? this.privateArrayFilterData(local) : exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+
+        /**
+         * Caso não tenha determinado um limit para minha consulta
+         * e a lista de registros retornadas é igual ao meu limite de
+         * registros offline, então busca online para verificar se
+         * existe mais registros no back-end que não estão no front-end
+         */
+        if (local.length === LIMITOFFLINE)
+            return exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+
+        /**
+         * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
+         */
+        return this.privateArrayFilterData(local);
+    }
+
+    /**
+     * Aplica filtros e regras a uma lista de registros
+     * retorna registros que passaram nas regras
+     *
+     * @param data
+     * @param search
+     * @param columnOrder
+     * @param orderReverse
+     * @param limit
+     * @param offset
+     * @returns {*}
+     */
+    privateArrayFilterData(data) {
+
+        if(typeof data !== "object" || data === null || data.constructor !== Array || data.length === 0)
+            return [];
+
+        let retorno = [];
+
+        /**
+         * Se tiver um filtro para ser aplicado nos registros
+         */
+        if (!isEmpty(this.filter)) {
+
+            /**
+             * Para cada registro, verifica se passa nos testes
+             * caso passe, adiciona na lista de retorno
+             */
+            for (let reg of data) {
+                let passou = !0;
+
+                /**
+                 * Para cada filtro, aplica em cima de cada registro
+                 */
+                for (let column in this.filter) {
+                    /**
+                     * Se a coluna for um corringa, então aplica em cima de todas as colunas do registro
+                     */
+                    if (column === "*") {
+
+                        /**
+                         * Para cada coluna de um registro
+                         */
+                        for (let col in reg) {
+                            if (typeof reg[col] === "string" && reg[col] !== "" && col !== 'ownerpub' && col !== 'autorpub' && col !== 'system_id' && col !== 'id') {
+                                passou = compareString(reg[col], this.filter[column]);
+                                if(passou)
+                                    break;
+                            }
+                        }
+                    } else {
+                        passou = compareString(reg[column.replace(/^\d+/, "")], this.filter[column]);
+                    }
+
+                    /**
+                     * Se não passou, então já cancela os outros filtros
+                     */
+                    if (!passou)
+                        break;
+                }
+
+                /**
+                 * Se o registro passou pelos filtros, então adiciona a lista de retorno
+                 */
+                if(passou)
+                    retorno.push(reg);
+            }
+        } else {
+            retorno = data;
+        }
+
+        /**
+         * Ordena
+         */
+        retorno = orderBy(retorno, this.columnOrder);
+
+        /**
+         * Ordenação reversa, padrão reverte
+         */
+        if(!this.orderReverse)
+            retorno = retorno.reverse();
+
+        /**
+         * Limit offset
+         */
+        if(this.limit)
+            retorno = retorno.slice(this.offset, (this.offset + this.limit));
+
+        return retorno;
+    }
 }
 
 const db = {
@@ -364,52 +790,25 @@ const db = {
             })
         });
 
-        /**
-         * Cria registro no banco de dados local indexedDB
-         * caso
-         */
     }, async exeCreate(entity, dados, sync) {
         if (SERVICEWORKER) {
-
-            /**
-             * Se estiver usando SERVICEWORKER para trabalhar com registro offline
-             */
             sync = typeof sync === "undefined" ? !0 : sync;
             dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
-
-            /**
-             * Busca o id e a ação a ser executada no banco
-             * caso tenha um ID, então a ação será `update`, senão `create`
-             */
-            return getIdAction(entity, dados.id).then(r => {
-                dados.id = r[0];
+            let idAction = getIdAction(entity, dados.id);
+            let react = dbLocal.exeRead("__react");
+            return Promise.all([idAction, react]).then(r => {
+                dados.id = r[0][0];
                 dados.db_status = !1;
-                let action = r[1];
-
-                /**
-                 * Cria o registro no banco de dados local indexedDB
-                 */
+                let action = r[0][1];
+                react = r[1];
                 return dbLocal.exeCreate(entity, dados).then(dadosCreated => {
                     dados.db_action = action;
-
-                    /**
-                     * Cria e salva a requisição no banco local para que esta ação seja enviada para o back-end
-                     * quando houver um pedido de sincronia dos dados
-                     */
                     return dbLocal.insert("sync_" + entity, dados, dados.id).then(syncCreated => {
-
                         if (sync) {
-
-                            /**
-                             * Executa a sincronia dos dados locais com os dados no back-end
-                             * fazendo o envia da requisição recém criada acima
-                             */
                             return dbRemote.syncPost(entity, dados.id).then(syncReturn => {
 
                                 /**
-                                 * Se houver algum erro no back-end ao tentar executar a criação do registro,
-                                 * e caso seja uma requisição de criação de novo registro,
-                                 * então exclui o registro recém criado na base local e exclui a requisição.
+                                 * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
                                  */
                                 if (syncReturn[0].db_errorback !== 0 && action === "create") {
                                     dbLocal.exeDelete(entity, dadosCreated);
@@ -423,31 +822,14 @@ const db = {
                         return [Object.assign({db_errorback: 0}, dados)];
                     });
                 }).then(dados => {
-
                     dados = dados[0];
-                    if (dados.db_errorback === 0) {
-
-                        /**
-                         * Após criar o registro e não houver erros
-                         * busca as `react` para serem executadas
-                         */
-                        return dbLocal.exeRead("__react").then(react => {
-                            if(typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                                eval(react[0][entity][action]);
-                        }).then(() => {
-                            return dados;
-                        })
-                    }
+                    if (dados.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
+                        eval(react[0][entity][action]);
 
                     return dados;
                 });
             })
         } else {
-
-            /**
-             * Caso não esteja sendo trabalhado com dados locais,
-             * então faz o envio direto para o back-end
-             */
             return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
         }
     }, async exeDelete(entity, id) {
