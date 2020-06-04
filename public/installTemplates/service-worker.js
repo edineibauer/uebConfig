@@ -199,10 +199,12 @@ self.addEventListener('fetch', function (e) {
             caches.open('viewUserGet-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
                     if(response) {
-                        fetch(e.request).then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && ["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1 && !/get\/event\//.test(url))
-                                cache.put(url, networkResponse.clone());
-                        });
+                        if(navigator.onLine) {
+                            fetch(e.request).then(networkResponse => {
+                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && ["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1 && !/get\/event\//.test(url))
+                                    cache.put(url, networkResponse.clone());
+                            });
+                        }
 
                         return response;
                     } else {
