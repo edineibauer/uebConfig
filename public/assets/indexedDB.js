@@ -552,6 +552,9 @@ function compareString(registroValor, searchValor) {
     return registroValor === searchValor;
 }
 
+/**
+ * Classe para ler dados no banco de dados
+ */
 class Read {
     constructor(entity, search) {
         this.entity = "";
@@ -561,6 +564,8 @@ class Read {
         this.orderReverse = !1;
         this.limit = null;
         this.offset = 0;
+        this.total = 0;
+        this.result = 0;
 
         this.setEntity(entity);
         this.setId(search);
@@ -580,7 +585,7 @@ class Read {
         if(typeof filter === "object" && filter !== null && filter.constructor === Object)
             this.filter = filter;
         else if(typeof filter === "string" && filter !== "")
-            this.filter = {"*": search};
+            this.filter = {"*": filter};
     }
 
     setOrderColumn(columnOrder) {
@@ -600,6 +605,21 @@ class Read {
     setOffset(offset) {
         if(isNumberPositive(offset))
             this.offset = parseInt(offset);
+    }
+
+    setResultTotal(result) {
+        this.result = result.data;
+        this.total = result.total;
+
+        return {data: this.result, length: this.total};
+    }
+
+    getTotal() {
+        return this.total;
+    }
+
+    getResult() {
+        return this.result;
     }
 
     async exeRead(entity, id) {
@@ -625,7 +645,7 @@ class Read {
          * então realiza a leitura dos dados online
          */
         if (!SERVICEWORKER)
-            return exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
@@ -637,6 +657,7 @@ class Read {
          * Primeiro tenta verificar se uma busca local é suficiente
          */
         let local = await dbLocal.exeRead(this.entity, this.id);
+        this.total = local.length;
 
         /**
          * Se estiver procurando um ID em específico
@@ -644,7 +665,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id)
-            return (!isEmpty(local) ? local : exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (!isEmpty(local) ? local : this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
@@ -653,7 +674,7 @@ class Read {
          * se o limit for maior, então retorna somente a quantidade desejada
          */
         if (this.limit)
-            return (local.length > this.limit && this.limit <= LIMITOFFLINE ? this.privateArrayFilterData(local) : exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -662,7 +683,7 @@ class Read {
          * existe mais registros no back-end que não estão no front-end
          */
         if (local.length === LIMITOFFLINE)
-            return exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
@@ -735,7 +756,7 @@ class Read {
                  * Se o registro passou pelos filtros, então adiciona a lista de retorno
                  */
                 if(passou)
-                    retorno.push(reg);
+                    retorno.push(getDefaultValues(this.entity, reg));
             }
         } else {
             retorno = data;
@@ -753,12 +774,20 @@ class Read {
             retorno = retorno.reverse();
 
         /**
+         * Obtém o total de resultados
+         * @type {number}
+         */
+        this.total = retorno.length;
+
+        /**
          * Limit offset
          */
         if(this.limit)
             retorno = retorno.slice(this.offset, (this.offset + this.limit));
 
-        return retorno;
+        this.result = retorno;
+
+        return {data: this.result, length: this.total};
     }
 }
 
