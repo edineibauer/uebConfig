@@ -537,8 +537,7 @@ class Read {
         this.limit = null;
         this.offset = 0;
         this.total = 0;
-        this.result = 0;
-        this.reading = !1;
+        this.result = [];
 
         this.setEntity(entity);
         this.setId(search);
@@ -598,6 +597,7 @@ class Read {
     async exeRead(entity, id) {
         this.setEntity(entity);
         this.setId(id);
+        this.result = [];
 
         if(!this.entity)
             toast("entidade não informada na função de leitura", 3000, "toast-warning");
@@ -611,7 +611,7 @@ class Read {
          * então lê somente os registros locais do navegador.
          */
         if (!navigator.onLine || /^(sync_|__)/.test(this.entity))
-            return dbLocal.exeRead(this.entity, this.id);
+            return this.privateArrayFilterData(await dbLocal.exeRead(this.entity, this.id));
 
         /**
          * Caso não esteja trabalhando com dados locais indexedDB
@@ -629,8 +629,8 @@ class Read {
         /**
          * Primeiro tenta verificar se uma busca local é suficiente
          */
-        let local = await dbLocal.exeRead(this.entity, this.id);
-        this.total = local.length;
+        this.result = await dbLocal.exeRead(this.entity, this.id);
+        this.total = this.result.length;
 
         /**
          * Se estiver procurando um ID em específico
@@ -638,7 +638,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id)
-            return (!isEmpty(local) ? local : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (!isEmpty(this.result) ? this.result : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
@@ -647,7 +647,7 @@ class Read {
          * se o limit for maior, então retorna somente a quantidade desejada
          */
         if (this.limit)
-            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(this.result) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -655,13 +655,13 @@ class Read {
          * registros offline, então busca online para verificar se
          * existe mais registros no back-end que não estão no front-end
          */
-        if (local.length === LIMITOFFLINE)
+        if (this.total === LIMITOFFLINE)
             return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
          */
-        return this.privateArrayFilterData(local);
+        return this.privateArrayFilterData(this.result);
     }
 
     /**
