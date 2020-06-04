@@ -5,6 +5,9 @@
  * @returns {*}
  */
 $.cachedScript = function (url, options) {
+    caches.open('core-v' + VERSION).then(cache => {
+        cache.add(url);
+    });
     options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
     return $.ajax(options)
 };

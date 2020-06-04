@@ -538,6 +538,7 @@ class Read {
         this.offset = 0;
         this.total = 0;
         this.result = 0;
+        this.reading = !1;
 
         this.setEntity(entity);
         this.setId(search);
@@ -583,7 +584,7 @@ class Read {
         this.result = result.data;
         this.total = result.total;
 
-        return {data: this.result, length: this.total};
+        return this.result;
     }
 
     getTotal() {
@@ -617,7 +618,7 @@ class Read {
          * então realiza a leitura dos dados online
          */
         if (!SERVICEWORKER)
-            return this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
@@ -637,7 +638,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id)
-            return (!isEmpty(local) ? local : this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
+            return (!isEmpty(local) ? local : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
@@ -646,7 +647,7 @@ class Read {
          * se o limit for maior, então retorna somente a quantidade desejada
          */
         if (this.limit)
-            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
+            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -655,7 +656,7 @@ class Read {
          * existe mais registros no back-end que não estão no front-end
          */
         if (local.length === LIMITOFFLINE)
-            return this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
@@ -757,9 +758,7 @@ class Read {
         if(this.limit)
             retorno = retorno.slice(this.offset, (this.offset + this.limit));
 
-        this.result = retorno;
-
-        return {data: this.result, length: this.total};
+        return this.result = retorno;
     }
 
     /**
@@ -773,7 +772,7 @@ class Read {
      * @param offset
      * @returns {Promise<unknown>}
      */
-    privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
+    async privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
         /**
          * Filtra o id, garante que se for um número seja um dado inteiro
          * caso contrário, seta null e ignora o id
@@ -785,7 +784,7 @@ class Read {
         orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
         search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
 
-        return new Promise(function (resolve, reject) {
+        return this.setResultTotal(await new Promise(function (resolve, reject) {
             $.ajax({
                 type: "POST",
                 url: HOME + 'set',
@@ -819,7 +818,7 @@ class Read {
                 },
                 dataType: "json"
             })
-        })
+        }));
     }
 }
 
