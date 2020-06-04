@@ -239,87 +239,97 @@ function gridCrud(entity, fields, actions) {
             let $this = this;
             $this.readData()
         },
-        readData: function () {
+        readData: async function () {
             clearHeaderScrollPosition();
             let $this = this;
             $this.$content = $this.$element.find("tbody");
             let selecteds = [];
             let offset = ($this.page * $this.limit) - $this.limit;
-            let info = dbLocal.exeRead("__info", 1);
             let result = "";
+            let read = new Read();
 
-            if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin")
-                result = reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
-            else
-                result = exeRead(entity, $this.search, $this.filter, $this.order, $this.orderPosition, $this.limit, offset);
+            if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
+                result = await reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
+            } else {
+                read.setFilter($this.search);
+                read.setOrderColumn($this.order);
+                read.setLimit($this.limit);
+                read.setOffset(offset -1);
+                if ($this.orderPosition)
+                    read.setOrderReverse();
 
-            let templates = getTemplates();
+                await read.exeRead(entity);
+                result = {data: read.getResult(), length: read.getTotal()};
+            }
+
+            let info = await dbLocal.exeRead("__info", 1);
+            let templates = await getTemplates();
             let $loadingLoading = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));
+
             $loadingLoading.loading();
             let loadingContent = setInterval(function () {
                 $loadingLoading.loading()
             }, 2000);
+
             if ($this.$content.find(".table-select:checked").length > 0) {
                 $.each($this.$content.find(".table-select:checked"), function (i, e) {
                     selecteds.push(parseInt($(this).attr("rel")))
                 })
             }
+
             $(".table-info-result").remove();
             $this.$content.parent().find("thead").removeClass("hide");
-            return Promise.all([info, result, templates]).then(r => {
-                info = r[0];
-                result = r[1];
-                templates = r[2];
-                dbLocal.exeRead('__historic', 1).then(hist => {
-                    $this.historic = hist[$this.entity]
-                });
-                if (typeof info !== "undefined") {
-                    let totalFormated = "";
-                    let total = result.length.toString();
-                    let le = total.length;
-                    for (let i = 0; i < le; i++)
-                        totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
-                    $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
-                    $this.filterTotal = -1;
-                    let pp = [];
-                    let registerPosition = 0;
-                    let registersWaitingPosition = [];
-                    $this.$content.html("");
 
-                    for (let k in result.data) {
-                        if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
-                            pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], grid.actions, selecteds).then(tr => {
-                                if (parseInt(k) === registerPosition) {
-                                    $this.$content.append(Mustache.render(templates.grid_content, tr))
-                                    registerPosition++;
-                                    if (registersWaitingPosition.length) {
-                                        let r = $this.putWaitingRegisters(registerPosition, registersWaitingPosition, $this.$content);
-                                        registerPosition = r[0];
-                                        registersWaitingPosition = r[1];
-                                    }
-                                } else {
-                                    registersWaitingPosition.push({
-                                        position: parseInt(k),
-                                        content: Mustache.render(templates.grid_content, tr)
-                                    });
+            dbLocal.exeRead('__historic', 1).then(hist => {
+                $this.historic = hist[$this.entity]
+            });
+
+            if (typeof info !== "undefined") {
+                let totalFormated = "";
+                let total = result.length.toString();
+                let le = total.length;
+                for (let i = 0; i < le; i++)
+                    totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
+                $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
+                $this.filterTotal = -1;
+                let pp = [];
+                let registerPosition = 0;
+                let registersWaitingPosition = [];
+                $this.$content.html("");
+
+                for (let k in result.data) {
+                    if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
+                        pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], grid.actions, selecteds).then(tr => {
+                            if (parseInt(k) === registerPosition) {
+                                $this.$content.append(Mustache.render(templates.grid_content, tr))
+                                registerPosition++;
+                                if (registersWaitingPosition.length) {
+                                    let r = $this.putWaitingRegisters(registerPosition, registersWaitingPosition, $this.$content);
+                                    registerPosition = r[0];
+                                    registersWaitingPosition = r[1];
                                 }
-                            }))
-                        }
+                            } else {
+                                registersWaitingPosition.push({
+                                    position: parseInt(k),
+                                    content: Mustache.render(templates.grid_content, tr)
+                                });
+                            }
+                        }))
                     }
-                    return Promise.all(pp).then(d => {
-                        if (isEmpty(d)) {
-                            $this.$content.parent().find("thead").addClass("hide");
-                            $this.$content.parent().after(Mustache.render(templates.no_registers));
-                        }
-                        $loadingLoading.remove();
-                        clearInterval(loadingContent);
-                        $this.posData()
-                    })
-                } else {
-                    $loadingLoading.remove();
-                    clearInterval(loadingContent)
                 }
-            })
+                return Promise.all(pp).then(d => {
+                    if (isEmpty(d)) {
+                        $this.$content.parent().find("thead").addClass("hide");
+                        $this.$content.parent().after(Mustache.render(templates.no_registers));
+                    }
+                    $loadingLoading.remove();
+                    clearInterval(loadingContent);
+                    $this.posData()
+                })
+            } else {
+                $loadingLoading.remove();
+                clearInterval(loadingContent)
+            }
         },
         readDataConfigAltered: function (limit) {
             let grid = this;
