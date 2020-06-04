@@ -300,31 +300,8 @@ function dbSendData(entity, dados, action) {
     });
 }
 
-
-
-/**
- * Lê registros no back-end
- * @param entity
- * @param id
- * @param search
- * @param columnOrder
- * @param orderReverse
- * @param limit
- * @param offset
- * @returns {Promise<unknown>}
- */
-function exeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
-    /**
-     * Filtra o id, garante que se for um número seja um dado inteiro
-     * caso contrário, seta null e ignora o id
-     */
-    id = isNumberPositive(id) ? parseInt(id) : null;
-    limit = isNumberPositive(limit) ? parseInt(limit) : null;
-    offset = isNumberPositive(offset) ? parseInt(offset) : 0;
-    columnOrder = typeof columnOrder === "string" && columnOrder !== "" ? columnOrder : "id";
-    orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
-    search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
-
+function exeReadOnline(entity, id) {
+    id = isNumberPositive(id) ? id : null;
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
@@ -334,11 +311,6 @@ function exeReadOnline(entity, id, search, columnOrder, orderReverse, limit, off
                 file: "load/entity",
                 entity: entity,
                 id: id,
-                filter: search,
-                order: columnOrder,
-                reverse: orderReverse,
-                limit: limit,
-                offset: offset,
                 historic: null
             },
             success: function (data) {
@@ -645,7 +617,7 @@ class Read {
          * então realiza a leitura dos dados online
          */
         if (!SERVICEWORKER)
-            return this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
@@ -665,7 +637,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id)
-            return (!isEmpty(local) ? local : this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
+            return (!isEmpty(local) ? local : this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
@@ -674,7 +646,7 @@ class Read {
          * se o limit for maior, então retorna somente a quantidade desejada
          */
         if (this.limit)
-            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
+            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(local) : this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset)));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -683,7 +655,7 @@ class Read {
          * existe mais registros no back-end que não estão no front-end
          */
         if (local.length === LIMITOFFLINE)
-            return this.setResultTotal(await exeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return this.setResultTotal(await this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
@@ -788,6 +760,66 @@ class Read {
         this.result = retorno;
 
         return {data: this.result, length: this.total};
+    }
+
+    /**
+     * Lê registros no back-end
+     * @param entity
+     * @param id
+     * @param search
+     * @param columnOrder
+     * @param orderReverse
+     * @param limit
+     * @param offset
+     * @returns {Promise<unknown>}
+     */
+    privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
+        /**
+         * Filtra o id, garante que se for um número seja um dado inteiro
+         * caso contrário, seta null e ignora o id
+         */
+        id = isNumberPositive(id) ? parseInt(id) : null;
+        limit = isNumberPositive(limit) ? parseInt(limit) : null;
+        offset = isNumberPositive(offset) ? parseInt(offset) : 0;
+        columnOrder = typeof columnOrder === "string" && columnOrder !== "" ? columnOrder : "id";
+        orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
+        search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                type: "POST",
+                url: HOME + 'set',
+                data: {
+                    lib: "entity",
+                    file: "load/entity",
+                    entity: entity,
+                    id: id,
+                    filter: search,
+                    order: columnOrder,
+                    reverse: orderReverse,
+                    limit: limit,
+                    offset: offset,
+                    historic: null
+                },
+                success: function (data) {
+                    if (data.response === 1 && !isEmpty(data.data.data)) {
+                        if (id)
+                            resolve({data: getDefaultValues(entity, data.data.data[0]), total: 1});
+
+                        let result = [];
+                        $.each(data.data.data, function (i, e) {
+                            result.push(getDefaultValues(entity, e));
+                        });
+                        resolve({data: result, total: data.data.total});
+                    }
+                    resolve({data: [], total: 0});
+                },
+                error: function () {
+                    resolve({data: [], total: 0});
+                },
+                dataType: "json"
+            })
+        })
     }
 }
 
