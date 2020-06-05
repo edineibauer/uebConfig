@@ -538,6 +538,7 @@ class Read {
         this.offset = 0;
         this.total = 0;
         this.result = [];
+        this.reading = !1;
 
         this.setEntity(entity);
         this.setId(search);
@@ -577,13 +578,6 @@ class Read {
     setOffset(offset) {
         if(isNumberPositive(offset))
             this.offset = parseInt(offset);
-    }
-
-    setResultTotal(result) {
-        this.result = result.data;
-        this.total = result.total;
-
-        return this.result;
     }
 
     getTotal() {
@@ -646,8 +640,9 @@ class Read {
          * se o limit for maior que o LIMITOFFLINE, então lê registros online
          * se o limit for maior, então retorna somente a quantidade desejada
          */
+        let maxOffline = LIMITOFFLINE + (await dbLocal.keys("sync_" + this.entity)).length;
         if (this.limit)
-            return (this.total < LIMITOFFLINE ? this.privateArrayFilterData(this.result) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (this.total < maxOffline ? this.privateArrayFilterData(this.result) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -655,7 +650,7 @@ class Read {
          * registros offline, então busca online para verificar se
          * existe mais registros no back-end que não estão no front-end
          */
-        if (this.total === LIMITOFFLINE)
+        if (this.total === maxOffline)
             return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
@@ -784,7 +779,7 @@ class Read {
         orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
         search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
 
-        return this.setResultTotal(await new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             $.ajax({
                 type: "POST",
                 url: HOME + 'set',
@@ -801,24 +796,37 @@ class Read {
                     historic: null
                 },
                 success: function (data) {
-                    if (data.response === 1 && !isEmpty(data.data.data)) {
-                        if (id)
-                            resolve({data: getDefaultValues(entity, data.data.data[0]), total: 1});
+                    if (data.response === 1 && !isEmpty(data.data.data))
+                        resolve(data.data);
 
-                        let result = [];
-                        $.each(data.data.data, function (i, e) {
-                            result.push(getDefaultValues(entity, e));
-                        });
-                        resolve({data: result, total: data.data.total});
-                    }
                     resolve({data: [], total: 0});
                 },
                 error: function () {
-                    resolve({data: [], total: 0});
+                    resolve({result: id ? {} : [], total: 0});
                 },
                 dataType: "json"
             })
-        }));
+        }).then(results => {
+            if (id) {
+                this.result = getDefaultValues(entity, results.data[0]);
+                this.total = 1;
+                return this.result;
+            }
+
+            this.result = [];
+            this.total = results.total;
+
+            return dbLocal.exeRead("sync_" + entity).then(syncs => {
+                if(!isEmpty(syncs)) {
+                    this.total += syncs.length;
+                    for(let s of syncs.reverse())
+                        this.result.push(s);
+                }
+
+                for(let e of results.data)
+                    this.result.push(getDefaultValues(entity, e));
+            });
+        })
     }
 }
 
@@ -1297,7 +1305,7 @@ const dbLocal = {
             tx.objectStore(entity).clear();
             return tx.complete
         })
-    }, keys(entity) {
+    }, async keys(entity) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             const tx = dbLocalTmp.transaction(entity);
             let keys = [];
