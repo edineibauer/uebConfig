@@ -490,6 +490,7 @@ function searchList($input) {
         let templates = getTemplates();
         let read = new Read();
         read.setLimit(10);
+        read.setFilter(search);
         let dataRead = read.exeRead(entity);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
