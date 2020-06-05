@@ -820,7 +820,7 @@ class Read {
                 if(!isEmpty(syncs)) {
                     this.total += syncs.length;
                     for(let s of syncs.reverse())
-                        this.result.push(s);
+                        this.result.push(Object.assign({db_status: !1}, getDefaultValues(entity, s)));
                 }
 
                 for(let e of results.data)
