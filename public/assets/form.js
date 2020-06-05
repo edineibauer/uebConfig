@@ -488,11 +488,13 @@ function searchList($input) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
         let templates = getTemplates();
-        let dataRead = exeRead(entity, {}, {}, 'id', !1, 10);
+        let read = new Read();
+        read.setLimit(10);
+        let dataRead = read.exeRead(entity);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
             templates = r[0];
-            dataRead = r[1].data;
+            dataRead = r[1];
             $.each(dataRead, function (i, datum) {
                 $.each(datum, function (col, val) {
                     if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information")) {
