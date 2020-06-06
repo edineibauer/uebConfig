@@ -525,8 +525,14 @@ class Config
      */
     public static function getJsonFile(string $file): array
     {
-        if (file_exists($file))
-            return json_decode(file_get_contents($file), !0);
+        if (file_exists($file)) {
+            $file = file_get_contents($file);
+            if (is_string($file) && !empty($file)) {
+                $file = json_decode($file, !0);
+                if(is_array($file))
+                    return $file;
+            }
+        }
 
         return [];
     }
