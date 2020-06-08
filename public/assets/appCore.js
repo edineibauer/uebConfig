@@ -2531,6 +2531,23 @@ function goLinkPageTransition(url, $this, e) {
     }
 }
 
+async function updatedPerfil() {
+    if (typeof (EventSource) !== "undefined") {
+        let u = new EventSource("get/event/updatePerfil", {withCredentials: true});
+        u.onmessage = function (event) {
+            if(typeof event.data === "string" && isJson(event.data))
+                USER = JSON.parse(event.data);
+        };
+    } else {
+        setInterval(function () {
+            get("event/updatePerfil").then(u => {
+                if(typeof u === "string" && isJson(u))
+                    USER = JSON.parse(u);
+            });
+        }, 3000);
+    }
+}
+
 /**
  * Ao carregar todo o documento executa esta função
  */
@@ -2636,6 +2653,11 @@ async function onLoadDocument() {
         if (allow.notifications_report?.read)
             await updateNotificationsBadge();
     }
+
+    /**
+     * Sincronização do perfil de usuário
+     */
+    updatedPerfil();
 }
 
 async function setDicionario() {
