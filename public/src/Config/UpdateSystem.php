@@ -304,6 +304,7 @@ class UpdateSystem
         Config::createDir("_config");
         Config::createDir("_cdn");
         Config::createDir("_cdn/vendor");
+        Config::createDir("_cdn/userPerfil");
         Config::createDir("libs");
         Config::createDir("public");
         Config::createDir("public/view");
