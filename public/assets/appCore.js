@@ -2535,13 +2535,13 @@ async function updatedPerfil() {
     if (typeof (EventSource) !== "undefined") {
         let u = new EventSource("get/event/updatePerfil", {withCredentials: true});
         u.onmessage = function (event) {
-            if(typeof event.data === "string" && isJson(event.data))
+            if(typeof event.data === "string" && event.data !== "" && isJson(event.data))
                 USER = JSON.parse(event.data);
         };
     } else {
         setInterval(function () {
             get("event/updatePerfil").then(u => {
-                if(typeof u === "string" && isJson(u))
+                if(typeof u === "string"&& u !== "" && isJson(u))
                     USER = JSON.parse(u);
             });
         }, 3000);
