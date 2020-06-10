@@ -502,47 +502,6 @@ class UpdateSystem
         Config::createViewAssets();
     }
 
-    private function generateInfo(array $metadados): array
-    {
-        $data = [
-            "identifier" => 0, "title" => null, "link" => null, "status" => null, "date" => null, "datetime" => null, "valor" => null, "email" => null, "tel" => null, "cpf" => null, "cnpj" => null, "cep" => null, "time" => null, "week" => null, "month" => null, "year" => null,
-            "required" => null, "unique" => null, "publisher" => null, "constant" => null, "extend" => null, "extend_mult" => null, "list" => null, "list_mult" => null, "selecao" => null, "selecao_mult" => null,
-            "source" => [
-                "image" => null,
-                "audio" => null,
-                "video" => null,
-                "multimidia" => null,
-                "compact" => null,
-                "document" => null,
-                "denveloper" => null,
-                "arquivo" => null,
-                "source" => null
-            ]
-        ];
-
-        foreach ($metadados as $i => $dados) {
-            if (in_array($dados['key'], ["unique", "extend", "extend_mult", "list", "list_mult", "selecao", "selecao_mult"]))
-                $data[$dados['key']][] = $i;
-
-            if (in_array($dados['format'], ["title", "link", "status", "date", "datetime", "valor", "email", "tel", "cpf", "cnpj", "cep", "time", "week", "month", "year"]))
-                $data[$dados['format']] = $i;
-
-            if ($dados['key'] === "publisher")
-                $data["publisher"] = $i;
-
-            if ($dados['key'] === "source" || $dados['key'] === "sources")
-                $data['source'][$this->checkSource($dados['allow']['values'])][] = $i;
-
-            if ($dados['default'] === false)
-                $data['required'][] = $i;
-
-            if (!$dados['update'])
-                $data["constant"][] = $i;
-        }
-
-        return $data;
-    }
-
     /**
      * Sincroniza entidades e banco
      */
@@ -569,7 +528,7 @@ class UpdateSystem
 
                         } elseif (!file_exists(PATH_HOME . "entity/cache/info/{$file}")) {
                             //cria info
-                            $data = $this->generateInfo(\Entity\Metadados::getDicionario(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$file}"));
+                            $data = Config::createInfoFromMetadados(\Entity\Metadados::getDicionario(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$file}"));
                             $fp = fopen(PATH_HOME . "entity/cache/info/" . $file, "w");
                             fwrite($fp, json_encode($data));
                             fclose($fp);
@@ -693,35 +652,6 @@ class UpdateSystem
         $f = fopen(PATH_HOME . "service-worker.js", "w+");
         fwrite($f, $service);
         fclose($f);
-    }
-
-    private function checkSource($valores)
-    {
-        $type = [];
-        $data = [
-            "image" => ["png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "psd", "svg"],
-            "video" => ["mp4", "avi", "mkv", "mpeg", "flv", "wmv", "mov", "rmvb", "vob", "3gp", "mpg"],
-            "audio" => ["mp3", "aac", "ogg", "wma", "mid", "alac", "flac", "wav", "pcm", "aiff", "ac3"],
-            "document" => ["txt", "doc", "docx", "dot", "dotx", "dotm", "ppt", "pptx", "pps", "potm", "potx", "pdf", "xls", "xlsx", "xltx", "rtf"],
-            "compact" => ["rar", "zip", "tar", "7z"],
-            "denveloper" => ["html", "css", "scss", "js", "tpl", "json", "xml", "md", "sql", "dll"]
-        ];
-
-        foreach ($data as $tipo => $dados) {
-            if (count(array_intersect($dados, $valores)) > 0)
-                $type[] = $tipo;
-        }
-
-        if (count($type) > 1) {
-            if (count(array_intersect(["document", "compact", "denveloper"], $type)) === 0 && count(array_intersect(["image", "video", "audio"], $type)) > 1)
-                return "multimidia";
-            else if (count(array_intersect(["document", "compact", "denveloper"], $type)) > 1 && count(array_intersect(["image", "video", "audio"], $type)) === 0)
-                return "arquivo";
-            else
-                return "source";
-        } else {
-            return $type[0];
-        }
     }
 
     /**

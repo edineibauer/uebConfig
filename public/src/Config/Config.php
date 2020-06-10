@@ -1064,4 +1064,35 @@ class Config
         # Finish with the whole new prefixed string/file in one line
         return (preg_replace('/\s+/', ' ', implode("} ", $parts)));
     }
+
+    /**
+     * @param array $metadados
+     * @return array
+     */
+    public static function createInfoFromMetadados(array $metadados): array
+    {
+        $data = [
+            "identifier" => 0, "title" => null, "link" => null, "status" => null, "date" => null, "datetime" => null, "valor" => null, "email" => null, "tel" => null, "cpf" => null, "cnpj" => null, "cep" => null, "time" => null, "week" => null, "month" => null, "year" => null,
+            "required" => null, "unique" => null, "publisher" => null, "constant" => null, "extend" => null, "extend_mult" => null, "list" => null, "list_mult" => null, "selecao" => null, "selecao_mult" => null
+        ];
+
+        foreach ($metadados as $i => $dados) {
+            if (in_array($dados['key'], ["unique", "extend", "extend_mult", "list", "list_mult", "selecao", "selecao_mult"]))
+                $data[$dados['key']][] = $i;
+
+            if (in_array($dados['format'], ["title", "link", "status", "date", "datetime", "valor", "email", "tel", "cpf", "cnpj", "cep", "time", "week", "month", "year"]))
+                $data[$dados['format']] = $i;
+
+            if ($dados['key'] === "publisher")
+                $data["publisher"] = $i;
+
+            if ($dados['default'] === false)
+                $data['required'][] = $i;
+
+            if (!$dados['update'])
+                $data["constant"][] = $i;
+        }
+
+        return $data;
+    }
 }
