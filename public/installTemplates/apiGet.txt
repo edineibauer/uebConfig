@@ -1,47 +1,50 @@
 <?php
 require_once './_config/config.php';
 
-use Route\Route;
-
+$find = !1;
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
-    $link = new Route($url, 'get');
-    if ($link->getRoute()) {
+    foreach (\Config\Config::getRoutesTo("get") as $item) {
+        if(file_exists($item . $url . ".php")) {
+            $find = !0;
 
-        ob_start();
+            ob_start();
 
-        try {
-            include_once $link->getRoute();
+            try {
+                include_once $item . $url . ".php";
+                if (isset($data['error'])) {
+                    $data["response"] = 2;
+                    $data["data"] = "";
+                } elseif (!isset($data['data'])) {
+                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                } elseif (!isset($data['response'])) {
+                    $data['response'] = 1;
+                    $data['error'] = "";
+                }
 
-            if (isset($data['error'])) {
-                $data["response"] = 2;
-                $data["data"] = "";
-            } elseif (!isset($data['data'])) {
-                $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-            } elseif (!isset($data['response'])) {
-                $data['response'] = 1;
-                $data['error'] = "";
+                if(is_string($data['data']) && preg_match('/^http/i', $data['data']))
+                    $data = ["response" => 3, "error" => "", "data" => $data['data']];
+
+            } catch (Exception $e) {
+                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
             }
 
-            if(is_string($data['data']) && preg_match('/^http/i', $data['data']))
-                $data = ["response" => 3, "error" => "", "data" => $data['data']];
+            ob_end_clean();
 
-        } catch (Exception $e) {
-            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+            if ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^http/i", $data['data']))) {
+                $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+            }
+
+            break;
         }
-
-        ob_end_clean();
-
-        if ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^http/i", $data['data']))) {
-            $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
-        }
-    } else {
-        $data["response"] = 4;
     }
 
-    if ($data['response'] === 4 && preg_match('/^data\/\w+/i', $url))
+    if(!$find)
+        $data['response'] = 4;
+    elseif ($data['response'] === 4 && preg_match('/^data\/\w+/i', $url))
         $data["response"] = 5;
+
 } else {
     $data["response"] = 4;
 }

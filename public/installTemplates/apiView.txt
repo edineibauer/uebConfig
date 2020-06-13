@@ -6,42 +6,19 @@ $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
     $link = new Link($url);
+
     if ($link->getRoute()) {
 
-        ob_start();
-
         try {
+
+            ob_start();
             include_once $link->getRoute();
-
-            if(isset($data) && isset($data['response']) && $data['response'] == 3 && !empty($data['data']))
-                unset($data['error']);
-
-            if (isset($data['error'])) {
-                $data["response"] = 2;
-                $data["data"] = "";
-            } elseif (!isset($data['data'])) {
-                $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-            } elseif (!isset($data['response'])) {
-                $data['response'] = 1;
-                $data['error'] = "";
-            }
-
-            if(preg_match('/^http/i', $data['data']))
-                $data = ["response" => 3, "error" => "", "data" => $data['data']];
-
-        } catch (Exception $e) {
-            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
-        }
-
-        ob_end_clean();
-        if ($data['response'] === 1) {
-            $data["data"] = [
+            $data = ["response" => 1, "error" => "", "data" => [
                 "title" => $link->getParam()['title'],
                 "descricao" => $link->getParam()['descricao'],
                 "front" => array_merge($link->getParam()['front'], ["variaveis" => $link->getParam()['variaveis'] ?? []]),
                 "css" => $link->getParam()['css'],
                 "js" => $link->getParam()['js'],
-                "meta" => $link->getParam()['meta'],
                 "font" => $link->getParam()['font'],
                 "header" => $link->getParam()['header'],
                 "navbar" => $link->getParam()['navbar'],
@@ -49,18 +26,17 @@ if (!empty($url)) {
                 "!setor" => $link->getParam()['!setor'],
                 "redirect" => $link->getParam()['redirect'] ?? "403",
                 "cache" => $link->getParam()['cache'] ?? !1,
-                "content" => $data['data']
-            ];
+                "content" => ob_get_contents()
+            ]];
+            ob_end_clean();
 
-        } elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^http/i", $data['data']))) {
-            $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+        } catch (Exception $e) {
+            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
         }
+
     } else {
         $data["response"] = 4;
     }
-
-    if ($data['response'] === 4 && preg_match('/^data\/\w+/i', $url))
-        $data["response"] = 5;
 } else {
     $data["response"] = 4;
 }

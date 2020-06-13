@@ -180,7 +180,7 @@ class UpdateSystem
 
                 if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css"))
                     copy(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
-                
+
                 if(file_exists($base . "config.json")) {
                     $configUp = json_decode(file_get_contents($base . "config.json"), !0);
                     $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
@@ -498,8 +498,6 @@ class UpdateSystem
         //Remove todos os dados das pastas de assets
         if(file_exists(PATH_HOME . "assetsPublic/view"))
             Helper::recurseDelete(PATH_HOME . "assetsPublic/view");
-
-        Config::createViewAssets();
     }
 
     /**

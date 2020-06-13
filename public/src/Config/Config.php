@@ -3,6 +3,7 @@
 namespace Config;
 
 use Helpers\Helper;
+use Route\Route;
 use Tholu\Packer\Packer;
 
 class Config
@@ -289,88 +290,7 @@ class Config
     }
 
     /**
-     * Cria os Assets de View da página
-     */
-    public static function createViewAssets()
-    {
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
-
-
-        /**
-         * Cria os assets das views de forma genérica
-         */
-        $listaViews = ['generico' => []];
-        $tiposUsuarios = self::getTiposUsuarios();
-
-        /**
-         * GENÉRICO VIEW
-         */
-        if (file_exists(PATH_HOME . "/public/view")) {
-            foreach (Helper::listFolder(PATH_HOME . "/public/view") as $viewLib) {
-                $viewName = str_replace(['.php', '.html'], '', $viewLib);
-                if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews['generico'])))
-                    $listaViews['generico'][$viewName] = DOMINIO;
-            }
-        }
-
-        /**
-         * GENÉRICO VIEW Libs
-         */
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view")) {
-                foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/view") as $viewLib) {
-                    $viewName = str_replace(['.php', '.html'], '', $viewLib);
-                    if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews['generico'])))
-                        $listaViews['generico'][$viewName] = $lib;
-                }
-            }
-        }
-
-        /**
-         * SETOR VIEW
-         */
-        foreach ($tiposUsuarios as $tiposUsuario) {
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/" . $tiposUsuario);
-            $listaViews[$tiposUsuario] = [];
-
-            /**
-             * Public
-             */
-            if (file_exists(PATH_HOME . "/public/view/" . $tiposUsuario)) {
-                foreach (Helper::listFolder(PATH_HOME . "/public/view/" . $tiposUsuario) as $viewLib) {
-                    $viewName = str_replace(['.php', '.html'], '', $viewLib);
-                    if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews[$tiposUsuario])))
-                        $listaViews[$tiposUsuario][$viewName] = DOMINIO;
-                }
-            }
-
-            /**
-             * Libs
-             */
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view/" . $tiposUsuario)) {
-                    foreach (Helper::listFolder(PATH_HOME . VENDOR . $lib . "/public/view/" . $tiposUsuario) as $viewLib) {
-                        $viewName = str_replace(['.php', '.html'], '', $viewLib);
-                        if (preg_match('/.(html|php)$/i', $viewLib) && !in_array($viewName, array_keys($listaViews[$tiposUsuario])))
-                            $listaViews[$tiposUsuario][$viewName] = $lib;
-                    }
-                }
-            }
-        }
-
-        foreach ($listaViews as $tipoUser => $listaView) {
-            $tipoUser = $tipoUser === 'generico' ? null : $tipoUser;
-            foreach ($listaView as $view => $lib) {
-                $param = self::getViewParam($view, $lib, $tipoUser);
-                self::createPageJs($view, $param['js'], $lib, $tipoUser);
-                self::createPageCss($view, $param['css'], $lib, $tipoUser);
-            }
-        }
-    }
-
-    /**
-     * get View param to front
+     * Obtém os parametros da view
      *
      * @param string $view
      * @param string $libView
@@ -525,11 +445,12 @@ class Config
      * Obtém lista de todos os diretórios para o caminho em public
      * considerando bibliotecas e overloads
      * @param string $dir
+     * @param string|null $setor
      * @return array
      */
-    public static function getRoutesTo(string $dir): array
+    public static function getRoutesTo(string $dir, string $setor = null): array
     {
-        $setor = self::getSetor();
+        $setor = $setor ?? self::getSetor();
 
         /**
          * Public Setor
@@ -736,77 +657,6 @@ class Config
     }
 
     /**
-     * Create JS View Cache
-     *
-     * @param string $view
-     * @param string $lib
-     * @param string $setor
-     */
-    public static function createPageJs(string $view, string $lib, string $setor)
-    {
-        $minifier = new \MatthiasMullie\Minify\JS("");
-
-        /**
-         * Find all JS from view
-         */
-        $viewJS = self::getRoutesFilesTo("view/{$view}", "js");
-
-        /**
-         * If have overload CSS view, so replace
-         */
-        foreach (self::getRoutesFilesTo("overload/{$lib}/view/{$view}", "js") as $asset => $path)
-            $viewJS[$asset] = $path;
-
-        /**
-         * If find JS assets on view, so add all to the cache
-         */
-        if (!empty($viewJS)) {
-            foreach ($viewJS as $viewJ)
-                $minifier->add($viewJ);
-        }
-
-        //Save JS view to the cache
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
-    }
-
-    /**
-     * Create CSS View Cache
-     *
-     * @param string $view
-     * @param string $lib
-     * @param string $setor
-     */
-    public static function createPageCss(string $view, string $lib, string $setor)
-    {
-        $minifier = new \MatthiasMullie\Minify\CSS("");
-
-        /**
-         * Find all CSS from view
-         */
-        $viewCss = self::getRoutesFilesTo("view/{$view}", "css");
-
-        /**
-         * If have overload CSS view, so replace
-         */
-        foreach (self::getRoutesFilesTo("overload/{$lib}/view/{$view}", "css") as $asset => $path)
-            $viewCss[$asset] = $path;
-
-        /**
-         * If find CSS assets on view, so add all to the cache
-         */
-        if (!empty($viewCss)) {
-            foreach ($viewCss as $css)
-                $minifier->add($css);
-        }
-
-        //Save CSS view to the cache
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
-        self::setCssPrefixAndVariables("assetsPublic/view/{$setor}/{$view}.min.css", $view);
-    }
-
-    /**
      * @param string $pathCss
      * @param string|null $view
      */
@@ -834,6 +684,55 @@ class Config
         $f = fopen(PATH_HOME . $pathCss, "w");
         fwrite($f, $file);
         fclose($f);
+    }
+
+    /**
+     * Create JS View Cache
+     *
+     * @param string $view
+     * @param array $viewJS
+     * @param string $setor
+     */
+    public static function createPageJs(string $view, array $viewJS, string $setor)
+    {
+        $minifier = new \MatthiasMullie\Minify\JS("");
+
+        /**
+         * If find JS assets on view, so add all to the cache
+         */
+        if (!empty($viewJS)) {
+            foreach ($viewJS as $viewJ)
+                $minifier->add($viewJ);
+        }
+
+        //Save JS view to the cache
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
+        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
+    }
+
+    /**
+     * Create CSS View Cache
+     *
+     * @param string $view
+     * @param array $viewCss
+     * @param string $setor
+     */
+    public static function createPageCss(string $view, array $viewCss, string $setor)
+    {
+        $minifier = new \MatthiasMullie\Minify\CSS("");
+
+        /**
+         * If find CSS assets on view, so add all to the cache
+         */
+        if (!empty($viewCss)) {
+            foreach ($viewCss as $css)
+                $minifier->add($css);
+        }
+
+        //Save CSS view to the cache
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
+        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
+        self::setCssPrefixAndVariables("assetsPublic/view/{$setor}/{$view}.min.css", $view);
     }
 
     /**
