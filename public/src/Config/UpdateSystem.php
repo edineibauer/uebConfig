@@ -122,6 +122,7 @@ class UpdateSystem
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
             $config['theme'] = $theme;
             $config['themetext'] = $themeColor;
+            Config::createConfig($config);
         }
     }
 
