@@ -266,7 +266,7 @@ class UpdateSystem
         $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js"));
         $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js"));
         $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.jsfile_get_contents("));
+        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js"));
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
         /**
