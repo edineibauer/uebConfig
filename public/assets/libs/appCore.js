@@ -2697,14 +2697,7 @@ if (SERVICEWORKER && navigator.onLine) {
 }
 
 $(function () {
-    if (location.href !== HOME + "updateSystem") {
-        (async () => {
-            await startApplication();
-        })();
-
-    } else {
-        return clearCacheAll().then(() => {
-            return readRouteState();
-        });
-    }
+    (async () => {
+        await startApplication();
+    })();
 });

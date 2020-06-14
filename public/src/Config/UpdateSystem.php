@@ -121,10 +121,6 @@ class UpdateSystem
         Config::createConfig($dados);
 
         Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
-        $f = fopen(PATH_HOME . "_config/updates/version.txt", "w+");
-        fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
-        fclose($f);
-
         return $dados;
     }
 
