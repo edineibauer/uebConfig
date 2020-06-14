@@ -251,7 +251,7 @@ class UpdateSystem
             $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
             $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
 
-            $m->minify(PATH_HOME . VENDOR . "dashboard/public/assets/appCoreDashboard.js");
+            $m->minify(PATH_HOME . "assetsPublic/appCoreDashboard.min.js");
         }
 
         /**
