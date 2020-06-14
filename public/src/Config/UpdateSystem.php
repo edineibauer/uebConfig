@@ -434,7 +434,7 @@ class UpdateSystem
 
         //Bloqueios por .htaccess
         Config::writeFile("_config/.htaccess", "Deny from all");
-        Config::writeFile("assetsPublic/.htaccess", "Deny from all");
+        Config::writeFile("assetsPublic/.htaccess", "Options -Indexes");
         Config::writeFile("entity/.htaccess", "Deny from all");
         Config::writeFile("public/react/.htaccess", "Deny from all");
         Config::writeFile("public/cron/.htaccess", "Deny from all");
