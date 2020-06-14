@@ -1724,16 +1724,6 @@ function updateAppOnDev() {
         });
 
     }).then(() => {
-
-        /**
-         * Adiciona o core Js e core Css do meu atual usuário
-         */
-        if (SERVICEWORKER) {
-            caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll([HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION, HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION]);
-            });
-        }
-
         return getIndexedDbGets().then(() => {
             /**
              * Carrega as views para este usuário
@@ -2673,8 +2663,6 @@ async function startApplication() {
     await setDicionario();
 
     (getCookie("accesscount") === "" ? await firstAccess() : await thenAccess());
-    $.cachedScript(HOME + "assetsPublic/core/" + USER.setor + "/core.min.js?v=" + VERSION);
-    $("head").append("<link rel='stylesheet' href='" + HOME + "assetsPublic/core/" + USER.setor + "/core.min.css?v=" + VERSION + "'>");
 
     await menuHeader();
     await readRouteState();
