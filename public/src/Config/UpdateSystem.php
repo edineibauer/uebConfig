@@ -90,6 +90,38 @@ class UpdateSystem
 
             Config::writeFile("_config/.htaccess", "Deny from all");
             Config::createConfig($config);
+        } else {
+
+            $theme = "#2196f3";
+            $themeColor = "#ffffff";
+
+            if (file_exists(PATH_HOME . "public/assets/theme.min.css")) {
+                $f = file_get_contents(PATH_HOME . "public/assets/theme.min.css");
+                if(preg_match('/\.theme\{/i', $f)) {
+                    $theme = explode(".theme{", $f)[1];
+                    $themeb = explode("!important", explode("background-color:", $theme)[1])[0];
+                    $themec = explode("!important", explode("color:", $theme)[1])[0];
+                    if (!empty($themeb))
+                        $theme = trim($themeb);
+
+                    if (!empty($themec))
+                        $themeColor = trim($themec);
+
+                } else if(preg_match('/\.theme \{/i', $f)) {
+                    $theme = explode(".theme {", $f)[1];
+                    $themeb = explode("!important", explode("background-color:", $theme)[1])[0];
+                    $themec = explode("!important", explode("color:", $theme)[1])[0];
+
+                    if (!empty($themeb))
+                        $theme = trim($themeb);
+
+                    if (!empty($themec))
+                        $themeColor = trim($themec);
+                }
+            }
+            $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+            $config['theme'] = $theme;
+            $config['themetext'] = $themeColor;
         }
     }
 
@@ -237,7 +269,6 @@ class UpdateSystem
         $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
 
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
-
 
         /**
          * AppCore Dashboard JS Generator
