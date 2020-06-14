@@ -180,9 +180,6 @@ class UpdateSystem
             if (file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config")) {
                 $base = PATH_HOME . VENDOR . "/{$lib}/public/_config/";
 
-                if (file_exists($base . "param.json"))
-                    copy($base . "param.json", PATH_HOME . "_config/param.json");
-
                 if (file_exists($base . "permissoes.json") && !file_exists(PATH_HOME . "_config/permissoes.json"))
                     copy($base . "permissoes.json", PATH_HOME . "_config/permissoes.json");
 
@@ -242,15 +239,11 @@ class UpdateSystem
          * Create cache folders
          */
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
-        foreach (array_merge(["0", "admin"], Config::getSetores()) as $setor)
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
 
         /**
          * Create fonts and images default system to cache
          */
-        $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        $this->createCoreFont($param['font'], $param['icon'], 'fonts');
+        $this->createCoreFont(["roboto"], ["https://fonts.googleapis.com/icon?family=Material+Icons"], 'fonts');
         $this->createCoreImages($dados);
 
         /**
