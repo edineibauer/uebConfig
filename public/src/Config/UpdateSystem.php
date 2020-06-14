@@ -119,8 +119,6 @@ class UpdateSystem
         $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         $dados['version'] = number_format($dados['version'] + 0.01, 2);
         Config::createConfig($dados);
-
-        Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
         return $dados;
     }
 
