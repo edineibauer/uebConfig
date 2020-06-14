@@ -96,5 +96,7 @@ foreach (Helper::listFolder(PATH_HOME . "assetsPublic/fonts") as $iten)
     $data['data']['fonts'][] = HOME . "assetsPublic/fonts/{$iten}?v=" . VERSION;
 
 //images
-foreach (Helper::listFolder(PATH_HOME . "assetsPublic/img") as $iten)
-    $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}?v=" . VERSION;
+foreach (Helper::listFolder(PATH_HOME . "assetsPublic/img") as $iten) {
+    if($iten !== "splashscreens")
+        $data['data']['images'][] = HOME . "assetsPublic/img/{$iten}?v=" . VERSION;
+}
