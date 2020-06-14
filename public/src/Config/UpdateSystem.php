@@ -247,79 +247,93 @@ class UpdateSystem
      */
     private function updateAssets(array $dados)
     {
+
+        /**
+         * Delete all caches
+         */
         Helper::recurseDelete(PATH_HOME . "assetsPublic");
         Helper::recurseDelete(PATH_HOME . "templates_c");
 
-        //gera core novamente com base nos param.json em _config
+        /**
+         * copy default theme from Config to the project folder if not exist
+         */
+        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/libs/theme.min.css"))
+            copy(PATH_HOME . VENDOR . "config/public/assets/libs/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+
+        /**
+         * Create cache folders
+         */
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
+        foreach (array_merge(["0", "admin"], Config::getSetores()) as $setor)
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $setor);
+
+        /**
+         * Create fonts and images default system to cache
+         */
         $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        Config::createCore();
         $this->createCoreFont($param['font'], $param['icon'], 'fonts');
         $this->createCoreImages($dados);
 
         /**
          * AppCore JS Generator
          */
-        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/jquery.min.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/touch.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/moment.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/mustache.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/idb.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/indexedDB.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/appCore.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/jquery-migrate.1.4.1.min.js");
-
+        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
         /**
-         * AppCore Dashboard JS Generator
+         * AppCore Form JS Generator
          */
-        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/draggable.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/mask.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/grid.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/formValidate.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/form.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/apexcharts.js");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/grafico.js");
+        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/libs/draggable.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
+        $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreForm.js");
 
-        $m->minify(PATH_HOME . VENDOR . "dashboard/public/assets/appCoreDashboard.js");
+        /**
+         * AppCore Report JS Generator
+         */
+        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
+        $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreReport.js");
+
+        /**
+         * AppCore Grid JS Generator
+         */
+        $m = new \MatthiasMullie\Minify\JS(PATH_HOME . VENDOR . "config/public/assets/libs/table.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
+        $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
+        fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
+        fclose($f);
 
         /**
          * AppCore CSS Generator
          */
-        $m = new \MatthiasMullie\Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/normalize.css");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/toast.css");
-        $m->add(PATH_HOME . VENDOR . "config/public/assets/app.css");
+        $m = new \MatthiasMullie\Minify\CSS(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css");
+        $m->add(PATH_HOME . VENDOR . "config/public/assets/libs/app.css");
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
 
         /**
-         * tableCore Generator
+         * Check if all default folders exists
          */
-        if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
-            $minifier = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
-            $minifier->add(PATH_HOME . VENDOR . "table/public/assets/pagination.js");
-
-            $f = fopen(PATH_HOME . "assetsPublic/tableCore.min.js", "w");
-            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
-            fclose($f);
-        }
+        $this->checkDirBase();
 
         /**
-         * tableReportCore Generator
+         * Rewrite default files that route the requests (index, get, set, serviceworker ...)
          */
-        if (!file_exists(PATH_HOME . "assetsPublic/tableReportCore.min.js")) {
-            $minifier = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "report/public/assets/reportRead.js"));
-            $minifier->add(file_get_contents(PATH_HOME . VENDOR . "report/public/assets/reportTable.js"));
-            $minifier->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/grafico.js"));
-
-            $f = fopen(PATH_HOME . "assetsPublic/tableReportCore.min.js", "w");
-            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $minifier->minify())));
-            fclose($f);
-        }
-
-        $this->checkDirBase();
         $this->copyInstallTemplate();
-        $this->copyCustomSystem();
     }
 
     /**
@@ -430,29 +444,6 @@ class UpdateSystem
             Config::writeFile("entity/general/general_info.json", "[]");
     }
 
-    /**
-     * Copia arquivos personalizados das libs para o sistema,
-     * arquivos como tema, cabeçalho e outras personalizações
-     */
-    private function copyCustomSystem()
-    {
-        //Para cada biblioteca
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-
-            // copia tema caso não exista no projeto mas exista nas libs
-            if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . $lib . "/public/assets/theme.min.css"))
-                copy(PATH_HOME . VENDOR . $lib . "/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
-
-            //Remove index caso alguma biblioteca já possua
-            if (file_exists(PATH_HOME . VENDOR . $lib . "/public/view/index.php") && file_exists(PATH_HOME . "public/view/index.php")) {
-                if (preg_match("/<h1>Parabéns, tudo funcionando de acordo!<\/h1>/i", file_get_contents(PATH_HOME . "public/view/index.php"))) {
-                    unlink(PATH_HOME . "public/view/index.php");
-                    unlink(PATH_HOME . "public/param/index.json");
-                }
-            }
-        }
-    }
-
     private function getAccessFile()
     {
         return '<Files "*.json">
@@ -505,14 +496,14 @@ class UpdateSystem
     private function createCoreImages(array $config)
     {
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/img");
-        copy(PATH_HOME . VENDOR . "config/public/assets/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
-        copy(PATH_HOME . VENDOR . "config/public/assets/file.png", PATH_HOME . "assetsPublic/img/file.png");
-        copy(PATH_HOME . VENDOR . "config/public/assets/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
-        copy(PATH_HOME . VENDOR . "config/public/assets/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
-        copy(PATH_HOME . VENDOR . "config/public/assets/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/file.png", PATH_HOME . "assetsPublic/img/file.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
-        if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png")))
-            copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
+        if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png")))
+            copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
 
         if(!empty($config['logo']) && file_exists(PATH_HOME . $config['logo']))
             copy(PATH_HOME . $config['logo'], PATH_HOME . "assetsPublic/img/logo.png");

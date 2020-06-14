@@ -420,29 +420,23 @@ function gridCrud(entity, fields, actions) {
         },
         posData: function () {
             let $this = this;
-            loadMaskTable(this.$content);
+            loadMaskTable($this.$content);
             clearForm();
 
-            $.cachedScript(HOME + "assetsPublic/tableCore.min.js?v=" + VERSION).then(() => {
-                if (USER.setor === "admin")
-                    $.cachedScript(HOME + "assetsPublic/tableReportCore.min.js?v=" + VERSION);
-
-                this.$element.find(".pagination").remove();
-                let total = parseInt(this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
-                if (total > this.limit) {
-                    let $this = this;
-                    $this.$element.find(".grid-form-body").materializePagination({
-                        currentPage: $this.page,
-                        lastPage: Math.ceil(total / $this.limit),
-                        onClickCallback: function (requestedPage) {
-                            if (requestedPage !== $this.page) {
-                                $this.page = requestedPage;
-                                $this.readData()
-                            }
+            $this.$element.find(".pagination").remove();
+            let total = parseInt($this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
+            if (total > $this.limit) {
+                $this.$element.find(".grid-form-body").materializePagination({
+                    currentPage: $this.page,
+                    lastPage: Math.ceil(total / $this.limit),
+                    onClickCallback: function (requestedPage) {
+                        if (requestedPage !== $this.page) {
+                            $this.page = requestedPage;
+                            $this.readData()
                         }
-                    })
-                }
-            });
+                    }
+                })
+            }
         },
         reload: function () {
             this.readData();

@@ -514,27 +514,6 @@ class Config
     }
 
     /**
-     * Cria o Core JS e CSS do setor de acesso
-     */
-    public static function createCore()
-    {
-        //copia theme padrão para pasta do site
-        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
-            copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
-
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core");
-
-        $param = (file_exists(PATH_HOME . "_config/param.json") ? json_decode(file_get_contents(PATH_HOME . "_config/param.json"), !0) : ['js' => [], 'css' => []]);
-        foreach (self::getTiposUsuarios() as $listaUser) {
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/core/" . $listaUser);
-
-            self::createCoreJs($param['js'], $listaUser);
-            self::createCoreCss($param['css'], $listaUser);
-        }
-    }
-
-    /**
      * @param string $path
      * @param string $extensao
      * @param array $list
