@@ -646,7 +646,7 @@ async function checkUpdate() {
         xhttp.onerror = function () {
             resolve(0)
         };
-        xhttp.send("lib=config&file=update&update=false");
+        xhttp.send("lib=config&file=update");
     });
 }
 
@@ -1570,39 +1570,11 @@ function errorLoadingApp(id, e) {
     }, 3000);
 }
 
-function setVersionApplication() {
-    if (getCookie("update") !== "")
-        return Promise.all([]);
-
-    return new Promise(function (resolve, reject) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set");
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4) {
-                if (this.status !== 200 || isEmpty(this.responseText)) {
-                    resolve(0);
-                } else {
-                    let data = JSON.parse(this.responseText);
-                    if (data.data !== "no-network" && data.response === 1)
-                        setCookie("update", data.data > 2 ? data.data : 2);
-
-                    resolve(1);
-                }
-            }
-        };
-        xhttp.onerror = function () {
-            reject(Error("Network Error"))
-        };
-        xhttp.send("lib=config&file=update")
-    })
-}
-
 async function firstAccess() {
     setCookie('accesscount', 1);
     await cacheCoreApp();
 
-    setVersionApplication();
+    updateVersionNumber();
 
     if(navigator.onLine) {
         /**

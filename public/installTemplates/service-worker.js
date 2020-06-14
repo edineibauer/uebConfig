@@ -106,7 +106,7 @@ self.addEventListener('fetch', function (e) {
                             return cache.match(url).then(response => {
                                 return response || fetch(e.request).then(networkResponse => {
                                     return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
-                                }).catch(error => {
+                                }).catch(() => {
                                     return returnNoNetwork();
                                 });
                             });
@@ -114,7 +114,7 @@ self.addEventListener('fetch', function (e) {
                     } else {
                         return response || fetch(e.request).then(networkResponse => {
                             return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
-                        }).catch(error => {
+                        }).catch(() => {
                             return returnNoNetwork();
                         });
                     }
@@ -133,7 +133,7 @@ self.addEventListener('fetch', function (e) {
                         }
 
                         return returnImgNoNetwork();
-                    }).catch(error => {
+                    }).catch(() => {
                         return returnImgNoNetwork();
                     })
                 })
@@ -153,7 +153,7 @@ self.addEventListener('fetch', function (e) {
 
                         return returnNoNetwork();
 
-                    }).catch(error => {
+                    }).catch(() => {
                         return returnNoNetwork();
                     });
                 });
@@ -184,7 +184,7 @@ self.addEventListener('fetch', function (e) {
                         return cache.match(url).then(response => {
                             return response || fetch(e.request).then(networkResponse => {
                                 return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                            }).catch(error => {
+                            }).catch(() => {
                                 return returnViewNoNetwork();
                             });
                         });
@@ -232,7 +232,7 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(
             fetch(e.request).then(networkResponse => {
                 return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
-            }).catch(error => {
+            }).catch(() => {
                 return returnNoNetwork();
             })
         );
@@ -248,7 +248,7 @@ self.addEventListener('fetch', function (e) {
 
                         return response || fetch("index").then(networkResponse => {
                             return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                        }).catch(error => {
+                        }).catch(() => {
                             return returnViewNoNetwork();
                         });
                     });
@@ -263,7 +263,7 @@ self.addEventListener('fetch', function (e) {
 
                         return response || fetch(e.request).then(networkResponse => {
                             return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                        }).catch(error => {
+                        }).catch(() => {
                             return returnViewNoNetwork();
                         });
                     });
