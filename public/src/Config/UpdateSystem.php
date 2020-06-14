@@ -38,37 +38,21 @@ class UpdateSystem
         if (file_exists(PATH_HOME . "composer.lock")) {
             $this->createJsonConfigFileIfNotExist();
 
-            if (!file_exists(PATH_HOME . "_config/updates/version.txt")) {
-
-                //check if is the first time in the system to clear database
-                if (!file_exists(PATH_HOME . "entity/cache")) {
-                    //nenhuma entidade, zera banco
-                    $sql = new SqlCommand();
-                    $sql->exeCommand("SHOW TABLES");
-                    if ($sql->getResult()) {
-                        $sqlDelete = new SqlCommand();
-                        foreach ($sql->getResult() as $item) {
-                            if (!empty($item['Tables_in_' . DATABASE]))
-                                $sqlDelete->exeCommand("DROP TABLE IF EXISTS " . $item['Tables_in_' . DATABASE]);
-                        }
+            //check if is the first time in the system to clear database
+            if (!file_exists(PATH_HOME . "entity/cache")) {
+                //nenhuma entidade, zera banco
+                $sql = new SqlCommand();
+                $sql->exeCommand("SHOW TABLES");
+                if ($sql->getResult()) {
+                    $sqlDelete = new SqlCommand();
+                    foreach ($sql->getResult() as $item) {
+                        if (!empty($item['Tables_in_' . DATABASE]))
+                            $sqlDelete->exeCommand("DROP TABLE IF EXISTS " . $item['Tables_in_' . DATABASE]);
                     }
                 }
-
-                //Cria Version config file
-                Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
-                $f = fopen(PATH_HOME . "_config/updates/version.txt", "w");
-                fwrite($f, file_get_contents(PATH_HOME . "composer.lock"));
-                fclose($f);
-
-                $this->updateVersion($custom);
-
-            } elseif (file_exists(PATH_HOME . "_config/updates/version.txt")) {
-                $keyVersion = file_get_contents(PATH_HOME . "composer.lock");
-                $old = file_get_contents(PATH_HOME . "_config/updates/version.txt");
-                if (!empty($custom) || $old !== $keyVersion) {
-                    $this->updateVersion($custom);
-                }
             }
+
+            $this->updateVersion($custom);
         }
     }
 
@@ -97,7 +81,7 @@ class UpdateSystem
 
             if (file_exists(PATH_HOME . "public/assets/theme.min.css")) {
                 $f = file_get_contents(PATH_HOME . "public/assets/theme.min.css");
-                if(preg_match('/\.theme\{/i', $f)) {
+                if (preg_match('/\.theme\{/i', $f)) {
                     $theme = explode(".theme{", $f)[1];
                     $themeb = explode("!important", explode("background-color:", $theme)[1])[0];
                     $themec = explode("!important", explode("color:", $theme)[1])[0];
@@ -107,7 +91,7 @@ class UpdateSystem
                     if (!empty($themec))
                         $themeColor = trim($themec);
 
-                } else if(preg_match('/\.theme \{/i', $f)) {
+                } else if (preg_match('/\.theme \{/i', $f)) {
                     $theme = explode(".theme {", $f)[1];
                     $themeb = explode("!important", explode("background-color:", $theme)[1])[0];
                     $themec = explode("!important", explode("color:", $theme)[1])[0];
@@ -162,7 +146,7 @@ class UpdateSystem
         Config::updateSite();
         Config::createLibsDirectory();
 
-        if(empty($custom)) {
+        if (empty($custom)) {
             $this->updateDependenciesEntity();
             $this->checkAdminExist();
             $this->updateConfigFolder();
@@ -171,18 +155,18 @@ class UpdateSystem
             $this->createManifest($dados);
             $this->updateServiceWorker($dados);
 
-        } elseif(is_array($custom)) {
+        } elseif (is_array($custom)) {
 
-            if(in_array("entity", $custom)) {
+            if (in_array("entity", $custom)) {
                 $this->updateDependenciesEntity();
             }
 
-            if(in_array("assets", $custom)) {
+            if (in_array("assets", $custom)) {
                 $this->updateAssets($dados);
                 $this->createMinifyAssetsLib();
             }
 
-            if(in_array("manifest", $custom)) {
+            if (in_array("manifest", $custom)) {
                 $this->createCoreImages($dados);
                 $this->createManifest($dados);
                 $this->updateServiceWorker($dados);
@@ -199,37 +183,37 @@ class UpdateSystem
     {
         //Para cada biblioteca
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config")) {
+            if (file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config")) {
                 $base = PATH_HOME . VENDOR . "/{$lib}/public/_config/";
 
-                if(file_exists($base . "param.json"))
+                if (file_exists($base . "param.json"))
                     copy($base . "param.json", PATH_HOME . "_config/param.json");
 
-                if(file_exists($base . "permissoes.json") && !file_exists(PATH_HOME . "_config/permissoes.json"))
+                if (file_exists($base . "permissoes.json") && !file_exists(PATH_HOME . "_config/permissoes.json"))
                     copy($base . "permissoes.json", PATH_HOME . "_config/permissoes.json");
 
-                if(file_exists($base . "general_info.json"))
+                if (file_exists($base . "general_info.json"))
                     copy($base . "general_info.json", PATH_HOME . "entity/general/general_info.json");
 
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css"))
+                if (file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css"))
                     copy(PATH_HOME . VENDOR . "/{$lib}/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
-                if(file_exists($base . "config.json")) {
+                if (file_exists($base . "config.json")) {
                     $configUp = json_decode(file_get_contents($base . "config.json"), !0);
                     $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
 
-                    if(!empty($configUp['cepaberto']) && empty($config['cepaberto']))
+                    if (!empty($configUp['cepaberto']) && empty($config['cepaberto']))
                         $config['cepaberto'] = $configUp['cepaberto'];
 
-                    if(!empty($configUp['geocode']) && empty($config['geocode']))
+                    if (!empty($configUp['geocode']) && empty($config['geocode']))
                         $config['geocode'] = $configUp['geocode'];
 
-                    if(!empty($configUp['push_public_key']) && empty($config['push_public_key']) && !empty($configUp['push_private_key']) && empty($config['push_private_key'])) {
+                    if (!empty($configUp['push_public_key']) && empty($config['push_public_key']) && !empty($configUp['push_private_key']) && empty($config['push_private_key'])) {
                         $config['push_public_key'] = $configUp['push_public_key'];
                         $config['push_private_key'] = $configUp['push_private_key'];
                     }
 
-                    if(!empty($configUp['emailkey']) && empty($config['emailkey']) && !empty($configUp['email']) && empty($config['email'])) {
+                    if (!empty($configUp['emailkey']) && empty($config['emailkey']) && !empty($configUp['email']) && empty($config['email'])) {
                         $config['emailkey'] = $configUp['emailkey'];
                         $config['email'] = $configUp['email'];
                     }
@@ -384,28 +368,28 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.txt"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.txt"));
 
-        if(!file_exists(PATH_HOME . "public/menu/menu.json"))
+        if (!file_exists(PATH_HOME . "public/menu/menu.json"))
             Config::writeFile("public/menu/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menu.txt"));
 
-        if(!file_exists(PATH_HOME . "public/menu/0/menu.json"))
+        if (!file_exists(PATH_HOME . "public/menu/0/menu.json"))
             Config::writeFile("public/menu/0/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAnonimo.txt"));
 
-        if(!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
+        if (!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
             Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
 
-        if(!file_exists(PATH_HOME . "assetsPublic/language/pt-br.json"))
+        if (!file_exists(PATH_HOME . "assetsPublic/language/pt-br.json"))
             Config::writeFile("assetsPublic/language/pt-br.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/pt-br.json"));
 
-        if(!file_exists(PATH_HOME . "assetsPublic/language/en.json"))
+        if (!file_exists(PATH_HOME . "assetsPublic/language/en.json"))
             Config::writeFile("assetsPublic/language/en.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/en.json"));
 
-        if(!file_exists(PATH_HOME . "assetsPublic/language/es.json"))
+        if (!file_exists(PATH_HOME . "assetsPublic/language/es.json"))
             Config::writeFile("assetsPublic/language/es.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/es.json"));
 
         //CONSTANTES EM CONFIG
         $contantes = [];
         require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
-        if(!empty($contantes) && is_array($contantes)) {
+        if (!empty($contantes) && is_array($contantes)) {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
             foreach ($contantes as $contante => $value) {
                 if (!isset($config[$contante]))
@@ -419,7 +403,7 @@ class UpdateSystem
         //CONSTANTES REMOVE
         $contantes = [];
         require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
-        if(!empty($contantes) && is_array($contantes)) {
+        if (!empty($contantes) && is_array($contantes)) {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
             foreach ($contantes as $contante => $value) {
                 if (isset($config[$contante]))
@@ -429,7 +413,7 @@ class UpdateSystem
         }
         unset($contantes);
 
-        if(!file_exists(PATH_HOME . "public/assets/index.js"))
+        if (!file_exists(PATH_HOME . "public/assets/index.js"))
             Config::writeFile("public/assets/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));
 
         //Bloqueios por .htaccess
@@ -503,12 +487,12 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
-        if(file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png")))
+        if (file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png")))
             copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png"), PATH_HOME . "assetsPublic/img/favicon.png");
 
-        if(!empty($config['logo']) && file_exists(PATH_HOME . $config['logo']))
+        if (!empty($config['logo']) && file_exists(PATH_HOME . $config['logo']))
             copy(PATH_HOME . $config['logo'], PATH_HOME . "assetsPublic/img/logo.png");
-        elseif(file_exists(PATH_HOME . "assetsPublic/img/logo.png"))
+        elseif (file_exists(PATH_HOME . "assetsPublic/img/logo.png"))
             unlink(PATH_HOME . "assetsPublic/img/logo.png");
     }
 
@@ -518,7 +502,7 @@ class UpdateSystem
     private function createMinifyAssetsLib()
     {
         //Remove todos os dados das pastas de assets
-        if(file_exists(PATH_HOME . "assetsPublic/view"))
+        if (file_exists(PATH_HOME . "assetsPublic/view"))
             Helper::recurseDelete(PATH_HOME . "assetsPublic/view");
     }
 
@@ -557,7 +541,7 @@ class UpdateSystem
                         new EntityCreateEntityDatabase(str_replace('.json', '', $file));
                     } else {
                         $sql->exeCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'TheSchema' AND TABLE_NAME = '" . PRE . str_replace('.json', '', $file) . "'");
-                        if(!$sql->getResult())
+                        if (!$sql->getResult())
                             new EntityCreateEntityDatabase(str_replace('.json', '', $file));
 
                     }
@@ -595,7 +579,7 @@ class UpdateSystem
      */
     private function copySplashScreenIphone(string $file, string $dir)
     {
-        if(file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
+        if (file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
             $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
             $fav->resize(1242, 2688, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone6.png");
             $fav->resize(1125, 2436, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone5.png");
@@ -613,7 +597,7 @@ class UpdateSystem
      */
     private function copySplashScreenIpad(string $file, string $dir)
     {
-        if(file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
+        if (file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
             $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
             $fav->resize(2048, 2732, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad4.png");
             $fav->resize(1668, 2388, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad3.png");
@@ -646,14 +630,14 @@ class UpdateSystem
          * Copia a launch screen
          * Gerador das splashScreen: https://appsco.pe/developer/splash-screens
          */
-        if(file_exists(PATH_HOME . "public/assets/splashscreens/iphone.png")) {
+        if (file_exists(PATH_HOME . "public/assets/splashscreens/iphone.png")) {
             $this->copySplashScreenIphone("iphone", PATH_HOME);
             $this->copySplashScreenIpad("ipad", PATH_HOME);
         } else {
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone.png")) {
-                    $this->copySplashScreenIphone("iphone",  PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreenIpad("ipad",  PATH_HOME . VENDOR . "/{$lib}/");
+                if (file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone.png")) {
+                    $this->copySplashScreenIphone("iphone", PATH_HOME . VENDOR . "/{$lib}/");
+                    $this->copySplashScreenIpad("ipad", PATH_HOME . VENDOR . "/{$lib}/");
                     break;
                 }
             }
