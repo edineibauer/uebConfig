@@ -1,4 +1,4 @@
 {
-    "title": "{$sitename}",
+    "title": "{{sitename}}",
     "css": ["w3"]
 }
