@@ -53,7 +53,7 @@ function getOfflineAssets(): array
         $list[] = $_SESSION['userlogin']['imagem']['urls']['100'];
 
     $assetsDir = \Config\Config::getRoutesTo("assets");
-    foreach (\Config\Config::getRoutesFilesTo("param", "json") as $asset => $fileDir) {
+    foreach (\Config\Config::getRoutesFilesTo("view", "json") as $asset => $fileDir) {
         $p = \Config\Config::getJsonFile($fileDir);
         if (!empty($p['offlineAssets']) && \Config\Config::paramPermission($p)) {
             foreach ($p['offlineAssets'] as $offlineAsset) {

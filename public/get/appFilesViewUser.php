@@ -3,7 +3,7 @@
 $data['data'] = ["view" => [], "js" => []];
 $setor = \Config\Config::getSetor();
 
-foreach (\Config\Config::getRoutesFilesTo("param", "json") as $file => $fileDir) {
+foreach (\Config\Config::getRoutesFilesTo("view", "json") as $file => $fileDir) {
 
     $p = \Config\Config::getJsonFile($fileDir);
     $view = str_replace(".json", "", $file);
@@ -16,7 +16,7 @@ foreach (\Config\Config::getRoutesFilesTo("param", "json") as $file => $fileDir)
      *
      * Então adiciona a view a lista de views do usuário
      */
-    if (!empty($p['offline']) && $p['offline'] && \Config\Config::paramPermission($p) && !in_array($view, $data['data']['view']) && preg_match("/\/param\/{$setor}\//i", $fileDir)) {
+    if (!empty($p['offline']) && $p['offline'] && \Config\Config::paramPermission($p) && !in_array($view, $data['data']['view'])) {
         $data['data']['view'][] = "view/" . $view;
         $data['data']['js'][] = (file_exists(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js") ? "assetsPublic/view/{$setor}/{$view}.min.js?v=" . VERSION : "assetsPublic/view/{$view}.min.js?v=" . VERSION);
     }

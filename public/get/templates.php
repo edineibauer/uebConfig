@@ -9,7 +9,7 @@ foreach (\Config\Config::getRoutesFilesTo("tpl", "mustache") as $tpl => $tplDir)
         $data['data'][$tplName] = file_get_contents($tplDir);
 }
 
-foreach (\Config\Config::getRoutesFilesTo("param", "json") as $fileDir) {
+foreach (\Config\Config::getRoutesFilesTo("view", "json") as $fileDir) {
     $p = \Config\Config::getJsonFile($fileDir);
 
     /**

@@ -225,7 +225,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("public/api");
         Config\Config::createDir("public/overload");
         Config\Config::createDir("public/react");
-        Config\Config::createDir("public/param");
         Config\Config::createDir("public/assets");
         Config\Config::createDir("public/menu");
         Config\Config::createDir("public/menu/admin");
