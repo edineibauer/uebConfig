@@ -5,6 +5,13 @@ $find = !1;
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
+    /**
+     * Split the url into `/`
+     * get the first as url and the rest as variables
+     */
+    $variaveis = array_filter(explode('/', $url));
+    $url = array_shift($variaveis);
+
     foreach (\Config\Config::getRoutesTo("get") as $item) {
         if(file_exists($item . $url . ".php")) {
             $find = !0;

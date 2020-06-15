@@ -3,8 +3,8 @@ $data['data'] = [];
 
 $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
-if (!empty($link->getVariaveis())) {
-    foreach ($link->getVariaveis() as $variavel) {
+if (!empty($variaveis)) {
+    foreach ($variaveis as $variavel) {
         $data['data'][$variavel] = "";
         if (file_exists(PATH_HOME . "public/tpl/{$setor}")) {
             foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/tpl/{$setor}") as $tpl) {
