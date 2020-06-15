@@ -1,5 +1,5 @@
 <script>
-    if(var senha = confirm("Senha:")) {
+    if(senha = prompt("Senha:")) {
         post("config", "updateSystem", {pass: senha}, function (g) {
             if(g) {
                 location.href = "<?=HOME?>";
