@@ -2148,6 +2148,20 @@ var app = {
                         if ($div.attr("id") === "core-content")
                             $div.css("padding-top", getPaddingTopContent());
 
+                        /**
+                         * add tags to the head of the page
+                         * if allready exist, so not do anything
+                         */
+                        if(!isEmpty(g.head)) {
+                            for(let hid in g.head) {
+                                if(!$("head > #" + hid).length)
+                                    $(g.head[hid]).appendTo("head");
+                            }
+                        }
+
+                        /**
+                         * add script to page
+                         */
                         if (g.js.length) {
                             $.cachedScript(g.js).then(() => {
                                 app.removeLoading()
@@ -2156,12 +2170,6 @@ var app = {
                             })
                         } else {
                             app.removeLoading()
-                        }
-                        if (g.font.length) {
-                            $.each(g.font, function (i, url) {
-                                if (!$("head").find("link[href='" + url + "']").length)
-                                    $("<link />").attr("href", url).attr("rel", "stylesheet").attr('type', 'text/css').attr('media', 'all').data("assets", "core-assets").appendTo("head")
-                            })
                         }
                     } else {
                         if (USER.setor === 0 && getCookie("redirectOnLogin") === "")

@@ -536,23 +536,21 @@ class Config
     }
 
     /**
-     * Aplica variáveis de config aos caches CSS
-     * @param string $pathCss
+     * Replace mustache declaration on string with the config param
+     * @param string $content
+     * @return string
      */
-    private static function setCssVariables(string $pathCss)
+    public static function replaceVariablesConfig(string $content): string
     {
-        //troca variáveis CSS pelos valores
+        $chaves = [];
+        $valores = [];
         $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+        foreach ($config as $key => $value) {
+            $chaves[] = "{{" . $key . "}}";
+            $valores[] = $value;
+        }
 
-        $arrayReplace = ["../" => "", '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $config['theme'], '{{theme-text}}' => $config['themetext'], '{{themetext}}' => $config['themetext'], '{{publico}}' => PUBLICO];
-
-        $file = file_get_contents(PATH_HOME . $pathCss);
-        $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
-
-        //Salva CSS novamente
-        $f = fopen(PATH_HOME . $pathCss, "w");
-        fwrite($f, $file);
-        fclose($f);
+        return str_replace($chaves, $valores, $content);
     }
 
     /**
@@ -606,8 +604,11 @@ class Config
         //Save CSS view to the cache
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
-        self::setCssVariables("assetsPublic/view/{$setor}/{$view}.min.css");
+
+        //Salva CSS com variáveis aplicadas
+        $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css", "w");
+        fwrite($f, self::replaceVariablesConfig($minifier->minify()));
+        fclose($f);
     }
 
     /**
