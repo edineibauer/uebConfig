@@ -1369,7 +1369,7 @@ function loadViews() {
              */
             let viewsAssets = [];
             for (let i in g.view) {
-                let viewName = "assetsPublic/view/" + g.view[i];
+                let viewName = "assetsPublic/view/" + USER.setor + "/" + g.view[i];
                 viewsAssets.push(viewName + ".min.js?v=" + VERSION);
             }
 
