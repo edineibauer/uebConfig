@@ -525,6 +525,8 @@ class Config
             foreach (Helper::listFolder($path) as $item) {
                 if ($item !== ".htaccess" && !is_dir($path . $item) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao) && !in_array($item, array_keys($list)))
                     $list[$item] = $path . $item;
+                elseif(is_dir($path . $item))
+                    $list = self::getFilesRoute($path . $item . "/", $extensao, $list);
             }
         }
 
