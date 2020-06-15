@@ -20,7 +20,8 @@ if (!empty($url)) {
     {
         $url = "";
         $path = "";
-        for ($i = 0; $i < count($variaveis);$i++) {
+        $count = count($variaveis);
+        for ($i = 0; $i < $count;$i++) {
             $path .= ($i > 0 ? "/{$url}" : "");
             $url = array_shift($variaveis);
             foreach (\Config\Config::getRoutesTo("get" . $path) as $item) {
