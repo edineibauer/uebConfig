@@ -294,6 +294,7 @@ class UpdateSystem
         $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
         $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
         $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
+        $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
         $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
 
         /**
