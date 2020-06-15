@@ -1,4 +1,7 @@
 <?php
+header('Access-Control-Allow-Methods: GET');
+header('Content-Type: application/json');
+
 require_once './_config/config.php';
 
 $url = strip_tags(trim($_GET['data']));

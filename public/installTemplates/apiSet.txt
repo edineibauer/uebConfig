@@ -1,4 +1,7 @@
 <?php
+header('Access-Control-Allow-Methods: POST');
+header('Content-Type: application/json');
+
 require_once './_config/config.php';
 
 $file = filter_input(INPUT_POST, 'file', FILTER_DEFAULT);

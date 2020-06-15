@@ -13,6 +13,12 @@ RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1
 
+<IfModule mod_headers.c>
+  Header always append X-Frame-Options SAMEORIGIN
+  Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
+  Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
 <IfModule mod_expires.c>
 ExpiresActive On
 ExpiresByType application/font-sfnt "access 1 year"
