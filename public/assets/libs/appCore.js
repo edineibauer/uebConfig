@@ -234,7 +234,7 @@ function setUpdateVersion() {
         $.ajax({
             type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: data => {
                 if (data.data !== "no-network" && data.response === 1)
-                    setCookie("update", data.data > 2 ? data.data : 2);
+                    setCookie("update", data.data);
 
                 s(1);
             }, error: () => {
@@ -607,7 +607,7 @@ function updateVersionNumber() {
                 if (this.status === 200) {
                     let data = JSON.parse(this.responseText);
                     if (data.data !== "no-network" && data.response === 1 && (getCookie("update") === "" || data.data !== getCookie("update")))
-                        setCookie("update", data.data > 2 ? data.data : 2);
+                        setCookie("update", data.data);
                     resolve(1);
                 } else {
                     resolve(0);
@@ -636,7 +636,7 @@ async function checkUpdate() {
                 } else {
 
                     let data = JSON.parse(this.responseText);
-                    if (data.response === 1 && getCookie("update") !== "" && data.data != getCookie("update"))
+                    if (data.response === 1 && getCookie("update") !== "" && parseFloat(data.data) > parseFloat(getCookie("update")))
                         toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
 
                     resolve(1);
