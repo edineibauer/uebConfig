@@ -429,7 +429,7 @@ class Config
      */
     public static function getSetorSystem(string $sistem = null): array
     {
-        $list = [];
+        $list = ["0", "admin"];
         foreach (Helper::listFolder(PATH_HOME . "entity/cache/info") as $item) {
             if (preg_match("/\.json$/i", $item)) {
                 $info = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$item}"), !0);
@@ -522,10 +522,12 @@ class Config
     private static function getFilesRoute(string $path, string $extensao = "", array $list = []): array
     {
         if (file_exists($path)) {
+            $setor = self::getSetor();
+            $setores = self::getSetores();
             foreach (Helper::listFolder($path) as $item) {
                 if ($item !== ".htaccess" && !is_dir($path . $item) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao) && !in_array($item, array_keys($list)))
                     $list[$item] = $path . $item;
-                elseif(is_dir($path . $item))
+                elseif(is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
                     $list = self::getFilesRoute($path . $item . "/", $extensao, $list);
             }
         }
@@ -534,28 +536,18 @@ class Config
     }
 
     /**
+     * Aplica variáveis de config aos caches CSS
      * @param string $pathCss
-     * @param string|null $view
      */
-    private static function setCssPrefixAndVariables(string $pathCss, string $view = null)
+    private static function setCssVariables(string $pathCss)
     {
         //troca variáveis CSS pelos valores
         $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
-        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
-        $themeFile = file_get_contents($dirTheme);
-        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
-        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
-        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
-        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
 
-        $arrayReplace = ["../" => "", '{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
-            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
+        $arrayReplace = ["../" => "", '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $config['theme'], '{{theme-text}}' => $config['themetext'], '{{themetext}}' => $config['themetext'], '{{publico}}' => PUBLICO];
 
         $file = file_get_contents(PATH_HOME . $pathCss);
         $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
-
-        if ($view)
-            $file = self::setPrefixToCssDefinition($file, ".r-" . $view);
 
         //Salva CSS novamente
         $f = fopen(PATH_HOME . $pathCss, "w");
@@ -578,8 +570,10 @@ class Config
          * If find JS assets on view, so add all to the cache
          */
         if (!empty($viewJS)) {
-            foreach ($viewJS as $viewJ)
-                $minifier->add($viewJ);
+            foreach ($viewJS as $viewJ) {
+                if(file_exists($viewJ))
+                    $minifier->add(file_get_contents($viewJ));
+            }
         }
 
         //Save JS view to the cache
@@ -603,15 +597,17 @@ class Config
          * If find CSS assets on view, so add all to the cache
          */
         if (!empty($viewCss)) {
-            foreach ($viewCss as $css)
-                $minifier->add($css);
+            foreach ($viewCss as $css) {
+                if(file_exists($css))
+                    $minifier->add(preg_match("/\/assets\/core\//i", $css) ? file_get_contents($css) : self::setPrefixToCssDefinition(file_get_contents($css), ".r-" . $view));
+            }
         }
 
         //Save CSS view to the cache
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css");
-        self::setCssPrefixAndVariables("assetsPublic/view/{$setor}/{$view}.min.css", $view);
+        self::setCssVariables("assetsPublic/view/{$setor}/{$view}.min.css");
     }
 
     /**
