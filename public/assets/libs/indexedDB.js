@@ -20,7 +20,7 @@ function checkToUpdateDbLocal(entity) {
     return Promise.all([]);
 }
 
-function dbSendData(entity, dados, action) {
+async function dbSendData(entity, dados, action) {
     dados.db_action = action;
     if (action === "create")
         dados.id = 0;
@@ -291,7 +291,260 @@ function compareString(registroValor, searchValor) {
 }
 
 /**
- * Classe para ler dados no banco de dados
+ * Class to update data
+ */
+class Update {
+    constructor(entity, data) {
+        this.entity = "";
+        this.data = null;
+
+        this.setEntity(entity);
+        this.setData(data);
+    }
+
+    setEntity(entity) {
+        if(typeof entity === "string" && entity !== "")
+            this.entity = entity;
+    }
+
+    setData(data) {
+        if(!isEmpty(data) && data.constructor === Object)
+            this.data = data;
+    }
+
+    async exeUpdate(entity, dados) {
+        this.setEntity(entity);
+        this.setData(dados);
+
+        if(isNumberPositive(this.data.id)) {
+
+            /**
+             * If no using SERVICEWORKER, so send to the back
+             */
+            if (!SERVICEWORKER)
+                return dbSendData(this.entity, this.data, "update");
+
+            /**
+             * Get the id to the new data
+             * and set status sync false
+             */
+            this.data.id = (await getIdAction(this.entity, this.data.id))[0];
+            this.data.db_status = !1;
+
+            /**
+             * exeCreate local
+             */
+            let dadosCreated = await dbLocal.exeCreate(this.entity, this.data);
+
+            /**
+             * Create the sync request local
+             */
+            this.data.db_action = "update";
+            let syncCreated = await dbLocal.insert("sync_" + this.entity, this.data, this.data.id);
+
+            /**
+             * Exe Sync local with back
+             */
+            let syncReturn = await dbRemote.syncPost(this.entity, this.data.id);
+
+            /**
+             * If have erro on back, remove the data on local
+             */
+            if (syncReturn[0].db_errorback !== 0) {
+                await dbLocal.exeDelete(this.entity, dadosCreated);
+                await dbLocal.exeDelete("sync_" + this.entity, syncCreated);
+            }
+
+            /**
+             * Set the data returned from the back to the result function
+             */
+            this.data = syncReturn[0];
+
+            /**
+             * Check if have some react offline action to execute with the success on create new data
+             */
+            let react = await dbLocal.exeRead("__react");
+            if (this.data.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][this.entity] !== "undefined" && typeof react[0][this.entity]["update"] !== "undefined")
+                eval(react[0][this.entity][action]);
+
+            /**
+             * return the data
+             */
+            return this.data;
+
+        } else {
+            toast("id não informado para atualização", 2000, "toast-warning");
+        }
+    }
+}
+
+/**
+ * Class to create new data
+ */
+class Create {
+    constructor(entity, data) {
+        this.entity = "";
+        this.data = null;
+
+        this.setEntity(entity);
+        this.setData(data);
+    }
+
+    setEntity(entity) {
+        if(typeof entity === "string" && entity !== "")
+            this.entity = entity;
+    }
+
+    setData(data) {
+        if(!isEmpty(data) && data.constructor === Object)
+            this.data = data;
+    }
+
+    async exeCreate(entity, dados) {
+        this.setEntity(entity);
+        this.setData(dados);
+
+        /**
+         * If no using SERVICEWORKER, so send to the back
+         */
+        if (!SERVICEWORKER)
+            return dbSendData(this.entity, this.data, (typeof this.data.id === "undefined" || !isNumberPositive(this.data.id) ? "create" : "update"));
+
+        /**
+         * If have id on data, so send to the update class
+         */
+        if(typeof this.data.id !== "undefined" && isNumberPositive(this.data.id)) {
+            let update = new Update();
+            return update.exeUpdate(this.entity, this.data);
+        }
+
+        /**
+         * Get the id to the new data
+         * and set status sync false
+         */
+        this.data.id = (await getIdAction(this.entity, this.data.id))[0];
+        this.data.db_status = !1;
+
+        /**
+         * exeCreate local
+         */
+        let dadosCreated = await dbLocal.exeCreate(this.entity, this.data);
+
+        /**
+         * Create the sync request local
+         */
+        this.data.db_action = "create";
+        let syncCreated = await dbLocal.insert("sync_" + this.entity, this.data, this.data.id);
+
+        /**
+         * Exe Sync local with back
+         */
+        let syncReturn = await dbRemote.syncPost(this.entity, this.data.id);
+
+        /**
+         * If have erro on back, remove the data on local
+         */
+        if (syncReturn[0].db_errorback !== 0) {
+            await dbLocal.exeDelete(this.entity, dadosCreated);
+            await dbLocal.exeDelete("sync_" + this.entity, syncCreated);
+        }
+
+        /**
+         * Set the data returned from the back to the result function
+         */
+        this.data = syncReturn[0];
+
+        /**
+         * Check if have some react offline action to execute with the success on create new data
+         */
+        let react = await dbLocal.exeRead("__react");
+        if (this.data.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][this.entity] !== "undefined" && typeof react[0][this.entity]["create"] !== "undefined")
+            eval(react[0][this.entity][action]);
+
+        /**
+         * return the data
+         */
+        return this.data;
+    }
+}
+
+/**
+ * Class to delete data
+ */
+class Delete {
+    constructor(entity, id) {
+        this.entity = "";
+        this.id = null;
+
+        this.setEntity(entity);
+        this.setId(id);
+    }
+
+    setEntity(entity) {
+        if(typeof entity === "string" && entity !== "")
+            this.entity = entity;
+    }
+
+    setId(id) {
+        if(isNumberPositive(id))
+            this.id = parseInt(id);
+    }
+
+    async exeDelete(entity, id) {
+        let ids = [];
+        if (!SERVICEWORKER) {
+            for(let e of id)
+                ids.push(await dbSendData(entity, {id: parseInt(e)}, 'delete'));
+
+            return ids;
+        }
+
+        let react = await dbLocal.exeRead("__react");
+        let allDelete = [];
+
+        //if id is number or array
+        if (isNumberPositive(id))
+            ids.push(id);
+        else if (typeof id === "object" && id !== null && id.constructor === Array)
+            ids = id;
+
+        if (ids.length) {
+            for (let k in ids) {
+                if (isNumberPositive(ids[k])) {
+                    let idU = parseInt(ids[k]);
+
+                    allDelete.push(deleteDB(entity, idU, react).then(() => {
+                        return dbLocal.exeRead("sync_" + entity, idU).then(d => {
+                            if (isEmpty(d) || d.db_action === "update") {
+                                return dbLocal.exeCreate("sync_" + entity, {
+                                    'id': idU,
+                                    'db_action': 'delete'
+                                }).then(id => {
+                                    return dbRemote.syncPost(entity, idU);
+                                });
+                            } else if (d.db_action === "create") {
+                                return dbLocal.exeDelete("sync_" + entity, idU)
+                            }
+                        })
+                    }))
+                }
+            }
+
+            return Promise.all(allDelete).then(() => {
+                //atualiza base local, visto que liberou espaço no LIMITOFF
+                return dbLocal.exeRead("__historic", 1).then(h => {
+                    h[entity] = null;
+                    return dbLocal.exeCreate("__historic", h).then(() => {
+                        return dbRemote.syncDownload(entity);
+                    })
+                });
+            })
+        }
+    }
+}
+
+/**
+ * Class to read data with filters and options
  */
 class Read {
     constructor(entity, search) {
@@ -304,7 +557,6 @@ class Read {
         this.offset = 0;
         this.total = 0;
         this.result = [];
-        this.reading = !1;
 
         this.setEntity(entity);
         this.setId(search);
@@ -1055,7 +1307,7 @@ const dbLocal = {
             data.id = key;
             return this.exeCreate(entity, data);
         })
-    }, insert(entity, val, key) {
+    }, async insert(entity, val, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             const tx = dbLocalTmp.transaction(entity, 'readwrite');
             tx.objectStore(entity).put(val, key);
