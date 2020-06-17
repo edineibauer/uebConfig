@@ -17,6 +17,7 @@ class TouchTrack {
         this.distancia = distancia;
         this.distanciaAlvo = distanciaAlvo;
         this.funcao = funcao;
+        this.funcaob = null;
 
         this.$el.addClass("touchElement");
 
@@ -37,7 +38,7 @@ class TouchTrack {
         let $this = this;
         $this.translateYStart = d;
 
-        if(typeof index === "undefined") {
+        if (typeof index === "undefined") {
             $this.$el.each(function (i, el) {
                 if (!$(el).hasClass("touchOpen"))
                     $this.moveToStart(i);
@@ -53,7 +54,7 @@ class TouchTrack {
         let $this = this;
         $this.distanciaAlvo = d;
 
-        if(typeof index === "undefined") {
+        if (typeof index === "undefined") {
             $this.$el.each(function (i, el) {
                 if ($this.$el.hasClass("touchOpen"))
                     $this.moveToStart(i);
@@ -77,7 +78,7 @@ class TouchTrack {
         }
 
         let $this = this;
-        if(typeof index === "undefined") {
+        if (typeof index === "undefined") {
             $this.$el.each(function (i, el) {
                 $this.moveToStart(i);
             });
@@ -95,7 +96,7 @@ class TouchTrack {
         }
 
         let $this = this;
-        if(typeof index === "undefined") {
+        if (typeof index === "undefined") {
             $this.$el.each(function (i, el) {
                 $this.moveToTarget(i);
             });
@@ -106,16 +107,25 @@ class TouchTrack {
         return this
     }
 
-    setFuncao(f) {
+    setFuncaoToStart(f) {
+        this.funcaob = f;
+        return this;
+    }
+
+    setFuncaoToTarget(f) {
         this.funcao = f;
         return this;
+    }
+
+    setFuncao(f) {
+        return this.setFuncaoToTarget(f);
     }
 
     events() {
         let $this = this;
         $this.$el.addClass("no-select").each(function (index, el) {
 
-            if($this.isTouchCapable) {
+            if ($this.isTouchCapable) {
                 el.addEventListener("touchstart", evt => {
                     $this.eventTouchStart(evt);
                 }, !1);
@@ -209,7 +219,7 @@ class TouchTrack {
         if ($this.tracking) {
 
             //just prevent if is vertical
-            if($this.directionTrackVertical)
+            if ($this.directionTrackVertical)
                 evt.preventDefault();
 
             let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;
@@ -220,7 +230,7 @@ class TouchTrack {
                 /**
                  * Vertical
                  */
-                if($this.directionTrack === "vertical") {
+                if ($this.directionTrack === "vertical") {
                     if (up < 0 && up < (($this.startUp - $this.minBound) * -1))
                         up = ($this.startUp - $this.minBound) * -1;
                     else if (up > 0 && up > $this.maxDown)
@@ -229,7 +239,7 @@ class TouchTrack {
                     /**
                      * Down
                      */
-                } else if($this.directionTrack === "down") {
+                } else if ($this.directionTrack === "down") {
                     if (!$target.hasClass("touchOpen") && up < ($this.folga * -1))
                         up = $this.folga * -1;
                     else if ($target.hasClass("touchOpen") && up > $this.folga)
@@ -263,7 +273,7 @@ class TouchTrack {
                 /**
                  * Horizontal
                  */
-                if($this.directionTrack === "horizontal") {
+                if ($this.directionTrack === "horizontal") {
                     if (left < 0 && left < (($this.startLeft - $this.minBound) * -1))
                         left = ($this.startLeft - $this.minBound) * -1;
                     else if (left > 0 && left > $this.maxLeft)
@@ -272,7 +282,7 @@ class TouchTrack {
                     /**
                      * Rigth
                      */
-                } else if($this.directionTrack === "right") {
+                } else if ($this.directionTrack === "right") {
                     if (!$target.hasClass("touchOpen") && left < ($this.folga * -1))
                         left = $this.folga * -1;
                     else if ($target.hasClass("touchOpen") && left > $this.folga)
@@ -318,8 +328,8 @@ class TouchTrack {
 
                 if (!$target.hasClass("touchOpen")) {
                     let originalUp = up;
-                    if(($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
-                        up *=-1;
+                    if (($this.directionTrack === "vertical" && up < 0) || $this.directionTrack === "down")
+                        up *= -1;
 
                     if ($this.distancia < up) {
 
@@ -337,10 +347,14 @@ class TouchTrack {
                     }
 
                 } else {
-                    if (($this.directionTrack === "up" && $this.distancia * -1 > up) || ($this.directionTrack === "vertical" && (up > $this.distancia || up < $this.distancia)) || ($this.directionTrack === "down" && $this.distancia < up))
+                    if (($this.directionTrack === "up" && $this.distancia * -1 > up) || ($this.directionTrack === "vertical" && (up > $this.distancia || up < $this.distancia)) || ($this.directionTrack === "down" && $this.distancia < up)) {
                         $this.moveToStart(index);
-                    else
+
+                        if (typeof $this.funcaob === "function")
+                            $this.funcaob($this, $target);
+                    } else {
                         $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
+                    }
                 }
             } else {
 
@@ -351,8 +365,8 @@ class TouchTrack {
 
                 if (!$target.hasClass("touchOpen")) {
                     let originalLeft = left;
-                    if(($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
-                        left *=-1;
+                    if (($this.directionTrack === "horizontal" && left < 0) || $this.directionTrack === "right")
+                        left *= -1;
 
                     if ($this.distancia < left) {
 
@@ -370,10 +384,14 @@ class TouchTrack {
                     }
 
                 } else {
-                    if (($this.directionTrack === "left" && $this.distancia * -1 > left) || ($this.directionTrack === "horizontal" && (left > $this.distancia || left < $this.distancia)) || ($this.directionTrack === "right" && $this.distancia < left))
+                    if (($this.directionTrack === "left" && $this.distancia * -1 > left) || ($this.directionTrack === "horizontal" && (left > $this.distancia || left < $this.distancia)) || ($this.directionTrack === "right" && $this.distancia < left)) {
                         $this.moveToStart(index);
-                    else
+
+                        if (typeof $this.funcaob === "function")
+                            $this.funcaob($this, $target);
+                    } else {
                         $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
+                    }
                 }
             }
         }
