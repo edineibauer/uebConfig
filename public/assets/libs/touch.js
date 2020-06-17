@@ -207,7 +207,10 @@ class TouchTrack {
         let $this = this;
         let $target = $(evt.target).hasClass("touchElement") ? $(evt.target) : $(evt.target).closest(".touchElement");
         if ($this.tracking) {
-            evt.preventDefault();
+
+            //just prevent if is vertical
+            if($this.directionTrackVertical)
+                evt.preventDefault();
 
             let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;
 
