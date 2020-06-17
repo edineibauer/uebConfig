@@ -5,9 +5,12 @@
  * @returns {*}
  */
 $.cachedScript = function (url, options) {
-    caches.open('core-v' + VERSION).then(cache => {
-        cache.add(url);
-    });
+    let urlHome = new RegExp("^" + preg_quote(HOME), "i");
+    if(urlHome.test(url)) {
+        caches.open('core-v' + VERSION).then(cache => {
+            cache.add(url);
+        });
+    }
     options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
     return $.ajax(options)
 };
