@@ -29,12 +29,15 @@ if (!empty($file) && !empty($lib)) {
         ob_end_clean();
     }
 
-    if (!empty($result))
-        $data = ["response" => 2, "error" => "erro ao executar arquivo", "data" => $result];
-    elseif (!isset($data) || !isset($data['response']) || !in_array($data['response'], [1, 2, 3, 4]))
-        $data = ["response" => 2, "error" => "data retornada não formatada corretamente", "data" => ""];
-    elseif ($data['response'] === 3 && (!is_string($data['data']) || !preg_match("/^" . str_replace(["/", "."], ["\\/", "\\."], HOME) . "/i", $data['data'])))
-        $data = ["response" => 2, "error" => "url de redirecionamento não encontrada, precisa começar com " . HOME, "data" => ""];
+    if (!empty($result)) {
+        if(!empty($data['response']) && $data['response'] === 2 && empty($data['error']))
+            $data['error'] = $result;
+        else
+            $data['data'] = $result;
+    }
+
+    if(!empty($data['error']))
+        $data['response'] = 2;
 
 } else {
     $data["response"] = 4;
