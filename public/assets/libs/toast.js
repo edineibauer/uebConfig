@@ -1,6 +1,6 @@
 var toastTime = null;
 
-function toast(message, duration, className, completeCallback) {
+function toast(message, duration, className) {
     clearToast();
     // Settings
     if (typeof className === "undefined" && typeof duration === "string") {
@@ -15,8 +15,7 @@ function toast(message, duration, className, completeCallback) {
     let settings = $.extend({
         message: message || '',
         displayLength: duration || 4000,
-        className: className || '',
-        completeCallback: completeCallback || $.noop
+        className: className || ''
     }, $.isPlainObject(message) ? message : {});
 
     // If no message, no toast
