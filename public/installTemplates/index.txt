@@ -4,6 +4,11 @@ header('Access-Control-Allow-Methods: GET, POST, PUT');
 header('Content-Type: text/html; charset=UTF-8');
 
 include_once '_config/config.php';
+
+if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
+    new Config\UpdateSystem();
+    header("Location: " . HOME);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

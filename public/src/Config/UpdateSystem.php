@@ -167,15 +167,7 @@ class UpdateSystem
             }
         }
 
-        $this->removeFirstUpdateSystem();
-
         $this->result = true;
-    }
-
-    private function removeFirstUpdateSystem()
-    {
-        unlink(PATH_HOME . VENDOR . "config/public/view/firstUpdateSystem/firstUpdateSystem.php");
-        unlink(PATH_HOME . VENDOR . "config/public/view/firstUpdateSystem");
     }
 
     /**
