@@ -350,7 +350,7 @@ class UpdateSystem
      */
     private function copyInstallTemplate()
     {
-        Config::writeFile("index/index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.txt"));
+        Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.txt"));
         Config::writeFile("apiView.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiView.txt"));
         Config::writeFile("apiGet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiGet.txt"));
         Config::writeFile("apiSet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiSet.txt"));
@@ -400,9 +400,6 @@ class UpdateSystem
             Config::createConfig($config);
         }
         unset($contantes);
-
-        if (!file_exists(PATH_HOME . "public/view/index.js"))
-            Config::writeFile("public/view/index.js", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/viewIndexJs.txt"));
 
         //Bloqueios por .htaccess
         Config::writeFile("_config/.htaccess", "Deny from all");

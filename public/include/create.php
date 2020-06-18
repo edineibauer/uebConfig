@@ -219,6 +219,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("libs");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
+        Config\Config::createDir("public/view/index");
         Config\Config::createDir("public/set");
         Config\Config::createDir("public/get");
         Config\Config::createDir("public/api");
@@ -229,7 +230,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("public/menu/admin");
         Config\Config::createDir("public/tpl");
         Config\Config::createDir("public/cron");
-        Config\Config::createDir("public/entity");
         Config\Config::createDir("assetsPublic");
         Config\Config::createDir("assetsPublic/img");
 
@@ -312,9 +312,9 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.txt"));
         Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.txt"));
         Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.txt"));
-        Config\Config::writeFile("public/view/index.php", file_get_contents("public/installTemplates/viewIndex.txt"));
-        Config\Config::writeFile("public/param/index.json", file_get_contents("public/installTemplates/viewIndexParam.txt"));
-        Config\Config::writeFile("public/assets/index.js", file_get_contents("public/installTemplates/viewIndexJs.txt"));
+        Config\Config::writeFile("public/view/index/index.php", file_get_contents("public/installTemplates/viewIndex.txt"));
+        Config\Config::writeFile("public/view/index/index.json", file_get_contents("public/installTemplates/viewIndexParam.txt"));
+        Config\Config::writeFile("public/view/index/index.js", file_get_contents("public/installTemplates/viewIndexJs.txt"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
         Config\Config::writeFile("public/entity/-entity.json", '{"1":[],"2":[],"3":[],"0":[], "20":[]}');
         Config\Config::writeFile("entity/general/general_info.json", "[]");
