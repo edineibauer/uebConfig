@@ -618,7 +618,7 @@ class Config
      * @param string $prefix
      * @return string|string[]|null
      */
-    private static function setPrefixToCssDefinition(string $css, string $prefix)
+    public static function setPrefixToCssDefinition(string $css, string $prefix)
     {
         # Wipe all block comments
         $css = preg_replace('!/\*.*?\*/!s', '', $css);
