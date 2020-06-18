@@ -330,7 +330,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
         Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl']);
 
-        header("Location: ../../../updateSystem/uebster");
+        header("Location: ../../../firstUpdateSystem");
     } else {
         echo "<h3 class='container' style='text-align:center;padding-top:30px;color:red'>Credencias Inválidas! Erro ao se Comunicar com o Banco de Dados</h3>";
         require_once 'form.php';
