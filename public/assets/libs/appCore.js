@@ -2528,8 +2528,6 @@ async function updatedPerfil() {
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
-    $("#core-spinner").css("stroke", THEME);
-
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -2643,8 +2641,6 @@ async function setDicionario() {
 }
 
 async function startApplication() {
-    $("#core-spinner").css("stroke", THEME);
-
     await checkSessao();
     await setDicionario();
 
