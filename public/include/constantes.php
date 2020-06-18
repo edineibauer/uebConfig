@@ -1,7 +1,7 @@
 <?php
 
 $contantes = [
-    "homepage" => 1,
+    "homepage" => 0,
     "limitoffline" => 50,
     "serviceworker" => !0
 ];

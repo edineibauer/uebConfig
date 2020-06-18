@@ -33,7 +33,7 @@ function getServerConstants(array $dados)
     $dados['vendor'] = "libs/ueb/";
     $dados['version'] = "1.00";
     $dados['dev'] = preg_match("/localhost\//i", $dados['home']);
-    $dados['homepage'] = 1;
+    $dados['homepage'] = 0;
     $dados['limitoffline'] = 50;
     $dados['serviceworker'] = !0;
 
