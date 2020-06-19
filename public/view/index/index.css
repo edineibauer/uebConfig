@@ -16,7 +16,7 @@ i {
 }
 
 h1 {
-    font-size: 70px;
+    font-size: 70px!important;
     font-family: Arista;
     font-weight: 400;
     margin-top: 100px;
