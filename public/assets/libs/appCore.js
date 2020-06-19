@@ -173,7 +173,7 @@ $(function ($) {
         let $this = this;
         includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : null;
         param = typeof param === "object" && param !== null ? param : {};
-        mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO});
+        mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
         return getTemplates().then(templates => {
             let includes = {};
             for (let i in includeTpls)
