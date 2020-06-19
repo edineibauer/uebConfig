@@ -617,7 +617,7 @@ async function menuHeader() {
         sitename: SITENAME,
         title: TITLE,
         home: HOME,
-        homepage: (HOMEPAGE ? "dashboard" : "")
+        homepage: (HOMEPAGE === "1" ? "dashboard" : "")
     }));
 
     let $menuCustom = null;
