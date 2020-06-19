@@ -145,6 +145,7 @@ class UpdateSystem
             $this->checkAdminExist();
             $this->updateConfigFolder();
             $this->updateAssets($dados);
+            $this->createCoreCssApp();
             $this->createMinifyAssetsLib();
             $this->createManifest($dados);
             $this->updateServiceWorker($dados);
@@ -160,7 +161,12 @@ class UpdateSystem
                 $this->createMinifyAssetsLib();
             }
 
-            if (in_array("manifest", $custom)) {
+            if(in_array("theme", $custom)) {
+                $this->createCoreCssApp();
+                $this->createManifest($dados);
+
+            } elseif (in_array("manifest", $custom)) {
+                $this->createCoreCssApp();
                 $this->createManifest($dados);
                 $this->updateServiceWorker($dados);
             }
@@ -289,15 +295,6 @@ class UpdateSystem
         fclose($f);
 
         /**
-         * AppCore CSS Generator
-         */
-        $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
-        $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
-        $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
-
-        /**
          * Check if all default folders exists
          */
         $this->checkDirBase();
@@ -306,6 +303,18 @@ class UpdateSystem
          * Rewrite default files that route the requests (index, get, set, serviceworker ...)
          */
         $this->copyInstallTemplate();
+    }
+
+    private function createCoreCssApp()
+    {
+        /**
+         * AppCore CSS Generator
+         */
+        $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
+        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
+        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
+        $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
+        $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
     }
 
     /**
