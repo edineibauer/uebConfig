@@ -31,8 +31,8 @@
         <circle class="circle" cx="791.07556" cy="206.37952" r="9" fill="#ffffff"/>
         <circle class="circle" cx="677.07556" cy="368.37952" r="9" fill="#ffffff"/>
     </svg>
-    <div id="cardMaster" class="">
-        <h1><?= SITENAME ?></h1>
+    <div id="cardMaster">
+        <h1>maestru</h1>
         <svg xmlns="http://www.w3.org/2000/svg" id="logo" width="150" height="150" viewBox="0 0 192.756 192.756">
             <g fill-rule="evenodd" clip-rule="evenodd">
                 <path d="M80.019 107.613l3.921 2.814c3.214.611 5.064.828 8.332.979 2.863.131 4.49.104 7.347-.123l7.598-4.525c-4.846-1.482-7.797-1.904-12.864-1.842-5.688.07-9.01.695-14.334 2.697z"

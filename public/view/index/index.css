@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-i {
+.material-icons {
     opacity: 0;
     font-size: 18px;
     color: #fff;
@@ -136,7 +136,7 @@ h2 {
     cursor: pointer;
 }
 
-.container .card p {
+.container .card .card-p {
     z-index: 99;
     position: absolute;
     top: 20px;
@@ -159,13 +159,13 @@ h2 {
     filter: grayscale(100%);
 }
 
-.container .card:hover i {
+.container .card:hover .material-icons {
     opacity: 1;
     -webkit-transform: scale(1);
     transform: scale(1);
 }
 
-.container .card a {
+.container .card .url {
     position: absolute;
     right: 14px;
     bottom: 14px;
@@ -180,15 +180,15 @@ h2 {
     mix-blend-mode: hard-light;
 }
 
-.container .card a i {
+.container .card .url .material-icons {
     font-size: 3rem;
 }
 
-.container .card:hover a {
+.container .card:hover .url {
     transform: scale(16.5);
 }
 
-.container .card:hover p {
+.container .card:hover .card-p {
     color: #fff;
 }
 
@@ -196,7 +196,7 @@ h2 {
     filter: grayscale(0);
 }
 
-.container .card:nth-child(even) a {
+.container .card:nth-child(even) .url {
     background-color: #54486e;
 }
 
@@ -209,8 +209,6 @@ h2 {
 
 
 /* Animation */
-
-
 .waves {
     position: fixed;
     bottom: 0;
