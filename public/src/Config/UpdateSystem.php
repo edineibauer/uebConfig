@@ -161,7 +161,6 @@ class UpdateSystem
             }
 
             if (in_array("manifest", $custom)) {
-                $this->createCoreImages($dados);
                 $this->createManifest($dados);
                 $this->updateServiceWorker($dados);
             }
