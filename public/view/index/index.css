@@ -16,11 +16,9 @@ i {
 }
 
 h1 {
-    font-size: 70px!important;
+    font-size: 60px;
     font-family: Arista;
     font-weight: 400;
-    margin-top: 100px;
-    margin-bottom: 20px;
     text-align: left;
 }
 
@@ -39,7 +37,8 @@ h2 {
 #logo {
     display: block;
     float: left;
-    padding-left: 20px;
+    margin-left: 25px;
+    margin-bottom: 10px;
 }
 
 @font-face {
@@ -54,63 +53,6 @@ h2 {
     z-index: 0;
 }
 
-#welcome {
-    position: fixed;
-    bottom: 0;
-    height: 100vh;
-}
-
-#welcome > .circle {
-    transform: translateY(450px);
-    animation-duration: 12s;
-    animation-timing-function: ease;
-    animation-name: upBall;
-    animation-iteration-count: infinite;
-    opacity: .6;
-}
-
-#welcome > .circle:nth-of-type(1) {
-    animation-delay: 6s;
-    animation-duration: 17s;
-}
-
-#welcome > .circle:nth-of-type(2) {
-    animation-duration: 15s;
-}
-
-#welcome > .circle:nth-of-type(3) {
-    animation-delay: 2s;
-    animation-duration: 20s;
-}
-
-#welcome > .circle:nth-of-type(4) {
-    animation-delay: 3s;
-    animation-duration: 10s;
-}
-
-#welcome > .circle:nth-of-type(5) {
-    animation-delay: 7s;
-    animation-duration: 13s;
-}
-
-#welcome > .circle:nth-of-type(6) {
-    animation-delay: 5s;
-}
-
-#welcome > .circle:nth-of-type(7) {
-    animation-delay: 11s;
-    animation-duration: 14s;
-}
-
-@keyframes upBall {
-    0% {
-        transform: translateY(450px);
-    }
-    100% {
-        transform: translateY(-1000px);
-    }
-}
-
 .container {
     width: 100%;
     height: 100%;
@@ -118,8 +60,7 @@ h2 {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding-top: 50px;
-    padding-bottom: 40px;
+    padding-top: 30px;
 }
 
 .container .card {
@@ -331,5 +272,64 @@ h2 {
 
     h1 {
         font-size: 24px;
+    }
+}
+
+
+
+#welcome {
+    position: fixed;
+    bottom: 0;
+    height: 100vh;
+}
+
+#welcome > .circle {
+    transform: translateY(450px);
+    animation-duration: 12s;
+    animation-timing-function: ease;
+    animation-name: upBall;
+    animation-iteration-count: infinite;
+    opacity: .6;
+}
+
+#welcome > .circle:nth-of-type(1) {
+    animation-delay: 6s;
+    animation-duration: 17s;
+}
+
+#welcome > .circle:nth-of-type(2) {
+    animation-duration: 15s;
+}
+
+#welcome > .circle:nth-of-type(3) {
+    animation-delay: 2s;
+    animation-duration: 20s;
+}
+
+#welcome > .circle:nth-of-type(4) {
+    animation-delay: 3s;
+    animation-duration: 10s;
+}
+
+#welcome > .circle:nth-of-type(5) {
+    animation-delay: 7s;
+    animation-duration: 13s;
+}
+
+#welcome > .circle:nth-of-type(6) {
+    animation-delay: 5s;
+}
+
+#welcome > .circle:nth-of-type(7) {
+    animation-delay: 11s;
+    animation-duration: 14s;
+}
+
+@keyframes upBall {
+    0% {
+        transform: translateY(450px);
+    }
+    100% {
+        transform: translateY(-1000px);
     }
 }

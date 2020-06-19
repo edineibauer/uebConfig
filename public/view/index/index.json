@@ -1,5 +1,6 @@
 {
   "title": "{{sitename}}",
   "header": false,
+  "navbar": false,
   "templates": ["cardMovie"]
 }
