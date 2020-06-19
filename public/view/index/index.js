@@ -4,13 +4,13 @@
     cards.push({
         title: "Acessar",
         description: "comece a desenvolver",
-        image: HOME + VENDOR + "site-maestru/public/assets/img/back3.jpg",
+        image: HOME + VENDOR + "config/public/assets/img/back3.jpg",
         url: "login"
     });
     cards.push({
         title: "Explorar",
         description: "aprenda com tutoriais",
-        image: HOME + VENDOR + "site-maestru/public/assets/img/back1.png",
+        image: HOME + VENDOR + "config/public/assets/img/back1.png",
         url: "tutorial-maestru"
     });
 
