@@ -325,7 +325,6 @@ class UpdateSystem
         Config::createDir("libs");
         Config::createDir("public");
         Config::createDir("public/view");
-        Config::createDir("public/view/index");
         Config::createDir("public/set");
         Config::createDir("public/get");
         Config::createDir("public/get/event");

@@ -1,0 +1,335 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+i {
+    opacity: 0;
+    font-size: 18px;
+    color: #fff;
+    will-change: transform;
+    -webkit-transform: scale(0.1);
+    transform: scale(0.1);
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+h1 {
+    font-size: 70px;
+    font-family: Arista;
+    font-weight: 400;
+    margin-top: 100px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+h2 {
+    pointer-events: none;
+}
+
+{
+    background-color: #9480c1
+}
+
+#home-card {
+    z-index: 100;
+}
+
+#logo {
+    display: block;
+    float: left;
+    padding-left: 20px;
+}
+
+@font-face {
+    font-family: 'Arista';
+    font-style: normal;
+    font-weight: 400;
+    src: url({{home}}{{vendor}}site-maestru/public/assets/arista.ttf?v={{version}}) format('truetype');
+}
+
+#background-color {
+    position: fixed;
+    z-index: 0;
+}
+
+#welcome {
+    position: fixed;
+    bottom: 0;
+    height: 100vh;
+}
+
+#welcome > .circle {
+    transform: translateY(450px);
+    animation-duration: 12s;
+    animation-timing-function: ease;
+    animation-name: upBall;
+    animation-iteration-count: infinite;
+    opacity: .6;
+}
+
+#welcome > .circle:nth-of-type(1) {
+    animation-delay: 6s;
+    animation-duration: 17s;
+}
+
+#welcome > .circle:nth-of-type(2) {
+    animation-duration: 15s;
+}
+
+#welcome > .circle:nth-of-type(3) {
+    animation-delay: 2s;
+    animation-duration: 20s;
+}
+
+#welcome > .circle:nth-of-type(4) {
+    animation-delay: 3s;
+    animation-duration: 10s;
+}
+
+#welcome > .circle:nth-of-type(5) {
+    animation-delay: 7s;
+    animation-duration: 13s;
+}
+
+#welcome > .circle:nth-of-type(6) {
+    animation-delay: 5s;
+}
+
+#welcome > .circle:nth-of-type(7) {
+    animation-delay: 11s;
+    animation-duration: 14s;
+}
+
+@keyframes upBall {
+    0% {
+        transform: translateY(450px);
+    }
+    100% {
+        transform: translateY(-1000px);
+    }
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 50px;
+    padding-bottom: 40px;
+}
+
+.container .card {
+    position: relative;
+    width: 500px;
+    height: 200px;
+    background-color: #fff;
+    overflow: hidden;
+    margin-bottom: 6px;
+    box-shadow: 1px 2px 6px -3px #aaaaaa;
+}
+
+.container .card:before {
+    content: "";
+    z-index: 99;
+    position: absolute;
+    top: -10px;
+    left: 32px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+    background-color: #eeeeee;
+}
+
+.container .card:after {
+    content: "";
+    z-index: 99;
+    position: absolute;
+    bottom: -10px;
+    left: 32px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+    background-color: #eeeeee;
+}
+
+.container .card ul {
+    z-index: 99;
+    position: absolute;
+    left: 39px;
+    top: 5px;
+    list-style-type: none;
+}
+
+.container .card ul li {
+    width: 2px;
+    height: 2px;
+    border-radius: 2px;
+    margin: 6px 0;
+    background-color: #eeeeee;
+}
+
+.container .card h2 {
+    z-index: 99;
+    position: absolute;
+    bottom: 0;
+    right: 130px;
+    font-size: 50px;
+    font-weight: 400;
+    color: #ecb73b;
+    font-family: Arista;
+}
+
+.container .card .material-icons {
+    z-index: 100;
+    position: absolute;
+    right: 75px;
+    bottom: 25px;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.container .card p {
+    z-index: 99;
+    position: absolute;
+    top: 20px;
+    right: 70px;
+    color: #333;
+    opacity: 0.7;
+    font-size: 12px;
+    letter-spacing: 1px;
+    writing-mode: vertical-lr;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+.container .card .pic {
+    z-index: 100;
+    width: 400px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(100%);
+}
+
+.container .card:hover i {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+.container .card a {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 30px;
+    height: 30px;
+    background-color: #3c5d60;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    mix-blend-mode: hard-light;
+}
+
+.container .card a i {
+    font-size: 3rem;
+}
+
+.container .card:hover a {
+    transform: scale(16.5);
+}
+
+.container .card:hover p {
+    color: #fff;
+}
+
+.container .card:hover .pic {
+    filter: grayscale(0);
+}
+
+.container .card:nth-child(even) a {
+    background-color: #54486e;
+}
+
+.dr {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 100px;
+}
+
+
+/* Animation */
+
+
+.waves {
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+    width: 500%;
+    height: 600px;
+    margin-bottom: -7px; /*Fix for safari gap*/
+}
+
+.content {
+    position: relative;
+    height: 20vh;
+    text-align: center;
+    background-color: white;
+}
+
+.parallax > use {
+    animation: move-forever 25s cubic-bezier(.55, .5, .45, .5) infinite;
+}
+
+.parallax > use:nth-child(1) {
+    animation-delay: -2s;
+    animation-duration: 17s;
+}
+
+.parallax > use:nth-child(2) {
+    animation-delay: -3s;
+    animation-duration: 20s;
+}
+
+.parallax > use:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 23s;
+}
+
+.parallax > use:nth-child(4) {
+    animation-delay: -5s;
+    animation-duration: 30s;
+}
+
+@keyframes move-forever {
+    0% {
+        transform: translate3d(-90px, 0, 0);
+    }
+    100% {
+        transform: translate3d(85px, 0, 0);
+    }
+}
+
+/*Shrinking for mobile*/
+@media (max-width: 768px) {
+    .waves {
+        height: 40px;
+        min-height: 40px;
+    }
+
+    .content {
+        height: 30vh;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}

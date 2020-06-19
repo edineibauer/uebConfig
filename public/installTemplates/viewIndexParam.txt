@@ -1,4 +1,0 @@
-{
-    "title": "{{sitename}}",
-    "css": ["w3"]
-}
