@@ -597,7 +597,7 @@ class Config
         if (!empty($viewCss)) {
             foreach ($viewCss as $css) {
                 if(file_exists($css))
-                    $minifier->add(preg_match("/\/assets\/core\//i", $css) ? file_get_contents($css) : self::setPrefixToCssDefinition(file_get_contents($css), ".r-" . $view));
+                    $minifier->add(preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
             }
         }
 
@@ -607,7 +607,7 @@ class Config
 
         //Salva CSS com variáveis aplicadas
         $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css", "w");
-        fwrite($f, self::replaceVariablesConfig($minifier->minify()));
+        fwrite($f, $minifier->minify());
         fclose($f);
     }
 
