@@ -2053,10 +2053,28 @@ var app = {
                          * if allready exist, so not do anything
                          */
                         if(!isEmpty(g.head)) {
+                            /**
+                             * Remove link from head not used
+                             */
+
+                            let idsLinks = Object.keys(g.head);
+                            $(".coreLinkHeader").each(function (i, e) {
+                                if(idsLinks.indexOf($(e).attr("id")) === -1)
+                                    $(e).remove();
+                            });
+
+                            /**
+                             * Add link to head
+                             */
                             for(let hid in g.head) {
                                 if(!$("head > #" + hid).length)
                                     $(g.head[hid]).appendTo("head");
                             }
+                        } else {
+                            /**
+                             * Remove all link from head
+                             */
+                            $(".coreLinkHeader").remove();
                         }
 
                         /**
