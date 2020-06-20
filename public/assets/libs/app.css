@@ -357,6 +357,11 @@ input, select, textarea {
     border-left: 0;
     padding-bottom: 5px;
     height: 95px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
 }
 
 #core-sidebar-perfil-img {
