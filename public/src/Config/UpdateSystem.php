@@ -570,6 +570,66 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "entity");
         Helper::createFolderIfNoExist(PATH_HOME . "entity/cache");
         Helper::createFolderIfNoExist(PATH_HOME . "entity/cache/info");
+        Helper::createFolderIfNoExist(PATH_HOME . "public/entity");
+        Helper::createFolderIfNoExist(PATH_HOME . "public/entity/cache");
+        Helper::createFolderIfNoExist(PATH_HOME . "public/entity/cache/info");
+
+        /**
+         * Move entitys from entity to the project public folder
+         */
+        foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
+            if (preg_match('/\.json$/i', $entity)) {
+
+                //Para cada Entidade
+                $isMyEntity = true;
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                    if ($isMyEntity && file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$entity}"))
+                        $isMyEntity = false;
+                }
+
+                /**
+                 * If the entity has created on this maestru project,
+                 * so add it
+                 */
+                if ($isMyEntity) {
+                    copy(PATH_HOME . "entity/cache/{$entity}", PATH_HOME . "public/entity/cache/{$entity}");
+                    copy(PATH_HOME . "entity/cache/info/{$entity}", PATH_HOME . "public/entity/cache/info/{$entity}");
+                }
+            }
+        }
+
+        if(file_exists(PATH_HOME . "_config/config.json")) {
+            $conf = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+
+            $listIntegrations = [];
+            foreach (\Config\Config::getRoutesFilesTo("integracoes", "json") as $file => $dir) {
+                $integ = json_decode(file_get_contents($dir), !0);
+                if(!empty($integ['constantes'])) {
+                    foreach ($integ['constantes'] as $constante) {
+                        if(is_string($constante['column']) && !empty($constante['column']) && isset($conf[$constante['column']]))
+                            unset($conf[$constante['column']]);
+                    }
+                }
+            }
+            $f = fopen(PATH_HOME . "public/_config/config.json", "w+");
+            fwrite($f, json_decode($conf));
+            fclose($f);
+        }
+
+        if(file_exists(PATH_HOME . "_config/param.json"))
+            copy(PATH_HOME . "_config/param.json", PATH_HOME . "public/_config/param.json");
+
+        if(file_exists(PATH_HOME . "_config/permissoes.json"))
+            copy(PATH_HOME . "_config/permissoes.json", PATH_HOME . "public/_config/permissoes.json");
+
+        if(!empty(FAVICON) && file_exists(PATH_HOME . FAVICON))
+            copy(PATH_HOME . FAVICON, PATH_HOME . "public/_config/favicon." . pathinfo(FAVICON, PATHINFO_EXTENSION));
+
+        if(!empty(LOGO) && file_exists(PATH_HOME . LOGO))
+            copy(PATH_HOME . LOGO, PATH_HOME . "public/_config/logo." . pathinfo(LOGO, PATHINFO_EXTENSION));
+
+        if(file_exists(PATH_HOME . "entity/general/general_info.json"))
+            copy(PATH_HOME . "entity/general/general_info.json", PATH_HOME . "public/_config/general_info.json");
 
         /**
          * Get list of entity
