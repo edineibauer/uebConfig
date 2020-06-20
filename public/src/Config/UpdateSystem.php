@@ -254,45 +254,98 @@ class UpdateSystem
         /**
          * AppCore JS Generator
          */
-        $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js"));
-        $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+        if(DEV) {
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js");
 
-        /**
-         * AppCore Form JS Generator
-         */
-        $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/draggable.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js"));
-        $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreForm.js");
+            $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w+");
+            fwrite($f, $m);
+            fclose($f);
 
-        /**
-         * AppCore Report JS Generator
-         */
-        $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js"));
-        $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreReport.js");
+            /**
+             * AppCore Form JS Generator
+             */
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/draggable.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
 
-        /**
-         * AppCore Grid JS Generator
-         */
-        $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js"));
-        $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
-        fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
-        fclose($f);
+            $f = fopen(PATH_HOME . "config/public/assets/coreForm.js", "w+");
+            fwrite($f, $m);
+            fclose($f);
+
+            /**
+             * AppCore Report JS Generator
+             */
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
+
+            $f = fopen(PATH_HOME . "config/public/assets/coreReport.js", "w+");
+            fwrite($f, $m);
+            fclose($f);
+
+            /**
+             * AppCore Grid JS Generator
+             */
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
+
+            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
+            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m)));
+            fclose($f);
+
+        } else {
+            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js"));
+            $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
+
+            /**
+             * AppCore Form JS Generator
+             */
+            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/draggable.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js"));
+            $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreForm.js");
+
+            /**
+             * AppCore Report JS Generator
+             */
+            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js"));
+            $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreReport.js");
+
+            /**
+             * AppCore Grid JS Generator
+             */
+            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js"));
+            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
+            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
+            fclose($f);
+        }
 
         /**
          * Check if all default folders exists
@@ -310,11 +363,22 @@ class UpdateSystem
         /**
          * AppCore CSS Generator
          */
-        $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
-        $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
-        $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
-        $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
+        if(DEV) {
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css");
+            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css");
+            $m .= file_get_contents(PATH_HOME . "public/assets/theme.min.css");
+
+            $f = fopen(PATH_HOME . "assetsPublic/appCore.min.css", "w+");
+            fwrite($f, $m);
+            fclose($f);
+        } else {
+            $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
+            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
+            $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
+            $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
+        }
     }
 
     /**
