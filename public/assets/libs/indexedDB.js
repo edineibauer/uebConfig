@@ -1362,7 +1362,7 @@ function getIdAction(entity, id) {
 
 function moveSyncDataToDb(entity, dados, db_status) {
     db_status = typeof db_status === "undefined" ? !0 : db_status;
-    if (dados.constructor === Object) {
+    if (typeof dados === "object" && dados.constructor === Object) {
         let dd = dados;
         dados = [];
         dados.push(dd)
