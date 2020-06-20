@@ -562,22 +562,42 @@ class Config
      */
     public static function createPageJs(string $view, array $viewJS, string $setor)
     {
-        $minifier = new \MatthiasMullie\Minify\JS("");
-
-        /**
-         * If find JS assets on view, so add all to the cache
-         */
-        if (!empty($viewJS)) {
-            foreach ($viewJS as $viewJ) {
-                if(file_exists($viewJ))
-                    $minifier->add(file_get_contents($viewJ));
-            }
-        }
-
         //Save JS view to the cache
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
-        $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
+
+        if(DEV) {
+            $file = "";
+
+            /**
+             * If find JS assets on view, so add all to the cache
+             */
+            if (!empty($viewJS)) {
+                foreach ($viewJS as $viewJ) {
+                    if (file_exists($viewJ))
+                        $file .= file_get_contents($viewJ);
+                }
+            }
+
+            $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js", "w+");
+            fwrite($f, $file);
+            fclose($f);
+
+        } else {
+            $minifier = new \MatthiasMullie\Minify\JS("");
+
+            /**
+             * If find JS assets on view, so add all to the cache
+             */
+            if (!empty($viewJS)) {
+                foreach ($viewJS as $viewJ) {
+                    if (file_exists($viewJ))
+                        $minifier->add(file_get_contents($viewJ));
+                }
+            }
+
+            $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
+        }
     }
 
     /**
@@ -589,25 +609,44 @@ class Config
      */
     public static function createPageCss(string $view, array $viewCss, string $setor)
     {
-        $minifier = new \MatthiasMullie\Minify\CSS("");
-
-        /**
-         * If find CSS assets on view, so add all to the cache
-         */
-        if (!empty($viewCss)) {
-            foreach ($viewCss as $css) {
-                if(file_exists($css))
-                    $minifier->add(preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
-            }
-        }
-
         //Save CSS view to the cache
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
-
-        //Salva CSS com variáveis aplicadas
         $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css", "w");
-        fwrite($f, $minifier->minify());
+
+        if(DEV) {
+
+            $file = "";
+
+            /**
+             * If find CSS assets on view, so add all to the cache
+             */
+            if (!empty($viewCss)) {
+                foreach ($viewCss as $css) {
+                    if (file_exists($css))
+                        $file .= (preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
+                }
+            }
+
+            //Save CSS
+            fwrite($f, $file);
+
+        } else {
+            $minifier = new \MatthiasMullie\Minify\CSS("");
+
+            /**
+             * If find CSS assets on view, so add all to the cache
+             */
+            if (!empty($viewCss)) {
+                foreach ($viewCss as $css) {
+                    if (file_exists($css))
+                        $minifier->add(preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
+                }
+            }
+
+            //save CSS
+            fwrite($f, $minifier->minify());
+        }
         fclose($f);
     }
 
