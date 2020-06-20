@@ -8,7 +8,7 @@ body {
     bottom: 0;
     z-index: 1;
     width: 500%;
-    height: 600px;
+    height: 450px;
     margin-bottom: -7px; /*Fix for safari gap*/
     display: block;
 }
