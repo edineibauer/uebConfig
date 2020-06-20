@@ -571,37 +571,38 @@ class UpdateSystem
         Helper::createFolderIfNoExist(PATH_HOME . "entity/cache");
         Helper::createFolderIfNoExist(PATH_HOME . "entity/cache/info");
 
-        //importa entidades ausentes para o sistema
-        $sql = new SqlCommand();
+        /**
+         * Get list of entity
+         */
+        $listaEntity = [];
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
             if (file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/cache")) {
                 foreach (Helper::listFolder(PATH_HOME . VENDOR . "{$lib}/public/entity/cache") as $file) {
-                    if (!file_exists(PATH_HOME . "entity/cache/{$file}") && preg_match('/\w+\.json$/i', $file)) {
-                        copy(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$file}", PATH_HOME . "entity/cache/{$file}");
-
-                        /* INFO */
-                        if (file_exists(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/info/{$file}")) {
-                            if (file_exists(PATH_HOME . "entity/cache/info/{$file}"))
-                                unlink(PATH_HOME . "entity/cache/info/{$file}");
-
-                            copy(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/info/{$file}", PATH_HOME . "entity/cache/info/{$file}");
-
-                        } elseif (!file_exists(PATH_HOME . "entity/cache/info/{$file}")) {
-                            //cria info
-                            $data = Config::createInfoFromMetadados(\Entity\Metadados::getDicionario(PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$file}"));
-                            $fp = fopen(PATH_HOME . "entity/cache/info/" . $file, "w");
-                            fwrite($fp, json_encode($data));
-                            fclose($fp);
-                        }
-
-                        new EntityCreateEntityDatabase(str_replace('.json', '', $file));
-                    } else {
-                        $sql->exeCommand("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'TheSchema' AND TABLE_NAME = '" . PRE . str_replace('.json', '', $file) . "'");
-                        if (!$sql->getResult())
-                            new EntityCreateEntityDatabase(str_replace('.json', '', $file));
-
-                    }
+                    if (preg_match('/\w+\.json$/i', $file))
+                        $listaEntity[$file] = PATH_HOME . VENDOR . "{$lib}/public/entity/cache/{$file}";
                 }
+            }
+        }
+
+        /**
+         * Import/Update all
+         */
+        foreach ($listaEntity as $file => $dir) {
+            $entity = str_replace(".json", "", $file);
+            $infoDir = str_replace("entity/cache/", "entity/cache/info/", $dir);
+            $metadados = json_decode(file_get_contents($dir), !0);
+            $info = file_exists($infoDir) ? json_decode(file_get_contents($infoDir), !0) : (file_exists(PATH_HOME . "entity/cache/info/{$file}") ? json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$file}"), !0) : []);
+            $isNew = file_exists(PATH_HOME . "entity/cache/{file}");
+
+            new \EntityUi\SaveEntity($entity, $info['system'] ?? "", $info['icon'] ?? "", !empty($info['user']), !empty($info['autor']), $metadados, $info['identifier'] ?? 100);
+
+            /**
+             * Se for uma nova entidade, dê permissão de menu ao ADM
+             */
+            if($isNew) {
+                $p = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), !0);
+                $p['admin'][$entity]['menu'] = "true";
+                Config::writeFile(PATH_HOME . "_config/permissoes.json", json_encode($p));
             }
         }
     }
