@@ -1,5 +1,11 @@
 (async() => {
     let tpl = await getTemplates();
+
+    /**
+     * Waves
+     */
+    $("#core-content").after(Mustache.render(tpl.wavesBottom));
+
     let cards = [];
     cards.push({
         title: "Acessar",
