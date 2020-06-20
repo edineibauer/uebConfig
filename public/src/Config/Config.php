@@ -575,7 +575,7 @@ class Config
             if (!empty($viewJS)) {
                 foreach ($viewJS as $viewJ) {
                     if (file_exists($viewJ))
-                        $file .= file_get_contents($viewJ);
+                        $file .= ";" . file_get_contents($viewJ);
                 }
             }
 

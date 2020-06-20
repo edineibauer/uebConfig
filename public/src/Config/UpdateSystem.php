@@ -256,15 +256,15 @@ class UpdateSystem
          */
         if(DEV) {
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/indexedDB.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js");
 
             $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w+");
             fwrite($f, $m);
@@ -274,9 +274,9 @@ class UpdateSystem
              * AppCore Form JS Generator
              */
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/draggable.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mask.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
 
             $f = fopen(PATH_HOME . "config/public/assets/coreForm.js", "w+");
             fwrite($f, $m);
@@ -286,8 +286,8 @@ class UpdateSystem
              * AppCore Report JS Generator
              */
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
 
             $f = fopen(PATH_HOME . "config/public/assets/coreReport.js", "w+");
             fwrite($f, $m);
@@ -297,9 +297,9 @@ class UpdateSystem
              * AppCore Grid JS Generator
              */
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js");
-            $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js");
+            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
 
             $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
             fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m)));
