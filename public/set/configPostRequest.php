@@ -5,7 +5,8 @@ $post = filter_input(INPUT_POST, 'postData', FILTER_DEFAULT, FILTER_REQUIRE_ARRA
 
 $find = !1;
 foreach (\Config\Config::getRoutesFilesTo("set", "php") as $file => $dir) {
-    if($file === $fileInSetFolder) {
+    $fileInFindSetor = explode("/public/set/", $dir)[1];
+    if($fileInFindSetor === $fileInSetFolder) {
         $find = !0;
         include_once $dir;
         break;
