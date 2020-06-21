@@ -298,7 +298,6 @@ class UpdateSystem
              */
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
-            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportTable.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
 
             $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
