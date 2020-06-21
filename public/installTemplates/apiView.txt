@@ -25,6 +25,7 @@ if (!empty($url)) {
                 "head" => $link->getParam()['head'] ?? [],
                 "header" => $link->getParam()['header'],
                 "navbar" => $link->getParam()['navbar'],
+                "templates" => $link->getParam()['templates'],
                 "setor" => $link->getParam()['setor'],
                 "!setor" => $link->getParam()['!setor'],
                 "redirect" => $link->getParam()['redirect'] ?? "403",
