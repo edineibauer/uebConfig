@@ -278,7 +278,7 @@ class UpdateSystem
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
 
-            $f = fopen(PATH_HOME . "config/public/assets/coreForm.js", "w+");
+            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreForm.js", "w+");
             fwrite($f, $m);
             fclose($f);
 
@@ -289,7 +289,7 @@ class UpdateSystem
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
 
-            $f = fopen(PATH_HOME . "config/public/assets/coreReport.js", "w+");
+            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreReport.js", "w+");
             fwrite($f, $m);
             fclose($f);
 
