@@ -1,0 +1,26 @@
+{
+  "templates": [
+    "checkbox",
+    "extend",
+    "extend_folder",
+    "extend_mult",
+    "extend_register",
+    "extend_register_folder",
+    "file_list_source",
+    "file_list",
+    "file",
+    "file_source",
+    "folder",
+    "form",
+    "hidden",
+    "input",
+    "list",
+    "list_mult",
+    "list_result",
+    "radio",
+    "select",
+    "span",
+    "switch",
+    "textarea"
+  ]
+}

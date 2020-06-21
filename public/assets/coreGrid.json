@@ -1,0 +1,9 @@
+{
+  "templates": [
+    "grid_content",
+    "grid",
+    "grid_content_card_edit",
+    "grid_content_card_header",
+    "no_registers"
+  ]
+}

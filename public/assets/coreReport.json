@@ -1,0 +1,9 @@
+{
+  "templates": [
+    "chart_table",
+    "report_table",
+    "report_table_content",
+    "graficos_list",
+    "relatorios_card"
+  ]
+}

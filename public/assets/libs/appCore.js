@@ -2078,16 +2078,41 @@ var app = {
                         }
 
                         /**
-                         * add script to page
+                         * Include templates used in this view
                          */
-                        if (g.js.length) {
-                            $.cachedScript(g.js).then(() => {
-                                app.removeLoading()
-                            }).catch(() => {
-                                app.removeLoading()
-                            })
+                        if(!isEmpty(g.templates)) {
+                            getTemplates().then(templates => {
+                                dbLocal.exeCreate("__template", Object.assign(templates, g.templates)).then(() => {
+
+                                    /**
+                                     * add script to page
+                                     */
+                                    if (g.js.length) {
+                                        $.cachedScript(g.js).then(() => {
+                                            app.removeLoading()
+                                        }).catch(() => {
+                                            app.removeLoading()
+                                        })
+                                    } else {
+                                        app.removeLoading()
+                                    }
+                                });
+                            });
+
                         } else {
-                            app.removeLoading()
+
+                            /**
+                             * add script to page
+                             */
+                            if (g.js.length) {
+                                $.cachedScript(g.js).then(() => {
+                                    app.removeLoading()
+                                }).catch(() => {
+                                    app.removeLoading()
+                                })
+                            } else {
+                                app.removeLoading()
+                            }
                         }
                     } else {
                         if (USER.setor === 0 && getCookie("redirectOnLogin") === "")
