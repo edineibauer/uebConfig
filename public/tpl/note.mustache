@@ -21,3 +21,102 @@
 <script>
     new TouchLeft($(".notification-card"), -70, 50, 0);
 </script>
+
+<style>
+    .notification-item {
+        position: relative;
+        padding-bottom: 10px;
+        float: left;
+        width: 100%;
+    }
+
+    .notification-item > i.material-icons {
+        font-size: 24px;
+        padding: 10px;
+        cursor: pointer;
+        position: absolute;
+        top: calc(50% - 25px);
+        right: 10px;
+        color: #e26a6a;
+        z-index: 1;
+    }
+
+    .notification-card {
+        position: relative;
+        border: solid 1px #ddd;
+        background: #ffffff !important;
+        color: #555555 !important;
+        border-radius: 5px;
+        float: left;
+        width: 100%;
+        box-shadow: 1px 1px 11px -8px black;
+        transition: all ease .15s;
+        z-index: 2;
+        padding: 16px 15px 8px;
+    }
+
+    .notification-card.readed {
+        box-shadow: none;
+        border: solid 1px #eee;
+    }
+
+    .notification-card.readed img {
+        opacity: .6;
+    }
+
+    .notification-content-left {
+        float: left;
+        width: 50px;
+    }
+
+    .notification-content-right {
+        float: left;
+        width: calc(100% - 50px);
+        margin-top: -2px;
+        margin-bottom: 5px;
+    }
+
+    .notification-title {
+        margin-bottom: 5px !important;
+        font-size: 15px !important;
+        max-height: 38px !important;
+        overflow: hidden !important;
+        color: #555555 !important;
+    }
+
+    .notification-desc {
+        font-size: 12px;
+        line-height: 15px;
+        max-height: 46px;
+        overflow: hidden;
+    }
+
+    .notification-content {
+        float: left;
+        width: 100%;
+        padding-left: 15px;
+    }
+
+    .imagem-notificacao {
+        border-radius: 50px;
+    }
+
+    .notification-item.activeRemove > .notification-card {
+        transform: translateX(-170px);
+        opacity: 0;
+    }
+
+    .notification-item.activeRemove > i.material-icons {
+        opacity: 0;
+    }
+
+    .note-time {
+        width: 100%;
+        font-size: 9px;
+        color: #999999;
+        text-align: center;
+        line-height: 12px;
+        padding-top: 5px;
+        float: left;
+    }
+</style>
