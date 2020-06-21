@@ -162,6 +162,7 @@ class UpdateSystem
             }
 
             if(in_array("theme", $custom)) {
+                $this->updateAssets($dados);
                 $this->createCoreCssApp();
                 $this->createManifest($dados);
 
