@@ -26,7 +26,7 @@ function post(lib, file, param, funcao) {
         funcao = param;
         param = {fileInSetFolder: file}
     } else {
-        param.file = file
+        param.fileInSetFolder = file
     }
     param.maestruToken = localStorage.token;
 
