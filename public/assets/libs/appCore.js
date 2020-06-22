@@ -1109,7 +1109,9 @@ function loadViews() {
             /**
              * Cache views
              */
-            return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
+            return cache.add("view/network").then(() => {
+                return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
+            });
 
         }).then(() => {
 
@@ -2420,14 +2422,6 @@ async function setDicionario() {
 
 async function startApplication() {
     await checkSessao();
-
-    /**
-     * Send user info to service worker
-     */
-    swRegistration.postMessage({
-        USER: USER
-    });
-
     await setDicionario();
 
     (!localStorage.accesscount ? await firstAccess() : await thenAccess());

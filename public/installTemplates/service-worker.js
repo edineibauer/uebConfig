@@ -21,7 +21,7 @@ function returnNoNetwork() {
 
 function returnViewNoNetwork() {
     return caches.open('viewUser-v' + VERSION).then(cache => {
-        return cache.match(HOME + "view/network/maestruToken/" + USER.token);
+        return cache.match(HOME + "view/network");
     })
 }
 
@@ -156,7 +156,6 @@ self.addEventListener('fetch', function (e) {
         if (urlSplited.length === 3 && !isNaN(urlSplited[2]) && urlSplited[2] > 0)
             url = "view/" + urlSplited[1];
 
-        console.log(USER);
         e.respondWith(
             caches.open('viewUser-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
