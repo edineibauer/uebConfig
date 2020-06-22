@@ -575,7 +575,7 @@ class Config
             if (!empty($viewJS)) {
                 foreach ($viewJS as $viewJ) {
                     if (file_exists($viewJ))
-                        $file .= ";" . file_get_contents($viewJ);
+                        $file .= "\n;\n" . file_get_contents($viewJ);
                 }
             }
 
@@ -624,7 +624,7 @@ class Config
             if (!empty($viewCss)) {
                 foreach ($viewCss as $css) {
                     if (file_exists($css))
-                        $file .= (preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
+                        $file .= "\n" . (preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
                 }
             }
 
