@@ -2,9 +2,11 @@
 
 namespace Config;
 
+use Conn\Delete;
+use Conn\Read;
 use Conn\SqlCommand;
+use Entity\Metadados;
 use Helpers\Helper;
-use Route\Route;
 use Tholu\Packer\Packer;
 
 class Config
@@ -30,7 +32,7 @@ class Config
                 $user['setorData'] = [];
                 $user['systemData'] = [];
 
-                if ($user['status'] === 1) {
+                if ($user['status'] === "1") {
 
                     /**
                      * Search for setor Data

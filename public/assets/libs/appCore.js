@@ -1002,8 +1002,7 @@ function recoveryUser() {
 
         USER = login;
 
-        if (!localStorage.accesscount)
-            return loadCacheUser();
+        return loadCacheUser();
 
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
@@ -1029,8 +1028,7 @@ function setUserInNavigator(user) {
     localStorage.token = user.token;
 
     return dbLocal.exeCreate("__login", userLogin).then(() => {
-        if (!localStorage.accesscount)
-            return loadCacheUser();
+        return loadCacheUser();
 
     }).catch(e => {
         errorLoadingApp("obter __login", e);
@@ -1052,14 +1050,7 @@ function setCookieUser(user) {
             /**
              * Seta usuário
              * */
-            return setUserInNavigator(user).then(() => {
-
-                /**
-                 * Obtém novos dados de usuário
-                 * */
-                if (!!localStorage.accesscount)
-                    return loadCacheUser();
-            });
+            return setUserInNavigator(user);
         });
 
     } else {
@@ -1113,12 +1104,12 @@ function loadViews() {
         return Promise.all([]);
 
     return get("appFilesView").then(g => {
-        return caches.open('view-v' + VERSION).then(cache => {
+        return caches.open('viewUser-v' + VERSION).then(cache => {
 
             /**
              * Cache views
              */
-            return cache.addAll(g.view.map(s => "view/" + s));
+            return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
 
         }).then(() => {
 
@@ -1136,7 +1127,7 @@ function loadViews() {
             /**
              * Cache view Assets
              */
-            return caches.open('viewJs-v' + VERSION).then(cache => {
+            return caches.open('viewUserJs-v' + VERSION).then(cache => {
                 return cache.addAll(viewsAssets);
             });
         }).catch(e => {
@@ -1157,7 +1148,7 @@ function loadUserViews() {
             /**
              * Cache views and then Js
              */
-            return cache.addAll(g.view.map(s => "view/" + s)).then(() => {
+            return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token)).then(() => {
 
                 /**
                  * Para cada view, carrega seus assets
@@ -1182,27 +1173,12 @@ function loadCacheUser() {
      * */
     if (navigator.onLine) {
 
-        if (USER.setor !== "0" && app.file === "login")
-            toast("Seja Bem Vindo " + USER.nome, 2000, "toast-success");
-
         return getIndexedDbGets().then(() => {
-
-            // }).then(() => {
-            /**
-             * Baixa os dados das entidades para este usuário
-             */
-            // return downloadEntityData();
 
             /**
              * Recupera syncs pendentes deste usuário
              */
             return loadSyncNotSaved();
-
-        // }).then(() => {
-            /**
-             * Seta a versão do app
-             */
-            // return setVersionApplication();
 
         }).catch(e => {
             errorLoadingApp("loadCacheUser", e);
