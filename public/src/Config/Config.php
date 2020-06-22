@@ -11,57 +11,62 @@ class Config
 
     /**
      * Set session to the request user
-     * @param string $token
+     * @param string|null $token
      */
-    public static function setUser(string $token)
+    public static function setUser($token)
     {
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        $sql = new SqlCommand();
-        $sql->exeCommand("SELECT ut.token, u.* FROM " . PRE . "usuarios_token as ut JOIN " . PRE . "usuarios as u ON u.id = ut.usuario WHERE ut.token = '{$token}'");
-        if($sql->getResult()) {
-            $user = $sql->getResult()[0];
-            $user['setorData'] = [];
-            $user['systemData'] = [];
+        if (empty($token) || !is_string($token)) {
+            self::setUserAnonimo();
+        } else {
 
-            if($user['status'] === 1) {
+            $sql = new SqlCommand();
+            $sql->exeCommand("SELECT ut.token, u.* FROM " . PRE . "usuarios_token as ut JOIN " . PRE . "usuarios as u ON u.id = ut.usuario WHERE ut.token = '{$token}'");
+            if ($sql->getResult()) {
+                $user = $sql->getResult()[0];
+                $user['setorData'] = [];
+                $user['systemData'] = [];
 
-                /**
-                 * Search for setor Data
-                 */
-                if(!empty($user['setor'])) {
-                    $read = new Read();
-                    $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}");
-                    $user['setorData'] = $read->getResult() ?? [];
+                if ($user['status'] === 1) {
 
                     /**
-                     * Search for System data
+                     * Search for setor Data
                      */
-                    if(!empty($user['setorData']) && !empty($user['setorData']['system_id'])) {
-                        $infoSetor = Metadados::getInfo($user['setor']);
-                        if(!empty($infoSetor) && !empty($infoSetor['system'])) {
-                            $read->exeRead($infoSetor['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
-                            $user['systemData'] = $read->getResult() ?? [];
-                            $user['system_id'] = $user['setorData']['system_id'];
+                    if (!empty($user['setor'])) {
+                        $read = new Read();
+                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}");
+                        $user['setorData'] = $read->getResult() ?? [];
+
+                        /**
+                         * Search for System data
+                         */
+                        if (!empty($user['setorData']) && !empty($user['setorData']['system_id'])) {
+                            $infoSetor = Metadados::getInfo($user['setor']);
+                            if (!empty($infoSetor) && !empty($infoSetor['system'])) {
+                                $read->exeRead($infoSetor['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
+                                $user['systemData'] = $read->getResult() ?? [];
+                                $user['system_id'] = $user['setorData']['system_id'];
+                            }
                         }
+                    } else {
+                        $user['setor'] = "admin";
                     }
+
+                    $_SESSION['userlogin'] = $user;
+
                 } else {
-                    $user['setor'] = "admin";
+                    /**
+                     * Remove access token, because user is deactivated
+                     */
+                    $del = new \Conn\Delete();
+                    $del->exeDelete("usuarios_token", "WHERE token = :t", "t={$token}");
+                    self::setUserAnonimo();
                 }
-
-                $_SESSION['userlogin'] = $user;
-
             } else {
-                /**
-                 * Remove access token, because user is deactivated
-                 */
-                $del = new \Conn\Delete();
-                $del->exeDelete("usuarios_token", "WHERE token = :t", "t={$token}");
                 self::setUserAnonimo();
             }
-        } else {
-            self::setUserAnonimo();
         }
     }
 
@@ -78,7 +83,7 @@ class Config
             "status" => 1,
             "data" => date("Y-m-d H:i:s"),
             "token_recovery" => null,
-            "setor" => null,
+            "setor" => "0",
             "system_id" => null,
             "login_social" => null
         ];
