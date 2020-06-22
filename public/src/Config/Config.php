@@ -46,6 +46,8 @@ class Config
                             $user['system_id'] = $user['setorData']['system_id'];
                         }
                     }
+                } else {
+                    $user['setor'] = "admin";
                 }
 
                 $_SESSION['userlogin'] = $user;
