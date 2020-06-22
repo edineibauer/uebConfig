@@ -1,21 +1,48 @@
 <?php
 
 $data['data']['view'] = [];
+
 $setor = \Config\Config::getSetor();
 
-foreach (\Config\Config::getRoutesFilesTo("view", "json") as $file => $fileDir) {
+$viewsLocked = [];
+$views = [];
+$dirViews = [];
+foreach (\Config\Config::getRoutesTo("view") as $view) {
+    if (!preg_match("/\/view\/{$setor}\/$/i", $view))
+        $dirViews[] = $view;
+}
 
-    $p = \Config\Config::getJsonFile($fileDir);
-    $view = str_replace(".json", "", $file);
+if (!empty($dirViews)) {
+    foreach ($dirViews as $fileDir) {
+        foreach (\Helpers\Helper::listFolder($fileDir) as $dirViews) {
+            if (is_dir($fileDir . $dirViews) && !in_array($dirViews, $viewsLocked)) {
+                $offline = !1;
+                $viewPath = "";
 
-    /**
-     * Se tiver permissão para acessar a view e
-     * Se esta view ainda não foi adicionado na lista
-     * Se estiver setada para funcionar offline
-     * Se a view não for específica de um setor
-     *
-     * Então adiciona a view a lista de views do usuário
-     */
-    if (!empty($p['offline']) && $p['offline'] && \Config\Config::paramPermission($p) && !in_array($view, $data['data']['view']))
-        $data['data']['view'][] = $view;
+                /**
+                 * Check files in view to validate that have a view and is offline parameter
+                 */
+                foreach (\Helpers\Helper::listFolder($fileDir . $dirViews) as $view) {
+                    $extensao = pathinfo($view, PATHINFO_EXTENSION);
+                    if (in_array($extensao, ["html", "php"]) && empty($viewPath)) {
+                        $viewPath = $fileDir . $dirViews . "/" . $view;
+                    } elseif ($extensao === "json" && !isset($view[$dirViews])) {
+                        $param = json_decode(file_get_contents($fileDir . $dirViews . "/" . $view), !0);
+                        if (!$offline && !empty($param) && !empty($param['offline']) && $param['offline'])
+                            $offline = !0;
+                    }
+                }
+
+                /**
+                 * if is offline and have view, so add it
+                 */
+                if ($offline)
+                    $views[$dirViews] = $viewPath;
+
+                $viewsLocked[] = $dirViews;
+            }
+        }
+    }
+
+    $data['data']['view'][] = array_values($views);
 }

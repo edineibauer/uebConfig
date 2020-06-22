@@ -1266,9 +1266,11 @@ function loadViews() {
              * Para cada view, carrega seus assets
              */
             let viewsAssets = [];
-            for (let i in g.view) {
-                let viewName = "assetsPublic/view/" + USER.setor + "/" + g.view[i];
-                viewsAssets.push(viewName + ".min.js?v=" + VERSION);
+            if(!isEmpty(g.view)) {
+                for (let i in g.view) {
+                    let viewName = "assetsPublic/view/" + USER.setor + "/" + g.view[i];
+                    viewsAssets.push(viewName + ".min.js?v=" + VERSION);
+                }
             }
 
             /**
@@ -1296,8 +1298,18 @@ function loadUserViews() {
              * Cache views and then Js
              */
             return cache.addAll(g.view).then(() => {
+
+                /**
+                 * Para cada view, carrega seus assets
+                 */
+                let viewsAssets = [];
+                if(!isEmpty(g.view)) {
+                    for (let i in g.view)
+                        viewsAssets.push("assetsPublic/view/" + USER.setor + "/" + g.view[i] + ".min.js?v=" + VERSION);
+                }
+
                 return caches.open('viewUserJs-v' + VERSION).then(c => {
-                    return c.addAll(g.js);
+                    return c.addAll(viewsAssets);
                 });
             });
         })
