@@ -448,60 +448,15 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
     }
 }
 
-function updateVersionNumber() {
-    if (!navigator.onLine)
-        return Promise.all([]);
-
-    return new Promise(function (resolve, r) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set");
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4) {
-                if (this.status === 200) {
-                    let data = JSON.parse(this.responseText);
-                    if (data.data !== "no-network" && data.response === 1 && (!localStorage.update || data.data !== localStorage.update))
-                        localStorage.update = data.data;
-                    resolve(1);
-                } else {
-                    resolve(0);
-                }
-            }
-        };
-        xhttp.onerror = function () {
-            resolve(0)
-        };
-        xhttp.send("lib=config&file=update");
-    });
-}
-
 async function checkUpdate() {
-    if (!navigator.onLine)
-        return Promise.all([]);
+    if (navigator.onLine) {
+        let version = await AJAX.post("update");
 
-    return new Promise(function (resolve, r) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", HOME + "set");
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.onreadystatechange = function () {
-            if (this.readyState) {
-                if (this.status !== 200 || isEmpty(this.responseText)) {
-                    resolve(0);
-                } else {
-
-                    let data = JSON.parse(this.responseText);
-                    if (data.response === 1 && !!localStorage.update && parseFloat(data.data) > parseFloat(localStorage.update))
-                        toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
-
-                    resolve(1);
-                }
-            }
-        };
-        xhttp.onerror = function () {
-            resolve(0)
-        };
-        xhttp.send("lib=config&file=update");
-    });
+        if(!!localStorage.update)
+            localStorage.update = version;
+        else if (version > parseFloat(localStorage.update))
+            toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+    }
 }
 
 /**
@@ -1033,9 +988,7 @@ function updateCache() {
     if (navigator.onLine) {
         toast("Atualizando Aplicativo", 7000, "toast-success");
         clearCacheAll().then(() => {
-            updateVersionNumber().then(() => {
-                location.reload();
-            });
+            location.reload();
         })
     } else {
         toast("Sem Conexão", 1200);
@@ -1390,8 +1343,6 @@ function errorLoadingApp(id, e) {
 async function firstAccess() {
     localStorage.accesscount = 1;
     await cacheCoreApp();
-
-    updateVersionNumber();
 
     if(navigator.onLine) {
         /**

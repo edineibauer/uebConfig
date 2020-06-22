@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use Conn\SqlCommand;
 use Helpers\Helper;
 use Route\Route;
 use Tholu\Packer\Packer;
