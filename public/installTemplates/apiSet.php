@@ -10,9 +10,9 @@ $data = ['error' => "", "data" => "", "response" => 1];
 $fileInSetFolder = filter_input(INPUT_POST, 'fileInSetFolder', FILTER_DEFAULT) . ".php";
 $post = filter_input(INPUT_POST, 'postData', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
-if(file_exists($_POST['fileInSetFolder']))
+if(isset($_POST['fileInSetFolder']))
     unset($_POST['fileInSetFolder']);
-if(file_exists($_POST['maestruToken']))
+if(isset($_POST['maestruToken']))
     unset($_POST['maestruToken']);
 
 $find = !1;
