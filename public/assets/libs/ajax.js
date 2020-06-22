@@ -120,7 +120,7 @@ class AJAX {
     }
 
     static async post(fileInSetFolder, postData) {
-        return new Promise(s => {
+        return new Promise((s, f) => {
             $.ajax({
                 type: "POST",
                 url: HOME + 'set',
@@ -145,12 +145,12 @@ class AJAX {
                                 break
                         }
 
-                        s((data.data === "no-network" ? "no-network" : null));
+                        f(data.data);
                     }
                 },
                 fail: function () {
                     toast("Erro na Conexão", 3000, "toast-warning");
-                    s("no-network");
+                    f("no-network");
                 },
                 dataType: "json"
             });

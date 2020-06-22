@@ -27,77 +27,44 @@ async function dbSendData(entity, dados, action) {
     let t = [];
     t.push(dados);
     return new Promise(function (s, f) {
-        $.ajax({
-            type: "POST",
-            url: HOME + 'set',
-            data: {
-                lib: "entity",
-                file: "up/entity",
-                entity: entity,
-                dados: convertEmptyArrayToNull(t)
-            },
-            error: function () {
-                toast("Sem conexão! Tente mais tarde", 3500, "toast-error");
-                f(0);
-            },
-            success: function (dd) {
-                if (dd.response === 1 && dd.data.error === 0) {
-                    s(Object.assign({db_errorback: 0}, dd.data.data[0]));
-                } else {
-                    if(typeof navigator.vibrate !== "undefined")
-                        navigator.vibrate(100);
+        AJAX.post("up/entity", {entity: entity, dados: convertEmptyArrayToNull(t)}).then(result => {
+            s(Object.assign({db_errorback: 0}, result.data[0]));
+        }).catch(error => {
+            if(typeof navigator.vibrate !== "undefined")
+                navigator.vibrate(100);
 
-                    if (!isEmpty(form)) {
-                        showErrorField(form.$element, dd.data.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
-                        setFormSaveStatus(form, 1);
-                    }
+            if (!isEmpty(form)) {
+                showErrorField(form.$element, error.data[0].db_error[form.entity], dicionarios[form.entity], form.entity, 1);
+                setFormSaveStatus(form, 1);
+            }
 
-                    toast("Erro ao cadastrar, corrija o formulário", 7000, "toast-error");
+            toast("Erro ao cadastrar, corrija o formulário", 7000, "toast-error");
 
-                    if (!isEmpty(form))
-                        f(Object.assign({db_errorback: 1}, dd.data.data[0].db_error[form.entity]));
-                    else
-                        f(Object.assign({db_errorback: 1}, dd.data.data[0].db_error));
-                }
-            },
-            dataType: "json",
-            async: !0
+            if (!isEmpty(form))
+                f(Object.assign({db_errorback: 1}, error.data[0].db_error[form.entity]));
+            else
+                f(Object.assign({db_errorback: 1}, error.data[0].db_error));
         })
     });
 }
 
 function exeReadOnline(entity, id) {
     id = isNumberPositive(id) ? id : null;
-    return new Promise(function (resolve, reject) {
-        $.ajax({
-            type: "POST",
-            url: HOME + 'set',
-            data: {
-                lib: "entity",
-                file: "load/entity",
-                entity: entity,
-                id: id,
-                historic: null
-            },
-            success: function (data) {
-                if (data.response === 1 && !isEmpty(data.data.data)) {
-                    if (id) {
-                        resolve(getDefaultValues(entity, data.data.data[0]));
+    return new Promise(function (resolve) {
+        AJAX.post("load/entity", {entity: entity, id: id, historic: null}).then(result => {
+            if (!isEmpty(result)) {
+                if (id) {
+                    resolve(getDefaultValues(entity, result.data[0]));
 
-                    } else {
-                        let result = [];
-                        $.each(data.data.data, function (i, e) {
-                            result.push(getDefaultValues(entity, e));
-                        });
-                        resolve(result);
-                    }
+                } else {
+                    let results = [];
+                    $.each(result.data, function (i, e) {
+                        results.push(getDefaultValues(entity, e));
+                    });
+                    resolve(results);
                 }
-                resolve(id ? {} : []);
-            },
-            error: function () {
-                resolve(id ? {} : [])
-            },
-            dataType: "json"
+            }
+            resolve(id ? {} : []);
         })
     })
 }
@@ -797,33 +764,24 @@ class Read {
         orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
         search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
 
-        return new Promise(function (resolve, reject) {
-            $.ajax({
-                type: "POST",
-                url: HOME + 'set',
-                data: {
-                    lib: "entity",
-                    file: "load/entity",
-                    entity: entity,
-                    id: id,
-                    filter: search,
-                    order: columnOrder,
-                    reverse: orderReverse,
-                    limit: limit,
-                    offset: offset,
-                    historic: null
-                },
-                success: function (data) {
-                    if (data.response === 1 && !isEmpty(data.data.data))
-                        resolve(data.data);
+        return new Promise(function (r) {
+            AJAX.post("load/entity", {
+                entity: entity,
+                id: id,
+                filter: search,
+                order: columnOrder,
+                reverse: orderReverse,
+                limit: limit,
+                offset: offset,
+                historic: null
+            }).then(result => {
+                if (!isEmpty(result))
+                    r(result);
 
-                    resolve({data: [], total: 0});
-                },
-                error: function () {
-                    resolve({result: id ? {} : [], total: 0});
-                },
-                dataType: "json"
-            })
+                r({data: [], total: 0});
+            }).catch(() => {
+                r({result: id ? {} : [], total: 0});
+            });
         }).then(results => {
             if (id) {
                 this.result = getDefaultValues(entity, results.data[0]);
@@ -1002,21 +960,10 @@ const dbRemote = {
         }
     }, syncDownload(entity) {
         return dbLocal.exeRead('__historic', 1).then(hist => {
-            return new Promise(function (resolve, reject) {
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {lib: "entity", file: "load/entity", entity: entity, historic: (hist[entity] || null)},
-                    success: function (data) {
-                        if (data.response === 1 && data.data.historic !== 0)
-                            resolve(data.data);
-                        resolve(0)
-                    },
-                    error: function () {
-                        resolve(0)
-                    },
-                    dataType: "json"
-                })
+            return new Promise(function (resolve) {
+                AJAX.post("load/entity", {entity: entity, historic: (hist[entity] || null)}).then(data => {
+                    resolve(data);
+                });
             }).then(response => {
                 if (response === 0)
                     return 0;
@@ -1125,67 +1072,53 @@ const dbRemote = {
                         dataToSend.push(d);
                         let dataReturn = dataToSend;
                         promises.push(new Promise(function (s, f) {
-                            $.ajax({
-                                type: "POST",
-                                url: HOME + 'set',
-                                data: {
-                                    lib: "entity",
-                                    file: "up/entity",
-                                    entity: entity,
-                                    dados: convertEmptyArrayToNull(dataToSend)
-                                },
-                                success: function (data) {
-                                    let allP = [];
-                                    if (data.response === 1 && typeof data.data === "object" && data.data.error === 0) {
-                                        if (feedback) {
-                                            count++;
-                                            if ($("#core-count-progress").length)
-                                                $("#core-count-progress").html(count); else toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>" + count + "</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
-                                        }
+                            AJAX.post("up/entity", {entity: entity, dados: convertEmptyArrayToNull(dataToSend)}).then(result => {
+                                let allP = [];
+                                if (result.error === 0) {
+                                    if (feedback) {
+                                        count++;
+                                        if ($("#core-count-progress").length)
+                                            $("#core-count-progress").html(count); else toast("<div style='float:left'><div style='float:left'>Enviando</div><div id='core-count-progress' style='float:left'>" + count + "</div><div style='float:left'>/" + total + " registros para " + entity + "</div></div>", 1000000, "toast-upload-progress")
+                                    }
 
-                                        dataReturn = Object.assign({db_errorback: 0}, data.data.data[0]);
+                                    dataReturn = Object.assign({db_errorback: 0}, result.data[0]);
+
+                                    /**
+                                     * Atualização realizada, remove sync desta atualização
+                                     * */
+                                    if (isNumber(d.id)) {
+                                        dbLocal.exeDelete('sync_' + entity, d.id);
+                                        dbLocal.exeDelete(entity, d.id);
+                                        if (d.db_action !== "delete")
+                                            allP.push(moveSyncDataToDb(entity, result.data[0]));
 
                                         /**
-                                         * Atualização realizada, remove sync desta atualização
+                                         * Atualiza histórico
                                          * */
-                                        if (isNumber(d.id)) {
-                                            dbLocal.exeDelete('sync_' + entity, d.id);
-                                            dbLocal.exeDelete(entity, d.id);
-                                            if (d.db_action !== "delete")
-                                                allP.push(moveSyncDataToDb(entity, data.data.data[0]));
-
-                                            /**
-                                             * Atualiza histórico
-                                             * */
-                                            let historicData = {};
-                                            historicData[entity] = data.data.historic;
-                                            dbLocal.exeUpdate("__historic", historicData, 1)
-                                        }
-
-                                    } else {
-                                        fail++;
-
-                                        if (typeof data.data.data[0].db_error[entity] === "object")
-                                            dataReturn = Object.assign({db_errorback: 1}, data.data.data[0].db_error[entity]);
+                                        let historicData = {};
+                                        historicData[entity] = result.historic;
+                                        dbLocal.exeUpdate("__historic", historicData, 1)
                                     }
 
-                                    if (feedback) {
-                                        progress += totalParte;
-                                        $("#core-upload-progress-bar").css("width", progress + "%")
-                                    }
-
-                                    Promise.all(allP).then(() => {
-                                        s(dataReturn)
-                                    });
-                                },
-                                error: function () {
-                                    failNetwork = !0;
+                                } else {
                                     fail++;
-                                    s({db_errorback: 1, 0: {"rede": "Falha na Comunicação"}});
-                                },
-                                dataType: "json",
-                                async: !0
-                            })
+                                    if (typeof result.data[0].db_error[entity] === "object")
+                                        dataReturn = Object.assign({db_errorback: 1}, result.data[0].db_error[entity]);
+                                }
+
+                                if (feedback) {
+                                    progress += totalParte;
+                                    $("#core-upload-progress-bar").css("width", progress + "%")
+                                }
+
+                                Promise.all(allP).then(() => {
+                                    s(dataReturn)
+                                });
+                            }).catch(() => {
+                                failNetwork = !0;
+                                fail++;
+                                s({db_errorback: 1, 0: {"rede": "Falha na Comunicação"}});
+                            });
                         }))
                     });
                     Promise.all(promises).then(p => {
