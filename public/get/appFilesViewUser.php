@@ -25,7 +25,7 @@ if (!empty($dirViews)) {
                 foreach (\Helpers\Helper::listFolder($fileDir . $dirViews . "/" . $setor) as $view) {
                     $extensao = pathinfo($view, PATHINFO_EXTENSION);
                     if (in_array($extensao, ["html", "php"]) && empty($viewPath)) {
-                        $viewPath = $fileDir . $dirViews . "/" . $setor . "/" . $view;
+                        $viewPath = $dirViews;
                     } elseif ($extensao === "json" && !isset($view[$dirViews])) {
                         $param = json_decode(file_get_contents($fileDir . $dirViews . "/" . $setor . "/" . $view), !0);
                         if (!$offline && !empty($param) && !empty($param['offline']) && $param['offline'])
@@ -36,14 +36,14 @@ if (!empty($dirViews)) {
                 /**
                  * if is offline and have view, so add it
                  */
-                if ($offline)
-                    $views[$dirViews] = $viewPath;
+                if ($offline && !empty($viewPath))
+                    $views[] = $dirViews;
 
                 $viewsLocked[] = $dirViews;
             }
         }
     }
 
-    $data['data']['view'][] = array_values($views);
+    $data['data']['view'] = array_values($views);
 }
 

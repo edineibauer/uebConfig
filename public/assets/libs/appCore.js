@@ -1297,7 +1297,7 @@ function loadUserViews() {
             /**
              * Cache views and then Js
              */
-            return cache.addAll(g.view).then(() => {
+            return cache.addAll(g.view.map(s => "view/" + s)).then(() => {
 
                 /**
                  * Para cada view, carrega seus assets
