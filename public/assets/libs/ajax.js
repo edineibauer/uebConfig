@@ -124,11 +124,10 @@ class AJAX {
             $.ajax({
                 type: "POST",
                 url: HOME + 'set',
-                data: convertEmptyArrayToNull({
+                data: convertEmptyArrayToNull(Object.assign({
                     fileInSetFolder: fileInSetFolder,
-                    maestruToken: localStorage.token,
-                    postData: postData
-                }),
+                    maestruToken: localStorage.token
+                }, postData)),
                 success: function (data) {
                     if (data.response === 1) {
                         s(data.data)

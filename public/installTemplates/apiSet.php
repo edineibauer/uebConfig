@@ -8,7 +8,6 @@ require_once './_config/config.php';
 $data = ['error' => "", "data" => "", "response" => 1];
 
 $fileInSetFolder = filter_input(INPUT_POST, 'fileInSetFolder', FILTER_DEFAULT) . ".php";
-$post = filter_input(INPUT_POST, 'postData', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
 if(isset($_POST['fileInSetFolder']))
     unset($_POST['fileInSetFolder']);

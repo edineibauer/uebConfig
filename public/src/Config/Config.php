@@ -589,7 +589,7 @@ class Config
     {
         $list = [];
         foreach (self::getRoutesTo($dir) as $path)
-            $list = self::getFilesRoute($path, $extensao, $list);
+            $list = self::getFilesRoute($path, $extensao, $list, "");
 
         return $list;
     }
@@ -598,18 +598,19 @@ class Config
      * @param string $path
      * @param string $extensao
      * @param array $list
+     * @param string $fileDir
      * @return array
      */
-    private static function getFilesRoute(string $path, string $extensao = "", array $list = []): array
+    private static function getFilesRoute(string $path, string $extensao = "", array $list = [], string $fileDir): array
     {
         if (file_exists($path)) {
             $setor = self::getSetor();
             $setores = self::getSetores();
             foreach (Helper::listFolder($path) as $item) {
                 if ($item !== ".htaccess" && !is_dir($path . $item) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao) && !in_array($item, array_keys($list)))
-                    $list[$item] = $path . $item;
+                    $list[$fileDir . (!empty($fileDir) ? "/" : "") . $item] = $path . $item;
                 elseif(is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
-                    $list = self::getFilesRoute($path . $item . "/", $extensao, $list);
+                    $list = self::getFilesRoute($path . $item . "/", $extensao, $list, $fileDir . (!empty($fileDir) ? "/" : "") . $item);
             }
         }
 
