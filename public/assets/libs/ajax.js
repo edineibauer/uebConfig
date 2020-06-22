@@ -42,7 +42,7 @@ function post(lib, file, param, funcao) {
                         break;
                     default:
                         if (data.data === "no-network")
-                            toast("Sem Conexão", 3000, "toast-warning");
+                            toast("Sem Conexão", 500, "toast-warning");
                         else
                             toast("Caminho não encontrado", "toast-warning");
                         break
@@ -83,7 +83,7 @@ async function getJSON(url) {
         if (isView.test(url))
             location.href = HOME + "network";
         else
-            toast("Sem Conexão!", 7000, "toast-error");
+            toast("Sem Conexão!", 500, "toast-warning");
         throw err;
     })
 }
@@ -95,7 +95,7 @@ async function get(file) {
         } else {
             switch (data.response) {
                 case 2:
-                    toast(data.error, 3000, "toast-warning");
+                    toast(data.error, 1500, "toast-warning");
                     break;
                 case 3:
                     location.href = data.data;
@@ -105,7 +105,7 @@ async function get(file) {
                         toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
-        toast("Sem Conexão!", 3000, "toast-warning");
+        toast("Sem Conexão!", 500, "toast-warning");
         console.log("OFFLINE: arquivo '" + file + "'");
     })
 }
@@ -139,7 +139,7 @@ class AJAX {
                                 break;
                             default:
                                 if (data.data === "no-network")
-                                    toast("Sem Conexão", 3000, "toast-warning");
+                                    toast("Sem Conexão", 500, "toast-warning");
                                 else
                                     toast("Caminho não encontrado", "toast-warning");
                                 break
