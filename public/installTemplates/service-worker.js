@@ -1,6 +1,5 @@
 const VERSION = '';
 const HOME = '';
-const FAVICON = '';
 
 function isJson(str) {
     if (typeof str !== "string")
@@ -21,8 +20,8 @@ function returnNoNetwork() {
 }
 
 function returnViewNoNetwork() {
-    return caches.open('view-v' + VERSION).then(cache => {
-        return cache.match(HOME + "view/network");
+    return caches.open('viewUser-v' + VERSION).then(cache => {
+        return cache.match(HOME + "view/network/maestruToken/" + USER.token);
     })
 }
 
@@ -152,34 +151,20 @@ self.addEventListener('fetch', function (e) {
         );
 
     } else if (view.test(url)) {
-        let listagens = new RegExp("listagem\/\.+", "i");
-        let formulario = new RegExp("formulario\/\.+", "i");
 
-        if (listagens.test(url)) {
-            url = "view/listagem";
-        } else if (formulario.test(url)) {
-            url = "view/formulario";
-        } else {
-            let urlSplited = url.split("/");
-            if (urlSplited.length === 3 && !isNaN(urlSplited[2]) && urlSplited[2] > 0)
-                url = "view/" + urlSplited[1];
-        }
+        let urlSplited = url.split("/");
+        if (urlSplited.length === 3 && !isNaN(urlSplited[2]) && urlSplited[2] > 0)
+            url = "view/" + urlSplited[1];
 
+        console.log(USER);
         e.respondWith(
             caches.open('viewUser-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if (response)
-                        return response;
-
-                    return caches.open('view-v' + VERSION).then(cache => {
-                        return cache.match(url).then(response => {
-                            return response || fetch(e.request).then(networkResponse => {
-                                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                            }).catch(() => {
-                                return returnViewNoNetwork();
-                            });
-                        });
-                    })
+                    return response || fetch(e.request).then(networkResponse => {
+                        return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
+                    }).catch(() => {
+                        return returnViewNoNetwork();
+                    });
                 });
             })
         );

@@ -2420,6 +2420,14 @@ async function setDicionario() {
 
 async function startApplication() {
     await checkSessao();
+
+    /**
+     * Send user info to service worker
+     */
+    swRegistration.postMessage({
+        USER: USER
+    });
+
     await setDicionario();
 
     (!localStorage.accesscount ? await firstAccess() : await thenAccess());
@@ -2431,17 +2439,15 @@ async function startApplication() {
 }
 
 if (SERVICEWORKER && navigator.onLine) {
-    Promise.all([]).then(() => {
-        if (navigator.serviceWorker.controller) {
-            return navigator.serviceWorker.ready.then(function (swReg) {
-                swRegistration = swReg;
-            });
-        } else {
-            return navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(function (swReg) {
-                swRegistration = swReg;
-            });
-        }
-    });
+    if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(swReg => {
+            swRegistration = swReg;
+        });
+    } else {
+        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(swReg => {
+            swRegistration = swReg;
+        });
+    }
 }
 
 $(function () {
