@@ -596,9 +596,7 @@ function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 42000);
         setCookieAnonimo().then(() => {
-            setTimeout(function () {
-                location.href = HOME + "login";
-            }, 500);
+            location.href = HOME;
         })
     } else {
         toast("Sem Conexão", 1200)
