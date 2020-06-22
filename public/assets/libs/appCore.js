@@ -224,7 +224,7 @@ function setUpdateVersion() {
         $.ajax({
             type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: data => {
                 if (data.data !== "no-network" && data.response === 1)
-                    setCookie("update", data.data);
+                    localStorage.update = data.data;
 
                 s(1);
             }, error: () => {
@@ -506,8 +506,8 @@ function updateVersionNumber() {
             if (this.readyState === 4) {
                 if (this.status === 200) {
                     let data = JSON.parse(this.responseText);
-                    if (data.data !== "no-network" && data.response === 1 && (getCookie("update") === "" || data.data !== getCookie("update")))
-                        setCookie("update", data.data);
+                    if (data.data !== "no-network" && data.response === 1 && (!localStorage.update || data.data !== localStorage.update))
+                        localStorage.update = data.data;
                     resolve(1);
                 } else {
                     resolve(0);
@@ -536,7 +536,7 @@ async function checkUpdate() {
                 } else {
 
                     let data = JSON.parse(this.responseText);
-                    if (data.response === 1 && getCookie("update") !== "" && parseFloat(data.data) > parseFloat(getCookie("update")))
+                    if (data.response === 1 && !!localStorage.update && parseFloat(data.data) > parseFloat(localStorage.update))
                         toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
 
                     resolve(1);
@@ -662,7 +662,7 @@ async function menuHeader() {
      * Sidebar Info
      */
     if ($("#core-sidebar-imagem").length) {
-        if (getCookie("token") === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
+        if (localStorage.token === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
             document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
         } else {
             let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
@@ -671,7 +671,7 @@ async function menuHeader() {
     }
 
     if ($("#core-sidebar-nome").length)
-        document.querySelector("#core-sidebar-nome").innerHTML = getCookie("token") === "0" ? "minha conta" : USER.nome;
+        document.querySelector("#core-sidebar-nome").innerHTML = localStorage.token === "0" ? "minha conta" : USER.nome;
 
     /**
      * Botão de login
@@ -696,7 +696,7 @@ async function menuHeader() {
     /**
      * Verifica se remove o botão de Notificação
      * */
-    if (!swRegistration?.pushManager || getCookie("token") === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+    if (!swRegistration?.pushManager || localStorage.token === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
         $(".site-btn-push").remove();
 
     /**
@@ -1002,7 +1002,7 @@ function loadSyncNotSaved() {
 
 function clearCacheUser() {
     let clear = [];
-    setCookie('accesscount', "", -1);
+    localStorage.removeItem("accesscount");
 
     /**
      * Sobe pendências para o servidor e limpa base local
@@ -1039,8 +1039,8 @@ function clearCacheUser() {
 }
 
 function clearCacheAll() {
-    setCookie('update', 0, -1);
-    setCookie('accesscount', "", -1);
+    localStorage.removeItem('update');
+    localStorage.removeItem('accesscount');
 
     /**
      * Sobe pendências para o servidor e limpa base local
@@ -1095,7 +1095,7 @@ function recoveryUser() {
 
         USER = login;
 
-        if (getCookie("accesscount") === "")
+        if (!localStorage.accesscount)
             return loadCacheUser();
 
     }).catch(e => {
@@ -1119,10 +1119,10 @@ function setUserInNavigator(user) {
     userLogin.idUserReal = USER.id;
     userLogin.id = 1;
 
-    setCookie("token", user.token);
+    localStorage.token = user.token;
 
     return dbLocal.exeCreate("__login", userLogin).then(() => {
-        if (getCookie("accesscount") === "")
+        if (!localStorage.accesscount)
             return loadCacheUser();
 
     }).catch(e => {
@@ -1150,7 +1150,7 @@ function setCookieUser(user) {
                 /**
                  * Obtém novos dados de usuário
                  * */
-                if (getCookie("accesscount") !== "")
+                if (!!localStorage.accesscount)
                     return loadCacheUser();
             });
         });
@@ -1164,7 +1164,7 @@ async function checkSessao() {
     /**
      * Verifica Sessão
      * */
-    if (getCookie("token") === "") {
+    if (!localStorage.token) {
         /**
          * Ainda não existe sessão, começa como anônimo
          */
@@ -1176,7 +1176,7 @@ async function checkSessao() {
          */
         return recoveryUser();
 
-    } else if (navigator.onLine && getCookie("token") !== "0") {
+    } else if (navigator.onLine && localStorage.token !== "0") {
 
         /**
          * Sessão existe
@@ -1481,7 +1481,7 @@ function errorLoadingApp(id, e) {
 }
 
 async function firstAccess() {
-    setCookie('accesscount', 1);
+    localStorage.accesscount = 1;
     await cacheCoreApp();
 
     updateVersionNumber();
@@ -1619,8 +1619,7 @@ async function thenAccess() {
     /**
      * Conta acesso
      */
-    setCookie('accesscount', (parseInt(getCookie('accesscount')) + 1));
-
+    localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
 
     /**
      * Check if have permission to send notification but not is registered on service worker
@@ -1925,7 +1924,6 @@ var dicionarios,
     historyPosition = 1,
     historyReqPosition = 0,
     loadingEffect = null,
-    appInstalled = !1,
     deferredPrompt,
     timeWaitClick = 0;
 
@@ -1937,15 +1935,14 @@ const isIos = () => {
 const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
 function acceptInstallApp() {
-    if (!appInstalled) {
+    if (!localStorage.installAppAction) {
         closeInstallAppPrompt(1);
         deferredPrompt.prompt();
 
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then(choiceResult => {
-            appInstalled = choiceResult.outcome === 'accepted';
-            setCookie("installAppAction", appInstalled);
-            if (appInstalled)
+            localStorage.installAppAction = choiceResult.outcome === 'accepted';
+            if (localStorage.installAppAction)
                 post("config", "appInstaled", {success: !0, ios: isIos()});
             else
                 post("config", "appInstaled", {success: !1, ios: isIos()});
@@ -1956,7 +1953,7 @@ function acceptInstallApp() {
 function closeInstallAppPrompt(onInstall) {
     let $installCard = $("#installAppCard").addClass("transformDown");
     $("#core-overlay").removeClass("active activeBold");
-    setCookie("installAppAction", "false");
+    localStorage.installAppAction = 0;
     post("config", "appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
 
     setTimeout(function () {
@@ -1965,7 +1962,7 @@ function closeInstallAppPrompt(onInstall) {
 }
 
 function openInstallAppPrompt(force) {
-    if (!appInstalled && !isInStandaloneMode() && typeof deferredPrompt !== "undefined" && ((typeof force === "boolean" && force) || getCookie("installAppAction") === "")) {
+    if (!isInStandaloneMode() && typeof deferredPrompt !== "undefined" && typeof force === "boolean" && ((typeof force === "boolean" && force) || !localStorage.installAppAction)) {
         getTemplates().then(tpl => {
             $("#core-overlay").addClass("active activeBold");
             $("#app").append(Mustache.render(tpl.installAppCard, {
@@ -2125,8 +2122,8 @@ var app = {
                             }
                         }
                     } else {
-                        if (USER.setor === 0 && getCookie("redirectOnLogin") === "")
-                            setCookie("redirectOnLogin", file);
+                        if (USER.setor === 0 && !localStorage.redirectOnLogin)
+                            localStorage.redirectOnLogin = file;
                         location.href = HOME + g.redirect
                     }
                 } else {
@@ -2591,7 +2588,7 @@ async function startApplication() {
     await checkSessao();
     await setDicionario();
 
-    (getCookie("accesscount") === "" ? await firstAccess() : await thenAccess());
+    (!localStorage.accesscount ? await firstAccess() : await thenAccess());
 
     await menuHeader();
     await readRouteState();
