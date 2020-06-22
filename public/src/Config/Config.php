@@ -40,7 +40,7 @@ class Config
                     if (!empty($user['setor'])) {
                         $read = new Read();
                         $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}");
-                        $user['setorData'] = $read->getResult() ?? [];
+                        $user['setorData'] = !empty($read->getResult()) ? $read->getResult()[0] : [];
 
                         /**
                          * Search for System data
@@ -49,7 +49,7 @@ class Config
                             $infoSetor = Metadados::getInfo($user['setor']);
                             if (!empty($infoSetor) && !empty($infoSetor['system'])) {
                                 $read->exeRead($infoSetor['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
-                                $user['systemData'] = $read->getResult() ?? [];
+                                $user['systemData'] = !empty($read->getResult()) ? $read->getResult()[0] : [];
                                 $user['system_id'] = $user['setorData']['system_id'];
                             }
                         }
