@@ -14,14 +14,22 @@ function convertEmptyArrayToNull(param) {
     return param
 }
 
+/**
+ * Deprecated
+ * @param lib
+ * @param file
+ * @param param
+ * @param funcao
+ */
 function post(lib, file, param, funcao) {
     if (typeof funcao === "undefined" && typeof param !== 'object') {
         funcao = param;
-        param = {lib: lib, file: file}
+        param = {fileInSetFolder: file}
     } else {
-        param.lib = lib;
         param.file = file
     }
+    param.maestruToken = localStorage.token;
+
     $.ajax({
         type: "POST", url: HOME + 'set', data: convertEmptyArrayToNull(param), success: function (data) {
             if (data.response === 1) {
@@ -49,12 +57,16 @@ function post(lib, file, param, funcao) {
     })
 }
 
-async function getRequest(url) {
+async function getJSON(url) {
+    let home = new RegExp("^" + preg_quote(HOME), "i");
+    if(!/^http/.test(url) || home.test(url))
+        url = (/\/$/.test(url) ? url.slice(0, -1) : url) + "/maestruToken/" + localStorage.token;
+
     return new Promise(function (resolve, reject) {
         var req = new XMLHttpRequest();
         req.open('GET', url);
         req.onload = function () {
-            if (req.status == 200) {
+            if (req.status === 200) {
                 resolve(req.response)
             } else {
                 reject(Error(req.statusText))
@@ -63,19 +75,16 @@ async function getRequest(url) {
         req.onerror = function () {
             reject(Error("Network Error"))
         };
-        req.send()
-    })
-}
+        req.send();
 
-async function getJSON(url) {
-    return getRequest(url).then(JSON.parse).catch(function (err) {
+    }).then(JSON.parse).catch(function (err) {
         url = url.replace(HOME, "");
         let isView = new RegExp("^view\/", "i");
         if (isView.test(url))
             location.href = HOME + "network";
         else
             toast("Sem Conexão!", 7000, "toast-error");
-        throw err
+        throw err;
     })
 }
 
@@ -112,9 +121,62 @@ class AJAX {
 
     static async post(fileInSetFolder, postData) {
         return new Promise(s => {
-            post("config", "configPostRequest", {fileInSetFolder: fileInSetFolder, postData: postData}, function(result) {
-                s(result);
+            $.ajax({
+                type: "POST",
+                url: HOME + 'set',
+                data: convertEmptyArrayToNull({
+                    fileInSetFolder: fileInSetFolder,
+                    maestruToken: localStorage.token,
+                    postData: postData
+                }),
+                success: function (data) {
+                    if (data.response === 1) {
+                        s(data.data)
+                    } else {
+                        switch (data.response) {
+                            case 2:
+                                toast(data.error, 7000, "toast-warning");
+                                break;
+                            default:
+                                if (data.data === "no-network")
+                                    toast("Sem Conexão", 3000, "toast-warning");
+                                else
+                                    toast("Caminho não encontrado", "toast-warning");
+                                break
+                        }
+
+                        s((data.data === "no-network" ? "no-network" : null));
+                    }
+                },
+                fail: function () {
+                    toast("Erro na Conexão", 3000, "toast-warning");
+                    s("no-network");
+                },
+                dataType: "json"
             });
         })
+    }
+
+    static async view(view) {
+        return getJSON("view/" + view).then(data => {
+            if (data.response === 1) {
+                clearHeaderScrollPosition();
+                return data.data;
+            } else {
+                switch (data.response) {
+                    case 2:
+                        toast(data.error, 7000, "warning");
+                        break;
+                    case 3:
+                        location.href = data.data;
+                        break;
+                    case 4:
+                        toast("Caminho não encontrado");
+                }
+
+                console.log(data);
+                return null;
+            }
+        });
     }
 }

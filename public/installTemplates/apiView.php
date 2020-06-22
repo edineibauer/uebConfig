@@ -3,12 +3,15 @@ header('Access-Control-Allow-Methods: GET');
 header('Content-Type: application/json');
 
 require_once './_config/config.php';
+
 use Route\Link;
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
-    $link = new Link($url);
+    $urlSplit = explode("/maestruToken/", $url);
+    \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
+    $link = new Link($urlSplit[0]);
 
     if ($link->getRoute()) {
 

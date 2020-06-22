@@ -11,8 +11,12 @@ if (!empty($url)) {
      * Split the url into `/`
      * get the first as url and the rest as variables
      */
-    $variaveis = array_filter(explode('/', $url));
+    $urlSplit = explode("/maestruToken/", $url);
+    \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
+
+    $variaveis = array_filter(explode('/', $urlSplit[0]));
     $route = "";
+
 
     /**
      * Find the route to the GET request
@@ -24,7 +28,7 @@ if (!empty($url)) {
         $url = "";
         $path = "";
         $count = count($variaveis);
-        for ($i = 0; $i < $count;$i++) {
+        for ($i = 0; $i < $count; $i++) {
             $path .= ($i > 0 ? "/{$url}" : "");
             $url = array_shift($variaveis);
             foreach (\Config\Config::getRoutesTo("get" . $path) as $item) {
@@ -64,6 +68,8 @@ if (!empty($url)) {
     } else {
         $data['response'] = 4;
     }
+
+    session_destroy();
 } else {
     $data["response"] = 4;
 }

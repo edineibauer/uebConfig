@@ -1,16 +1,5 @@
 <?php
 
-if(isset($_SESSION['userlogin']))
-    unset($_SESSION['userlogin']);
-
-/**
- * Reseta os cookies
- */
-setcookie('accesscount', '', time() -1, "/");
-setcookie('token', '', time() -1, "/");
-setcookie('update', '', time() -1, "/");
-setcookie('viewsLoaded', '', time() -1, "/");
-
 /**
  * @param array $dados
  * @return array
@@ -201,8 +190,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
     session_start();
     if (requireConnectionDatabase($dados)) {
-        if (isset($_SESSION['userlogin']))
-            unset($_SESSION['userlogin']);
 
         $dados = getServerConstants($dados);
 
@@ -325,7 +312,13 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
         Config\Config::createHtaccess($dados['vendor'], $dados['dominio'], $dados['www'], $dados['ssl']);
 
-        header("Location: ../../../");
+        echo "<script>
+                localStorage.removeItem('accesscount');
+                localStorage.removeItem('token');
+                localStorage.removeItem('update');
+                window.location.href = '{$dados['home']}';
+            </script>";
+
     } else {
         echo "<h3 class='container' style='text-align:center;padding-top:30px;color:red'>Credencias Inválidas! Erro ao se Comunicar com o Banco de Dados</h3>";
         require_once 'form.php';

@@ -10,6 +10,79 @@ class Config
 {
 
     /**
+     * Set session to the request user
+     * @param string $token
+     */
+    public static function setUser(string $token)
+    {
+        if (session_status() == PHP_SESSION_NONE)
+            session_start();
+
+        $sql = new SqlCommand();
+        $sql->exeCommand("SELECT ut.token, u.* FROM " . PRE . "usuarios_token as ut JOIN " . PRE . "usuarios as u ON u.id = ut.usuario WHERE ut.token = '{$token}'");
+        if($sql->getResult()) {
+            $user = $sql->getResult()[0];
+            $user['setorData'] = [];
+            $user['systemData'] = [];
+
+            if($user['status'] === 1) {
+
+                /**
+                 * Search for setor Data
+                 */
+                if(!empty($user['setor'])) {
+                    $read = new Read();
+                    $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}");
+                    $user['setorData'] = $read->getResult() ?? [];
+
+                    /**
+                     * Search for System data
+                     */
+                    if(!empty($user['setorData']) && !empty($user['setorData']['system_id'])) {
+                        $infoSetor = Metadados::getInfo($user['setor']);
+                        if(!empty($infoSetor) && !empty($infoSetor['system'])) {
+                            $read->exeRead($infoSetor['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
+                            $user['systemData'] = $read->getResult() ?? [];
+                            $user['system_id'] = $user['setorData']['system_id'];
+                        }
+                    }
+                }
+
+                $_SESSION['userlogin'] = $user;
+
+            } else {
+                /**
+                 * Remove access token, because user is deactivated
+                 */
+                $del = new \Conn\Delete();
+                $del->exeDelete("usuarios_token", "WHERE token = :t", "t={$token}");
+                self::setUserAnonimo();
+            }
+        } else {
+            self::setUserAnonimo();
+        }
+    }
+
+    /**
+     * Set anônimo session request
+     */
+    private static function setUserAnonimo()
+    {
+        $_SESSION['userlogin'] = [
+            "id" => 0,
+            "token" => "",
+            "nome" => "Anônimo",
+            "imagem" => "assetsPublic/img/img.png",
+            "status" => 1,
+            "data" => date("Y-m-d H:i:s"),
+            "token_recovery" => null,
+            "setor" => null,
+            "system_id" => null,
+            "login_social" => null
+        ];
+    }
+
+    /**
      * Gera arquivo de configurações
      * @param array $dados
      */
@@ -35,7 +108,7 @@ class Config
             self::writeFile("service-worker.js", $serviceWorker);
         }
 
-        $conf .= "\nrequire_once PATH_HOME . '" . explode('/', $dados['vendor'])[0] . "/autoload.php';\nnew Route\Sessao();";
+        $conf .= "\nrequire_once PATH_HOME . '" . explode('/', $dados['vendor'])[0] . "/autoload.php';";
 
         self::writeFile("_config/config.php", $conf);
     }
@@ -259,8 +332,6 @@ class Config
         $f = fopen(PATH_HOME . "_config/updates/update.txt", "w+");
         fwrite($f, $update);
         fclose($f);
-
-        $_COOKIE['update'] = $update;
     }
 
     /**

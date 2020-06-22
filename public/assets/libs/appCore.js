@@ -283,29 +283,6 @@ function readFile(file) {
     });
 }
 
-function view(file, funcao) {
-    return getJSON(HOME + "view/" + file).then(data => {
-        if (data.response === 1) {
-            clearHeaderScrollPosition();
-            return funcao(data.data)
-        } else {
-            switch (data.response) {
-                case 2:
-                    toast(data.error, 7000, "warning");
-                    break;
-                case 3:
-                    location.href = data.data;
-                    break;
-                case 4:
-                    toast("Caminho não encontrado");
-            }
-
-            console.log(data);
-            return funcao(null);
-        }
-    });
-}
-
 function download(filename, text) {
     let element = document.createElement('a');
     let blobData = new Blob([text], {type: 'application/vnd.ms-excel'});
@@ -372,29 +349,6 @@ function CSV(array, comma) {
     });
 
     return result;
-}
-
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    exdays = typeof exdays === "undefined" ? 360 : exdays;
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/"
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1)
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length)
-        }
-    }
-    return ""
 }
 
 /**
@@ -1170,58 +1124,11 @@ async function checkSessao() {
          */
         return setCookieAnonimo();
 
-    } else if (!navigator.onLine) {
+    } else {
         /**
          * Sem internet
          */
         return recoveryUser();
-
-    } else if (navigator.onLine && localStorage.token !== "0") {
-
-        /**
-         * Sessão existe
-         * Verifica se o token atual corresponde
-         * */
-        return new Promise(function (resolve, reject) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", HOME + "set");
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4) {
-                    let data = JSON.parse(this.responseText);
-
-                    /**
-                     * Se o request não funcionar
-                     */
-                    if (this.status !== 200 || isEmpty(this.responseText) || data.response !== 1) {
-                        resolve(setUserInNavigator());
-
-                    } else if (data.response === 1) {
-                        if (data.data === 0) {
-                            toast("Sessão expirada! Desconectando...", 3000);
-                            resolve(setCookieAnonimo().then(() => {
-                                location.reload();
-                            }))
-                        } else if (data.data !== 2) {
-                            /**
-                             * Atualiza variável do usuário
-                             */
-                            resolve(setUserInNavigator(data.data))
-                        } else {
-                            resolve(recoveryUser());
-                        }
-                    }
-                }
-            };
-            xhttp.onerror = function () {
-                resolve(0)
-            };
-            xhttp.send("lib=route&file=sessao");
-        }).catch(e => {
-            errorLoadingApp("post route/sessao", e);
-        });
-    } else {
-        return setUserInNavigator();
     }
 }
 
@@ -2028,7 +1935,7 @@ var app = {
 
         } else {
             app.setLoading();
-            return view(file, function (g) {
+            return AJAX.view(file).then(g => {
                 if (g) {
                     if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
                         TITLE = g.title;

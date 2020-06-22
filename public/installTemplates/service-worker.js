@@ -14,14 +14,6 @@ function isJson(str) {
     return !0
 }
 
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    exdays = typeof exdays === "undefined" ? 360 : exdays;
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/"
-}
-
 function returnNoNetwork() {
     return caches.open('core-v' + VERSION).then(cache => {
         return cache.match(HOME + "set");
@@ -41,8 +33,7 @@ function returnImgNoNetwork() {
 }
 
 self.addEventListener('appinstalled', (evt) => {
-    appInstalled = !0;
-    setCookie("installAppAction", "true");
+    localStorage.installAppAction = 1;
 });
 
 self.addEventListener('push', function (event) {

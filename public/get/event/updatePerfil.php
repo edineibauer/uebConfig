@@ -2,7 +2,7 @@
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
-if(!empty($_SESSION['userlogin']) && !empty($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
+if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
     function sendMsg($id, $msg)
     {
         echo "id: $id" . PHP_EOL;
@@ -12,8 +12,7 @@ if(!empty($_SESSION['userlogin']) && !empty($_COOKIE['token']) && $_COOKIE['toke
         flush();
     }
 
-    $login = new \Login\Login(["token" => $_COOKIE['token']]);
-    $stringLogin = json_encode($login->getResult());
+    $stringLogin = json_encode($_SESSION['userlogin']);
 
     /**
      * Busca last para ver se houve diferença no perfil

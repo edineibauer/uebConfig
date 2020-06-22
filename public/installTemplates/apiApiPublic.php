@@ -15,10 +15,14 @@ if (isset($_GET['data'])) {
 
 
     $read = new Read();
-    $url = explode('/', strip_tags(trim($_GET['data'])));
+    $url = strip_tags(trim($_GET['data']));
     $include = "";
     $find = false;
     $var = [];
+
+    $urlSplit = explode("/maestruToken/", $url);
+    \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
+    $url = explode('/', $urlSplit[0]);
 
     foreach ($url as $i => $u) {
         if (!$find) {
