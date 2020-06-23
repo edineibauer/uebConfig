@@ -479,30 +479,10 @@ class UpdateSystem
         Config::writeFile("public/react/.htaccess", "Deny from all");
         Config::writeFile("public/cron/.htaccess", "Deny from all");
         Config::writeFile("public/api/.htaccess", "Deny from all");
-        Config::writeFile("vendor/.htaccess", $this->getAccessFile());
+        Config::writeFile("vendor/.htaccess", "Deny from all");
 
         if (!file_exists(PATH_HOME . "entity/general/general_info.json"))
             Config::writeFile("entity/general/general_info.json", "[]");
-    }
-
-    private function getAccessFile()
-    {
-        return '<Files "*.json">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.php">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.html">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.tpl">
-            Order Deny,Allow
-            Deny from all
-        </Files>';
     }
 
     /**
