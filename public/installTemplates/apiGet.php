@@ -3,17 +3,7 @@ header('Access-Control-Allow-Methods: GET');
 header('Content-Type: application/json');
 
 require_once './_config/config.php';
-
-if(!file_exists(PATH_HOME . "cacheSession")) {
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "cacheSession");
-    $f = fopen(PATH_HOME . "cacheSession/.htaccess", "w+");
-    fwrite($f, "Deny from all");
-    fclose($f);
-}
-
-session_save_path(PATH_HOME . "cacheSession");
-if (session_status() == PHP_SESSION_NONE)
-    session_start();
+$_SESSION = [];
 
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
@@ -79,8 +69,6 @@ if (!empty($url)) {
     } else {
         $data['response'] = 4;
     }
-
-    session_destroy();
 } else {
     $data["response"] = 4;
 }

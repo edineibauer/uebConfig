@@ -3,17 +3,7 @@ header('Access-Control-Allow-Methods: POST');
 header('Content-Type: application/json');
 
 require_once './_config/config.php';
-
-if(!file_exists(PATH_HOME . "cacheSession")) {
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "cacheSession");
-    $f = fopen(PATH_HOME . "cacheSession/.htaccess", "w+");
-    fwrite($f, "Deny from all");
-    fclose($f);
-}
-
-session_save_path(PATH_HOME . "cacheSession");
-if (session_status() == PHP_SESSION_NONE)
-    session_start();
+$_SESSION = [];
 
 \Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
 
@@ -52,5 +42,4 @@ foreach (\Config\Config::getRoutesFilesTo("set", "php") as $file => $dir) {
 if(!$find)
     $data = ['error' => "Arquivo {$fileInSetFolder} não encontrado nas pastas `public/set/`", "data" => "", "response" => 2];
 
-session_destroy();
 echo json_encode($data);
