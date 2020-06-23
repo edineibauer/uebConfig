@@ -2,10 +2,13 @@
 header('Access-Control-Allow-Methods: POST');
 header('Content-Type: application/json');
 
+require_once './_config/config.php';
+
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "cacheSession");
+session_save_path(PATH_HOME . "cacheSession");
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
-require_once './_config/config.php';
 \Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
 
 $data = ['error' => "", "data" => "", "response" => 1];
