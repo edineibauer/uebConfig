@@ -938,7 +938,7 @@ function clearCacheUser() {
                 return caches.keys().then(cacheNames => {
                     return Promise.all(cacheNames.map(cacheName => {
                         let corte = cacheName.split("-v");
-                        if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
+                        if (corte[1] !== VERSION || ["viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
                             return caches.delete(cacheName);
                     }))
                 })
@@ -1424,7 +1424,7 @@ function updateAppOnDev() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-");
-                    if (["images", "misc", "fonts"].indexOf(corte[0]) === -1)
+                    if (corte[1] !== VERSION || ["viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
                         return caches.delete(cacheName);
                 }))
             })
@@ -1432,18 +1432,7 @@ function updateAppOnDev() {
 
     }).then(() => {
 
-        return get("currentFiles").then(g => {
-            if (!g)
-                return Promise.all([]);
-            return caches.open('core-v' + VERSION).then(cache => {
-                return cache.addAll(g.core).catch(e => {
-                    errorLoadingApp("get currentFiles", e)
-                })
-            });
-
-        }).then(() => {
-            return loadViews()
-        });
+        return cacheCoreApp();
 
     }).then(() => {
         return getIndexedDbGets().then(() => {
@@ -2429,7 +2418,7 @@ async function startApplication() {
     await setDicionario();
 
     if(swRegistration)
-        swRegistration.active.postMessage(USER.token);
+        swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 
     (!localStorage.accesscount ? await firstAccess() : await thenAccess());
 
@@ -2443,7 +2432,7 @@ function setServiceWorker(swReg) {
     swRegistration = swReg;
 
     if(USER.token)
-        swRegistration.active.postMessage(USER.token);
+        swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 }
 
 if (SERVICEWORKER && navigator.onLine) {

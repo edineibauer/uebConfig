@@ -1,5 +1,5 @@
-const VERSION = '';
 const HOME = '';
+var VERSION = '';
 var TOKEN = "0";
 
 function isJson(str) {
@@ -33,7 +33,9 @@ function returnImgNoNetwork() {
 }
 
 self.addEventListener('message', function(event){
-    TOKEN = event.data;
+    let c = JSON.parse(event.data);
+    TOKEN = c.token;
+    VERSION = c.version;
 });
 
 self.addEventListener('appinstalled', (evt) => {
@@ -148,16 +150,16 @@ self.addEventListener('fetch', function (e) {
         );
 
     } else if (view.test(url)) {
-
-        let urlSplited = url.split("/");
-        if (urlSplited.length === 3 && !isNaN(urlSplited[2]) && urlSplited[2] > 0)
-            url = "view/" + urlSplited[1];
-
         e.respondWith(
             caches.open('viewUser-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
                     return response || fetch(e.request).then(networkResponse => {
-                        return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(url, networkResponse.clone());
+                            return networkResponse;
+                        }
+
+                        return returnViewNoNetwork();
                     }).catch(() => {
                         return returnViewNoNetwork();
                     });
