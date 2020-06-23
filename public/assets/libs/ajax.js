@@ -156,6 +156,59 @@ class AJAX {
         })
     }
 
+    static async postFormData(fileInSetFolder, postData) {
+        let formData = new FormData();
+        formData.append("fileInSetFolder", fileInSetFolder);
+        formData.append("maestruToken", localStorage.token);
+
+        if(!isEmpty(postData)) {
+            for(let i in postData) {
+                if(!isEmpty(postData[i]) && postData[i].constructor === File && typeof postData[i].name === "string")
+                    formData.append(i, postData[i], postData[i].name);
+                else
+                    formData.append(i, postData[i]);
+            }
+        }
+
+        return new Promise((s, f) => {
+            $.ajax({
+                type: "POST",
+                enctype: 'multipart/form-data',
+                url: HOME + "set/",
+                xhr: function () {
+                }, success: function (data) {
+                    if (data.response === 1) {
+                        s(data.data)
+                    } else {
+                        switch (data.response) {
+                            case 2:
+                                toast(data.error, 7000, "toast-warning");
+                                break;
+                            default:
+                                if (data.data === "no-network")
+                                    toast("Sem Conexão", 500, "toast-warning");
+                                else
+                                    toast("Caminho não encontrado", "toast-warning");
+                                break
+                        }
+
+                        f(data.data);
+                    }
+                }, fail: function () {
+                    toast("Erro na Conexão", 3000, "toast-warning");
+                    f("no-network");
+                },
+                async: !0,
+                data: formData,
+                cache: !1,
+                contentType: !1,
+                processData: !1,
+                timeout: 900000,
+                dataType: "json"
+            });
+        });
+    }
+
     static async view(view) {
         return getJSON(HOME + "view/" + view).then(data => {
             if (data.response === 1) {

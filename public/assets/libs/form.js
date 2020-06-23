@@ -125,26 +125,18 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                                     }
                                 }
                             } else {
-                                $.ajax({
-                                    type: "POST",
-                                    url: HOME + 'set',
-                                    data: {lib: 'entity', file: 'ping'},
-                                    success: function (data) {
-                                        if (data.response === 1) {
-                                            let mock = createMock(!1, nome, name, extensao, file.type, file.size);
-                                            value.push(mock);
-                                            sendFileUpload(file, mock, $input, entity, column, data[column], loading, now, max)
-                                        } else {
-                                            Promise.all([loading]).then(f => {
-                                                $input.siblings(".file_gallery").find("#mock-Carregando").remove();
-                                                if ((now + 1) < max)
-                                                    $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-                                            })
-                                            toast("Arquivos maiores que 4MB só podem ser enviados online.", 5000, "toast-warning")
-                                        }
-                                    },
-                                    dataType: "json"
-                                })
+                                if(navigator.onLine) {
+                                    let mock = createMock(!1, nome, name, extensao, file.type, file.size);
+                                    value.push(mock);
+                                    sendFileUpload(file, mock, $input, entity, column, data[column], loading, now, max)
+                                } else {
+                                    Promise.all([loading]).then(f => {
+                                        $input.siblings(".file_gallery").find("#mock-Carregando").remove();
+                                        if ((now + 1) < max)
+                                            $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
+                                    })
+                                    toast("Arquivos maiores que 4MB só podem ser enviados online.", 5000, "toast-warning")
+                                }
                             }
                         }
                     }
@@ -318,12 +310,9 @@ function sendFileUpload(file, mock, $input, entity, column, data, loading, now, 
     sendFileToServerToCache(file, mock, data, entity, column, $input);
     createSource(mock, $input, (dicionarios[entity][column].format === "source_list" ? 1 : 2)).then(d => {
         Promise.all([loading]).then(f => {
-            $.ajax({
-                type: "POST", url: HOME + 'set', data: {lib: 'entity', file: 'ping'}, success: function (data) {
-                    if (data.response === 1)
-                        $(".progress-wrp[rel='" + mock.name + "']").removeClass("hide")
-                }, dataType: "json"
-            });
+            if(navigator.onLine)
+                $(".progress-wrp[rel='" + mock.name + "']").removeClass("hide");
+
             $input.siblings(".file_gallery").find("#mock-Carregando").remove();
             if ((now + 1) < max)
                 $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
@@ -341,19 +330,15 @@ function dataURLtoFile(dataurl, filename) {
 }
 
 function sendFileToServerToCache(file, mock, storeColumn, entity, column, $input) {
-    $.ajax({
-        type: "POST", url: HOME + 'set', data: {lib: 'entity', file: 'ping'}, success: function (data) {
-            if (data.response === 1) {
-                let upload = new Upload(file);
-                upload.exeUpload(mock, $input, function (data) {
-                    if (data.url !== "") {
-                        mock.url = data.url;
-                        mock.image = data.image;
-                    }
-                })
+    if (navigator.onLine) {
+        let upload = new Upload(file);
+        upload.exeUpload(mock, $input, function (data) {
+            if (data.url !== "") {
+                mock.url = data.url;
+                mock.image = data.image;
             }
-        }, dataType: "json"
-    })
+        })
+    }
 }
 
 var Upload = function (file) {
@@ -362,10 +347,9 @@ var Upload = function (file) {
 var checkUploadStoped = {};
 var ajaxUploadProgress = {};
 Upload.prototype.exeUpload = function (mock, $input, funcao) {
-    var that = this;
     var formData = new FormData();
-    formData.append("lib", "entity");
-    formData.append("file", "up/source");
+    formData.append("fileInSetFolder", "up/source");
+    formData.append("maestruToken", localStorage.token);
     formData.append("name", mock.name);
     formData.append("fileType", mock.fileType);
     formData.append("type", mock.type);
@@ -388,8 +372,12 @@ Upload.prototype.exeUpload = function (mock, $input, funcao) {
             atualPercent = lastPercent
         }
     }, 25000);
-    ajaxUploadProgress[mock.name] = $.ajax({
-        type: "POST", enctype: 'multipart/form-data', url: HOME + "set/", xhr: function () {
+    ajaxUploadProgress[mock.name] =
+        $.ajax({
+        type: "POST",
+        enctype: 'multipart/form-data',
+        url: HOME + "set/",
+        xhr: function () {
             var myXhr = $.ajaxSettings.xhr();
             if (myXhr.upload) {
                 myXhr.upload.addEventListener('progress', function (event) {
@@ -434,7 +422,14 @@ Upload.prototype.exeUpload = function (mock, $input, funcao) {
             removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
             toast("FALHA AO ENVIAR", 6000, "toast-warning");
             $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-        }, async: !0, data: formData, cache: !1, contentType: !1, processData: !1, timeout: 900000, dataType: "json"
+        },
+        async: !0,
+        data: formData,
+        cache: !1,
+        contentType: !1,
+        processData: !1,
+        timeout: 900000,
+        dataType: "json"
     })
 };
 
@@ -786,7 +781,9 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                             setFormSaveStatus(form, 1);
 
                             if (showMessages)
-                                toast("Salvo", 2000, 'toast-success')
+                                toast("Salvo", 2000, 'toast-success');
+
+                            history.back();
                         })
                     } else {
                         setFormSaveStatus(form, 1);
