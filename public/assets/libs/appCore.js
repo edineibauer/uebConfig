@@ -5,15 +5,11 @@
  * @returns {*}
  */
 $.cachedScript = function (url, options) {
-    /*let urlHome = new RegExp("^" + preg_quote(HOME), "i");
-    if(urlHome.test(url)) {
+    if(SERVICEWORKER) {
         caches.open('core-v' + VERSION).then(cache => {
             cache.add(url);
         });
-    }*/
-    caches.open('core-v' + VERSION).then(cache => {
-        cache.add(url);
-    });
+    }
     options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
     return $.ajax(options)
 };
@@ -975,11 +971,12 @@ function clearCacheAll() {
             return Promise.all(cacheNames.map(cacheName => {
                 return caches.delete(cacheName);
             }))
-        });
-    }).then(() => {
-        return navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let registration of registrations)
-                registration.unregister();
+        }).then(() => {
+
+            return navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations)
+                    registration.unregister();
+            });
         });
     })
 }
