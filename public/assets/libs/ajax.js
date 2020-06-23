@@ -157,7 +157,7 @@ class AJAX {
     }
 
     static async view(view) {
-        return getJSON("view/" + view).then(data => {
+        return getJSON(HOME + "view/" + view).then(data => {
             if (data.response === 1) {
                 clearHeaderScrollPosition();
                 return data.data;
