@@ -91,23 +91,15 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(
             caches.open(cacheName + '-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
-                    if (!response && cacheName === "viewUserJs") {
-                        return caches.open('viewJs-v' + VERSION).then(cache => {
-                            return cache.match(url).then(response => {
-                                return response || fetch(e.request).then(networkResponse => {
-                                    return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
-                                }).catch(() => {
-                                    return returnNoNetwork();
-                                });
-                            });
-                        });
-                    } else {
-                        return response || fetch(e.request).then(networkResponse => {
-                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
-                        }).catch(() => {
-                            return returnNoNetwork();
-                        });
-                    }
+                    return response || fetch(e.request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(url, networkResponse.clone());
+                            return networkResponse;
+                        }
+                        return returnNoNetwork()
+                    }).catch(() => {
+                        return returnNoNetwork();
+                    });
                 });
             })
         );

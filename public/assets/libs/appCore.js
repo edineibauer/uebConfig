@@ -1002,8 +1002,6 @@ function recoveryUser() {
 
         USER = login;
 
-        return loadCacheUser();
-
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
     });
