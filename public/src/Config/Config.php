@@ -63,7 +63,7 @@ class Config
                     /**
                      * Remove access token, because user is deactivated
                      */
-                    $del = new \Conn\Delete();
+                    $del = new Delete();
                     $del->exeDelete("usuarios_token", "WHERE token = :t", "t={$token}");
                     self::setUserAnonimo();
                 }

@@ -1115,9 +1115,7 @@ function loadViews() {
             /**
              * Cache views
              */
-            return cache.add("view/network").then(() => {
-                return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
-            });
+            return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
 
         }).then(() => {
 
@@ -2430,6 +2428,9 @@ async function startApplication() {
     await checkSessao();
     await setDicionario();
 
+    if(swRegistration)
+        swRegistration.active.postMessage(USER.token);
+
     (!localStorage.accesscount ? await firstAccess() : await thenAccess());
 
     await menuHeader();
@@ -2438,15 +2439,18 @@ async function startApplication() {
     await checkUpdate();
 }
 
+function setServiceWorker(swReg) {
+    swRegistration = swReg;
+
+    if(USER.token)
+        swRegistration.active.postMessage(USER.token);
+}
+
 if (SERVICEWORKER && navigator.onLine) {
     if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(swReg => {
-            swRegistration = swReg;
-        });
+        navigator.serviceWorker.ready.then(setServiceWorker);
     } else {
-        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(swReg => {
-            swRegistration = swReg;
-        });
+        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(setServiceWorker);
     }
 }
 

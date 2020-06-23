@@ -1,5 +1,6 @@
 const VERSION = '';
 const HOME = '';
+var TOKEN = "0";
 
 function isJson(str) {
     if (typeof str !== "string")
@@ -21,7 +22,7 @@ function returnNoNetwork() {
 
 function returnViewNoNetwork() {
     return caches.open('viewUser-v' + VERSION).then(cache => {
-        return cache.match(HOME + "view/network");
+        return cache.match(HOME + "view/network/maestruToken/" + TOKEN);
     })
 }
 
@@ -30,6 +31,10 @@ function returnImgNoNetwork() {
         return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
     })
 }
+
+self.addEventListener('message', function(event){
+    TOKEN = event.data;
+});
 
 self.addEventListener('appinstalled', (evt) => {
     localStorage.installAppAction = 1;
