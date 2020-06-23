@@ -1070,15 +1070,7 @@ async function checkSessao() {
         /**
          * Clear old cache pages
          */
-        return caches.keys().then(cacheNames => {
-            return cacheNames.map(cacheName => {
-                let corte = cacheName.split("-v");
-                if (corte[1] !== VERSION)
-                    return caches.delete(cacheName);
-            });
-        }).then(() => {
-            return recoveryUser();
-        });
+        return recoveryUser();
     }
 }
 
