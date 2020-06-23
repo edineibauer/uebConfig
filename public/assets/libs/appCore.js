@@ -216,17 +216,8 @@ function fetchCreateObject(obj, prop) {
 }
 
 function setUpdateVersion() {
-    return new Promise((s, f) => {
-        $.ajax({
-            type: "POST", url: HOME + 'set', data: {lib: 'config', file: 'update', update: !0}, success: data => {
-                if (data.data !== "no-network" && data.response === 1)
-                    localStorage.update = data.data;
-
-                s(1);
-            }, error: () => {
-                s(1)
-            }, dataType: "json", async: !1
-        })
+    return AJAX.post("update", {update: !0}).then(data => {
+        localStorage.update = data;
     });
 }
 

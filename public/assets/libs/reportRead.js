@@ -28,31 +28,23 @@ async function reportRead(entity, search, filter, aggroup, soma, media, maior, m
      * então faz a leitura online
      */
     return new Promise(function (resolve, reject) {
-        $.ajax({
-            type: "POST",
-            url: HOME + 'set',
-            data: {
-                lib: "report",
-                file: "read/report",
-                entity: entity,
-                search: search,
-                filter: filter,
-                order: order,
-                reverse: reverse,
-                limit: limit,
-                offset: offset,
-                aggroup: aggroup,
-                soma: soma,
-                media: media,
-                maior: maior,
-                menor: menor
-            },
-            success: function (dados) {
-                if (dados.response === 1)
-                    resolve({data: dados.data.data, length: dados.data.total});
-            },
-            error: () => resolve(readOffline(data, search, filter, order, reverse, limit, offset)),
-            dataType: "json"
-        })
+        AJAX.post("read/report", {
+            entity: entity,
+            search: search,
+            filter: filter,
+            order: order,
+            reverse: reverse,
+            limit: limit,
+            offset: offset,
+            aggroup: aggroup,
+            soma: soma,
+            media: media,
+            maior: maior,
+            menor: menor
+        }).then(data => {
+            resolve({data: data.data, length: data.total});
+        }).catch(() => {
+            resolve(readOffline(data, search, filter, order, reverse, limit, offset));
+        });
     })
 }

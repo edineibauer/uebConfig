@@ -193,22 +193,14 @@ function validateMetaUnique(meta, value, id, entityData, error) {
             }
 
             if(navigator.onLine && (!SERVICEWORKER || entityData.length > LIMITOFFLINE - 10) && (typeof error[meta.column] === "undefined" || isEmpty(error[meta.column]))) {
-                $.ajax({
-                    type: "POST",
-                    url: HOME + 'set',
-                    data: {lib: 'entity', file: 'load/unique', column: meta.column, id: id, valor: value, entity: form.entity},
-                    success: function (data) {
-                        if (data.response !== 1)
-                            f(1);
-                        else if(data.data)
-                            error[meta.column] = "Valor já existe! Informe outro.";
-                        s(1);
-                    },
-                    error: function (e) {
-                        f(1);
-                    },
-                    dataType: "json"
-                });
+                AJAX.post('load/unique', {column: meta.column, id: id, valor: value, entity: form.entity}).then(data => {
+                    if(!isEmpty(data))
+                        error[meta.column] = "Valor já existe! Informe outro.";
+
+                    s(1);
+                }).catch(() => {
+                    f(1);
+                })
             } else {
                 s(1);
             }
