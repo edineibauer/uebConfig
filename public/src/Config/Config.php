@@ -353,6 +353,16 @@ class Config
         Helper::recurseDelete($libs);
         Helper::createFolderIfNoExist($libs);
         Helper::recurseCopy(PATH_HOME . "vendor", $libs);
+        self::writeFile("libs/.htaccess", self::getAccessFile());
+    }
+
+    private static function getAccessFile()
+    {
+        return 'Order Allow,Deny
+                <Files ~ "\.(jpg|jpeg|png|gif|pdf|svg|ttf|woff|woff2|eot|bmp|mp4|mp3)$">
+                    Order Allow,Deny
+                    Allow from all
+                </Files>';
     }
 
     private static function getTiposUsuarios()
