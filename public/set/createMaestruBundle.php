@@ -1,5 +1,7 @@
 <?php
 
+die;
+
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
@@ -9,7 +11,11 @@ if (session_status() == PHP_SESSION_NONE)
 $config = file_get_contents("_config/config.php");
 $home = explode("'", explode("define('HOME', '", $config)[1])[0];
 $f = fopen("bundle/config.php", "w+");
-fwrite($f, str_replace("define('HOME', '{$home}');", "define('HOME', '');", $config));
+fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');"], ["define('HOME', '');", "define('DEV', '0');"], $config));
+fclose($f);
+
+$f = fopen("bundle/index.php", "w+");
+fwrite($f, str_replace("include_once '_config/config.php';", "", file_get_contents("index.php")));
 fclose($f);
 
 require_once './bundle/config.php';
@@ -35,13 +41,15 @@ if (file_exists(PATH_HOME . "bundle/assetsPublic"))
  */
 
 ob_start();
-include_once PATH_HOME . 'index.php';
+include_once PATH_HOME . 'bundle/index.php';
 $index = ob_get_contents();
 ob_end_clean();
 
 $f = fopen(PATH_HOME . "bundle/index.html", "w+");
 fwrite($f, $index);
 fclose($f);
+
+unlink( PATH_HOME . 'bundle/index.php');
 
 /**
  * ------------- finish Create index
@@ -54,6 +62,7 @@ fclose($f);
 \Config\Config::setUser(0);
 foreach (\Config\Config::getSetores() as $setor) {
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/view/{$setor}");
+    $_SESSION['userlogin']['setor'] = $setor;
 
     $views = [];
     foreach (\Config\Config::getRoutesTo("view") as $view) {
@@ -130,6 +139,11 @@ foreach (\Config\Config::getSetores() as $setor) {
         fclose($f);
     }
 }
+
+/**
+ * Copy manifest
+ */
+copy(PATH_HOME . "manifest.json", PATH_HOME . "bundle/manifest.json");
 
 /**
  * Copy assetsPublic to bundle
