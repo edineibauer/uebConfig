@@ -18,9 +18,6 @@ class Config
      */
     public static function setUser($token)
     {
-        if (session_status() == PHP_SESSION_NONE)
-            session_start();
-
         if (empty($token) || !is_string($token)) {
             self::setUserAnonimo();
         } else {
@@ -582,10 +579,10 @@ class Config
 
     /**
      * @param string $dir
-     * @param string $extensao
+     * @param string|array $extensao
      * @return array
      */
-    public static function getRoutesFilesTo(string $dir, string $extensao = ""): array
+    public static function getRoutesFilesTo(string $dir, $extensao = ""): array
     {
         $list = [];
         foreach (self::getRoutesTo($dir) as $path)
@@ -596,18 +593,18 @@ class Config
 
     /**
      * @param string $path
-     * @param string $extensao
+     * @param string|array $extensao
      * @param array $list
      * @param string $fileDir
      * @return array
      */
-    private static function getFilesRoute(string $path, string $extensao = "", array $list = [], string $fileDir): array
+    private static function getFilesRoute(string $path, $extensao, array $list, string $fileDir): array
     {
         if (file_exists($path)) {
             $setor = self::getSetor();
             $setores = self::getSetores();
             foreach (Helper::listFolder($path) as $item) {
-                if ($item !== ".htaccess" && !is_dir($path . $item) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao) && !in_array($item, array_keys($list)))
+                if ($item !== ".htaccess" && !is_dir($path . $item) && ((is_string($extensao) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao)) || (is_array($extensao) && (empty($extensao) || in_array(pathinfo($item, PATHINFO_EXTENSION), $extensao)))) && !in_array($item, array_keys($list)))
                     $list[$fileDir . (!empty($fileDir) ? "/" : "") . $item] = $path . $item;
                 elseif(is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
                     $list = self::getFilesRoute($path . $item . "/", $extensao, $list, $fileDir . (!empty($fileDir) ? "/" : "") . $item);

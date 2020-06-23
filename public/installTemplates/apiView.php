@@ -2,6 +2,9 @@
 header('Access-Control-Allow-Methods: GET');
 header('Content-Type: application/json');
 
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
+
 require_once './_config/config.php';
 
 use Route\Link;

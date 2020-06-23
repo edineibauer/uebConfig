@@ -6,6 +6,9 @@ header('Content-Type: application/json');
 use \Conn\Read;
 use \Helpers\Helper;
 
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
+
 ob_start();
 require_once './_config/config.php';
 

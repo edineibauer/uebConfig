@@ -2,6 +2,9 @@
 header('Access-Control-Allow-Methods: POST');
 header('Content-Type: application/json');
 
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
+
 require_once './_config/config.php';
 \Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
 
