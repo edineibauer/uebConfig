@@ -194,7 +194,7 @@ function validateMetaUnique(meta, value, id, entityData, error) {
 
             if(navigator.onLine && (!SERVICEWORKER || entityData.length > LIMITOFFLINE - 10) && (typeof error[meta.column] === "undefined" || isEmpty(error[meta.column]))) {
                 AJAX.post('load/unique', {column: meta.column, id: id, valor: value, entity: form.entity}).then(data => {
-                    if(!isEmpty(data))
+                    if(data)
                         error[meta.column] = "Valor já existe! Informe outro.";
 
                     s(1);

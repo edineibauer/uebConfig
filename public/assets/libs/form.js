@@ -783,7 +783,8 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                             if (showMessages)
                                 toast("Salvo", 2000, 'toast-success');
 
-                            history.back();
+                            if(form.store)
+                                history.back();
                         })
                     } else {
                         setFormSaveStatus(form, 1);
