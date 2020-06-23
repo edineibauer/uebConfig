@@ -1068,7 +1068,7 @@ async function checkSessao() {
 
     } else {
         /**
-         * Clear old cache pages
+         * read user in indexedDb
          */
         return recoveryUser();
     }
@@ -1318,13 +1318,11 @@ async function firstAccess() {
     localStorage.accesscount = 1;
     await cacheCoreApp();
 
+    /**
+     * Carrega as views para este usuário
+     */
     if(navigator.onLine) {
-        /**
-         * Carrega as views para este usuário
-         */
-        setTimeout(function () {
-            loadUserViews();
-        }, 3000);
+        loadUserViews();
     }
 }
 
