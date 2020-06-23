@@ -9,11 +9,11 @@ if(!file_exists(PATH_HOME . "cacheSession")) {
     $f = fopen(PATH_HOME . "cacheSession/.htaccess", "w+");
     fwrite($f, "Deny from all");
     fclose($f);
-
-    session_save_path(PATH_HOME . "cacheSession");
-    if (session_status() == PHP_SESSION_NONE)
-        session_start();
 }
+
+session_save_path(PATH_HOME . "cacheSession");
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
 
 \Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
 
