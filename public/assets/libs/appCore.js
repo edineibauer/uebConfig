@@ -1297,9 +1297,6 @@ function getNotche(side) {
 function errorLoadingApp(id, e) {
     console.log(e);
     toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
-    setTimeout(function () {
-        updateCache();
-    }, 3000);
 }
 
 async function firstAccess() {
