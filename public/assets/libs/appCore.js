@@ -2237,19 +2237,28 @@ function goLinkPageTransition(url, $this, e) {
 }
 
 async function updatedPerfil() {
-    if (typeof (EventSource) !== "undefined") {
-        let u = new EventSource("get/event/updatePerfil", {withCredentials: true});
-        u.onmessage = function (event) {
-            if(typeof event.data === "string" && event.data !== "" && isJson(event.data))
-                USER = JSON.parse(event.data);
-        };
+    if(navigator.onLine) {
+        if (typeof (EventSource) !== "undefined") {
+            let u = new EventSource("get/event/updatePerfil", {withCredentials: true});
+            u.onmessage = function (event) {
+                if (typeof event.data === "string" && event.data !== "" && isJson(event.data))
+                    USER = JSON.parse(event.data);
+            };
+        } else {
+            setInterval(function () {
+                get("event/updatePerfil").then(u => {
+                    if (typeof u === "string" && u !== "" && isJson(u))
+                        USER = JSON.parse(u);
+                });
+            }, 3000);
+        }
     } else {
-        setInterval(function () {
-            get("event/updatePerfil").then(u => {
-                if(typeof u === "string"&& u !== "" && isJson(u))
-                    USER = JSON.parse(u);
-            });
-        }, 3000);
+        let checkUpdatePerfilOffline = setInterval(function () {
+            if(navigator.onLine) {
+                updatedPerfil();
+                clearInterval(checkUpdatePerfilOffline);
+            }
+        }, 2000);
     }
 }
 
