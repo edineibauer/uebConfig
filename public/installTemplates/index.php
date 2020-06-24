@@ -125,60 +125,10 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
 <body ontouchstart="">
 <div id="app">
     <div id="core-header" class="theme">
-        <div id="core-header-container">
-            <header id="core-header-logo">
-                <a href="<?= HOME . (HOMEPAGE ? "dashboard" : "") ?>" id="logo-href">
-                    <img src='<?= HOME ?>assetsPublic/img/favicon-48.png?v=<?= VERSION ?>' height='35' style='height: 35px;padding-right:5px' class='core-header-img'>
-                    <h1 id='core-header-title' class='theme-text-aux'><?= SITENAME ?></h1>
-                </a>
-            </header>
-
-            <nav role="navigation">
-                <ul id="core-header-nav">
-                    <div id="core-menu-custom"></div>
-                </ul>
-            </nav>
-        </div>
+        <div id="core-header-container"></div>
     </div>
 
-    <aside id="core-sidebar" class="core-class-container hide">
-        <div class="theme core-class-container" id="core-sidebar-header">
-            <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
-                <div class="left" id="core-sidebar-imagem"></div>
-
-                <div id="core-sidebar-perfil-name">
-                    <div class="core-class-container" id="core-header-name">
-                        <strong id="core-sidebar-nome"></strong>
-
-                        <span id="core-sidebar-edit">
-                    <i class="material-icons">edit</i>
-                </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="core-sidebar-main" class="core-class-container">
-            <ul id="core-applications" class="core-class-container"></ul>
-            <ul id="core-sidebar-menu" class="core-class-container"></ul>
-        </div>
-
-        <div class="core-sidebar-bottom">
-            <div onclick="updateAppUser();" class="theme theme-border-l update-site-btn">
-                <i class="material-icons">refresh</i>
-                <span>Atualizar</span>
-            </div>
-
-            <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;cursor:pointer">
-                <i class="material-icons">notifications_active</i>
-            </div>
-
-            <div id="login-aside">
-                <div>sair</div>
-                <i class="material-icons">exit_to_app</i>
-            </div>
-        </div>
-    </aside>
+    <aside id="core-sidebar" class="core-class-container hide"></aside>
 
     <div id="core-overlay"></div>
     <div id="core-loader">

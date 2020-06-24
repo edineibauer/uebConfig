@@ -500,6 +500,13 @@ function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
+    $("#core-header").html(Mustache.render(tpl.header, {
+        version: VERSION,
+        sitename: SITENAME,
+        home: HOME,
+        homepage: (HOMEPAGE === "1" ? "dashboard" : "")
+    }));
+
     let $menuCustom = null;
     if (($menuCustom = $("#core-menu-custom")).length) {
         $menuCustom.html("");
@@ -538,7 +545,7 @@ async function menuHeader() {
         }
     }
 
-    $("#core-sidebar").css("right", ((window.innerWidth - ($("#core-header-container").length ? $("#core-header-container")[0].clientWidth : 0)) / 2) + "px");
+    $("#core-sidebar").css("right", ((window.innerWidth - ($("#core-header-container").length ? $("#core-header-container")[0].clientWidth : 0)) / 2) + "px").html(Mustache.render(tpl.aside));
 
     /**
      * Sidebar Info
