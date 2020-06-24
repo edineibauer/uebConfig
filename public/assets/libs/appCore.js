@@ -500,6 +500,12 @@ function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
+    if(typeof tpl.header === "undefined") {
+        return setCookieAnonimo().then(() => {
+            location.href = HOME;
+        });
+    }
+
     $("#core-header").html(Mustache.render(tpl.header, {
         version: VERSION,
         sitename: SITENAME,
@@ -856,36 +862,22 @@ function loadSyncNotSaved() {
     if (USER.setor === 0)
         return;
 
-    return new Promise((resolve, f) => {
-        $.ajax({
-            type: "GET",
-            url: HOME + 'get/load/sync',
-            success: function (data) {
-                if (data.response === 1) {
-                    let sync = data.data;
-                    if (typeof sync === "object") {
-                        $.each(sync, function (entity, registros) {
-                            dbLocal.newKey(entity).then(key => {
-                                $.each(registros, function (i, reg) {
-                                    let d = Object.assign({}, reg);
-                                    d.id = (d.db_action === "create" ? key++ : parseInt(d.id));
-                                    delete d.id_old;
-                                    delete d.db_error;
-                                    delete d.db_errorback;
-                                    dbLocal.insert(entity, d, d.id);
-                                    dbLocal.insert("sync_" + entity, d, d.id);
-                                });
-                            })
-                        });
-                    }
-                }
-                resolve(0)
-            },
-            error: function () {
-                resolve(0)
-            },
-            dataType: "json"
-        })
+    return AJAX.get('load/sync').then(sync => {
+        if (typeof sync === "object") {
+            $.each(sync, function (entity, registros) {
+                dbLocal.newKey(entity).then(key => {
+                    $.each(registros, function (i, reg) {
+                        let d = Object.assign({}, reg);
+                        d.id = (d.db_action === "create" ? key++ : parseInt(d.id));
+                        delete d.id_old;
+                        delete d.db_error;
+                        delete d.db_errorback;
+                        dbLocal.insert(entity, d, d.id);
+                        dbLocal.insert("sync_" + entity, d, d.id);
+                    });
+                })
+            });
+        }
     });
 }
 
@@ -1437,8 +1429,11 @@ async function thenAccess() {
      */
     return caches.open('viewUser-v' + VERSION).then(cache => {
         return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
-            if(!response)
-                return setCookieAnonimo();
+            if(!response) {
+                return setCookieAnonimo().then(() => {
+                    location.href = HOME;
+                });
+            }
         });
     }).then(() => {
 
