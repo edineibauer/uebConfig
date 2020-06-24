@@ -545,7 +545,7 @@ async function menuHeader() {
         }
     }
 
-    $("#core-sidebar").css("right", ((window.innerWidth - ($("#core-header-container").length ? $("#core-header-container")[0].clientWidth : 0)) / 2) + "px").html(Mustache.render(tpl.aside));
+    $("#core-sidebar").css("right", (window.innerWidth - ($("#core-header")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
 
     /**
      * Sidebar Info
