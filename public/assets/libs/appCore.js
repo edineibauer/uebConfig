@@ -506,14 +506,6 @@ function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
-    $("#core-header").html(Mustache.render(tpl.header, {
-        version: VERSION,
-        sitename: SITENAME,
-        title: TITLE,
-        home: HOME,
-        homepage: (HOMEPAGE === "1" ? "dashboard" : "")
-    }));
-
     let $menuCustom = null;
     if (($menuCustom = $("#core-menu-custom")).length) {
         $menuCustom.html("");
@@ -552,7 +544,7 @@ async function menuHeader() {
         }
     }
 
-    $("#core-sidebar").css("right", ((window.innerWidth - $("#core-header-container")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
+    $("#core-sidebar").css("right", ((window.innerWidth - ($("#core-header-container").length ? $("#core-header-container")[0].clientWidth : 0)) / 2) + "px");
 
     /**
      * Sidebar Info
@@ -2392,7 +2384,7 @@ async function startApplication() {
     await checkSessao();
     await setDicionario();
 
-    if(swRegistration)
+    if(swRegistration && swRegistration.active)
         swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 
     (!localStorage.accesscount ? await firstAccess() : await thenAccess());
@@ -2404,10 +2396,12 @@ async function startApplication() {
 }
 
 function setServiceWorker(swReg) {
-    swRegistration = swReg;
+    if(SERVICEWORKER && swReg && swReg.active) {
+        swRegistration = swReg;
 
-    if(USER.token)
-        swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
+        if(USER.token)
+            swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
+    }
 }
 
 if (SERVICEWORKER && navigator.onLine) {
