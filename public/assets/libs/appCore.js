@@ -1438,7 +1438,7 @@ async function thenAccess() {
     return caches.open('viewUser-v' + VERSION).then(cache => {
         return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
             if(!response)
-                return updateCacheUser();
+                return setCookieAnonimo();
         });
     }).then(() => {
 
