@@ -5,13 +5,7 @@
  * @returns {*}
  */
 $.cachedScript = function (url, options) {
-    if(SERVICEWORKER) {
-        caches.open('core-v' + VERSION).then(cache => {
-            cache.add(url);
-        });
-    }
-    options = $.extend(options || {}, {dataType: "script", cache: !0, url: url});
-    return $.ajax(options)
+    return $.ajax($.extend(options || {}, {dataType: "script", cache: !0, url: url}))
 };
 
 /**
@@ -1077,7 +1071,7 @@ function updateCacheUser() {
     }
 }
 
-function loadViews() {
+async function loadViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
@@ -1294,13 +1288,8 @@ function errorLoadingApp(id, e) {
 async function firstAccess() {
     localStorage.accesscount = 1;
     await cacheCoreApp();
-
-    /**
-     * Carrega as views para este usuário
-     */
-    if(navigator.onLine) {
-        loadUserViews();
-    }
+    await loadViews();
+    return loadUserViews();
 }
 
 async function cacheCoreApp() {
@@ -1330,8 +1319,6 @@ async function cacheCoreApp() {
                     errorLoadingApp("cacheCoreApp: cache misc", e)
                 })
             })
-        }).then(() => {
-            return loadViews()
         })
     })
 }
@@ -1428,7 +1415,7 @@ async function thenAccess() {
                         return subscribeUser(1);
                 });
             } else {
-                post('dashboard', 'push', {
+                AJAX.post('push', {
                     "push": JSON.stringify(subscription),
                     'p1': navigator.appName,
                     'p2': navigator.appCodeName,
@@ -1831,8 +1818,10 @@ var app = {
                         headerShow(g.header);
                         checkMenuActive();
                         $("#core-title").text(g.title);
+
                         $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>");
                         $div.append(g.content);
+
                         FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
                         if (!isEmpty(g.front) && typeof g.front === "object") {
                             for (let col in g.front)
@@ -1844,6 +1833,7 @@ var app = {
 
                         if (!g.header)
                             $div.addClass("notop");
+
                         if (g.navbar)
                             $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
@@ -1869,8 +1859,8 @@ var app = {
                             /**
                              * Add link to head
                              */
-                            for(let hid in g.head) {
-                                if(!$("head > #" + hid).length)
+                            for (let hid in g.head) {
+                                if (!$("head > #" + hid).length)
                                     $(g.head[hid]).appendTo("head");
                             }
                         } else {
@@ -1890,15 +1880,11 @@ var app = {
                                     /**
                                      * add script to page
                                      */
-                                    if (g.js.length) {
-                                        $.cachedScript(g.js).then(() => {
-                                            app.removeLoading()
-                                        }).catch(() => {
-                                            app.removeLoading()
-                                        })
-                                    } else {
-                                        app.removeLoading()
+                                    if (!isEmpty(g.js)) {
+                                        for(let js of g.js)
+                                            $.cachedScript(js);
                                     }
+                                    app.removeLoading();
                                 });
                             });
 
@@ -1907,15 +1893,11 @@ var app = {
                             /**
                              * add script to page
                              */
-                            if (g.js.length) {
-                                $.cachedScript(g.js).then(() => {
-                                    app.removeLoading()
-                                }).catch(() => {
-                                    app.removeLoading()
-                                })
-                            } else {
-                                app.removeLoading()
+                            if (!isEmpty(g.js)) {
+                                for(let js of g.js)
+                                    $.cachedScript(js);
                             }
+                            app.removeLoading();
                         }
                     } else {
                         if (USER.setor === 0 && !localStorage.redirectOnLogin)
@@ -2367,11 +2349,6 @@ async function onLoadDocument() {
         if (allow.notifications_report?.read)
             await updateNotificationsBadge();
     }
-
-    /**
-     * Sincronização do perfil de usuário
-     */
-    updatedPerfil();
 }
 
 async function setDicionario() {
@@ -2384,36 +2361,32 @@ async function startApplication() {
     await checkSessao();
     await setDicionario();
 
-    if(swRegistration && swRegistration.active)
-        swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
-
-    (!localStorage.accesscount ? await firstAccess() : await thenAccess());
+    await (!localStorage.accesscount ? firstAccess() : thenAccess());
 
     await menuHeader();
     await readRouteState();
     await onLoadDocument();
     await checkUpdate();
+    await updatedPerfil();
 }
 
-function setServiceWorker(swReg) {
-    if(SERVICEWORKER && swReg && swReg.active) {
-        swRegistration = swReg;
+async function setServiceWorker(swReg) {
+    swRegistration = swReg;
 
-        if(USER.token)
-            swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
-    }
-}
-
-if (SERVICEWORKER && navigator.onLine) {
-    if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(setServiceWorker);
-    } else {
-        navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(setServiceWorker);
-    }
+    if(USER.token && swRegistration.active)
+        return swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 }
 
 $(function () {
     (async () => {
+        if (SERVICEWORKER && navigator.onLine) {
+            if (navigator.serviceWorker.controller) {
+                await navigator.serviceWorker.ready.then(setServiceWorker);
+            } else {
+                await navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(setServiceWorker);
+            }
+        }
+
         await startApplication();
     })();
 });
