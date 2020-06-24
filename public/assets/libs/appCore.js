@@ -1431,9 +1431,24 @@ async function thenAccess() {
         });
     }
 
-    return updateAppOnDev().catch(e => {
-        errorLoadingApp("updateAppOnDev", e);
-    });
+    /**
+     * Check if have the user network view
+     * if not, so reset app
+     */
+    return caches.open('viewUser-v' + VERSION).then(cache => {
+        return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
+            if(!response)
+                return updateCacheUser();
+        });
+    }).then(() => {
+
+        /**
+         * If in DEV, update files in cache
+         */
+        return updateAppOnDev().catch(e => {
+            errorLoadingApp("updateAppOnDev", e);
+        });
+    })
 }
 
 function downloadEntityData() {
