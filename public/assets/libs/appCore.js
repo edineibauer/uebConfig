@@ -1295,8 +1295,7 @@ function errorLoadingApp(id, e) {
 async function firstAccess() {
     localStorage.accesscount = 1;
     await cacheCoreApp();
-    await loadViews();
-    return loadUserViews();
+    return loadViews();
 }
 
 async function cacheCoreApp() {
@@ -2384,6 +2383,12 @@ async function startApplication() {
     await onLoadDocument();
     await checkUpdate();
     await updatedPerfil();
+
+    if(localStorage.accesscount === "1") {
+        setTimeout(function () {
+            loadUserViews();
+        }, 3000);
+    }
 }
 
 async function setServiceWorker(swReg) {
