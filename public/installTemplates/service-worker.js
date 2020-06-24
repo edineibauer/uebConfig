@@ -175,7 +175,7 @@ self.addEventListener('fetch', function (e) {
                     if(response) {
                         if(navigator.onLine) {
                             fetch(e.request).then(networkResponse => {
-                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && ["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1 && !/get\/event\//.test(url))
+                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && !/get\/(appFilesView|currentFiles|userCache|appFilesViewUser|load\/sync|templatesUser)/.test(url) && !/get\/event\//.test(url))
                                     cache.put(url, networkResponse.clone());
                             }).catch(() => {
                             })
