@@ -967,22 +967,12 @@ function updateCache() {
 
 function recoveryUser() {
     return dbLocal.exeRead("__login", 1).then(login => {
+        if(login.token !== localStorage.token)
+            return setCookieAnonimo();
+
         login.id = login.idUserReal;
         delete login.idUserReal;
-
         USER = login;
-
-        /**
-         * Check if have the user network view
-         * if not, so reset app
-         */
-        return caches.open('viewUser-v' + VERSION).then(cache => {
-            return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
-                if(!response)
-                    return clearCacheAll();
-            });
-        })
-
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
     });
@@ -1006,16 +996,11 @@ function setUserInNavigator(user) {
 
     localStorage.token = user.token;
 
-    return caches.open('viewUser-v' + VERSION).then(cache => {
-        return cache.add(HOME + "view/network/maestruToken/" + USER.token);
+    return dbLocal.exeCreate("__login", userLogin).then(() => {
+        return loadCacheUser();
 
-    }).then(() => {
-        return dbLocal.exeCreate("__login", userLogin).then(() => {
-            return loadCacheUser();
-
-        }).catch(e => {
-            errorLoadingApp("obter __login", e);
-        });
+    }).catch(e => {
+        errorLoadingApp("obter __login", e);
     });
 }
 
