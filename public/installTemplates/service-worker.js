@@ -213,7 +213,7 @@ self.addEventListener('fetch', function (e) {
 
     } else {
 
-        if (url === HOME || url === "/" || url === "index" || url.split('.').length === 1) {
+        if (url === HOME || url === "" || url === "/" || url === "index" || url.split('.').length === 1) {
 
             //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR NETWORK
             e.respondWith(
