@@ -918,7 +918,7 @@ function clearCacheUser() {
                 return caches.keys().then(cacheNames => {
                     return Promise.all(cacheNames.map(cacheName => {
                         let corte = cacheName.split("-v");
-                        if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
+                        if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
                             return caches.delete(cacheName);
                     }))
                 })
@@ -1385,7 +1385,7 @@ function updateAppOnDev() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-");
-                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserImages", "viewUserGet"].indexOf(corte[0]) > -1)
+                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
                         return caches.delete(cacheName);
                 }))
             })
