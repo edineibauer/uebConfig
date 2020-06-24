@@ -500,11 +500,8 @@ function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
-    if(typeof tpl.header === "undefined") {
-        return setCookieAnonimo().then(() => {
-            location.href = HOME;
-        });
-    }
+    if(typeof tpl.header === "undefined")
+        return clearCacheAll();
 
     $("#core-header").html(Mustache.render(tpl.header, {
         version: VERSION,
@@ -911,7 +908,7 @@ function clearCacheUser() {
                     return Promise.all(cacheNames.map(cacheName => {
                         let corte = cacheName.split("-v");
                         if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
-                            return caches.delete(cacheName);
+                            caches.delete(cacheName);
                     }))
                 })
             }
@@ -975,6 +972,17 @@ function recoveryUser() {
 
         USER = login;
 
+        /**
+         * Check if have the user network view
+         * if not, so reset app
+         */
+        return caches.open('viewUser-v' + VERSION).then(cache => {
+            return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
+                if(!response)
+                    return clearCacheAll();
+            });
+        })
+
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
     });
@@ -998,11 +1006,16 @@ function setUserInNavigator(user) {
 
     localStorage.token = user.token;
 
-    return dbLocal.exeCreate("__login", userLogin).then(() => {
-        return loadCacheUser();
+    return caches.open('viewUser-v' + VERSION).then(cache => {
+        return cache.add(HOME + "view/network/maestruToken/" + USER.token);
 
-    }).catch(e => {
-        errorLoadingApp("obter __login", e);
+    }).then(() => {
+        return dbLocal.exeCreate("__login", userLogin).then(() => {
+            return loadCacheUser();
+
+        }).catch(e => {
+            errorLoadingApp("obter __login", e);
+        });
     });
 }
 
@@ -1424,26 +1437,11 @@ async function thenAccess() {
     }
 
     /**
-     * Check if have the user network view
-     * if not, so reset app
+     * If in DEV, update files in cache
      */
-    return caches.open('viewUser-v' + VERSION).then(cache => {
-        return cache.match(HOME + "view/network/maestruToken/" + USER.token).then(response => {
-            if(!response) {
-                return setCookieAnonimo().then(() => {
-                    location.href = HOME;
-                });
-            }
-        });
-    }).then(() => {
-
-        /**
-         * If in DEV, update files in cache
-         */
-        return updateAppOnDev().catch(e => {
-            errorLoadingApp("updateAppOnDev", e);
-        });
-    })
+    return updateAppOnDev().catch(e => {
+        errorLoadingApp("updateAppOnDev", e);
+    });
 }
 
 function downloadEntityData() {
