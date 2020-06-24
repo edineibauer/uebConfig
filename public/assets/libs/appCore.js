@@ -967,7 +967,7 @@ function updateCache() {
 
 function recoveryUser() {
     return dbLocal.exeRead("__login", 1).then(login => {
-        if(login.token !== localStorage.token)
+        if(login.token != localStorage.token)
             return setCookieAnonimo();
 
         login.id = login.idUserReal;
