@@ -349,7 +349,14 @@ class Config
     {
         $libs = PATH_HOME . explode("/", VENDOR)[0];
 
-        //delete libs
+        /**
+         * Backup the actual vendor
+         */
+        Helper::recurseCopy($libs, PATH_HOME . "_cdn/vendor");
+
+        /**
+         * Update libs
+         */
         Helper::recurseDelete($libs);
         Helper::createFolderIfNoExist($libs);
         Helper::recurseCopy(PATH_HOME . "vendor", $libs);

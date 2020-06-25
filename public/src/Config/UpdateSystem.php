@@ -2,7 +2,6 @@
 
 namespace Config;
 
-use EntityUi\EntityCreateEntityDatabase;
 use Helpers\Helper;
 use Conn\Read;
 use Conn\SqlCommand;
@@ -149,6 +148,7 @@ class UpdateSystem
             $this->createMinifyAssetsLib();
             $this->createManifest($dados);
             $this->updateServiceWorker($dados);
+            $this->deleteInstall();
 
         } elseif (is_array($custom)) {
 
@@ -174,6 +174,13 @@ class UpdateSystem
         }
 
         $this->result = true;
+    }
+
+    private function deleteInstall()
+    {
+        unlink(PATH_HOME . VENDOR . "config/public/startup.php");
+        Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/include");
+        Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/installTemplates");
     }
 
     /**
