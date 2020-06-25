@@ -1957,7 +1957,7 @@ var app = {
  * @param replaceHistory
  * @returns {Promise<unknown[]>}
  */
-function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
+async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
     route = (typeof route === "string" ? route : location.href).replace(HOME, '');
     route = route === "/" ? "" : route;
@@ -1979,7 +1979,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
             historyReqPosition++;
             historyPosition = -2;
             history.back();
-            return
+            return;
         }
         if (!history.state)
             history.replaceState({
@@ -2019,7 +2019,7 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
                 }, null, HOME + route);
             }
         }
-        return Promise.all([]).then(() => {
+        return Promise.all([]).then(async () => {
 
             if (typeof destruct === "function")
                 destruct();
@@ -2032,10 +2032,24 @@ function pageTransition(route, type, animation, target, param, scroll, setHistor
             if (type === 'route') {
                 return app.applyView(file, $page)
             } else if (type === 'grid') {
+
+                //if gridCrud not exist, await until its load
+                if(typeof gridCrud !== "function")
+                    await new Promise(s => rrr = setInterval(() => { if(typeof gridCrud === "function") {clearInterval(rrr); s(1);}}, 50));
+
                 $page.grid(history.state.route)
             } else if (type === 'report') {
+
+                //if reportTable not exist, await until its load
+                if(typeof reportTable !== "function")
+                    await new Promise(s => rrr = setInterval(() => { if(typeof reportTable === "function") {clearInterval(rrr); s(1);}}, 50));
+
                 $page.reportTable(history.state.route)
             } else if (type === 'form') {
+
+                //if formCrud not exist, await until its load
+                if(typeof formCrud !== "function")
+                    await new Promise(s => rrr = setInterval(() => { if(typeof formCrud === "function") {clearInterval(rrr); s(1);}}, 50));
 
                 let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
