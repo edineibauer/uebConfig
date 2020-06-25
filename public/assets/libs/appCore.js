@@ -972,13 +972,14 @@ function recoveryUser() {
 
         login.id = login.idUserReal;
         delete login.idUserReal;
-        USER = login;
+        setUserInNavigator(login, 1);
+
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
     });
 }
 
-function setUserInNavigator(user) {
+function setUserInNavigator(user, storeUser) {
     user = typeof user === "object" ? user : {
         token: 0,
         id: 0,
@@ -990,18 +991,22 @@ function setUserInNavigator(user) {
     };
 
     USER = user;
-    let userLogin = Object.assign({}, USER);
-    userLogin.idUserReal = USER.id;
-    userLogin.id = 1;
-
     localStorage.token = user.token;
 
-    return dbLocal.exeCreate("__login", userLogin).then(() => {
-        return loadCacheUser();
+    if(typeof storeUser === "undefined") {
+        let userLogin = Object.assign({}, USER);
+        userLogin.idUserReal = USER.id;
+        userLogin.id = 1;
 
-    }).catch(e => {
-        errorLoadingApp("obter __login", e);
-    });
+        return dbLocal.exeCreate("__login", userLogin).then(() => {
+            return loadCacheUser();
+
+        }).catch(e => {
+            errorLoadingApp("obter __login", e);
+        });
+    } else {
+        return loadCacheUser();
+    }
 }
 
 function setCookieAnonimo() {
