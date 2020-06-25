@@ -238,8 +238,8 @@ class UpdateSystem
         /**
          * copy default theme from Config to the project folder if not exist
          */
-        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/libs/theme.min.css"))
-            copy(PATH_HOME . VENDOR . "config/public/assets/libs/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
+        if (!file_exists(PATH_HOME . "public/assets/theme.min.css") && file_exists(PATH_HOME . VENDOR . "config/public/assets/theme.min.css"))
+            copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
         /**
          * Create cache folders

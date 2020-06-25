@@ -42,7 +42,7 @@ h2 {
     font-family: 'Arista';
     font-style: normal;
     font-weight: 400;
-    src: url({{home}}{{vendor}}site-maestru/public/assets/arista.ttf?v={{version}}) format('truetype');
+    src: url({{home}}{{vendor}}config/public/assets/libs/arista.ttf?v={{version}}) format('truetype');
 }
 
 #background-color {
