@@ -110,7 +110,7 @@ class Config
         //atualiza versão do Service Worker
         if (file_exists($path . "service-worker.js")) {
             $serviceWorker = file_get_contents($path . "service-worker.js");
-            $version = (float)explode("'", explode("const VERSION = '", $serviceWorker)[1])[0];
+            $version = (float)explode("'", explode("var VERSION = '", $serviceWorker)[1])[0];
             $serviceWorker = str_replace("const VERSION = '{$version}'", "const VERSION = '{$dados['version']}'", $serviceWorker);
             self::writeFile("service-worker.js", $serviceWorker);
         }
