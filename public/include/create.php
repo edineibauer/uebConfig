@@ -16,6 +16,7 @@ function getServerConstants(array $dados)
     $dados['home'] = "http" . ($dados['ssl'] ? "s" : "") . "://" .
         ($localhost ? "localhost/" : "") .
         ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : ":" . $porta) : $_SERVER['SERVER_NAME']) . "/";
+    $dados['server'] = $dados['home'];
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
@@ -225,7 +226,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             }
 
             foreach ($configuracoes as $field => $value) {
-                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'path_home', 'vendor', 'version']))
+                if (!in_array($field, ['sitename', 'sitedesc', 'sitesub', 'pre', 'homepage', 'favicon', 'logo', 'user', 'pass', 'database', 'host', 'dominio', 'ssl', 'www', 'home', 'server', 'path_home', 'vendor', 'version']))
                     $dados[$field] = $value;
             }
 

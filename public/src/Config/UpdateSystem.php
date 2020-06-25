@@ -149,6 +149,7 @@ class UpdateSystem
             $this->createManifest($dados);
             $this->updateServiceWorker($dados);
             $this->deleteInstall();
+            $this->tempUpdates();
 
         } elseif (is_array($custom)) {
 
@@ -181,6 +182,19 @@ class UpdateSystem
         unlink(PATH_HOME . VENDOR . "config/public/startup.php");
         Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/include");
         Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/installTemplates");
+    }
+
+    /**
+     * Atualizações temporárias
+     */
+    private function tempUpdates()
+    {
+        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
+
+        if(!isset($config['server']))
+            $config['server'] = $config['home'];
+
+        Config::createConfig($config);
     }
 
     /**

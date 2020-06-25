@@ -31,7 +31,7 @@ function post(lib, file, param, funcao) {
     param.maestruToken = localStorage.token;
 
     $.ajax({
-        type: "POST", url: HOME + 'set', data: convertEmptyArrayToNull(param), success: function (data) {
+        type: "POST", url: SERVER + 'set', data: convertEmptyArrayToNull(param), success: function (data) {
             if (data.response === 1) {
                 if (typeof (funcao) !== "undefined")
                     funcao(data.data)
@@ -58,7 +58,7 @@ function post(lib, file, param, funcao) {
 }
 
 async function getJSON(url) {
-    let home = new RegExp("^" + preg_quote(HOME), "i");
+    let home = new RegExp("^" + preg_quote(SERVER), "i");
     if(!/^http/.test(url) || home.test(url))
         url = (/\/$/.test(url) ? url.slice(0, -1) : url) + "/maestruToken/" + localStorage.token;
 
@@ -89,7 +89,7 @@ async function getJSON(url) {
 }
 
 async function get(file) {
-    return getJSON(HOME + "get/" + file).then(data => {
+    return getJSON(SERVER + "get/" + file).then(data => {
         if (data.response === 1) {
             return data.data;
         } else {
@@ -123,7 +123,7 @@ class AJAX {
         return new Promise((s, f) => {
             $.ajax({
                 type: "POST",
-                url: HOME + 'set',
+                url: SERVER + 'set',
                 data: convertEmptyArrayToNull(Object.assign({
                     fileInSetFolder: fileInSetFolder,
                     maestruToken: localStorage.token
@@ -174,7 +174,7 @@ class AJAX {
             $.ajax({
                 type: "POST",
                 enctype: 'multipart/form-data',
-                url: HOME + "set/",
+                url: SERVER + "set/",
                 xhr: function () {
                 }, success: function (data) {
                     if (data.response === 1) {
