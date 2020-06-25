@@ -543,7 +543,7 @@ class Read {
         if(typeof filter === "object" && filter !== null && filter.constructor === Object)
             this.filter = filter;
         else if(typeof filter === "string" && filter !== "")
-            this.filter = {"*": filter};
+            this.filter = {"*": "%" + filter + "%"};
     }
 
     setOrderColumn(columnOrder) {
