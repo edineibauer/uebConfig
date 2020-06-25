@@ -90,41 +90,6 @@ function uploadFiles()
         move_uploaded_file($_FILES['favicon']['tmp_name'], "../../../uploads/site/" . basename($_FILES['favicon']['name']));
 }
 
-/**
- * Cria Arquivo de Parâmetros Padrões do Sistema Singular
- * @param array $dados
- */
-function createParam(array $dados)
-{
-    $data = json_decode(file_get_contents("public/installTemplates/param.json"), true);
-    $data['title'] = $dados['sitename'];
-    Config\Config::writeFile("_config/param.json", json_encode($data));
-}
-
-function getAccessFile()
-{
-    return '<Files "*.json">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.php">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.html">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.tpl">
-            Order Deny,Allow
-            Deny from all
-        </Files>
-        <Files "*.txt">
-            Order Deny,Allow
-            Deny from all
-        </Files>';
-}
-
 function recurseCopy($src,$dst) {
     $dir = opendir($src);
     @mkdir($dst);
@@ -269,7 +234,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
              */
             copy($dados['base'] . "/public/assets/theme.min.css", $dados['path_home'] . "public/assets/theme.min.css");
             copy($dados['base'] . "/public/_config/permissoes.json", $dados['path_home'] . "_config/permissoes.json");
-            copy($dados['base'] . "/public/_config/param.json", $dados['path_home'] . "_config/param.json");
             copy($dados['base'] . "/public/_config/general_info.json", $dados['path_home'] . "entity/general/general_info.json");
 
             if(file_exists($dados['base'] . "/public/_config/offline"))
@@ -279,8 +243,8 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             Config\Config::writeFile("_config/permissoes.json", "{}");
         }
 
-        copy('public/assets/dino.png', "../../../uploads/site/dino.png");
-        copy('public/assets/image-not-found.png', "../../../uploads/site/image-not-found.png");
+        copy('public/assets/libs-img/dino.png', "../../../uploads/site/dino.png");
+        copy('public/assets/libs-img/image-not-found.png', "../../../uploads/site/image-not-found.png");
 
         if(!empty($dados['base']))
             unset($dados['base']);
@@ -288,25 +252,20 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         uploadFiles();
         Config\Config::createConfig($dados);
 
-        if(!isset($configuracoes)) {
-            createParam($dados);
-        }
-
-        Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.txt"));
-        Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.txt"));
-        Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.txt"));
-        Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.txt"));
-        Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.txt"));
-        Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.txt"));
+        Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.php"));
+        Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.php"));
+        Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.php"));
+        Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.php"));
+        Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.php"));
+        Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.php"));
         Config\Config::writeFile("public/cron/index.php", str_replace('{$path_home}', $dados['path_home'], file_get_contents("public/installTemplates/cronIndex.txt")));
-        Config\Config::writeFile("public/entity/-entity.json", '{"1":[],"2":[],"3":[],"0":[], "20":[]}');
         Config\Config::writeFile("entity/general/general_info.json", "[]");
         Config\Config::writeFile("_config/.htaccess", "Deny from all");
         Config\Config::writeFile("entity/.htaccess", "Deny from all");
         Config\Config::writeFile("public/react/.htaccess", "Deny from all");
         Config\Config::writeFile("_cdn/.htaccess", "Deny from all");
         Config\Config::writeFile("public/api/.htaccess", "Deny from all");
-        Config\Config::writeFile("vendor/.htaccess", getAccessFile());
+        Config\Config::writeFile("vendor/.htaccess", "Deny from all");
 
         updateLibsDirectory($dados);
 
