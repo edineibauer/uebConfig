@@ -326,6 +326,10 @@ input, select, textarea {
     opacity: 0;
     transition: all ease .15s;
     transform: translateX(-270px);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .core-sidebar-bottom {
@@ -337,6 +341,10 @@ input, select, textarea {
     padding: 8px;
     background: #ffffff;
     border-top: solid 1px #EEEEEE;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #core-sidebar.active {
