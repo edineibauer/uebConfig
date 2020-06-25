@@ -731,6 +731,7 @@ input, select, textarea {
         left: initial;
         transform: translateX(0) !important;
         top: 70px;
+        right: 10px;
         height: auto;
         min-height: 50px;
         border-bottom-left-radius: 3px;

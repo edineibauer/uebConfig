@@ -501,7 +501,7 @@ async function menuHeader() {
     let tpl = await getTemplates();
 
     if(typeof tpl.header === "undefined")
-        return clearCacheAll();
+        return updateCache();
 
     $("#core-header").html(Mustache.render(tpl.header, {
         version: VERSION,
@@ -548,7 +548,7 @@ async function menuHeader() {
         }
     }
 
-    $("#core-sidebar").css("right", (window.innerWidth - ($("#core-header")[0].clientWidth) / 2) + "px").html(Mustache.render(tpl.aside));
+    $("#core-sidebar").html(Mustache.render(tpl.aside));
 
     /**
      * Sidebar Info
