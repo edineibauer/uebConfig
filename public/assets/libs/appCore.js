@@ -1926,8 +1926,13 @@ var app = {
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
-    route = (typeof route === "string" ? route : location.href).replace(HOME, '');
-    route = route === "/" ? "" : route;
+    if(reload && HOME === "" && HOME !== SERVER) {
+        route = "index";
+    } else {
+        route = (typeof route === "string" ? route : location.href).replace(HOME, '');
+        route = route === "/" ? "" : route;
+    }
+
     type = typeof type === "string" ? type : "route";
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
@@ -2217,14 +2222,14 @@ function goLinkPageTransition(url, $this, e) {
 async function updatedPerfil() {
     if(navigator.onLine) {
         if (typeof (EventSource) !== "undefined") {
-            let u = new EventSource("get/event/updatePerfil", {withCredentials: true});
+            let u = new EventSource(SERVER + "get/event/updatePerfil", {withCredentials: true});
             u.onmessage = function (event) {
                 if (typeof event.data === "string" && event.data !== "" && isJson(event.data))
                     USER = JSON.parse(event.data);
             };
         } else {
             setInterval(function () {
-                AJAX.get("event/updatePerfil").then(u => {
+                AJAX.get(SERVER + "event/updatePerfil").then(u => {
                     if (typeof u === "string" && u !== "" && isJson(u))
                         USER = JSON.parse(u);
                 });

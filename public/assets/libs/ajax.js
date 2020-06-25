@@ -210,25 +210,36 @@ class AJAX {
     }
 
     static async view(view) {
-        return getJSON(HOME + "view/" + view).then(data => {
-            if (data.response === 1) {
-                clearHeaderScrollPosition();
-                return data.data;
-            } else {
-                switch (data.response) {
-                    case 2:
-                        toast(data.error, 7000, "warning");
-                        break;
-                    case 3:
-                        location.href = data.data;
-                        break;
-                    case 4:
-                        toast("Caminho não encontrado");
-                }
+        let isViewBundle = HOME === "" && SERVER !== "";
+        let originalView = (/\/$/.test(view) ? view.slice(0, -1) : view);
+        let url = isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : HOME + "view/" + originalView;
+        let home = new RegExp("^" + preg_quote(SERVER), "i");
+        if(!isViewBundle && (!/^http/.test(url) || home.test(url)))
+            url += "/maestruToken/" + localStorage.token;
 
-                console.log(data);
-                return null;
-            }
+        return new Promise(function (s, f) {
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+            req.onload = function () {
+                if (req.status === 200) {
+                    clearHeaderScrollPosition();
+                    let data = JSON.parse(req.response);
+                    if(data.response === 1)
+                        s(data.data)
+                    else
+                        f(Error("Response !== 1"));
+                } else {
+                    f(Error(req.statusText))
+                }
+            };
+            req.onerror = function () {
+                f(Error("Network Error"))
+            };
+            req.send();
+
+        }).catch(function (err) {
+            console.log(err);
+            return (originalView !== "network" ? AJAX.view("network") : "");
         });
     }
 }
