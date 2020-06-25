@@ -417,12 +417,12 @@ function subscribeUser(showMessageSuccess) {
 
 function updateSubscriptionOnServer(subscription, showMessageSuccess) {
     if (subscription && USER.setor !== 0 && typeof USER.setor === "string" && USER.setor !== "0" && !isEmpty(USER.setor)) {
-        post('dashboard', 'push', {
+        AJAX.post('push', {
             "push": JSON.stringify(subscription),
             'p1': navigator.appName,
             'p2': navigator.appCodeName,
             'p3': navigator.platform
-        }, function () {
+        }).then(() => {
             if (!showMessageSuccess)
                 pushNotification("Parabéns " + USER.nome, "A partir de agora, você receberá notificações importantes!");
         })
@@ -890,7 +890,7 @@ function clearCacheUser() {
             if (!d.length)
                 return;
 
-            post("entity", "up/sync", {entity: entity, dados: d});
+            AJAX.post("up/sync", {entity: entity, dados: d});
             return dbLocal.clear("sync_" + entity)
         }).then(() => {
             return dbLocal.clear(entity);
@@ -929,7 +929,7 @@ function clearCacheAll() {
             if (!d.length)
                 return;
 
-            post("entity", "up/sync", {entity: entity, dados: d});
+            AJAX.post("up/sync", {entity: entity, dados: d});
             return dbLocal.clear("sync_" + entity)
         }).then(() => {
             return dbLocal.clear(entity);
@@ -1725,9 +1725,9 @@ function acceptInstallApp() {
         deferredPrompt.userChoice.then(choiceResult => {
             localStorage.installAppAction = choiceResult.outcome === 'accepted';
             if (localStorage.installAppAction)
-                post("config", "appInstaled", {success: !0, ios: isIos()});
+                AJAX.post("appInstaled", {success: !0, ios: isIos()});
             else
-                post("config", "appInstaled", {success: !1, ios: isIos()});
+                AJAX.post("appInstaled", {success: !1, ios: isIos()});
         });
     }
 }
@@ -1736,7 +1736,7 @@ function closeInstallAppPrompt(onInstall) {
     let $installCard = $("#installAppCard").addClass("transformDown");
     $("#core-overlay").removeClass("active activeBold");
     localStorage.installAppAction = 0;
-    post("config", "appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
+    AJAX.post("appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
 
     setTimeout(function () {
         $installCard.remove();
