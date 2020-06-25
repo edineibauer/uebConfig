@@ -102,6 +102,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <script>
         const SERVICEWORKER = <?=(SERVICEWORKER ? "'serviceWorker' in navigator && !(window.navigator.userAgent.indexOf(\"Edge\") > -1 || /MSIE 10/i.test(navigator.userAgent) || /MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent))" : "!1")?>;
         const HOME = '<?=HOME?>';
+        const SERVER = '<?=SERVER?>';
         const SITENAME = '<?=SITENAME?>';
         const DOMINIO = '<?=DOMINIO?>';
         const VERSION = '<?=VERSION?>';
