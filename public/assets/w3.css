@@ -350,8 +350,10 @@ select {
     padding: 9px 0 5px;
     width: 100%;
     color: #000;
-    border: 1px solid transparent;
-    border-bottom: 1px solid #009688;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1px solid;
+    border-left: none;
     outline: 0
 }
 
