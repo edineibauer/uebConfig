@@ -303,21 +303,6 @@ function CSV(array, comma) {
 
             let v = "";
 
-            /*if (Array.isArray(obj[k])) {
-                v = "[";
-                $.each(obj[k], function (i, o) {
-                    if (v !== "" && v !== "[")
-                        v += ", ";
-                    if (typeof o.url === "string")
-                        v += o.url.replace(regExp, keyChange);
-                    else if (typeof o === "object" && o !== null)
-                        v += JSON.stringify(o).replace(regExp, keyChange);
-                    else if (typeof o === "string")
-                        v += o.replace(regExp, keyChange)
-                });
-                v += "]";
-            } else */
-
             if (typeof obj[k] === "object" && obj[k] !== null) {
                 v = JSON.stringify(obj[k]).replace(regExp, keyChange);
             } else if (typeof obj[k] !== "undefined" && obj[k] !== null) {
@@ -799,7 +784,7 @@ function maskData($data) {
 
 async function getFields(entity, haveId, type) {
     if (navigator.onLine && typeof type === "string") {
-        let rec = await get("event/recoveryFieldsCustom/" + type + "/" + entity);
+        let rec = await AJAX.get("event/recoveryFieldsCustom/" + type + "/" + entity);
         if (!isEmpty(rec)) {
             for (let r of rec) {
                 r.show = r.show === "true";
@@ -1077,7 +1062,7 @@ async function loadViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    return get("appFilesView").then(g => {
+    return AJAX.get("appFilesView").then(g => {
         return caches.open('viewUser-v' + VERSION).then(cache => {
 
             /**
@@ -1116,7 +1101,7 @@ function loadUserViews() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    return get("appFilesViewUser").then(g => {
+    return AJAX.get("appFilesViewUser").then(g => {
         return caches.open('viewUser-v' + VERSION).then(cache => {
 
             /**
@@ -1166,7 +1151,7 @@ function loadCacheUser() {
 
 function updateGraficos() {
     return dbLocal.clear('__graficos').then(() => {
-        return get("graficos").then(r => {
+        return AJAX.get("graficos").then(r => {
             return dbLocal.exeCreate('__graficos', r);
         });
     });
@@ -1297,7 +1282,7 @@ async function cacheCoreApp() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    return get("currentFiles").then(g => {
+    return AJAX.get("currentFiles").then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
             return cache.addAll(g.core).catch(e => {
                 errorLoadingApp("cacheCoreApp: cache core", e)
@@ -1342,7 +1327,7 @@ function clearIndexedDbGets() {
 }
 
 function getIndexedDbGets() {
-    return get("userCache").then(r => {
+    return AJAX.get("userCache").then(r => {
         let gets = [];
         gets.push(dbLocal.exeCreate('__allow', r['allow']));
         gets.push(dbLocal.exeCreate('__dicionario', r['dicionario']));
@@ -1431,24 +1416,6 @@ async function thenAccess() {
      */
     return updateAppOnDev().catch(e => {
         errorLoadingApp("updateAppOnDev", e);
-    });
-}
-
-function downloadEntityData() {
-    if (!SERVICEWORKER)
-        return Promise.all([]);
-
-    let down = [];
-    $.each(dicionarios, function (entity, meta) {
-        down.push(dbRemote.syncDownload(entity));
-    });
-
-    return Promise.all(down);
-}
-
-function updateTemplates() {
-    return get("templates").then(tpl => {
-        return dbLocal.exeCreate('__template', tpl);
     });
 }
 
@@ -2257,7 +2224,7 @@ async function updatedPerfil() {
             };
         } else {
             setInterval(function () {
-                get("event/updatePerfil").then(u => {
+                AJAX.get("event/updatePerfil").then(u => {
                     if (typeof u === "string" && u !== "" && isJson(u))
                         USER = JSON.parse(u);
                 });
