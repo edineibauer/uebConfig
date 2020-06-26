@@ -957,7 +957,7 @@ function recoveryUser() {
 
         login.id = login.idUserReal;
         delete login.idUserReal;
-        setUserInNavigator(login, 1);
+        return setUserInNavigator(login, 1);
 
     }).catch(e => {
         errorLoadingApp("recuperar usuário", e);
