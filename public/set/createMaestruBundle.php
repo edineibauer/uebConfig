@@ -15,7 +15,9 @@ fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');"], ["
 fclose($f);
 
 $f = fopen("bundle/index.php", "w+");
-fwrite($f, str_replace("include_once '_config/config.php';", "", file_get_contents("index.php")));
+$index = file_get_contents("index.php");
+$service = explode(";", explode("const SERVICEWORKER = ", $index)[1])[0];
+fwrite($f, str_replace(["include_once '_config/config.php';", "const SERVICEWORKER = {$service};"], ["", "const SERVICEWORKER = !1;"], $index));
 fclose($f);
 
 require_once './bundle/config.php';
@@ -45,9 +47,13 @@ include_once PATH_HOME . 'bundle/index.php';
 $index = ob_get_contents();
 ob_end_clean();
 
+$manifest = explode('>', explode('<link rel="manifest" ', $index)[1])[0];
+$index = str_replace('<link rel="manifest" ' . $manifest . '>', "", $index);
+
 $f = fopen(PATH_HOME . "bundle/index.html", "w+");
 fwrite($f, $index);
 fclose($f);
+
 
 unlink( PATH_HOME . 'bundle/index.php');
 
@@ -139,11 +145,6 @@ foreach (\Config\Config::getSetores() as $setor) {
         fclose($f);
     }
 }
-
-/**
- * Copy manifest
- */
-copy(PATH_HOME . "manifest.json", PATH_HOME . "bundle/manifest.json");
 
 /**
  * Copy assetsPublic to bundle
