@@ -365,11 +365,13 @@ class Config
 
     private static function getAccessFile()
     {
-        return 'Order Allow,Deny
-                <Files ~ "\.(jpg|jpeg|png|gif|pdf|svg|ttf|woff|woff2|eot|bmp|mp4|mp3)$">
-                    Order Allow,Deny
-                    Allow from all
-                </Files>';
+        return '# If the URI is an image then we allow accesses
+SetEnvIfNoCase Request_URI "\\.(gif|jpe?g|png|bmp|svg|pdf|css|js|mustache|ttf|woff|woff2|eot|mp4|mp3)$" let_me_in
+
+Order Deny,Allow
+Deny from All
+# Allow accesses only if an images was requested
+Allow from env=let_me_in';
     }
 
     private static function getTiposUsuarios()
