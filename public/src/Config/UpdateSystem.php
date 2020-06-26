@@ -497,9 +497,9 @@ class UpdateSystem
         Config::writeFile("_config/.htaccess", "Deny from all");
         Config::writeFile("assetsPublic/.htaccess", "Options -Indexes");
         Config::writeFile("entity/.htaccess", "Deny from all");
-        Config::writeFile("public/react/.htaccess", "Deny from all");
-        Config::writeFile("public/cron/.htaccess", "Deny from all");
-        Config::writeFile("public/api/.htaccess", "Deny from all");
+        Config::writeFile("public/.htaccess", Config::getHtaccessAssetsRule());
+        Config::writeFile("templates_c/.htaccess", Config::getHtaccessAssetsRule());
+        Config::writeFile("uploads/.htaccess", Config::getHtaccessAssetsRule());
         Config::writeFile("vendor/.htaccess", "Deny from all");
 
         if (!file_exists(PATH_HOME . "entity/general/general_info.json"))

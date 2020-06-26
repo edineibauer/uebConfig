@@ -110,7 +110,7 @@ function getDataExtended(entity, dados, pretty) {
                         $.each(d, function (ii, source) {
                             if(title)
                                 source.url += "&title=" + slug(e[title]) + (d.length > 1 ? "-" + ii : "");
-                            e[j] += (e[j] !== "" ? ", " : "") + HOME + "imageoutput/bmp/" + source.url.replace(HOME, '')
+                            e[j] += (e[j] !== "" ? ", " : "") + source.url
                         })
                     }
                 }

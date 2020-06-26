@@ -360,10 +360,10 @@ class Config
         Helper::recurseDelete($libs);
         Helper::createFolderIfNoExist($libs);
         Helper::recurseCopy(PATH_HOME . "vendor", $libs);
-        self::writeFile("libs/.htaccess", self::getAccessFile());
+        self::writeFile("libs/.htaccess", self::getHtaccessAssetsRule());
     }
 
-    private static function getAccessFile()
+    public static function getHtaccessAssetsRule()
     {
         return '# If the URI is an image then we allow accesses
 SetEnvIfNoCase Request_URI "\\.(gif|jpe?g|png|bmp|svg|pdf|css|js|mustache|ttf|woff|woff2|eot|mp4|mp3)$" let_me_in
