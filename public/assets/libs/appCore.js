@@ -1926,17 +1926,25 @@ var app = {
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
+    param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
+
     if(reload && HOME === "" && HOME !== SERVER) {
         route = "index";
     } else {
         route = (typeof route === "string" ? route : location.href).replace(HOME, '');
         route = route === "/" ? "" : route;
+        if(HOME === "" && HOME !== SERVER && /index\.html\?url=/.test(route))
+            route = route.split("?url=")[1];
+
+        if(/\//.test(route)) {
+            param.url = route.split("/");
+            route = param.url.shift();
+        }
     }
 
     type = typeof type === "string" ? type : "route";
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
-    param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
     scroll = isNumberPositive(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
@@ -1953,6 +1961,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
             history.back();
             return;
         }
+
         if (!history.state)
             history.replaceState({
                 id: 0,
@@ -1961,7 +1970,8 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                 target: "#core-content",
                 param: {},
                 scroll: scroll
-            }, null, HOME + app.route); else if (setHistory)
+            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
+        else if (setHistory)
             history.replaceState({
                 id: history.state.id,
                 route: history.state.route,
@@ -1969,7 +1979,8 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                 target: history.state.target,
                 param: history.state.param,
                 scroll: scroll
-            }, null, HOME + history.state.route);
+            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + history.state.route);
+
         if (setHistory && !reload && novaRota) {
             if (replaceHistory) {
                 history.replaceState({
@@ -1979,7 +1990,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                     target: target,
                     param: param,
                     scroll: 0
-                }, null, HOME + route);
+                }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + route);
             } else {
                 history.pushState({
                     id: historyPosition++,
@@ -1988,9 +1999,10 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                     target: target,
                     param: param,
                     scroll: 0
-                }, null, HOME + route);
+                }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + route);
             }
         }
+
         return Promise.all([]).then(async () => {
 
             if (typeof destruct === "function")
