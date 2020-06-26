@@ -614,7 +614,7 @@ function getFieldsData(entity, haveId, r) {
     }
 
     $.each(dicionarios[entity], function (i, e) {
-        if (!isEmpty(e.datagrid?.grid_relevant)) {
+        if (!isEmpty(e.datagrid) && !isEmpty(e.datagrid.grid_relevant)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
@@ -2357,7 +2357,7 @@ async function onLoadDocument() {
      */
     if (USER.setor !== 0) {
         let allow = await dbLocal.exeRead("__allow", 1);
-        if (allow.notifications_report?.read)
+        if (allow.notifications_report && allow.notifications_report.read)
             await updateNotificationsBadge();
     }
 }
