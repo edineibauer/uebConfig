@@ -1258,7 +1258,7 @@ async function closeNote(id, notification) {
      * Check if some notification report use the notification
      * case not, delete notification not used
      */
-    let note = await getJSON(HOME + "app/find/notifications_report/notificacao/" + notification);
+    let note = await getJSON(SERVER + "app/find/notifications_report/notificacao/" + notification);
     if (isEmpty(note.notifications_report))
         await db.exeDelete("notifications", notification);
 }
