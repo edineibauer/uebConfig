@@ -1940,6 +1940,8 @@ async function pageTransition(route, type, animation, target, param, scroll, set
             param.url = route.split("/");
             if(HOME === "" && HOME !== SERVER)
                 route = param.url.shift();
+            else
+                param.url.shift();
         }
     }
 
