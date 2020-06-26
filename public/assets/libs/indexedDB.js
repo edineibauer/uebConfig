@@ -964,11 +964,9 @@ const db = {
                     })
                 })
             } else {
-                if (ids.length) {
-                    for (let k in ids) {
-                        if (isNumberPositive(ids[k]))
-                            allDelete.push(dbSendData(entity, {id: parseInt(ids[k])}, 'delete'));
-                    }
+                for (let k in ids) {
+                    if (isNumberPositive(ids[k]))
+                        allDelete.push(dbSendData(entity, {id: parseInt(ids[k])}, 'delete'));
                 }
 
                 return Promise.all(allDelete);
