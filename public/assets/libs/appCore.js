@@ -2244,7 +2244,7 @@ async function updatedPerfil() {
             };
         } else {
             setInterval(function () {
-                AJAX.getUrl(SERVER + "get/event/updatePerfil").then(u => {
+                AJAX.getUrl(SERVER + "get/event/updatePerfilAjax").then(u => {
                     if (typeof u === "string" && u !== "" && isJson(u))
                         USER = JSON.parse(u);
                 });
