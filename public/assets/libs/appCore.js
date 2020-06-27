@@ -2407,6 +2407,9 @@ $(function () {
             }
         }
 
+        if (!navigator.xr && self.isMobile && screen.orientation && screen.orientation.lock)
+            screen.orientation.lock('portrait');
+
         await startApplication();
     })();
 });
