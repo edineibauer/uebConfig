@@ -573,7 +573,7 @@ async function menuHeader() {
     /**
      * Verifica se remove o botão de Notificação
      * */
-    if ((swRegistration && !swRegistration.pushManager) || localStorage.token === "0" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+    if ((swRegistration && !swRegistration.pushManager) || localStorage.token === "0" || !Notification || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
         $(".site-btn-push").remove();
 
     /**
