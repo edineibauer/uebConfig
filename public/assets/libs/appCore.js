@@ -1196,7 +1196,7 @@ async function getNotifications() {
  */
 async function updateNotificationsBadge() {
     if ($("#core-header-nav-bottom").find("a[href='notificacoes']").length && USER.setor !== 0) {
-        if(typeof(EventSource) !== "undefined") {
+        if(typeof(EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
             let notefications = new EventSource(SERVER + "get/event/notifications_badge", {withCredentials: true});
             notefications.onmessage = function(event) {
                 $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
@@ -2236,7 +2236,7 @@ function goLinkPageTransition(url, $this, e) {
 
 async function updatedPerfil() {
     if(navigator.onLine) {
-        if (typeof (EventSource) !== "undefined") {
+        if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
             let u = new EventSource(SERVER + "get/event/updatePerfil", {withCredentials: true});
             u.onmessage = function (event) {
                 if (typeof event.data === "string" && event.data !== "" && isJson(event.data))
