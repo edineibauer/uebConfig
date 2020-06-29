@@ -415,7 +415,7 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
 }
 
 async function checkUpdate() {
-    if (navigator.onLine) {
+    if (navigator.onLine && SERVICEWORKER) {
         let version = await AJAX.post("update");
 
         if(!localStorage.update)
@@ -1132,14 +1132,7 @@ function loadCacheUser() {
      * */
     if (navigator.onLine) {
 
-        return getIndexedDbGets().then(() => {
-
-            /**
-             * Recupera syncs pendentes deste usuário
-             */
-            return loadSyncNotSaved();
-
-        }).catch(e => {
+        return getIndexedDbGets().catch(e => {
             errorLoadingApp("loadCacheUser", e);
         });
 
@@ -2410,13 +2403,23 @@ async function startApplication() {
     await menuHeader();
     await readRouteState();
     await onLoadDocument();
-    await checkUpdate();
     await updatedPerfil();
 
     if(localStorage.accesscount === "1") {
-        setTimeout(function () {
-            loadUserViews();
-        }, 3000);
+
+        /**
+         * Recupera syncs pendentes deste usuário
+         */
+        loadSyncNotSaved();
+
+        if(SERVICEWORKER && HOME !== "" && HOME === SERVER) {
+            setTimeout(function () {
+                checkUpdate();
+            }, 1000);
+            setTimeout(function () {
+                loadUserViews();
+            }, 3000);
+        }
     }
 }
 
