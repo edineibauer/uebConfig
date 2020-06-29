@@ -1753,11 +1753,41 @@ var app = {
         if ($div.html() !== "") {
             let pageHeader = $div.data('header');
             let pageNavbar = $div.data('navbar');
+            let headerAssets = $div.data('head');
 
             TITLE = $div.data('title');
             headerShow(pageHeader);
             checkMenuActive();
             $("#core-title").text(TITLE);
+
+            /**
+             * add tags to the head of the page
+             * if allready exist, so not do anything
+             */
+            if(!isEmpty(headerAssets)) {
+                /**
+                 * Remove link from head not used
+                 */
+
+                let idsLinks = Object.keys(headerAssets);
+                $(".coreLinkHeader").each(function (i, e) {
+                    if(idsLinks.indexOf($(e).attr("id")) === -1)
+                        $(e).remove();
+                });
+
+                /**
+                 * Add link to head
+                 */
+                for (let hid in headerAssets) {
+                    if (!$("head > #" + hid).length)
+                        $(headerAssets[hid]).appendTo("head");
+                }
+            } else {
+                /**
+                 * Remove all link from head
+                 */
+                $(".coreLinkHeader").remove();
+            }
 
             FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
             let frontVar = $div.data('front');
@@ -1800,7 +1830,7 @@ var app = {
                         }
 
                         if (g.cache)
-                            $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-front", JSON.stringify(g.front));
+                            $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
                         if (!g.header)
                             $div.addClass("notop");
