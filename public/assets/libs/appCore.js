@@ -6,6 +6,10 @@ function isMobile() {
     return !1;
 }
 
+function isBuild() {
+    return !SERVICEWORKER && HOME === "";
+}
+
 /**
  * Adiciona script na página com cach
  * @param url
