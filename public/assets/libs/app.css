@@ -486,7 +486,7 @@ input, select, textarea {
 }
 
 /* LOADER SPINNER */
-#core-loader, .loaderDashboard {
+.core-loader, .loaderDashboard {
     left: 50%;
     top: 50%;
     position: fixed;
@@ -495,7 +495,7 @@ input, select, textarea {
     transform: translate(-50%, -50%);
 }
 
-#core-loader-container > #core-loader {
+#core-loader-container > .core-loader {
     top: 55%;
     opacity: .5;
 }
@@ -504,7 +504,7 @@ input, select, textarea {
     top: 43%
 }
 
-#core-loader #core-spinner, .loaderDashboard #core-spinner {
+.core-loader #core-spinner, .loaderDashboard #core-spinner {
     stroke-width: 3px;
     -webkit-transform-origin: 50%;
     transform-origin: 50%;

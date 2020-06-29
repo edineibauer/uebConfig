@@ -138,7 +138,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <div id="core-overlay"></div>
 
     <!--loading between pages-->
-    <div id="core-loader">
+    <div id="core-loader" class="core-loader">
         <svg viewBox="0 0 32 32" width="32" height="32">
             <circle id="core-spinner"
                     style="stroke: <?= (in_array(THEME, ["#fff", "#FFF", "#ffffff", "#FFFFFF"]) ? "#555" : THEME) ?>"
@@ -151,7 +151,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         <div class="core-class-container" id="core-loader-logo">
             <img src="<?= !empty(LOGO) ? LOGO : FAVICON ?>" height="50" />
         </div>
-        <div id="core-loader">
+        <div class="core-loader">
             <svg viewBox="0 0 32 32" width="32" height="32">
                 <circle id="core-spinner" style="stroke: <?= THEMETEXT ?>" cx="16" cy="16" r="14" fill="none"></circle>
             </svg>
