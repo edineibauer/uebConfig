@@ -152,7 +152,7 @@ foreach (\Config\Config::getSetores() as $setor) {
      */
     foreach (["appFilesView", "appFilesViewUser", "currentFiles", "userCache"] as $get) {
         $data = ["data" => "", "response" => 1, "error" => ""];
-        include_once PATH_HOME . VENDOR . "config/public/get/{$get}.php";
+        include PATH_HOME . VENDOR . "config/public/get/{$get}.php";
         $f = fopen(PATH_HOME . "bundle/get/{$setor}/{$get}.json", "w+");
         fwrite($f, json_encode($data));
         fclose($f);

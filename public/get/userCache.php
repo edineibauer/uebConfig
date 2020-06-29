@@ -15,25 +15,25 @@ $content = [
     "graficos" => []
 ];
 
-include_once 'templates.php';
+include 'templates.php';
 $content['template'] = $data['data'];
 
-include_once 'menu.php';
+include 'menu.php';
 $content['menu'] = $data['data'];
 
-include_once 'navbar.php';
+include 'navbar.php';
 $content['navbar'] = $data['data'];
 
-include_once 'react.php';
+include 'react.php';
 $content['react'] = $data['data'];
 
-include_once 'relevant.php';
+include 'relevant.php';
 $content['relevant'] = $data['data'];
 
-include_once 'general.php';
+include 'general.php';
 $content['general'] = $data['data'];
 
-include_once 'graficos.php';
+include 'graficos.php';
 $content['graficos'] = $data['data'];
 
 $data['data'] = $content;
