@@ -495,6 +495,11 @@ input, select, textarea {
     transform: translate(-50%, -50%);
 }
 
+#core-loader-container > #core-loader {
+    top: 55%;
+    opacity: .5;
+}
+
 .loaderDashboard {
     top: 43%
 }
