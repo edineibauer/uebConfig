@@ -59,8 +59,10 @@ function post(lib, file, param, funcao) {
 
 async function getJSON(url) {
     let home = new RegExp("^" + preg_quote(SERVER), "i");
-    if(!/^http/.test(url) || home.test(url))
-        url = (/\/$/.test(url) ? url.slice(0, -1) : url) + "/maestruToken/" + localStorage.token;
+    url = (/\/$/.test(url) ? url.slice(0, -1) : url);
+
+    if((!/^http/.test(url) || home.test(url)) && !(HOME === "" && HOME !== SERVER && ["get/" + USER.setor + "/appFilesView.json", "get/" + USER.setor + "/appFilesViewUser.json", "get/" + USER.setor + "/currentFiles.json", "get/" + USER.setor + "/userCache.json"].indexOf(url) > -1))
+        url += "/maestruToken/" + localStorage.token;
 
     return new Promise(function (resolve, reject) {
         var req = new XMLHttpRequest();
@@ -92,7 +94,7 @@ async function get(file) {
     let url = SERVER + "get/" + file;
 
     if(HOME === "" && HOME !== SERVER && ["appFilesView", "appFilesViewUser", "currentFiles", "userCache"].indexOf(file) > -1)
-        url = "get/" + USER.setor + "/" + file;
+        url = "get/" + USER.setor + "/" + file + ".json";
 
     return getJSON(url).then(data => {
         if (data.response === 1) {
