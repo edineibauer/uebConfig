@@ -91,7 +91,7 @@ async function getJSON(url) {
 async function get(file) {
     let url = SERVER + "get/" + file;
 
-    if(HOME === "" && HOME !== SERVER)
+    if(HOME === "" && HOME !== SERVER && ["appFilesView", "appFilesViewUser", "currentFiles", "userCache"].indexOf(file) > -1)
         url = "get/" + USER.setor + "/" + file;
 
     return getJSON(url).then(data => {
