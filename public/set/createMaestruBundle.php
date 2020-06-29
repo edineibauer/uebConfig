@@ -1,9 +1,11 @@
 <?php
 
 die;
-
 if (session_status() == PHP_SESSION_NONE)
     session_start();
+
+if(!file_exists("bundle"))
+    mkdir("bundle", 0777);
 
 /**
  * Create config file with HOME empty
@@ -34,9 +36,9 @@ if (file_exists(PATH_HOME . "bundle/assetsPublic"))
 /**
  * ------------- start Create views
  */
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle");
 \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/view");
 \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/assetsPublic");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/get");
 
 /**
  * ------------ start Create index
@@ -68,6 +70,7 @@ unlink( PATH_HOME . 'bundle/index.php');
 \Config\Config::setUser(0);
 foreach (\Config\Config::getSetores() as $setor) {
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/view/{$setor}");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/get/{$setor}");
     $_SESSION['userlogin']['setor'] = $setor;
 
     $views = [];
@@ -142,6 +145,15 @@ foreach (\Config\Config::getSetores() as $setor) {
 
         $f = fopen(PATH_HOME . "bundle/view/{$setor}/{$view}.json", "w+");
         fwrite($f, json_encode($data));
+        fclose($f);
+    }
+
+    /**
+     * get requests to cache
+     */
+    foreach (["appFilesView", "appFilesViewUser", "currentFiles", "userCache"] as $get) {
+        $f = fopen(PATH_HOME . "bundle/get/{$setor}/{$get}.json", "w+");
+        fwrite($f, file_get_contents(SERVER . "get/{$get}/maestruToken/{$setor}"));
         fclose($f);
     }
 }

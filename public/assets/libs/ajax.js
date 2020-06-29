@@ -89,7 +89,12 @@ async function getJSON(url) {
 }
 
 async function get(file) {
-    return getJSON(SERVER + "get/" + file).then(data => {
+    let url = SERVER + "get/" + file;
+
+    if(HOME === "" && HOME !== SERVER)
+        url = "get/" + USER.setor + "/" + file;
+
+    return getJSON(url).then(data => {
         if (data.response === 1) {
             return data.data;
         } else {
