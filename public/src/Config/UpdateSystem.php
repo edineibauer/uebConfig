@@ -542,6 +542,7 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/loading.gif", PATH_HOME . "assetsPublic/img/loading.gif");
+        copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/loading.png", PATH_HOME . "assetsPublic/img/loading.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
         if (file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png")))
