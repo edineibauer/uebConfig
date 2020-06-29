@@ -125,13 +125,19 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
 
 <body ontouchstart="">
 <div id="app">
+
+    <!--header-->
     <div id="core-header" class="theme">
         <div id="core-header-container"></div>
     </div>
 
+    <!--sidebar-->
     <aside id="core-sidebar" class="core-class-container hide"></aside>
 
+    <!--overlay default-->
     <div id="core-overlay"></div>
+
+    <!--loading between pages-->
     <div id="core-loader">
         <svg viewBox="0 0 32 32" width="32" height="32">
             <circle id="core-spinner"
@@ -140,11 +146,27 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         </svg>
     </div>
 
+    <!--Splashscreen-->
+    <div class="core-class-container theme" id="core-loader-container">
+        <div class="core-class-container" id="core-loader-logo">
+            <img src="<?= !empty(LOGO) ? LOGO : FAVICON ?>" height="50" />
+        </div>
+        <div id="core-loader">
+            <svg viewBox="0 0 32 32" width="32" height="32">
+                <circle id="core-spinner" style="stroke: <?= THEMETEXT ?>" cx="16" cy="16" r="14" fill="none"></circle>
+            </svg>
+        </div>
+    </div>
+
+    <!--content-->
     <section id="core-content" class="core-class-container"></section>
 
+    <!--upload sync-->
     <div id="core-upload-progress">
         <div id="core-upload-progress-bar"></div>
     </div>
+
+    <!--navbar-->
     <div class="hide" id="core-header-nav-bottom">
         <nav role="navigation">
             <ul class="core-class-container" style="padding:0">

@@ -2326,6 +2326,13 @@ async function updatedPerfil() {
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
+    setTimeout(function() {
+        $("#core-loader-container").css({"opacity": 0});
+        setTimeout(function() {
+            $("#core-loader-container").css({"display": "none"});
+        },250);
+    },100);
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;

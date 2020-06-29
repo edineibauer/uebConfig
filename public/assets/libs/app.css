@@ -66,6 +66,30 @@ input, select, textarea {
     opacity: 1 !important;
 }
 
+/* SPLASHSCREEN */
+#core-loader-container {
+    height: 100vh;
+    z-index: 9999999999;
+    transition: all ease .3s;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#core-loader-container > #core-loader-logo {
+    position: fixed;
+    top: 40%;
+    left: 0;
+}
+
+#core-loader-container > #core-loader-logo > img{
+    margin: auto;
+    display: block;
+    max-width: 40%;
+    height: auto;
+}
+
+/* HEADER */
 #core-header {
     transform: translateY(-70px);
     opacity: 0;
