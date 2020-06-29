@@ -151,11 +151,6 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         <div class="core-class-container" id="core-loader-logo">
             <img src="<?= !empty(LOGO) ? "assetsPublic/img/logo.png" : "assetsPublic/img/favicon.png" ?>" height="50" />
         </div>
-        <div class="core-loader">
-            <svg viewBox="0 0 32 32" width="32" height="32">
-                <circle id="core-spinner" style="stroke: <?= THEMETEXT ?>" cx="16" cy="16" r="14" fill="none"></circle>
-            </svg>
-        </div>
     </div>
 
     <!--content-->
