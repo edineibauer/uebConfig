@@ -1,5 +1,6 @@
 <?php
 
+$data['data'] = [];
 $data['data']["view"] = [];
 
 $setor = \Config\Config::getSetor();

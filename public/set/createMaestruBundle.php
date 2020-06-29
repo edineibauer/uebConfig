@@ -1,6 +1,5 @@
 <?php
 
-die;
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
@@ -152,8 +151,10 @@ foreach (\Config\Config::getSetores() as $setor) {
      * get requests to cache
      */
     foreach (["appFilesView", "appFilesViewUser", "currentFiles", "userCache"] as $get) {
+        $data = ["data" => "", "response" => 1, "error" => ""];
+        include_once PATH_HOME . VENDOR . "config/public/get/{$get}.php";
         $f = fopen(PATH_HOME . "bundle/get/{$setor}/{$get}.json", "w+");
-        fwrite($f, file_get_contents(SERVER . "get/{$get}/maestruToken/{$setor}"));
+        fwrite($f, json_encode($data));
         fclose($f);
     }
 }
