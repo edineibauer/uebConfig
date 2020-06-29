@@ -50,7 +50,7 @@ ob_end_clean();
 
 $manifest = explode('>', explode('<link rel="manifest" ', $index)[1])[0];
 $index = str_replace('<link rel="manifest" ' . $manifest . '>', "", $index);
-$index = str_replace('</head>', "    <script type=\"text/javascript\" src=\"cordova.js\"></script>\n</head>", $index);
+$index = str_replace('</head>', "    <script src=\"cordova.js\"></script>\n</head>", $index);
 
 $f = fopen(PATH_HOME . "bundle/index.html", "w+");
 fwrite($f, $index);
