@@ -265,8 +265,8 @@ $(function ($) {
                             let p = loo[i];
                             let a = loo[i - 1].trim();
                             if (/(^\w|{)/.test(p)) {
-                                if (/>$/.test(a))
-                                    a = a.replace(/>$/, " data-skeleton='1'>");
+                                if (/(>|>[\w$\s]+)$/.test(a))
+                                    a = a.replace(/(>|>[\w$\s]+)$/, " data-skeleton='1'>");
                                 else if (/ src=("|')$/.test(a))
                                     a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
                             }
