@@ -214,14 +214,18 @@ $(function ($) {
      * @returns {Promise<void>}
      */
     $.fn.htmlTemplate = function (tpl, param, includeTpls) {
-        $this = this;
+        let $this = this;
         (async () => {
             includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
-            let templateTpl = templates[tpl];
+            let templateTpl = templates[tpl] || "";
             let isSkeleton = isEmpty(param);
+
+            let includes = {};
+            for (let i in includeTpls)
+                includes[includeTpls[i]] = templates[includeTpls[i]];
 
             /**
              * If not defined param, so check skeleton
@@ -237,11 +241,11 @@ $(function ($) {
                         if(i > 0) {
                             let p = loo[i].split("}}")[0];
                             if(p === ".") {
-                                for(let e = 0; e < 3; e++)
+                                for(let e = 0; e < 2; e++)
                                     param.push({});
                             } else if(!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for(let e = 0; e < 3; e++)
+                                for(let e = 0; e < 2; e++)
                                     vp.push({});
 
                                 param.push(createObjectWithStringDotNotation(p, vp));
@@ -288,7 +292,7 @@ $(function ($) {
                 if(typeof funcao === "function") {
                     funcao().then(data => {
                         if(!isEmpty(data))
-                            $this.htmlTemplate(tpl, data, includeTpls);
+                            $this.html(Mustache.render(templates[tpl], data, includes));
                     });
                 }
             } else {
@@ -297,10 +301,6 @@ $(function ($) {
                  */
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/img.png'\"");
             }
-
-            let includes = {};
-            for (let i in includeTpls)
-                includes[includeTpls[i]] = templates[includeTpls[i]];
 
             mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
             let content = Mustache.render(templateTpl, param, includes);
@@ -1955,6 +1955,13 @@ var app = {
 
                         $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>");
                         $div.append(g.content);
+
+                        /**
+                         * Compile templates
+                         */
+                        $div.find("[data-template]").each(function() {
+                            $(this).htmlTemplate($(this).data("template"));
+                        });
 
                         FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
                         if (!isEmpty(g.front) && typeof g.front === "object") {
