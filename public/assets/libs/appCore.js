@@ -220,7 +220,7 @@ $(function ($) {
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
-            let templateTpl = templates[tpl];
+            templateTpl = templates[tpl];
             let isSkeleton = isEmpty(param);
 
             /**
@@ -251,6 +251,29 @@ $(function ($) {
                 }
 
                 /**
+                 * Find content to add class skeleton
+                 */
+                loo = templateTpl.split("{{");
+                if(loo.length) {
+                    templateTpl = "";
+                    for(let i in loo) {
+                        if(i > 0) {
+                            let p = loo[i];
+                            let a = loo[i-1].trim();
+                            if(/^\w/.test(p)) {
+                                if(/>$/.test(a))
+                                    a = a.replace(/>$/, " data-skeleton='1'>");
+                                else if(/ src=("|')$/.test(a))
+                                    a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
+                            }
+                            templateTpl += a + "{{";
+                        }
+                    }
+                    templateTpl += loo[loo.length -1];
+                }
+
+
+                /**
                  * Check if have function to set data
                  */
                 if(typeof funcao === "function") {
@@ -275,6 +298,8 @@ $(function ($) {
             $this.html(content);
             if(!isSkeleton)
                 $this.find(".skeleton").removeClass("skeleton");
+            else
+                $this.find("[data-skeleton='1']").addClass("skeleton");
         })();
     };
 }(jQuery));
