@@ -278,6 +278,11 @@ $(function ($) {
                 templateTpl = templateTpl.replace(/<a /gi, "<div ").replace(/<\/a>/gi, "</div>");
 
                 /**
+                 * Image error back to loading png default
+                 */
+                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/loading.png'\"");
+
+                /**
                  * Check if have function to set data
                  */
                 if(typeof funcao === "function") {
@@ -285,6 +290,11 @@ $(function ($) {
                         $this.htmlTemplate(tpl, data, includeTpls);
                     });
                 }
+            } else {
+                /**
+                 * Image error set default img
+                 */
+                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/img.png'\"");
             }
 
             let includes = {};
@@ -293,11 +303,6 @@ $(function ($) {
 
             mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
             let content = Mustache.render(templateTpl, param, includes);
-
-            /**
-             * Image error back to loading png default
-             */
-            content = content.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/loading.png'\"");
 
             $this.html(content);
             if(!isSkeleton)
