@@ -215,7 +215,7 @@ $(function ($) {
      */
     $.fn.htmlTemplate = function (tpl, param, includeTpls) {
         let $this = this;
-        (async () => {
+        return (async () => {
             includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
@@ -317,6 +317,8 @@ $(function ($) {
 
             if (isSkeleton)
                 $this.find("[data-skeleton='1']").addClass("skeleton");
+
+            return $this;
         })();
     };
 }(jQuery));
