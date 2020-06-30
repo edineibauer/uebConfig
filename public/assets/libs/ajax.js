@@ -84,8 +84,6 @@ async function getJSON(url) {
         let isView = new RegExp("^view\/", "i");
         if (isView.test(url))
             location.href = HOME + "network";
-        else
-            toast("Sem Conexão!", 500, "toast-warning");
         throw err;
     })
 }
@@ -112,7 +110,6 @@ async function get(file) {
                         toast("Caminho não encontrado", 6500, "toast-warning")
             }
         }
-        toast("Sem Conexão!", 500, "toast-warning");
         console.log("OFFLINE: arquivo '" + file + "'");
     })
 }
