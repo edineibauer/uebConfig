@@ -237,11 +237,11 @@ $(function ($) {
                         if(i > 0) {
                             let p = loo[i].split("}}")[0];
                             if(p === ".") {
-                                for(let i = 0; i < 3; i++)
+                                for(let e = 0; e < 3; e++)
                                     param.push({});
                             } else if(!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for(let i = 0; i < 3; i++)
+                                for(let e = 0; e < 3; e++)
                                     vp.push({});
 
                                 param.push(createObjectWithStringDotNotation(p, vp));
