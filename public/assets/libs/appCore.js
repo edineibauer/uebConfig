@@ -220,7 +220,7 @@ $(function ($) {
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
-            templateTpl = templates[tpl];
+            let templateTpl = templates[tpl];
             let isSkeleton = isEmpty(param);
 
             /**
