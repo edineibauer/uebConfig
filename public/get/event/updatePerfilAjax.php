@@ -1,5 +1,6 @@
 <?php
-header('Content-Type: text/event-stream');
+header('Access-Control-Allow-Methods: GET');
+header('Content-Type: application/json');
 header('Cache-Control: no-cache');
 
 if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
