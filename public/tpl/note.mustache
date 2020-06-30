@@ -1,4 +1,4 @@
-{{#notificacoes}}
+{{#.}}
     <div class="notification-item" rel="{{id}}">
         <div class="notification-card{{#recebeu}} readed{{/recebeu}} no-select">
             <div class="notification-content-left">
@@ -16,7 +16,7 @@
         </div>
         <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
     </div>
-{{/notificacoes}}
+{{/.}}
 
 <script>
     new TouchLeft($(".notification-card"), -70, 50, 0);

@@ -275,7 +275,7 @@ $(function ($) {
                 /**
                  * Replace link to div
                  */
-                templateTpl = templateTpl.replace(/<a /gi, "<div ").replace(/<\/a>/gi, "</div>");
+                templateTpl = templateTpl.replace(/<a /gi, "<div data-skeleton='1' ").replace(/<\/a>/gi, "</div>");
 
                 /**
                  * Image error back to loading png default
@@ -287,7 +287,8 @@ $(function ($) {
                  */
                 if(typeof funcao === "function") {
                     funcao().then(data => {
-                        $this.htmlTemplate(tpl, data, includeTpls);
+                        if(!isEmpty(data))
+                            $this.htmlTemplate(tpl, data, includeTpls);
                     });
                 }
             } else {
@@ -305,9 +306,8 @@ $(function ($) {
             let content = Mustache.render(templateTpl, param, includes);
 
             $this.html(content);
-            if(!isSkeleton)
-                $this.find(".skeleton").removeClass("skeleton");
-            else
+
+            if(isSkeleton)
                 $this.find("[data-skeleton='1']").addClass("skeleton");
         })();
     };
