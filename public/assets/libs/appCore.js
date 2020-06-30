@@ -160,6 +160,21 @@ function isNumberPositive(n) {
 }
 
 /**
+ * @param key
+ * @param value
+ * @returns {{}}
+ */
+function createObjectWithStringDotNotation(key, value) {
+    var result = object = {};
+    var arr = key.split('.');
+    for(var i = 0; i < arr.length-1; i++) {
+        object = object[arr[i]] = {};
+    }
+    object[arr[arr.length-1]] = value;
+    return result;
+}
+
+/**
  * Obtém o número de parametros do objeto
  * @param obj
  * @returns {number}
@@ -196,19 +211,71 @@ $(function ($) {
      * @param tpl
      * @param param
      * @param includeTpls
-     * @returns {PromiseLike<any> | Promise<any>}
+     * @returns {Promise<void>}
      */
     $.fn.htmlTemplate = function (tpl, param, includeTpls) {
-        let $this = this;
-        includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : null;
-        param = typeof param === "object" && param !== null ? param : {};
-        mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
-        return getTemplates().then(templates => {
+        $this = this;
+        (async () => {
+            includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
+            let funcao = typeof param === "function" ? param : null;
+            param = typeof param === "object" && param !== null ? param : [];
+            let templates = await getTemplates();
+            templateTpl = templates[tpl];
+            let isSkeleton = isEmpty(param);
+
+            /**
+             * If not defined param, so check skeleton
+             */
+            if(isEmpty(param)) {
+                /**
+                 * Find arrays
+                 */
+                let loo = templateTpl.split("{{#");
+                if(loo.length) {
+                    param = [];
+                    for(let i in loo) {
+                        if(i > 0) {
+                            let p = loo[i].split("}}")[0];
+                            if(p === ".") {
+                                for(let i = 0; i < 3; i++)
+                                    param.push({});
+                            } else if(!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
+                                let vp = [];
+                                for(let i = 0; i < 3; i++)
+                                    vp.push({});
+
+                                param.push(createObjectWithStringDotNotation(p, vp));
+                            }
+                        }
+                    }
+                }
+
+                /**
+                 * Check if have function to set data
+                 */
+                if(typeof funcao === "function") {
+                    funcao().then(data => {
+                        $this.htmlTemplate(tpl, data, includeTpls);
+                    });
+                }
+            }
+
             let includes = {};
             for (let i in includeTpls)
                 includes[includeTpls[i]] = templates[includeTpls[i]];
-            $this.html(Mustache.render(templates[tpl], param, includes));
-        });
+
+            mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
+            let content = Mustache.render(templateTpl, param, includes);
+
+            /**
+             * Image error back to loading png default
+             */
+            content = content.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/loading.png'\"");
+
+            $this.html(content);
+            if(!isSkeleton)
+                $this.find(".skeleton").removeClass("skeleton");
+        })();
     };
 }(jQuery));
 

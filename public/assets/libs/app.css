@@ -66,6 +66,30 @@ input, select, textarea {
     opacity: 1 !important;
 }
 
+/* SKELETON */
+.skeleton {
+    width: 100%!important;
+    background-image: linear-gradient(90deg, rgba(165, 165, 165, .1) 0px, rgba(245, 245, 245, .35) 40px, rgba(165, 165, 165, .1) 80px)!important;
+    background-size: 200%!important;
+    background-position-x: -80px;
+    color: transparent!important;
+    animation: skeleton-lines 2s infinite ease-out!important;
+}
+
+h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.skeleton:after, h6.skeleton:after, p.skeleton:after, div.skeleton:after, span.skeleton:after, a.skeleton:after, li.skeleton:after {
+    content: "_";
+    color: transparent;
+}
+
+@keyframes skeleton-lines {
+    0% {
+        background-position: -80px;
+    }
+    40%, 100% {
+        background-position: -120%;
+    }
+}
+
 /* SPLASHSCREEN */
 #core-loader-container {
     height: 100vh;
