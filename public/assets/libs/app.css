@@ -73,7 +73,7 @@ input, select, textarea {
     background-size: 200%!important;
     background-position-x: -80px;
     color: transparent!important;
-    animation: skeleton-lines 2s infinite ease-out!important;
+    animation: skeleton-lines 1.5s infinite ease-out!important;
 }
 
 h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.skeleton:after, h6.skeleton:after, p.skeleton:after, div.skeleton:after, span.skeleton:after, a.skeleton:after, li.skeleton:after {
@@ -85,7 +85,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     0% {
         background-position: -80px;
     }
-    40%, 100% {
+    60%, 100% {
         background-position: -120%;
     }
 }
