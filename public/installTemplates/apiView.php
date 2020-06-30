@@ -23,7 +23,6 @@ if (!empty($url)) {
             $data = ["response" => 1, "error" => "", "data" => [
                 "title" => $link->getParam()['title'],
                 "descricao" => $link->getParam()['descricao'],
-                "front" => array_merge($link->getParam()['front'], ["variaveis" => $link->getParam()['variaveis'] ?? []]),
                 "css" => $link->getParam()['css'],
                 "js" => $link->getParam()['js'],
                 "head" => $link->getParam()['head'] ?? [],

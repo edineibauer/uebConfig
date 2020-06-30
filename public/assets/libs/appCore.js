@@ -20,7 +20,7 @@ function isBuild() {
 class SocialShare {
     static whatsapp(message, url) {
         if (isBuild() && isMobile()) {
-            if(window.plugins.socialsharing.canShareVia('whatsapp', 'msg')) {
+            if (window.plugins.socialsharing.canShareVia('whatsapp', 'msg')) {
                 window.plugins.socialsharing.shareViaWhatsApp(message, null /* img */, url /* url */)
             } else {
                 var options = {
@@ -167,10 +167,10 @@ function isNumberPositive(n) {
 function createObjectWithStringDotNotation(key, value) {
     var result = object = {};
     var arr = key.split('.');
-    for(var i = 0; i < arr.length-1; i++) {
+    for (var i = 0; i < arr.length - 1; i++) {
         object = object[arr[i]] = {};
     }
-    object[arr[arr.length-1]] = value;
+    object[arr[arr.length - 1]] = value;
     return result;
 }
 
@@ -220,7 +220,7 @@ $(function ($) {
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
-            let templateTpl = templates[tpl] || "";
+            let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
             let isSkeleton = isEmpty(param);
 
             let includes = {};
@@ -230,22 +230,22 @@ $(function ($) {
             /**
              * If not defined param, so check skeleton
              */
-            if(isEmpty(param)) {
+            if (isEmpty(param)) {
                 /**
                  * Find arrays
                  */
                 let loo = templateTpl.split("{{#");
-                if(loo.length) {
+                if (loo.length) {
                     param = [];
-                    for(let i in loo) {
-                        if(i > 0) {
+                    for (let i in loo) {
+                        if (i > 0) {
                             let p = loo[i].split("}}")[0];
-                            if(p === ".") {
-                                for(let e = 0; e < 2; e++)
+                            if (p === ".") {
+                                for (let e = 0; e < 2; e++)
                                     param.push({});
-                            } else if(!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
+                            } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for(let e = 0; e < 2; e++)
+                                for (let e = 0; e < 2; e++)
                                     vp.push({});
 
                                 param.push(createObjectWithStringDotNotation(p, vp));
@@ -258,22 +258,22 @@ $(function ($) {
                  * Find content to add class skeleton
                  */
                 loo = templateTpl.split("{{");
-                if(loo.length) {
+                if (loo.length) {
                     templateTpl = "";
-                    for(let i in loo) {
-                        if(i > 0) {
+                    for (let i in loo) {
+                        if (i > 0) {
                             let p = loo[i];
-                            let a = loo[i-1].trim();
-                            if(/(^\w|{)/.test(p)) {
-                                if(/>$/.test(a))
+                            let a = loo[i - 1].trim();
+                            if (/(^\w|{)/.test(p)) {
+                                if (/>$/.test(a))
                                     a = a.replace(/>$/, " data-skeleton='1'>");
-                                else if(/ src=("|')$/.test(a))
+                                else if (/ src=("|')$/.test(a))
                                     a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
                             }
                             templateTpl += a + "{{";
                         }
                     }
-                    templateTpl += loo[loo.length -1];
+                    templateTpl += loo[loo.length - 1];
                 }
 
                 /**
@@ -289,9 +289,9 @@ $(function ($) {
                 /**
                  * Check if have function to set data
                  */
-                if(typeof funcao === "function") {
+                if (typeof funcao === "function") {
                     funcao().then(data => {
-                        if(!isEmpty(data))
+                        if (!isEmpty(data))
                             $this.html(Mustache.render(templates[tpl], data, includes));
                     });
                 }
@@ -302,12 +302,20 @@ $(function ($) {
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/img.png'\"");
             }
 
-            mergeObject(param, {home: HOME, vendor: VENDOR, favicon: FAVICON, logo: LOGO, theme: THEME, themetext: THEMETEXT, sitename: SITENAME});
+            mergeObject(param, {
+                home: HOME,
+                vendor: VENDOR,
+                favicon: FAVICON,
+                logo: LOGO,
+                theme: THEME,
+                themetext: THEMETEXT,
+                sitename: SITENAME
+            });
             let content = Mustache.render(templateTpl, param, includes);
 
             $this.html(content);
 
-            if(isSkeleton)
+            if (isSkeleton)
                 $this.find("[data-skeleton='1']").addClass("skeleton");
         })();
     };
@@ -558,7 +566,7 @@ async function checkUpdate() {
     if (navigator.onLine && SERVICEWORKER) {
         let version = await AJAX.post("update");
 
-        if(!localStorage.update)
+        if (!localStorage.update)
             localStorage.update = version;
         else if (version > parseFloat(localStorage.update))
             toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
@@ -625,7 +633,7 @@ function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
-    if(typeof tpl.header === "undefined")
+    if (typeof tpl.header === "undefined")
         return updateCache();
 
     $("#core-header").html(Mustache.render(tpl.header, {
@@ -825,7 +833,7 @@ function getFieldsData(entity, haveId, r) {
      * Preenche campos restantes para disponibilizar visualização por controle na tabela
      */
     $.each(dicionarios[entity], function (i, e) {
-        if(e.format !== "password" && e.key !== "information" && !fields.find(s => s.nome === e.nome)) {
+        if (e.format !== "password" && e.key !== "information" && !fields.find(s => s.nome === e.nome)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
@@ -1092,7 +1100,7 @@ function updateCache() {
 
 function recoveryUser() {
     return dbLocal.exeRead("__login", 1).then(login => {
-        if(login.token != localStorage.token)
+        if (login.token != localStorage.token)
             return setCookieAnonimo();
 
         login.id = login.idUserReal;
@@ -1118,7 +1126,7 @@ function setUserInNavigator(user, storeUser) {
     USER = user;
     localStorage.token = user.token;
 
-    if(typeof storeUser === "undefined") {
+    if (typeof storeUser === "undefined") {
         let userLogin = Object.assign({}, USER);
         userLogin.idUserReal = USER.id;
         userLogin.id = 1;
@@ -1216,7 +1224,7 @@ async function loadViews() {
              * Para cada view, carrega seus assets
              */
             let viewsAssets = [];
-            if(!isEmpty(g.view)) {
+            if (!isEmpty(g.view)) {
                 for (let i in g.view) {
                     let viewName = "assetsPublic/view/" + USER.setor + "/" + g.view[i];
                     viewsAssets.push(viewName + ".min.js?v=" + VERSION);
@@ -1253,7 +1261,7 @@ function loadUserViews() {
                  * Para cada view, carrega seus assets
                  */
                 let viewsAssets = [];
-                if(!isEmpty(g.view)) {
+                if (!isEmpty(g.view)) {
                     for (let i in g.view)
                         viewsAssets.push("assetsPublic/view/" + USER.setor + "/" + g.view[i] + ".min.js?v=" + VERSION);
                 }
@@ -1329,9 +1337,9 @@ async function getNotifications() {
  */
 async function updateNotificationsBadge() {
     if ($("#core-header-nav-bottom").find("a[href='notificacoes']").length && USER.setor !== 0) {
-        if(typeof(EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
+        if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
             let notefications = new EventSource(SERVER + "get/event/notifications_badge", {withCredentials: true});
-            notefications.onmessage = function(event) {
+            notefications.onmessage = function (event) {
                 $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
                 pendentes = event.data;
 
@@ -1342,7 +1350,7 @@ async function updateNotificationsBadge() {
                     $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
             };
         } else {
-            setInterval(function() {
+            setInterval(function () {
                 let pendentes = 0;
                 db.exeRead("notifications_report").then(notifications => {
                     $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
@@ -1647,7 +1655,7 @@ function animateTimeout($element, $aux, scroll) {
         /**
          * Cria Page Cache
          */
-        $aux.removeAttr("data-header").removeAttr("data-navbar").removeAttr("data-js").removeAttr("data-front").removeAttr("data-title").removeAttr("rel").removeClass("cache-content");
+        $aux.removeAttr("data-header").removeAttr("data-head").removeAttr("data-navbar").removeAttr("data-js").removeAttr("data-title").removeAttr("rel").removeClass("cache-content");
         $element.addClass("hide");
         if ($element.attr("id") !== undefined)
             $element.attr("id", "cache-" + $element.attr("id"));
@@ -1880,7 +1888,7 @@ var app = {
         loadingEffect = setInterval(function () {
             $("#core-header").loading();
         }, 1900);
-    }, applyView: function (file, $div) {
+    }, applyView: async function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
 
         if ($div.html() !== "") {
@@ -1897,14 +1905,14 @@ var app = {
              * add tags to the head of the page
              * if allready exist, so not do anything
              */
-            if(!isEmpty(headerAssets)) {
+            if (!isEmpty(headerAssets)) {
                 /**
                  * Remove link from head not used
                  */
 
                 let idsLinks = Object.keys(headerAssets);
                 $(".coreLinkHeader").each(function (i, e) {
-                    if(idsLinks.indexOf($(e).attr("id")) === -1)
+                    if (idsLinks.indexOf($(e).attr("id")) === -1)
                         $(e).remove();
                 });
 
@@ -1920,13 +1928,6 @@ var app = {
                  * Remove all link from head
                  */
                 $(".coreLinkHeader").remove();
-            }
-
-            FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
-            let frontVar = $div.data('front');
-            if (!isEmpty(frontVar)) {
-                for (let col in frontVar)
-                    FRONT[col.toUpperCase()] = frontVar[col];
             }
 
             if (!pageHeader)
@@ -1945,111 +1946,93 @@ var app = {
 
         } else {
             app.setLoading();
-            return AJAX.view(file).then(g => {
-                if (g) {
-                    if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                        TITLE = g.title;
-                        headerShow(g.header);
-                        checkMenuActive();
-                        $("#core-title").text(g.title);
+            let g = await AJAX.view(file);
+            if (g) {
+                if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
+                    TITLE = g.title;
+                    headerShow(g.header);
+                    checkMenuActive();
+                    $("#core-title").text(g.title);
 
-                        $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>");
-                        $div.append(g.content);
+                    let templates = await getTemplates();
 
+                    /**
+                     * Include templates used in this view
+                     */
+                    if(!isEmpty(g.templates)) {
+                        templates = Object.assign(templates, g.templates);
+                        dbLocal.exeCreate("__template", templates);
+                    }
+
+                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>");
+                    $div.append(g.content);
+
+                    /**
+                     * Compile templates
+                     */
+                    $div.find("[data-template]").each(function () {
+                        $(this).htmlTemplate(templates[$(this).data("template")]);
+                    });
+
+                    if (g.cache)
+                        $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
+
+                    if (!g.header)
+                        $div.addClass("notop");
+
+                    if (g.navbar)
+                        $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+
+                    $div.css("min-height", getPageContentHeight());
+                    if ($div.attr("id") === "core-content")
+                        $div.css("padding-top", getPaddingTopContent());
+
+                    /**
+                     * add tags to the head of the page
+                     * if allready exist, so not do anything
+                     */
+                    if (!isEmpty(g.head)) {
                         /**
-                         * Compile templates
+                         * Remove link from head not used
                          */
-                        $div.find("[data-template]").each(function() {
-                            $(this).htmlTemplate($(this).data("template"));
+
+                        let idsLinks = Object.keys(g.head);
+                        $(".coreLinkHeader").each(function (i, e) {
+                            if (idsLinks.indexOf($(e).attr("id")) === -1)
+                                $(e).remove();
                         });
 
-                        FRONT = typeof FRONT.VARIAVEIS !== "undefined" ? {VARIAVEIS: FRONT.VARIAVEIS} : {};
-                        if (!isEmpty(g.front) && typeof g.front === "object") {
-                            for (let col in g.front)
-                                FRONT[col.toUpperCase()] = g.front[col]
-                        }
-
-                        if (g.cache)
-                            $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
-
-                        if (!g.header)
-                            $div.addClass("notop");
-
-                        if (g.navbar)
-                            $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
-
-                        $div.css("min-height", getPageContentHeight());
-                        if ($div.attr("id") === "core-content")
-                            $div.css("padding-top", getPaddingTopContent());
-
                         /**
-                         * add tags to the head of the page
-                         * if allready exist, so not do anything
+                         * Add link to head
                          */
-                        if(!isEmpty(g.head)) {
-                            /**
-                             * Remove link from head not used
-                             */
-
-                            let idsLinks = Object.keys(g.head);
-                            $(".coreLinkHeader").each(function (i, e) {
-                                if(idsLinks.indexOf($(e).attr("id")) === -1)
-                                    $(e).remove();
-                            });
-
-                            /**
-                             * Add link to head
-                             */
-                            for (let hid in g.head) {
-                                if (!$("head > #" + hid).length)
-                                    $(g.head[hid]).appendTo("head");
-                            }
-                        } else {
-                            /**
-                             * Remove all link from head
-                             */
-                            $(".coreLinkHeader").remove();
-                        }
-
-                        /**
-                         * Include templates used in this view
-                         */
-                        if(!isEmpty(g.templates)) {
-                            getTemplates().then(templates => {
-                                dbLocal.exeCreate("__template", Object.assign(templates, g.templates)).then(() => {
-
-                                    /**
-                                     * add script to page
-                                     */
-                                    if (!isEmpty(g.js)) {
-                                        for(let js of g.js)
-                                            $.cachedScript(js);
-                                    }
-                                    app.removeLoading();
-                                });
-                            });
-
-                        } else {
-
-                            /**
-                             * add script to page
-                             */
-                            if (!isEmpty(g.js)) {
-                                for(let js of g.js)
-                                    $.cachedScript(js);
-                            }
-                            app.removeLoading();
+                        for (let hid in g.head) {
+                            if (!$("head > #" + hid).length)
+                                $(g.head[hid]).appendTo("head");
                         }
                     } else {
-                        if (USER.setor === 0 && !localStorage.redirectOnLogin)
-                            localStorage.redirectOnLogin = file;
-                        location.href = HOME + g.redirect
+                        /**
+                         * Remove all link from head
+                         */
+                        $(".coreLinkHeader").remove();
                     }
+
+                    /**
+                     * add script to page
+                     */
+                    if (!isEmpty(g.js)) {
+                        for (let js of g.js)
+                            $.cachedScript(js);
+                    }
+                    app.removeLoading();
                 } else {
-                    $div.html("");
-                    app.removeLoading()
+                    if (USER.setor === 0 && !localStorage.redirectOnLogin)
+                        localStorage.redirectOnLogin = file;
+                    location.href = HOME + g.redirect
                 }
-            })
+            } else {
+                $div.html("");
+                app.removeLoading()
+            }
         }
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
@@ -2098,17 +2081,17 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     let reload = typeof route === "undefined";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
 
-    if(reload && HOME === "" && HOME !== SERVER) {
+    if (reload && HOME === "" && HOME !== SERVER) {
         route = "index";
     } else {
         route = (typeof route === "string" ? route : location.href).replace(HOME, '');
         route = route === "/" ? "" : route;
-        if(HOME === "" && HOME !== SERVER && /index\.html\?url=/.test(route))
+        if (HOME === "" && HOME !== SERVER && /index\.html\?url=/.test(route))
             route = route.split("?url=")[1];
 
-        if(/\//.test(route)) {
+        if (/\//.test(route)) {
             param.url = route.split("/");
-            if(HOME === "" && HOME !== SERVER)
+            if (HOME === "" && HOME !== SERVER)
                 route = param.url.shift();
             else
                 param.url.shift();
@@ -2191,22 +2174,37 @@ async function pageTransition(route, type, animation, target, param, scroll, set
             } else if (type === 'grid') {
 
                 //if gridCrud not exist, await until its load
-                if(typeof gridCrud !== "function")
-                    await new Promise(s => rrr = setInterval(() => { if(typeof gridCrud === "function") {clearInterval(rrr); s(1);}}, 50));
+                if (typeof gridCrud !== "function")
+                    await new Promise(s => rrr = setInterval(() => {
+                        if (typeof gridCrud === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 50));
 
                 $page.grid(history.state.route)
             } else if (type === 'report') {
 
                 //if reportTable not exist, await until its load
-                if(typeof reportTable !== "function")
-                    await new Promise(s => rrr = setInterval(() => { if(typeof reportTable === "function") {clearInterval(rrr); s(1);}}, 50));
+                if (typeof reportTable !== "function")
+                    await new Promise(s => rrr = setInterval(() => {
+                        if (typeof reportTable === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 50));
 
                 $page.reportTable(history.state.route)
             } else if (type === 'form') {
 
                 //if formCrud not exist, await until its load
-                if(typeof formCrud !== "function")
-                    await new Promise(s => rrr = setInterval(() => { if(typeof formCrud === "function") {clearInterval(rrr); s(1);}}, 50));
+                if (typeof formCrud !== "function")
+                    await new Promise(s => rrr = setInterval(() => {
+                        if (typeof formCrud === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 50));
 
                 let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
@@ -2405,7 +2403,7 @@ function goLinkPageTransition(url, $this, e) {
 }
 
 async function updatedPerfil() {
-    if(navigator.onLine) {
+    if (navigator.onLine) {
         if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
             let u = new EventSource(SERVER + "get/event/updatePerfil", {withCredentials: true});
             u.onmessage = function (event) {
@@ -2422,7 +2420,7 @@ async function updatedPerfil() {
         }
     } else {
         let checkUpdatePerfilOffline = setInterval(function () {
-            if(navigator.onLine) {
+            if (navigator.onLine) {
                 updatedPerfil();
                 clearInterval(checkUpdatePerfilOffline);
             }
@@ -2434,12 +2432,12 @@ async function updatedPerfil() {
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
-    setTimeout(function() {
+    setTimeout(function () {
         $("#core-loader-container").css({"opacity": 0});
-        setTimeout(function() {
+        setTimeout(function () {
             $("#core-loader-container").css({"display": "none"});
-        },250);
-    },100);
+        }, 250);
+    }, 100);
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -2518,7 +2516,7 @@ async function onLoadDocument() {
                     goLinkPageTransition(url, $this, e);
                 }, timeWaitClick);
             }
-        } else if(!$this.hasAttr("data-preventDefault")) {
+        } else if (!$this.hasAttr("data-preventDefault")) {
             goLinkPageTransition(url, $this, e);
         }
     }).off("submit", "form").on("submit", "form", function (e) {
@@ -2559,14 +2557,14 @@ async function startApplication() {
     await onLoadDocument();
     await updatedPerfil();
 
-    if(localStorage.accesscount === "1") {
+    if (localStorage.accesscount === "1") {
 
         /**
          * Recupera syncs pendentes deste usuário
          */
         loadSyncNotSaved();
 
-        if(SERVICEWORKER && HOME !== "" && HOME === SERVER) {
+        if (SERVICEWORKER && HOME !== "" && HOME === SERVER) {
             setTimeout(function () {
                 checkUpdate();
             }, 1000);
@@ -2580,7 +2578,7 @@ async function startApplication() {
 async function setServiceWorker(swReg) {
     swRegistration = swReg;
 
-    if(USER.token && swRegistration.active)
+    if (USER.token && swRegistration.active)
         return swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 }
 
