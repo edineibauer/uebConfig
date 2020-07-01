@@ -1114,7 +1114,7 @@ function recoveryUser() {
     });
 }
 
-function setUserInNavigator(user, storeUser) {
+function setUserInNavigator(user, isUserToStore) {
     user = typeof user === "object" ? user : {
         token: 0,
         id: 0,
@@ -1128,15 +1128,8 @@ function setUserInNavigator(user, storeUser) {
     USER = user;
     localStorage.token = user.token;
 
-    if (typeof storeUser === "undefined") {
-        let userLogin = Object.assign({}, USER);
-        userLogin.idUserReal = USER.id;
-        userLogin.id = 1;
-
-        return dbLocal.exeCreate("__login", userLogin).then(() => {
-            return loadCacheUser();
-
-        }).catch(e => {
+    if (typeof isUserToStore === "undefined") {
+        return storeUser().then(loadCacheUser).catch(e => {
             errorLoadingApp("obter __login", e);
         });
     } else {
@@ -2449,20 +2442,23 @@ async function setUserData(field, value) {
     /**
      * Update user in indexedDB
      */
-    let userLogin = Object.assign({}, USER);
-    userLogin.idUserReal = USER.id;
-    userLogin.id = 1;
-    await dbLocal.exeCreate("__login", userLogin);
-
-    /**
-     * Check for changes on image or name to update user primary data
-     */
+    storeUser();
 
     /**
      * Update user in server base
      */
     if(navigator.onLine)
         return AJAX.post("setUserData", updates);
+}
+
+/**
+ * Store user data in indexedDB
+ */
+function storeUser() {
+    let userLogin = Object.assign({}, USER);
+    userLogin.idUserReal = USER.id;
+    userLogin.id = 1;
+    return dbLocal.exeCreate("__login", userLogin);
 }
 
 /**
@@ -2474,22 +2470,26 @@ async function updatedPerfil() {
         if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
             let u = new EventSource(SERVER + "get/event/updatePerfil/maestruToken/" + USER.token, {withCredentials: true});
             u.onmessage = function (event) {
-                if (typeof event.data === "string" && event.data !== "" && isJson(event.data))
+                if (typeof event.data === "string" && event.data !== "" && isJson(event.data)) {
                     USER = JSON.parse(event.data);
+                    storeUser();
+                }
             };
         } else {
             setInterval(function () {
                 AJAX.getUrl(SERVER + "get/event/updatePerfilAjax").then(u => {
-                    if (typeof u === "string" && u !== "" && isJson(u))
+                    if (typeof u === "string" && u !== "" && isJson(u)) {
                         USER = JSON.parse(u);
+                        storeUser();
+                    }
                 });
             }, 3000);
         }
     } else {
         let checkUpdatePerfilOffline = setInterval(function () {
             if (navigator.onLine) {
-                updatedPerfil();
                 clearInterval(checkUpdatePerfilOffline);
+                updatedPerfil();
             }
         }, 2000);
     }
