@@ -2472,7 +2472,7 @@ async function setUserData(field, value) {
 async function updatedPerfil() {
     if (navigator.onLine) {
         if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
-            let u = new EventSource(SERVER + "get/event/updatePerfil", {withCredentials: true});
+            let u = new EventSource(SERVER + "get/event/updatePerfil/maestruToken/" + USER.token, {withCredentials: true});
             u.onmessage = function (event) {
                 if (typeof event.data === "string" && event.data !== "" && isJson(event.data))
                     USER = JSON.parse(event.data);
