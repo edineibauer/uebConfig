@@ -2404,6 +2404,71 @@ function goLinkPageTransition(url, $this, e) {
     }
 }
 
+/**
+ * Set data on user, updating his data on local and server
+ * @param field
+ * @param value
+ * @returns {Promise<unknown>}
+ */
+async function setUserData(field, value) {
+    let updates = {};
+
+    /**
+     * Update user local application
+     */
+    if(typeof value !== "undefined" && typeof field === "string" && dicionarios[USER.setor][field]) {
+        /**
+         * one field and one value
+         */
+        USER.setorData[field] = value;
+        updates[field] = value;
+
+    } else if(typeof field === "object" && field !== null && field.constructor === Object && typeof value === "undefined") {
+        /**
+         * One object
+         */
+        for(let c in field) {
+            if(typeof c === "string" && typeof field[c] !== "undefined" && dicionarios[USER.setor][field[c]]) {
+                USER.setorData[c] = field[c];
+                updates[c] = field[c];
+            }
+        }
+
+    } else if(typeof field === "object" && field !== null && field.constructor === Array && typeof value === "object" && value !== null && value.constructor === Array) {
+        /**
+         * Two arrays, first is fields, second is values
+         */
+        for(let i in field) {
+            if(typeof field[i] === "string" && typeof value[i] !== "undefined" && dicionarios[USER.setor][field[i]]) {
+                USER.setorData[field[i]] = getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
+                updates[field[i]] = getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
+            }
+        }
+    }
+
+    /**
+     * Update user in indexedDB
+     */
+    let userLogin = Object.assign({}, USER);
+    userLogin.idUserReal = USER.id;
+    userLogin.id = 1;
+    await dbLocal.exeCreate("__login", userLogin);
+
+    /**
+     * Check for changes on image or name to update user primary data
+     */
+
+    /**
+     * Update user in server base
+     */
+    if(navigator.onLine)
+        return AJAX.post("setUserData", updates);
+}
+
+/**
+ * Get user profile in server to update local
+ * @returns {Promise<void>}
+ */
 async function updatedPerfil() {
     if (navigator.onLine) {
         if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
