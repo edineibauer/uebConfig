@@ -149,7 +149,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <!--Splashscreen-->
     <div class="core-class-container theme" id="core-loader-container">
         <div class="core-class-container" id="core-loader-logo">
-            <img src="<?= !empty(LOGO) ? "assetsPublic/img/logo.png" : "assetsPublic/img/favicon.png" ?>" height="50" />
+            <img src="<?= !empty(LOGO) ? "assetsPublic/img/logo.png" : "assetsPublic/img/favicon.png" ?>" height="50" style="max-height: 50px;" />
         </div>
     </div>
 
