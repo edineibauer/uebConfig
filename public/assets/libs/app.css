@@ -52,7 +52,7 @@ input, select, textarea {
 }
 
 #core-header-container {
-    padding: 10px 0;
+    padding: 12px 0;
     float: left;
     width: 100%;
 }
@@ -120,7 +120,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     opacity: 0;
     z-index: 19;
     width: 100%;
-    padding: 4px 8px;
+    padding: 0 8px;
     position: absolute;
     height: 70px;
     top: 0;
