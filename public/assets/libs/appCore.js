@@ -242,13 +242,14 @@ $(function ($) {
                             let p = loo[i].split("}}")[0];
                             if (p === ".") {
                                 for (let e = 0; e < 2; e++)
-                                    param.push({});
+                                    param.push([]);
                             } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
                                 for (let e = 0; e < 2; e++)
                                     vp.push({});
 
-                                param.push(createObjectWithStringDotNotation(p, vp));
+                                param[0].push(createObjectWithStringDotNotation(p, vp));
+                                param[1].push(createObjectWithStringDotNotation(p, vp));
                             }
                         }
                     }
@@ -265,8 +266,8 @@ $(function ($) {
                             let p = loo[i];
                             let a = loo[i - 1].trim();
                             if (/(^\w|{)/.test(p)) {
-                                if (/(>|>[\w$\s]+)$/.test(a))
-                                    a = a.replace(/(>|>[\w$\s]+)$/, " data-skeleton='1'>");
+                                if (/>[\w$\s]*$/.test(a))
+                                    a = a.replace(/>[\w$\s]*$/, " data-skeleton='1'>");
                                 else if (/ src=("|')$/.test(a))
                                     a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
                             }
@@ -279,7 +280,7 @@ $(function ($) {
                 /**
                  * Replace link to div
                  */
-                templateTpl = templateTpl.replace(/<a /gi, "<div data-skeleton='1' ").replace(/<\/a>/gi, "</div>");
+                templateTpl = templateTpl.replace(/<a /gi, "<div ").replace(/<\/a>/gi, "</div>");
 
                 /**
                  * Image error back to loading png default
