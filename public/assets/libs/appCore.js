@@ -2608,21 +2608,13 @@ async function onLoadDocument() {
     }
 }
 
-async function setDicionario() {
-    return dbLocal.exeRead('__dicionario', 1).then(d => {
-        dicionarios = d;
-    })
-}
-
 async function startApplication() {
     await checkSessao();
-    await setDicionario();
-
-    await (!localStorage.accesscount ? firstAccess() : thenAccess());
-
     await menuHeader();
     await readRouteState();
     await onLoadDocument();
+
+    await (!localStorage.accesscount ? firstAccess() : thenAccess());
     await updatedPerfil();
 
     if (localStorage.accesscount === "1") {

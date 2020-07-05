@@ -279,7 +279,6 @@ class UpdateSystem
         if(DEV) {
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js");
-            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js");
@@ -329,7 +328,6 @@ class UpdateSystem
         } else {
             $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/touch.js"));
-            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/moment.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/mustache.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/idb.js"));
