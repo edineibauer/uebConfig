@@ -97,7 +97,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <meta name="msapplication-navbutton-color" content="<?= THEME ?>">
 
     <link rel='stylesheet' href='<?= HOME ?>assetsPublic/appCore.min.css?v=<?= VERSION ?>'>
-    <link rel='stylesheet' href='<?= HOME ?>assetsPublic/fonts.min.css?v=<?= VERSION ?>'>
+    <link rel='stylesheet' href='<?= HOME ?>assetsPublic/fonts.min.css?v=<?= VERSION ?>' async>
 
     <script>
         const SERVICEWORKER = <?=(SERVICEWORKER ? "'serviceWorker' in navigator && !(window.navigator.userAgent.indexOf(\"Edge\") > -1 || /MSIE 10/i.test(navigator.userAgent) || /MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent))" : "!1")?>;
