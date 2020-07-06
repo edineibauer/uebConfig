@@ -43,7 +43,7 @@ class SocialShare {
  * @param options
  * @returns {*}
  */
-$.cachedScript = function (url, options) {
+$.cachedScript = async function (url, options) {
     return $.ajax($.extend(options || {}, {dataType: "script", cache: !0, url: url}))
 };
 
@@ -2017,7 +2017,7 @@ var app = {
                      */
                     if (!isEmpty(g.js)) {
                         for (let js of g.js)
-                            $.cachedScript(js);
+                            await $.cachedScript(js);
                     }
                     app.removeLoading();
                 } else {
