@@ -446,15 +446,6 @@ class UpdateSystem
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.php"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.php"));
 
-        if (!file_exists(PATH_HOME . "public/menu/menu.json"))
-            Config::writeFile("public/menu/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menu.txt"));
-
-        if (!file_exists(PATH_HOME . "public/menu/0/menu.json"))
-            Config::writeFile("public/menu/0/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAnonimo.txt"));
-
-        if (!file_exists(PATH_HOME . "public/menu/admin/menu.json"))
-            Config::writeFile("public/menu/admin/menu.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/menuAdmin.txt"));
-
         if (!file_exists(PATH_HOME . "assetsPublic/language/pt-br.json"))
             Config::writeFile("assetsPublic/language/pt-br.json", file_get_contents(PATH_HOME . VENDOR . "config/public/assets/language/pt-br.json"));
 
