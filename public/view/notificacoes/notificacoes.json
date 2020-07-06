@@ -1,0 +1,9 @@
+{
+    "title": "Notificações {{sitename}}",
+    "css": ["bootstrap"],
+    "navbar": true,
+    "header": false,
+    "!setor": "0",
+    "redirect": "login",
+    "templates": "note"
+}

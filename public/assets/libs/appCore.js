@@ -1307,27 +1307,6 @@ async function setNotificationOpen(id) {
 }
 
 /**
- * Obtem as notificações
- * @returns {Promise<[]>}
- */
-async function getNotifications() {
-    let notifications = await db.exeRead("notifications_report");
-
-    let myNotifications = [];
-    if (!isEmpty(notifications)) {
-        for (let note of notifications) {
-            let notify = await db.exeRead("notifications", note.notificacao);
-            notify.data = moment(note.data_de_envio).calendar().toLowerCase();
-            notify.imagem = notify.imagem || HOME + "assetsPublic/img/favicon-256.png";
-            note.notificacaoData = notify;
-            myNotifications.push(note);
-        }
-    }
-
-    return myNotifications.reverse();
-}
-
-/**
  * Verifica se tem notificações pendentes
  * @returns {Promise<void>}
  */
