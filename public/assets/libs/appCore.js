@@ -268,6 +268,10 @@ $(function ($) {
                                 for (let e = 0; e < 2; e++)
                                     vp.push({});
 
+                                if(typeof param[0] === "undefined")
+                                    param.push([]);
+                                if(typeof param[1] === "undefined")
+                                    param.push([]);
                                 param[0].push(createObjectWithStringDotNotation(p, vp));
                                 param[1].push(createObjectWithStringDotNotation(p, vp));
                             }
