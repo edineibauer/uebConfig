@@ -13,6 +13,26 @@ function isBuild() {
     return !SERVICEWORKER && HOME === "";
 }
 
+function dateFormat(date) {
+    let dateObj = new Date(date || Date.now());
+    let day = String(dateObj.getDate()).padStart(2, '0');
+    let month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    let year = dateObj.getFullYear();
+    return day + '/' + month  + '/' + year;
+}
+
+function timeFormat(date) {
+    let dateObj = new Date(date || Date.now());
+    let hour = String(dateObj.getHours()).padStart(2, '0');
+    let min = String(dateObj.getMinutes()).padStart(2, '0');
+    let sec = String(dateObj.getSeconds()).padStart(2, '0');
+    return hour + ":" + min + ":" + sec;
+}
+
+function timeFormatWithoutSeconds(date) {
+    return timeFormat(date).substring(0, 5)
+}
+
 /**
  * Social share class
  * to use in cordova and web

@@ -14,7 +14,12 @@
                 </div>
             </div>
         </div>
-        <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
+        {{#id}}
+            <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
+        {{/id}}
+        {{^id}}
+            <i class="material-icons" style="color: green">mood</i>
+        {{/id}}
     </div>
 {{/.}}
 
