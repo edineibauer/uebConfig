@@ -242,6 +242,7 @@ $(function ($) {
             let templates = await getTemplates();
             let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
             let isSkeleton = isEmpty(param);
+            let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 2;
 
             let includes = {};
             for (let i in includeTpls)
@@ -261,11 +262,11 @@ $(function ($) {
                         if (i > 0) {
                             let p = loo[i].split("}}")[0];
                             if (p === ".") {
-                                for (let e = 0; e < 2; e++)
+                                for (let e = 0; e < loop; e++)
                                     param.push([]);
                             } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for (let e = 0; e < 2; e++)
+                                for (let e = 0; e < loop; e++)
                                     vp.push({});
 
                                 if(typeof param[0] === "undefined")

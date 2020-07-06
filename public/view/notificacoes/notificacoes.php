@@ -12,7 +12,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <div id="notificacoes" data-template="note"></div>
+                <div id="notificacoes" data-template="note" data-template-loop="1"></div>
             </div>
         </div>
     </div>
