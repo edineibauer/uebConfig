@@ -1684,10 +1684,10 @@ function animateForward(id, file, scroll) {
             $aux.css("top", topHeader + "px");
 
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 150, () => {
+                $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, 0)
                 });
-                $element.animate({left: '-100%'}, 150)
+                $element.css("z-index", -1).animate({left: '-30%'}, 300)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 150, () => {
                     animateTimeout($element, $aux, 0)
@@ -1695,7 +1695,7 @@ function animateForward(id, file, scroll) {
                 $element.animate({left: (left - 100) + "px", opacity: 0}, 100)
             }
         }
-    }, 50);
+    }, 10);
 
     return $aux
 }
@@ -1715,10 +1715,10 @@ function animateBack(id, file, scroll) {
             let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 150, () => {
+                $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
                 });
-                $element.animate({left: '100%'}, 150)
+                $element.css("z-index", -1).animate({left: '30%'}, 250)
             } else {
                 $aux.animate({left: left + 'px', opacity: 1}, 150, () => {
                     animateTimeout($element, $aux, scroll)
@@ -1726,7 +1726,7 @@ function animateBack(id, file, scroll) {
                 $element.animate({opacity: 0}, 100);
             }
         }
-    }, 50);
+    }, 10);
 
     return $aux
 }
@@ -1757,7 +1757,7 @@ function animateFade(id, file, scroll) {
 
             $element.animate({opacity: 0, left: '100%'}, 0);
         }
-    }, 50);
+    }, 10);
 
     return $aux
 }
@@ -1780,7 +1780,7 @@ function animateNone(id, file, scroll) {
             });
             $element.animate({opacity: 0, left: '100%'}, 0);
         }
-    }, 50);
+    }, 10);
 
     return $aux
 }
@@ -1796,13 +1796,6 @@ function headerShow(show) {
         $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
     }
 }
-
-/*function getPageHeight(haveHeader, navbar) {
-    haveHeader = typeof haveHeader === "undefined" ? $("#core-header").css("opacity") === "1" : haveHeader;
-    navbar = typeof navbar === "undefined" || navbar;
-    let topHeader = haveHeader ? $("#core-header")[0].clientHeight : 0;
-    return (window.innerHeight - topHeader - (window.innerWidth < 900 && navbar && $("#core-header-nav-bottom").hasClass("s-show") ? 50 : 0));
-}*/
 
 var dicionarios,
     swRegistration = null,
@@ -1991,8 +1984,11 @@ var app = {
 
                         let idsLinks = Object.keys(g.head);
                         $(".coreLinkHeader").each(function (i, e) {
-                            if (idsLinks.indexOf($(e).attr("id")) === -1)
-                                $(e).remove();
+                            if (idsLinks.indexOf($(e).attr("id")) === -1) {
+                                setTimeout(function () {
+                                    $(e).remove();
+                                },250);
+                            }
                         });
 
                         /**
@@ -2173,7 +2169,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                             clearInterval(rrr);
                             s(1);
                         }
-                    }, 50));
+                    }, 20));
 
                 $page.grid(history.state.route)
             } else if (type === 'report') {
@@ -2185,7 +2181,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                             clearInterval(rrr);
                             s(1);
                         }
-                    }, 50));
+                    }, 20));
 
                 $page.reportTable(history.state.route)
             } else if (type === 'form') {
@@ -2197,7 +2193,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                             clearInterval(rrr);
                             s(1);
                         }
-                    }, 50));
+                    }, 20));
 
                 let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
                 let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
