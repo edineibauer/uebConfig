@@ -1641,8 +1641,7 @@ function animateTimeout($element, $aux, scroll) {
         "position": "relative",
         "top": "initial",
         "left": "initial",
-        "width": "100%",
-        "margin-top": 0
+        "width": "100%"
     }).removeClass("notop");
 
     if ($element.hasClass("cache-content")) {
@@ -1714,7 +1713,7 @@ function animateBack(id, file, scroll) {
 
             let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
-            $aux.css({"margin-top": (- scroll) + "px"});
+            $aux.css({"transform": "translateY((- scroll) + 'px')"});
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
