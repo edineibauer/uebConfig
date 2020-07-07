@@ -310,7 +310,7 @@ $(function ($) {
                 /**
                  * Image error back to loading png default
                  */
-                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/loading.png'\"");
+                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/loading.png'\"");
 
                 /**
                  * Check if have function to set data
@@ -325,7 +325,7 @@ $(function ($) {
                 /**
                  * Image error set default img
                  */
-                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='assetsPublic/img/img.png'\"");
+                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\"");
             }
 
             mergeObject(param, {
