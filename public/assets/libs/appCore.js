@@ -1642,7 +1642,7 @@ function animateTimeout($element, $aux, scroll) {
         "top": "initial",
         "left": "initial",
         "width": "100%"
-    }).removeClass("notop");
+    });
 
     if ($element.hasClass("cache-content")) {
         /**
@@ -1680,7 +1680,7 @@ function animateForward(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
@@ -1711,9 +1711,8 @@ function animateBack(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", topHeader + "px");
-            $aux.css({"transform": "translateY((- scroll) + 'px')"});
+            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
+            $aux.css("top", (- (scroll + topHeader)) + "px");
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
@@ -1742,7 +1741,7 @@ function animateFade(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
             scroll = typeof scroll !== "undefined" ? scroll : 0;
             if (window.innerWidth < 900) {
@@ -1774,7 +1773,7 @@ function animateNone(id, file, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.animate({top: -(scroll - topHeader) + "px", left: 0, opacity: 1}, 0, () => {
                 animateTimeout($element, $aux, scroll)
             });
@@ -1916,9 +1915,6 @@ var app = {
                 $(".coreLinkHeader").remove();
             }
 
-            if (!pageHeader)
-                $div.addClass("notop");
-
             if (pageNavbar)
                 $("#core-header-nav-bottom").addClass("core-show-header-navbar");
             else
@@ -1962,9 +1958,6 @@ var app = {
 
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
-
-                    if (!g.header)
-                        $div.addClass("notop");
 
                     if (g.navbar)
                         $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
