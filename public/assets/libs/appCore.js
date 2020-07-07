@@ -592,11 +592,9 @@ function updateSubscriptionOnServer(subscription, showMessageSuccess) {
 
 async function checkUpdate() {
     if (navigator.onLine && SERVICEWORKER) {
-        let version = await AJAX.post("update");
-
         if (!localStorage.update)
-            localStorage.update = version;
-        else if (version > parseFloat(localStorage.update))
+            localStorage.update = await AJAX.post("update");
+        else if (VERSION > parseFloat(localStorage.update))
             toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
     }
 }
