@@ -1641,7 +1641,8 @@ function animateTimeout($element, $aux, scroll) {
         "position": "relative",
         "top": "initial",
         "left": "initial",
-        "width": "100%"
+        "width": "100%",
+        "margin-top": 0
     }).removeClass("notop");
 
     if ($element.hasClass("cache-content")) {
@@ -1658,7 +1659,7 @@ function animateTimeout($element, $aux, scroll) {
     }
 
     aniTransitionPage = null;
-    window.scrollTo({ top: scroll, behavior: 'smooth' });
+    window.scrollTo(0, scroll);
     clearHeaderScrollPosition();
 
     //add or not space on end content (navbar space)
@@ -1679,9 +1680,6 @@ function animateForward(id, file, scroll) {
     let t = setInterval(function () {
         if ($aux.html() !== "") {
             clearInterval(t);
-
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", topHeader + "px");
 
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
@@ -1712,8 +1710,7 @@ function animateBack(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
-            $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
+            $aux.css({"margin-top": (- scroll) + "px"});
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
@@ -1743,8 +1740,6 @@ function animateFade(id, file, scroll) {
             clearInterval(t);
 
             scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
-            $aux.animate({top: -(scroll - topHeader) + "px"}, 0);
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
