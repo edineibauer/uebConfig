@@ -1658,7 +1658,7 @@ function animateTimeout($element, $aux, scroll) {
     }
 
     aniTransitionPage = null;
-    window.scrollTo(0, scroll);
+    window.scrollTo({ top: scroll, behavior: 'smooth' });
     clearHeaderScrollPosition();
 
     //add or not space on end content (navbar space)
