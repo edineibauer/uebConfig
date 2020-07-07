@@ -266,15 +266,15 @@ $(function ($) {
                                     param.push([]);
                             } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for (let e = 0; e < loop; e++)
-                                    vp.push({});
+                                for (let e = 0; e < loop; e++) {
+                                    if(typeof param[e] === "undefined")
+                                        param.push([]);
 
-                                if(typeof param[0] === "undefined")
-                                    param.push([]);
-                                if(typeof param[1] === "undefined")
-                                    param.push([]);
-                                param[0].push(createObjectWithStringDotNotation(p, vp));
-                                param[1].push(createObjectWithStringDotNotation(p, vp));
+                                    vp.push({});
+                                }
+
+                                for (let e = 0; e < loop; e++)
+                                    param[e].push(createObjectWithStringDotNotation(p, vp));
                             }
                         }
                     }
