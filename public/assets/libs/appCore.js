@@ -1681,6 +1681,8 @@ function animateForward(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            $aux.css("top", topHeader + "px");
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, 0)
@@ -1710,6 +1712,8 @@ function animateBack(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            $aux.css("top", topHeader + "px");
             $aux.css({"margin-top": (- scroll) + "px"});
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
@@ -1739,6 +1743,8 @@ function animateFade(id, file, scroll) {
         if ($aux.html() !== "") {
             clearInterval(t);
 
+            let topHeader = !$("#core-header").hasClass("notop") ? $("#core-header")[0].clientHeight : 0;
+            $aux.css("top", topHeader + "px");
             scroll = typeof scroll !== "undefined" ? scroll : 0;
             if (window.innerWidth < 900) {
                 $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
