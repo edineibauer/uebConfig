@@ -1,0 +1,10 @@
+{
+  "nome": "Google API KEY",
+  "link": "https://console.cloud.google.com/apis/dashboard",
+  "constantes": {
+    "Key Space": {
+      "input": "text",
+      "column": "apigoogle"
+    }
+  }
+}
