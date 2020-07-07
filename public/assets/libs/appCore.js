@@ -1551,13 +1551,6 @@ async function thenAccess() {
             }
         });
     }
-
-    /**
-     * If in DEV, update files in cache
-     */
-    return updateAppOnDev().catch(e => {
-        errorLoadingApp("updateAppOnDev", e);
-    });
 }
 
 function checkMenuActive() {
@@ -2614,6 +2607,7 @@ async function onLoadDocument() {
 
 async function startApplication() {
     await checkSessao();
+    await updateAppOnDev();
     await menuHeader();
     await readRouteState();
     await onLoadDocument();
