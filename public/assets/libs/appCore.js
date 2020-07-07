@@ -684,7 +684,7 @@ async function menuHeader() {
     let $headerPerfil = $("#core-header-perfil");
     if ($headerPerfil.length) {
         let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
-        $headerPerfil.html(src !== "" ? "<img src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
+        $headerPerfil.html(src !== "" ? "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\" src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
     }
 
     let $menuNav = null;
