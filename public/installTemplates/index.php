@@ -114,6 +114,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         const LOGO = '<?=LOGO?>';
         const FAVICON = '<?=FAVICON?>';
         const LIMITOFFLINE = <?=LIMITOFFLINE?>;
+        const APIGOOGLE = '<?=(defined('APIGOOGLE') ? APIGOOGLE : "")?>';
         const PUSH_PUBLIC_KEY = '<?=(defined('PUSH_PUBLIC_KEY') ? PUSH_PUBLIC_KEY : "")?>';
         var USER = {};
         var FRONT = {};
