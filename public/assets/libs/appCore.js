@@ -1712,7 +1712,7 @@ function animateBack(id, file, scroll) {
             clearInterval(t);
 
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", (- (scroll + topHeader)) + "px");
+            $aux.css("top", (- (scroll - topHeader)) + "px");
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
