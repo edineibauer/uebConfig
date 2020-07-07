@@ -43,7 +43,7 @@ $(function () {
         let myNotifications = await getNotifications();
 
         if (isEmpty(myNotifications))
-            $("#notificacoes").htmlTemplate('note', [{recebeu: !1, notificacaoData: {imagem: HOME + "assetsPublic/img/favicon.png?v=" + VERSION, data: timeFormatWithoutSeconds() + "\n" + dateFormat(), url: "", titulo: "Nenhuma notificação", descricao: "olá " + USER.nome + "! Você não tem nenhuma notificação", id: -1, notificacao: -1}}]);
+            $("#notificacoes").htmlTemplate('note', [{recebeu: !1, notificacaoData: {imagem: HOME + "assetsPublic/img/favicon.png?v=" + VERSION, data: timeFormatWithoutSeconds() + "\n" + dateFormat(), url: "", titulo: "Tudo Certo " + USER.nome + "!", descricao: "No momento não temos nenhuma notificação para você, mas assim que tivermos, iremos notificá-lo", id: -1, notificacao: -1}}]);
         else
             $("#notificacoes").htmlTemplate('note', myNotifications);
 
