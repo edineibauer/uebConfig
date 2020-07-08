@@ -2000,8 +2000,10 @@ var app = {
                      * add script to page
                      */
                     if (!isEmpty(g.js)) {
-                        for (let js of g.js)
-                            await $.cachedScript(js);
+                        setTimeout(async function () {
+                            for (let js of g.js)
+                                await $.cachedScript(js);
+                        }, 310);
                     }
                     app.removeLoading();
                 } else {
