@@ -9,7 +9,6 @@ use \Helpers\Helper;
 require_once './_config/config.php';
 $_SESSION = [];
 
-$data = ["response" => 1, "error" => "", "data" => ""];
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
