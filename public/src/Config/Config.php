@@ -36,7 +36,7 @@ class Config
                      */
                     if (!empty($user['setor'])) {
                         $read = new Read();
-                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}");
+                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0);
                         $user['setorData'] = !empty($read->getResult()) ? $read->getResult()[0] : [];
 
                         /**
