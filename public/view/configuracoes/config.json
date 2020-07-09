@@ -3,7 +3,7 @@
   "navbar": false,
   "js": ["coreGrid", "coreForm", "coreReport"],
   "css": ["w3"],
-  "setor": ["admin"],
+  "setor": ["admin", "administrador"],
   "offline": true,
   "templates": [
     "menuLi",
