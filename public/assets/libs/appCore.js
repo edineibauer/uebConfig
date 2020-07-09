@@ -1681,10 +1681,10 @@ function animateForward(id, file, scroll) {
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
+                $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, 0)
                 });
-                $element.css("z-index", -1).animate({left: '-30%'}, 300)
+                $element.css("z-index", -1).animate({left: '-30%'}, 250)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 150, () => {
                     animateTimeout($element, $aux, 0)
@@ -2000,10 +2000,8 @@ var app = {
                      * add script to page
                      */
                     if (!isEmpty(g.js)) {
-                        setTimeout(async function () {
-                            for (let js of g.js)
-                                await $.cachedScript(js);
-                        }, 310);
+                        for (let js of g.js)
+                            await $.cachedScript(js);
                     }
                     app.removeLoading();
                 } else {
