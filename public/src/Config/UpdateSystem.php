@@ -644,7 +644,7 @@ class UpdateSystem
             $info = file_exists($infoDir) ? json_decode(file_get_contents($infoDir), !0) : (file_exists(PATH_HOME . "entity/cache/info/{$file}") ? json_decode(file_get_contents(PATH_HOME . "entity/cache/info/{$file}"), !0) : []);
             $isNew = file_exists(PATH_HOME . "entity/cache/{file}");
 
-            new \EntityUi\SaveEntity($entity, $info['system'] ?? "", $info['icon'] ?? "", !empty($info['user']), !empty($info['autor']), $metadados, $info['identifier'] ?? 100);
+            new \EntityUi\SaveEntity($entity, $info['system'] ?? "", $info['icon'] ?? "", (!empty($info['user']) && is_numeric($info['user']) ? $info['user'] : 0), (!empty($info['autor']) && is_numeric($info['autor']) ? (int) $info['autor'] : null), $metadados, $info['identifier'] ?? 100);
 
             /**
              * Se for uma nova entidade, dê permissão de menu ao ADM
