@@ -87,7 +87,7 @@ self.addEventListener('fetch', function (e) {
     let set = new RegExp("set\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
     let linkExterno = new RegExp("^https*:\/\/", "i");
-    let imagesEntity = new RegExp("^uploads\/", "i");
+    let imagesEntity = new RegExp("uploads\/form\/", "i");
     let cacheImages = new RegExp(".(png|jpg|jpeg|svg|gif|webp)$", "i");
 
     if (linkExterno.test(url)) {
