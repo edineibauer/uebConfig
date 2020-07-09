@@ -1,0 +1,12 @@
+{
+  "title": "Configurações",
+  "navbar": false,
+  "js": ["coreGrid", "coreForm", "coreReport"],
+  "css": ["w3"],
+  "setor": ["admin"],
+  "offline": true,
+  "templates": [
+    "menuLi",
+    "menuCard"
+  ]
+}

@@ -18,13 +18,22 @@
     "html": "<i class='material-icons left'>assessment</i>"
   },
   {
+    "href": "configuracoes",
+    "li": {
+      "class": "s-hide"
+    },
+    "attr": "rel='configuracoes'",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>settings</i>"
+  },
+  {
     "href": "UIDev",
     "li": {
       "class": "s-hide"
     },
     "attr": "rel='UIDev'",
     "class": "theme-text-aux",
-    "html": "<i class='material-icons left'>settings</i>"
+    "html": "<i class='material-icons left'>engineering</i>"
   },
   {
     "href": "UIEntidades",
