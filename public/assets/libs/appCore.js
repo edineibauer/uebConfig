@@ -641,12 +641,12 @@ function toggleSidebar(action = 'toggle') {
     }
 }
 
-function logoutDashboard() {
+async function logoutDashboard() {
     if (navigator.onLine) {
         toast("Saindo...", 42000);
-        setCookieAnonimo().then(() => {
-            location.href = HOME;
-        })
+        await AJAX.get("logout");
+        await setCookieAnonimo();
+        location.href = HOME;
     } else {
         toast("Sem Conexão", 1200)
     }
