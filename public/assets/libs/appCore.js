@@ -2059,7 +2059,7 @@ var app = {
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
-    let isGridView = typeof history.state !== "undefined" && typeof history.state.type !== "undefined" && history.state.type === "grid";
+    let isGridView = typeof history.state !== "undefined" && history.state !== null && typeof history.state.type === "string" && history.state.type === "grid";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
 
     if (reload && HOME === "" && HOME !== SERVER) {
