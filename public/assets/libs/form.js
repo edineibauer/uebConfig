@@ -569,7 +569,7 @@ function setFormSaveStatus(form, status) {
 
 function callback() {
     if (typeof form.funcao === "function")
-        return form.funcao(dados);
+        return form.funcao();
 
     return 0;
 }
@@ -782,9 +782,6 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 
                             if (showMessages)
                                 toast("Salvo", 2000, 'toast-success');
-
-                            if(form.store)
-                                history.back();
                         })
                     } else {
                         setFormSaveStatus(form, 1);

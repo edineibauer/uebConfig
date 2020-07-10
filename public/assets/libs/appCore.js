@@ -2059,6 +2059,7 @@ var app = {
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
     let reload = typeof route === "undefined";
+    let isGridView = typeof history.state !== "undefined" && typeof history.state.type !== "undefined" && history.state.type === "grid";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
 
     if (reload && HOME === "" && HOME !== SERVER) {
@@ -2280,6 +2281,14 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                         id = "";
                     }
 
+                    /**
+                     * Back form after save if is in grid view
+                     */
+                    if(isGridView) {
+                        form.setFuncao(function () {
+                            history.back();
+                        });
+                    }
                     form.show(id);
 
                     if (haveFormRelation || history.state.param.modified) {
