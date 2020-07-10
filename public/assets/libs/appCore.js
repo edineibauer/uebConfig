@@ -2415,7 +2415,7 @@ async function setUserData(field, value) {
          * One object
          */
         for(let c in field) {
-            if(typeof c === "string" && typeof field[c] !== "undefined" && dicionarios[USER.setor][field[c]]) {
+            if(typeof c === "string" && typeof field[c] !== "undefined" && dicionarios[USER.setor][c]) {
                 USER.setorData[c] = field[c];
                 updates[c] = field[c];
             }
