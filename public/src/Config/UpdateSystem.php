@@ -567,6 +567,7 @@ class UpdateSystem
         /**
          * Move entitys from entity to the project public folder
          */
+        Helper::recurseDelete(PATH_HOME . "entity/cache");
         foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
             if (preg_match('/\.json$/i', $entity)) {
 

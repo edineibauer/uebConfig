@@ -385,8 +385,6 @@ function fetchCreateObject(obj, prop) {
     }
 }
 
-
-
 /**
  * LightBox Image preview with touch horizontal change
  * Object jquery arrays images
