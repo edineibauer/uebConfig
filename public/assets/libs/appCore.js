@@ -437,9 +437,13 @@ function lightBoxTouch($images) {
             touch.moveToStart();
         });
 
+        $gallery.load(function () {
+            $gallery.css("top", "calc(50% - " + ($gallery.height() / 2) + "px");
+        });
+
         setTimeout(function () {
             $gallery.addClass("active");
-        },10);
+        }, 10);
     });
 }
 
