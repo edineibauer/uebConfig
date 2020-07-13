@@ -50,8 +50,9 @@ async function dbSendData(entity, dados, action) {
 
 async function exeReadOnline(entity, id) {
     id = isNumberPositive(id) ? id : null;
-    let result = AJAX.post("load/entity", {entity: entity, id: id, historic: null});
-    if (!isEmpty(result)) {
+    let history = await dbLocal.exeRead("__historic", 1);
+    let result = await AJAX.post("load/entity", {entity: entity, id: id, historic: history[entity]});
+    if (!isEmpty(result) && !isEmpty(result.data)) {
         if (id)
             return getDefaultValues(entity, result.data[0]);
 
