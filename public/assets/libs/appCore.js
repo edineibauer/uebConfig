@@ -208,6 +208,32 @@ Object.size = function (obj) {
 };
 
 /**
+ * Entity user allow to a System, so admin have to add extra field to choose the system that this user allow
+ */
+async function getDicionarioWithSystem(entity) {
+    if(USER.setor !== "admin")
+        return Object.assign({}, dicionarios[entity]);
+
+    let dic = Object.assign({}, dicionarios[entity]);
+    let infoDic = await dbLocal.exeRead("__info", 1);
+    infoDic = infoDic[entity];
+    if (infoDic.system !== "" && infoDic.user === 1) {
+        let inputTypes = await get("inputTypes");
+        dic.system_id = Object.assign({}, inputTypes.list, {
+            id: infoDic.identifier,
+            position: 0,
+            indice: infoDic.identifier,
+            column: "system_id",
+            default: !1,
+            nome: ucFirst(infoDic.system),
+            relation: infoDic.system
+        });
+    }
+
+    return dic;
+}
+
+/**
  * Adiciona funções aos elementos jQuery
  * */
 $(function ($) {

@@ -1025,11 +1025,14 @@ const dbRemote = {
                                         break;
                                     }
 
-                                    for (let col in response.data[k])
-                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
-                                    response.data[k].id = id;
-                                    response.data[k].db_status = !0;
-                                    cc.push(dbLocal.exeCreate(entity, response.data[k]));
+                                    cc.push(getDicionarioWithSystem(entity).then(dicionarioEntity => {
+                                        for (let col in response.data[k])
+                                            response.data[k][col] = getDefaultValue(dicionarioEntity[col], response.data[k][col]);
+
+                                        response.data[k].id = id;
+                                        response.data[k].db_status = !0;
+                                        dbLocal.exeCreate(entity, response.data[k])
+                                    }));
                                 }
                             }
                         }
@@ -1393,13 +1396,13 @@ function deleteDB(entity, id, react) {
     })
 }
 
-function getDefaultValues(entity, values) {
+async function getDefaultValues(entity, values) {
     let valores = {};
-    $.each(dicionarios[entity], function (column, meta) {
-        if (meta.format !== "information" && meta.key !== "identifier") {
-            let value = (typeof values !== "undefined" && typeof values[meta.column] !== "undefined" ? values[meta.column] : meta.default)
-            valores[column] = getDefaultValue(meta, value)
-        }
+    let dicionario = await getDicionarioWithSystem(entity);
+
+    $.each(dicionario, function (column, meta) {
+        let value = (typeof values !== "undefined" && typeof values[meta.column] !== "undefined" ? values[meta.column] : meta.default)
+        valores[column] = getDefaultValue(meta, value)
     });
 
     if (typeof values !== "undefined" && isNumber(values.id))

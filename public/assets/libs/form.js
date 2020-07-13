@@ -33,7 +33,7 @@ function clearMarginFormInput() {
     $(".parent-input.hide").parent().removeClass("margin-bottom padding-tiny")
 }
 
-$("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInput", function (e) {
+$("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInput", async function (e) {
     let $input = $(this);
     if ($input.attr("rel") !== "undefined" && typeof form === "object" && form.identificador === $input.attr("rel")) {
         let column = $input.data("column");
@@ -41,23 +41,26 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
         let parent = $input.data("parent");
         let value = null;
         let data = {};
-        let dicionario = dicionarios[form.entity];
+        let dicionario = await getDicionarioWithSystem(form.entity);
+
         if (form.entity !== parent) {
             parent = parent.replace(form.entity + ".", "");
             if (parent.indexOf(".") !== -1) {
-                $.each(parent.split('.'), function (i, e) {
-                    dicionario = dicionarios[dicionario[e].relation]
+                $.each(parent.split('.'), async function (i, e) {
+                    dicionario = await getDicionarioWithSystem(dicionario[e].relation)
                 })
             } else {
-                dicionario = dicionarios[dicionario[parent].relation]
+                dicionario = await getDicionarioWithSystem(dicionario[parent].relation)
             }
             fetchCreateObject(form.data, parent + "." + column);
             data = fetchFromObject(form.data, parent)
         } else {
             data = form.data
         }
+
         if (['checkbox', 'radio'].indexOf(format) > -1)
             $(".error-support[rel='" + column + "-" + parent + "']").remove(); else $input.css("border-bottom-color", "#999");
+
         $input.parent().parent().parent().find(".input-message").html("");
         if (format === "checkbox") {
             value = [];
@@ -125,7 +128,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                                     }
                                 }
                             } else {
-                                if(navigator.onLine) {
+                                if (navigator.onLine) {
                                     let mock = createMock(!1, nome, name, extensao, file.type, file.size);
                                     value.push(mock);
                                     sendFileUpload(file, mock, $input, entity, column, data[column], loading, now, max)
@@ -163,7 +166,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
             form.saved = !1;
         }
 
-        checkRules(form.entity, column, value)
+        checkRules(form.entity, column, value);
     }
     history.state.param.data = form.data;
     history.replaceState(history.state, null, HOME + app.route);
@@ -310,7 +313,7 @@ function sendFileUpload(file, mock, $input, entity, column, data, loading, now, 
     sendFileToServerToCache(file, mock, data, entity, column, $input);
     createSource(mock, $input, (dicionarios[entity][column].format === "source_list" ? 1 : 2)).then(d => {
         Promise.all([loading]).then(f => {
-            if(navigator.onLine)
+            if (navigator.onLine)
                 $(".progress-wrp[rel='" + mock.name + "']").removeClass("hide");
 
             $input.siblings(".file_gallery").find("#mock-Carregando").remove();
@@ -374,36 +377,46 @@ Upload.prototype.exeUpload = function (mock, $input, funcao) {
     }, 25000);
     ajaxUploadProgress[mock.name] =
         $.ajax({
-        type: "POST",
-        enctype: 'multipart/form-data',
-        url: HOME + "set/",
-        xhr: function () {
-            var myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) {
-                myXhr.upload.addEventListener('progress', function (event) {
-                    let percent = 0;
-                    let position = event.loaded || event.position;
-                    let total = event.total;
-                    let progress_bar_id = ".progress-wrp[rel='" + mock.name + "']";
-                    if (event.lengthComputable)
-                        percent = Math.ceil(position / total * 100);
-                    lastPercent = percent;
-                    $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
-                    $(progress_bar_id + " .status").text(percent + "%")
-                }, !1)
-            }
-            return myXhr
-        }, success: function (data) {
-            clearInterval(checkUploadStoped[mock.name]);
-            if (data.response === 1) {
-                funcao(data.data);
-                delete (ajaxUploadProgress[mock.name]);
-                delete (checkUploadStoped[mock.name]);
-                $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "46%").html("<span style='color:#fff'>OK</span>");
-                setTimeout(function () {
-                    $(".progress-wrp[rel='" + mock.name + "']").addClass("hide")
-                }, 1000)
-            } else {
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: HOME + "set/",
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener('progress', function (event) {
+                        let percent = 0;
+                        let position = event.loaded || event.position;
+                        let total = event.total;
+                        let progress_bar_id = ".progress-wrp[rel='" + mock.name + "']";
+                        if (event.lengthComputable)
+                            percent = Math.ceil(position / total * 100);
+                        lastPercent = percent;
+                        $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
+                        $(progress_bar_id + " .status").text(percent + "%")
+                    }, !1)
+                }
+                return myXhr
+            }, success: function (data) {
+                clearInterval(checkUploadStoped[mock.name]);
+                if (data.response === 1) {
+                    funcao(data.data);
+                    delete (ajaxUploadProgress[mock.name]);
+                    delete (checkUploadStoped[mock.name]);
+                    $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "46%").html("<span style='color:#fff'>OK</span>");
+                    setTimeout(function () {
+                        $(".progress-wrp[rel='" + mock.name + "']").addClass("hide")
+                    }, 1000)
+                } else {
+                    clearInterval(checkUploadStoped[mock.name]);
+                    delete (ajaxUploadProgress[mock.name]);
+                    delete (checkUploadStoped[mock.name]);
+                    $(".progress-wrp[rel='" + mock.name + "'] .progress-bar").css("background-color", "#d3d3d3");
+                    $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "41%").html("<span style='color:#e02d36'>FALHA</span>");
+                    removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
+                    toast("FALHA AO ENVIAR", 6000, "toast-warning");
+                    $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
+                }
+            }, error: function (error) {
                 clearInterval(checkUploadStoped[mock.name]);
                 delete (ajaxUploadProgress[mock.name]);
                 delete (checkUploadStoped[mock.name]);
@@ -412,25 +425,15 @@ Upload.prototype.exeUpload = function (mock, $input, funcao) {
                 removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
                 toast("FALHA AO ENVIAR", 6000, "toast-warning");
                 $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-            }
-        }, error: function (error) {
-            clearInterval(checkUploadStoped[mock.name]);
-            delete (ajaxUploadProgress[mock.name]);
-            delete (checkUploadStoped[mock.name]);
-            $(".progress-wrp[rel='" + mock.name + "'] .progress-bar").css("background-color", "#d3d3d3");
-            $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "41%").html("<span style='color:#e02d36'>FALHA</span>");
-            removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
-            toast("FALHA AO ENVIAR", 6000, "toast-warning");
-            $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-        },
-        async: !0,
-        data: formData,
-        cache: !1,
-        contentType: !1,
-        processData: !1,
-        timeout: 900000,
-        dataType: "json"
-    })
+            },
+            async: !0,
+            data: formData,
+            cache: !1,
+            contentType: !1,
+            processData: !1,
+            timeout: 900000,
+            dataType: "json"
+        })
 };
 
 function compressImage(file, MAX_WIDTH, MAX_HEIGHT, format, response) {
@@ -580,7 +583,7 @@ function saveForm(id) {
 
 function privateFormSetError(form, error, showMessages, destroy) {
     if (showMessages) {
-        if(typeof navigator.vibrate !== "undefined")
+        if (typeof navigator.vibrate !== "undefined")
             navigator.vibrate(100);
 
         toast("Corrija o formulário", 1500, "toast-warning");
@@ -637,21 +640,24 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 }
             })
         },
-        setData: function (dados) {
+        setData: async function (dados) {
             let $this = this;
-            $.each(dados, function (col, value) {
-                if (col === "id") {
-                    $this.id = (isNumberPositive(value) ? parseInt(value) : "");
-                    $this.data.id = parseInt($this.id);
-                } else if (typeof dicionarios !== "undefined") {
-                    if (typeof dicionarios[$this.entity] === "undefined")
-                        toast("Erro: '" + entity + "' não esta acessível", 5000, "toast-warning");
-                    else if (typeof dicionarios[$this.entity][col] === "object")
-                        $this.data[col] = getDefaultValue(dicionarios[$this.entity][col], value)
-                } else {
-                    toast("Dicionário não foi carregado...", 2000, "toast-warning");
-                }
-            });
+            let dicionario = await getDicionarioWithSystem($this.entity);
+            if(!isEmpty(dicionario)) {
+
+                $.each(dados, function (col, value) {
+                    if (col === "id") {
+                        $this.id = (isNumberPositive(value) ? parseInt(value) : "");
+                        $this.data.id = parseInt($this.id);
+                    } else if (typeof dicionario[col] === "object") {
+                        $this.data[col] = getDefaultValue(dicionario[col], value)
+                    }
+                });
+
+            } else {
+                toast("Erro: '" + $this.entity + "' não esta acessível", 5000, "toast-warning");
+            }
+
             $this.dataOld = $this.data
         },
         setFuncao: function (funcao) {
@@ -669,38 +675,34 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         setButtonText: function (text) {
             this.options.buttonText = text
         },
-        show: function (id, fields) {
+        show: async function (id, fields) {
             let $this = this;
             if (typeof fields === "object")
                 $this.fields = fields;
+
+            let loadData = $this.data;
             if (isNumberPositive(id)) {
                 $this.id = parseInt(id);
-                var loadData = loadEntityData(this.entity, id)
+                loadData = await loadEntityData(this.entity, id)
             } else if (isEmpty($this.data)) {
                 $this.id = "";
-                var loadData = new Promise((s, f) => {
-                    return s(getDefaultValues(this.entity))
-                })
-            } else {
-                var loadData = new Promise((s, f) => {
-                    return s($this.data)
-                })
+                loadData = await getDefaultValues(this.entity);
             }
-            return loadData.then(data => {
-                if (!isEmpty(data)) {
-                    $this.data = data;
-                    $this.dataOld = Object.assign({}, data)
-                }
-                return getInputsTemplates($this, $this.entity).then(inputs => {
-                    $this.inputs = inputs;
-                    $this.getShow().then(show => {
-                        if (this.$element !== "") {
-                            this.$element.find(".form-control").remove();
-                            this.$element.prepend(show);
-                            loadMask(this);
-                            this.loading = !1;
-                        }
-                    })
+
+            if (!isEmpty(loadData)) {
+                $this.data = loadData;
+                $this.dataOld = Object.assign({}, loadData)
+            }
+
+            return getInputsTemplates($this, $this.entity).then(inputs => {
+                $this.inputs = inputs;
+                $this.getShow().then(show => {
+                    if (this.$element !== "") {
+                        this.$element.find(".form-control").remove();
+                        this.$element.prepend(show);
+                        loadMask(this);
+                        this.loading = !1;
+                    }
                 })
             })
         },
@@ -800,99 +802,99 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
     };
 }
 
-function getInputsTemplates(form, parent, col) {
-    return getTemplates().then(templates => {
-        let inputs = [];
-        let promessas = [];
-        let position = 0;
+async function getInputsTemplates(form, parent, col) {
+    let templates = await getTemplates();
+    let inputs = [];
+    let promessas = [];
+    let position = 0;
+    let dic = orderBy(await getDicionarioWithSystem(form.entity), "indice").reverse();
 
-        let dic = orderBy(dicionarios[form.entity], "indice").reverse();
-        for(let meta of dic) {
-            if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
-                let metaInput = Object.assign({}, meta);
-                metaInput.parent = parent;
-                metaInput.value = form.data[meta.column] || "";
-                metaInput.isNumeric = ["float", "decimal", "smallint", "int", "tinyint"].indexOf(metaInput.type) > -1;
-                metaInput.valueLenght = (metaInput.isNumeric && isNumber(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
-                metaInput.isFull = metaInput.valueLenght === metaInput.size;
-                metaInput.disabled = isNumberPositive(form.id) && !metaInput.update;
-                if (!isEmpty(metaInput.default) && metaInput.default.length > 7)
-                    metaInput.default = Mustache.render(metaInput.default, {
-                        vendor: VENDOR,
-                        home: HOME,
-                        version: VERSION
-                    });
-                metaInput = getExtraMeta(form.identificador, form.entity, metaInput);
-                if (metaInput.format === "password") {
-                    metaInput.value = "";
-                    metaInput.nome = "Nova Senha"
-                }
-                if (typeof metaInput.form !== "object")
-                    metaInput.form = {};
-                metaInput.form.class = (!isEmpty(metaInput.form.class) ? metaInput.form.class : "") + (typeof meta.form.display !== "undefined" && !meta.form.display ? " hide" : "");
-                if (metaInput.format === "extend") {
-                    let p = position;
-                    promessas.push(getInputsTemplates({
-                        entity: metaInput.relation,
-                        dicionario: dicionarios[metaInput.relation],
-                        identificador: form.identificador,
-                        data: metaInput.value
-                    }, parent + "." + meta.column).then(inp => {
-                        metaInput.inputs = inp;
-                        inputs.splice(p, 0, Mustache.render(templates[metaInput.form.input], metaInput))
-                    }))
-                } else if (typeof templates[metaInput.form.input] === "string") {
-                    let file_source = "";
-                    switch (metaInput.format) {
-                        case 'source_list':
-                            file_source = "file_list_source";
-                            break;
-                        case 'source':
-                            file_source = "file_source";
-                            break;
-                        case 'extend_mult':
-                            file_source = "extend_register";
-                            break;
-                        case 'extend_folder':
-                            file_source = "extend_register_folder";
-                            break
-                    }
-
-                    if (!isEmpty(metaInput.value) && typeof metaInput.value === "object" && metaInput.value.constructor === Array && (metaInput.format === 'source_list' || metaInput.format === "file_list_source")) {
-                        $.each(metaInput.value, function (i, e) {
-                            metaInput.value[i].isImage = e.isImage === "true" || e.isImage === 1 || e.isImage === true;
-                        })
-                    }
-
-                    let jsContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.js) ? "<script src='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.js  + ".js'></script>" : "");
-                    let cssContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.css) ? "<link rel='stylesheet' href='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.css  + ".css'>" : "");
-                    inputs.splice(position, 0, Mustache.render(templates[metaInput.form.input], metaInput, {file_source: templates[file_source]}) + jsContent + cssContent);
-                }
-                position++
+    for (let meta of dic) {
+        if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
+            let metaInput = Object.assign({}, meta);
+            metaInput.parent = parent;
+            metaInput.value = form.data[meta.column] || "";
+            metaInput.isNumeric = ["float", "decimal", "smallint", "int", "tinyint"].indexOf(metaInput.type) > -1;
+            metaInput.valueLenght = (metaInput.isNumeric && isNumber(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
+            metaInput.isFull = metaInput.valueLenght === metaInput.size;
+            metaInput.disabled = isNumberPositive(form.id) && !metaInput.update;
+            if (!isEmpty(metaInput.default) && metaInput.default.length > 7)
+                metaInput.default = Mustache.render(metaInput.default, {
+                    vendor: VENDOR,
+                    home: HOME,
+                    version: VERSION
+                });
+            metaInput = getExtraMeta(form.identificador, form.entity, metaInput);
+            if (metaInput.format === "password") {
+                metaInput.value = "";
+                metaInput.nome = "Nova Senha"
             }
+            if (typeof metaInput.form !== "object")
+                metaInput.form = {};
+            metaInput.form.class = (!isEmpty(metaInput.form.class) ? metaInput.form.class : "") + (typeof meta.form.display !== "undefined" && !meta.form.display ? " hide" : "");
+            if (metaInput.format === "extend") {
+                let p = position;
+                promessas.push(getInputsTemplates({
+                    entity: metaInput.relation,
+                    dicionario: dicionarios[metaInput.relation],
+                    identificador: form.identificador,
+                    data: metaInput.value
+                }, parent + "." + meta.column).then(inp => {
+                    metaInput.inputs = inp;
+                    inputs.splice(p, 0, Mustache.render(templates[metaInput.form.input], metaInput))
+                }))
+            } else if (typeof templates[metaInput.form.input] === "string") {
+                let file_source = "";
+                switch (metaInput.format) {
+                    case 'source_list':
+                        file_source = "file_list_source";
+                        break;
+                    case 'source':
+                        file_source = "file_source";
+                        break;
+                    case 'extend_mult':
+                        file_source = "extend_register";
+                        break;
+                    case 'extend_folder':
+                        file_source = "extend_register_folder";
+                        break
+                }
+
+                if (!isEmpty(metaInput.value) && typeof metaInput.value === "object" && metaInput.value.constructor === Array && (metaInput.format === 'source_list' || metaInput.format === "file_list_source")) {
+                    $.each(metaInput.value, function (i, e) {
+                        metaInput.value[i].isImage = e.isImage === "true" || e.isImage === 1 || e.isImage === true;
+                    })
+                }
+
+                let jsContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.js) ? "<script src='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.js + ".js'></script>" : "");
+                let cssContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.css) ? "<link rel='stylesheet' href='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.css + ".css'>" : "");
+                inputs.splice(position, 0, Mustache.render(templates[metaInput.form.input], metaInput, {file_source: templates[file_source]}) + jsContent + cssContent);
+            }
+            position++
         }
-        return Promise.all(promessas).then(d => {
-            return inputs
-        })
+    }
+    return Promise.all(promessas).then(d => {
+        return inputs
     })
 }
 
-function loadEntityData(entity, id) {
+async function loadEntityData(entity, id) {
     let dados = {};
-    return db.exeRead(entity, parseInt(id)).then(data => {
-        let dicionario = dicionarios[entity];
-        if (!isEmpty(data)) {
-            $.each(data, function (col, value) {
-                if (typeof dicionario[col] === 'object' && dicionario[col] !== null) {
-                    let meta = dicionario[col];
-                    if (typeof meta !== "undefined" && meta.format !== "information" && meta.key !== "identifier") {
-                        dados[col] = getDefaultValue(meta, value)
-                    }
+    let data = await db.exeRead(entity, parseInt(id));
+    let dicionario = await getDicionarioWithSystem(entity);
+
+    if (!isEmpty(data)) {
+        $.each(data, function (col, value) {
+            if (typeof dicionario[col] === 'object' && dicionario[col] !== null) {
+                let meta = dicionario[col];
+                if (typeof meta !== "undefined" && meta.format !== "information" && meta.key !== "identifier") {
+                    dados[col] = getDefaultValue(meta, value)
                 }
-            })
-        }
-        return dados
-    })
+            }
+        })
+    }
+
+    return dados;
 }
 
 function getExtraMeta(identificador, entity, meta) {
@@ -1030,32 +1032,35 @@ function addListRegister(entity, form, column, parent, data, el) {
     }
 }
 
-function addListSetTitle(form, entity, column, parent, id, $input) {
+async function addListSetTitle(form, entity, column, parent, id, $input) {
     if (isNumberPositive(id)) {
         let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
         formData[column] = id;
-        db.exeRead(entity, id).then(data => {
-            if (!isEmpty(data)) {
-                let point = ".";
-                $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
-                let intt = setInterval(function () {
-                    $input.find("input[type='text']").val("carregando valor " + point);
-                    point = (point === "." ? ".." : (point === ".." ? "..." : "."))
-                }, 300);
-                getRelevantTitle(entity, data).then(title => {
-                    clearInterval(intt);
-                    $input.siblings(".btn").find(".list-btn-icon").html("edit");
-                    $input.siblings(".btn").find("div").html("editar");
-                    $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
-                        "padding": "10px 2px 4px",
-                        "margin-bottom": "20px"
-                    }).html(title);
-                    $input.siblings(".list-remove-btn").remove();
-                    if (isNaN(form.id) || dicionarios[form.entity][column].update)
-                        $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
-                })
-            }
-        });
+        let data = await db.exeRead(entity, id);
+        if (!isEmpty(data)) {
+
+            let point = ".";
+            $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
+            let intt = setInterval(function () {
+                $input.find("input[type='text']").val("carregando valor " + point);
+                point = (point === "." ? ".." : (point === ".." ? "..." : "."))
+            }, 300);
+
+            let title = await getRelevantTitle(entity, data);
+
+            clearInterval(intt);
+            $input.siblings(".btn").find(".list-btn-icon").html("edit");
+            $input.siblings(".btn").find("div").html("editar");
+            $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
+                "padding": "10px 2px 4px",
+                "margin-bottom": "20px"
+            }).html(title);
+
+            $input.siblings(".list-remove-btn").remove();
+            let dicionario = await getDicionarioWithSystem(form.entity);
+            if (isNaN(form.id) || dicionario[column].update)
+                $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
+        }
     }
 }
 
