@@ -41,16 +41,16 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
         let parent = $input.data("parent");
         let value = null;
         let data = {};
-        let dicionario = await getDicionarioWithSystem(form.entity);
+        let dicionario = dicionarios[form.entity];
 
         if (form.entity !== parent) {
             parent = parent.replace(form.entity + ".", "");
             if (parent.indexOf(".") !== -1) {
                 $.each(parent.split('.'), async function (i, e) {
-                    dicionario = await getDicionarioWithSystem(dicionario[e].relation)
+                    dicionario = dicionarios[dicionario[e].relation]
                 })
             } else {
-                dicionario = await getDicionarioWithSystem(dicionario[parent].relation)
+                dicionario = dicionarios[dicionario[parent].relation]
             }
             fetchCreateObject(form.data, parent + "." + column);
             data = fetchFromObject(form.data, parent)
@@ -642,7 +642,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         },
         setData: async function (dados) {
             let $this = this;
-            let dicionario = await getDicionarioWithSystem($this.entity);
+            let dicionario = dicionarios[$this.entity];
             if(!isEmpty(dicionario)) {
 
                 $.each(dados, function (col, value) {
@@ -694,17 +694,13 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 $this.dataOld = Object.assign({}, loadData)
             }
 
-            return getInputsTemplates($this, $this.entity).then(inputs => {
-                $this.inputs = inputs;
-                $this.getShow().then(show => {
-                    if (this.$element !== "") {
-                        this.$element.find(".form-control").remove();
-                        this.$element.prepend(show);
-                        loadMask(this);
-                        this.loading = !1;
-                    }
-                })
-            })
+            $this.inputs = await getInputsTemplates($this, $this.entity);
+            if (this.$element !== "") {
+                this.$element.find(".form-control").remove();
+                this.$element.prepend(await $this.getShow());
+                loadMask(this);
+                this.loading = !1;
+            }
         },
         save: function (showMessages, destroy) {
             showMessages = typeof showMessages === "undefined" || ["false", "0", 0, false].indexOf(showMessages) === -1;
@@ -807,7 +803,7 @@ async function getInputsTemplates(form, parent, col) {
     let inputs = [];
     let promessas = [];
     let position = 0;
-    let dic = orderBy(await getDicionarioWithSystem(form.entity), "indice").reverse();
+    let dic = orderBy(dicionarios[form.entity], "indice").reverse();
 
     for (let meta of dic) {
         if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
@@ -881,7 +877,7 @@ async function getInputsTemplates(form, parent, col) {
 async function loadEntityData(entity, id) {
     let dados = {};
     let data = await db.exeRead(entity, parseInt(id));
-    let dicionario = await getDicionarioWithSystem(entity);
+    let dicionario = dicionarios[entity];
 
     if (!isEmpty(data)) {
         $.each(data, function (col, value) {
@@ -1057,7 +1053,7 @@ async function addListSetTitle(form, entity, column, parent, id, $input) {
             }).html(title);
 
             $input.siblings(".list-remove-btn").remove();
-            let dicionario = await getDicionarioWithSystem(form.entity);
+            let dicionario = dicionarios[form.entity];
             if (isNaN(form.id) || dicionario[column].update)
                 $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
         }

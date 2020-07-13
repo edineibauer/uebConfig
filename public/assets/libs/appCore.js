@@ -208,32 +208,6 @@ Object.size = function (obj) {
 };
 
 /**
- * Entity user allow to a System, so admin have to add extra field to choose the system that this user allow
- */
-async function getDicionarioWithSystem(entity) {
-    if(USER.setor !== "admin")
-        return Object.assign({}, dicionarios[entity]);
-
-    let dic = Object.assign({}, dicionarios[entity]);
-    let infoDic = await dbLocal.exeRead("__info", 1);
-    infoDic = infoDic[entity];
-    if (infoDic.system !== "" && infoDic.user === 1) {
-        let inputTypes = await get("inputTypes");
-        dic.system_id = Object.assign({}, inputTypes.list, {
-            id: infoDic.identifier,
-            position: 0,
-            indice: infoDic.identifier,
-            column: "system_id",
-            default: !1,
-            nome: ucFirst(infoDic.system),
-            relation: infoDic.system
-        });
-    }
-
-    return dic;
-}
-
-/**
  * Adiciona funções aos elementos jQuery
  * */
 $(function ($) {
@@ -1551,23 +1525,38 @@ function clearIndexedDbGets() {
     return Promise.all(clear);
 }
 
-function getIndexedDbGets() {
-    return AJAX.get("userCache").then(r => {
-        let gets = [];
-        gets.push(dbLocal.exeCreate('__allow', r['allow']));
-        gets.push(dbLocal.exeCreate('__dicionario', r['dicionario']));
-        gets.push(dbLocal.exeCreate('__info', r['info']));
-        gets.push(dbLocal.exeCreate('__template', r['template']));
-        gets.push(dbLocal.exeCreate('__menu', r['menu']));
-        gets.push(dbLocal.exeCreate('__navbar', r['navbar']));
-        gets.push(dbLocal.exeCreate('__react', r['react']));
-        gets.push(dbLocal.exeCreate('__relevant', r['relevant']));
-        gets.push(dbLocal.exeCreate('__general', r['general']));
-        gets.push(dbLocal.exeCreate('__graficos', r['graficos']));
-        dicionarios = r['dicionario'];
+async function getIndexedDbGets() {
+    let r = await AJAX.get("userCache");
 
-        return Promise.all(gets);
-    })
+    dicionarios = r['dicionario'];
+    if(USER.setor === "admin") {
+        let inputTypes = await get("inputTypes");
+        for(let entity in dicionarios) {
+            infoDic = r['info'][entity];
+            if (infoDic.system !== "" && infoDic.user === 1) {
+                dicionarios[entity].system_id = Object.assign({}, inputTypes.list, {
+                    id: infoDic.identifier,
+                    position: 0,
+                    indice: infoDic.identifier,
+                    column: "system_id",
+                    default: !1,
+                    nome: ucFirst(infoDic.system),
+                    relation: infoDic.system
+                });
+            }
+        }
+    }
+
+    await dbLocal.exeCreate('__allow', r['allow']);
+    await dbLocal.exeCreate('__dicionario', dicionarios);
+    await dbLocal.exeCreate('__info', r['info']);
+    await dbLocal.exeCreate('__template', r['template']);
+    await dbLocal.exeCreate('__menu', r['menu']);
+    await dbLocal.exeCreate('__navbar', r['navbar']);
+    await dbLocal.exeCreate('__react', r['react']);
+    await dbLocal.exeCreate('__relevant', r['relevant']);
+    await dbLocal.exeCreate('__general', r['general']);
+    return dbLocal.exeCreate('__graficos', r['graficos']);
 }
 
 /**

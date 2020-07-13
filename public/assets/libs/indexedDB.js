@@ -48,25 +48,21 @@ async function dbSendData(entity, dados, action) {
     });
 }
 
-function exeReadOnline(entity, id) {
+async function exeReadOnline(entity, id) {
     id = isNumberPositive(id) ? id : null;
-    return new Promise(function (resolve) {
-        AJAX.post("load/entity", {entity: entity, id: id, historic: null}).then(result => {
-            if (!isEmpty(result)) {
-                if (id) {
-                    resolve(getDefaultValues(entity, result.data[0]));
+    let result = AJAX.post("load/entity", {entity: entity, id: id, historic: null});
+    if (!isEmpty(result)) {
+        if (id)
+            return getDefaultValues(entity, result.data[0]);
 
-                } else {
-                    let results = [];
-                    $.each(result.data, function (i, e) {
-                        results.push(getDefaultValues(entity, e));
-                    });
-                    resolve(results);
-                }
-            }
-            resolve(id ? {} : []);
-        })
-    })
+        let results = [];
+        for(let e of result.data)
+            results.push(getDefaultValues(entity, e));
+
+        return results;
+    }
+
+    return id ? {} : [];
 }
 
 /**
@@ -1025,14 +1021,12 @@ const dbRemote = {
                                         break;
                                     }
 
-                                    cc.push(getDicionarioWithSystem(entity).then(dicionarioEntity => {
-                                        for (let col in response.data[k])
-                                            response.data[k][col] = getDefaultValue(dicionarioEntity[col], response.data[k][col]);
+                                    for (let col in response.data[k])
+                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
 
-                                        response.data[k].id = id;
-                                        response.data[k].db_status = !0;
-                                        dbLocal.exeCreate(entity, response.data[k])
-                                    }));
+                                    response.data[k].id = id;
+                                    response.data[k].db_status = !0;
+                                    cc.push(dbLocal.exeCreate(entity, response.data[k]));
                                 }
                             }
                         }
@@ -1396,11 +1390,9 @@ function deleteDB(entity, id, react) {
     })
 }
 
-async function getDefaultValues(entity, values) {
+function getDefaultValues(entity, values) {
     let valores = {};
-    let dicionario = await getDicionarioWithSystem(entity);
-
-    $.each(dicionario, function (column, meta) {
+    $.each(dicionarios[entity], function (column, meta) {
         let value = (typeof values !== "undefined" && typeof values[meta.column] !== "undefined" ? values[meta.column] : meta.default)
         valores[column] = getDefaultValue(meta, value)
     });
