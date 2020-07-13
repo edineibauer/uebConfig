@@ -91,7 +91,9 @@ function gridTdFilterValue(value, meta) {
     if (typeof meta !== "undefined") {
         value = !isEmpty(value) ? value : "";
         if (['select', 'radio'].indexOf(meta.format) > -1) {
-            value = meta.allow.options.find(option => option.valor == value).representacao;
+            let allows = meta.allow.options.find(option => option.valor == value);
+            if(typeof allows === "object" && typeof allows.representacao !== "undefined")
+                value = allows.representacao;
         } else if ('checkbox' === meta.format) {
             let resposta = "";
             for (let i in meta.allow.options)
