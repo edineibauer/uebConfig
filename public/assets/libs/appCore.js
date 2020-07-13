@@ -385,6 +385,64 @@ function fetchCreateObject(obj, prop) {
     }
 }
 
+
+
+/**
+ * LightBox Image preview with touch horizontal change
+ * Object jquery arrays images
+ * @param $images
+ */
+function lightBoxTouch($images) {
+    $images.off("click").on("click", function () {
+        let img = $(this).attr("src");
+        let $gallery = $("<img id='previewGallery' src='" + img + "' />").appendTo("#core-content");
+
+        /**
+         * Overlay click remove lightbox
+         */
+        $("#core-overlay").addClass("active").one("click", function () {
+            $("#core-overlay").removeClass("active");
+            $gallery.remove();
+        });
+
+        new TouchHorizontal($gallery, 0, 0, 20, function(touch, target, direction) {
+            let next = direction === "right";
+            let img = $gallery.attr("src");
+            let imgBefore = !1;
+            let now = !1;
+            $images.each(function(i, e) {
+                if(now && next) {
+
+                    /**
+                     * Next Slide
+                     */
+                    $gallery.attr("src", $(e).attr("src")).load(function() {
+                        $gallery.css("top", "calc(50% - " + ($gallery.height() /2) + "px")
+                    });
+                    return !1;
+                }
+                now = $(e).attr("src") === img;
+
+                /**
+                 * Back Slide
+                 */
+                if(now && imgBefore && !next) {
+                    $gallery.attr("src", imgBefore).load(function() {
+                        $gallery.css("top", "calc(50% - " + ($gallery.height() /2) + "px")
+                    });
+                    return !1;
+                }
+                imgBefore = $(e).attr("src");
+            });
+            touch.moveToStart();
+        });
+
+        setTimeout(function () {
+            $gallery.addClass("active");
+        },10);
+    });
+}
+
 function setUpdateVersion() {
     return AJAX.post("update", {update: !0}).then(data => {
         localStorage.update = data;

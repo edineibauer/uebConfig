@@ -341,7 +341,7 @@ class TouchTrack {
 
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $target);
+                            $this.funcao($this, $target, ($this.directionTrack === "vertical" ? (originalUp > 0 ? "up" : "down") : $this.directionTrack));
                     } else {
                         $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
                     }
@@ -351,7 +351,7 @@ class TouchTrack {
                         $this.moveToStart(index);
 
                         if (typeof $this.funcaob === "function")
-                            $this.funcaob($this, $target);
+                            $this.funcaob($this, $target, ($this.directionTrack === "vertical" ? (originalUp > 0 ? "up" : "down") : $this.directionTrack));
                     } else {
                         $this.stopMove(index).css({transform: "translateY(" + $this.translateY + "px)"});
                     }
@@ -378,7 +378,7 @@ class TouchTrack {
 
                         $this.moveToTarget(index);
                         if (typeof $this.funcao === "function")
-                            $this.funcao($this, $target);
+                            $this.funcao($this, $target, ($this.directionTrack === "horizontal" ? (originalLeft > 0 ? "right" : "left") : $this.directionTrack));
                     } else {
                         $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
                     }
@@ -388,7 +388,7 @@ class TouchTrack {
                         $this.moveToStart(index);
 
                         if (typeof $this.funcaob === "function")
-                            $this.funcaob($this, $target);
+                            $this.funcaob($this, $target, ($this.directionTrack === "horizontal" ? (originalLeft > 0 ? "right" : "left") : $this.directionTrack));
                     } else {
                         $this.stopMove(index).css({transform: "translateX(" + $this.translateY + "px)"});
                     }

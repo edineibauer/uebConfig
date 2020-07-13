@@ -66,6 +66,22 @@ input, select, textarea {
     opacity: 1 !important;
 }
 
+/* PREVIEW GALLERY LIGHTBOX WITH TOUCH */
+#previewGallery {
+    z-index: 999999;
+    position: fixed;
+    top: 20%;
+    left: 2%;
+    width: 96%;
+    height: auto;
+    opacity: 0;
+    transition: ease all .2s;
+}
+
+#previewGallery.active{
+    opacity: 1;
+}
+
 /* SKELETON */
 .skeleton {
     width: 100%!important;
