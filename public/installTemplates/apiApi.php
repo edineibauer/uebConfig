@@ -21,14 +21,8 @@ if (!empty($url)) {
         $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
         if ($read->getResult()) {
 
-            /**
-             * Split the url into `/`
-             * get the first as url and the rest as variables
-             */
-            $urlSplit = explode("/maestruToken/", $url);
-            \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
-
-            $variaveis = array_filter(explode('/', $urlSplit[0]));
+            \Config\Config::setUser(0);
+            $variaveis = array_filter(explode('/', $url));
             $route = "";
 
             /**
@@ -44,7 +38,7 @@ if (!empty($url)) {
                 for ($i = 0; $i < $count; $i++) {
                     $path .= ($i > 0 ? "/{$url}" : "");
                     $url = array_shift($variaveis);
-                    foreach (\Config\Config::getRoutesTo("api/public" . $path) as $item) {
+                    foreach (\Config\Config::getRoutesTo("api" . $path) as $item) {
                         if (file_exists($item . $url . ".php"))
                             return $item . $url . ".php";
                     }

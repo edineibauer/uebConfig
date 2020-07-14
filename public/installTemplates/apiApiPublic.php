@@ -9,14 +9,8 @@ $_SESSION = [];
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
-    /**
-     * Split the url into `/`
-     * get the first as url and the rest as variables
-     */
-    $urlSplit = explode("/maestruToken/", $url);
-    \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
-
-    $variaveis = array_filter(explode('/', $urlSplit[0]));
+    \Config\Config::setUser(0);
+    $variaveis = array_filter(explode('/', $url));
     $route = "";
 
     /**
