@@ -876,13 +876,15 @@ async function getInputsTemplates(form, parent, col) {
 
 async function loadEntityData(entity, id) {
     let dados = {};
-    let data = await db.exeRead(entity, parseInt(id));
-    let dicionario = dicionarios[entity];
+    let read = new Read();
+
+    await read.exeRead(entity, id);
+    let data = read.getResult();
 
     if (!isEmpty(data)) {
         $.each(data, function (col, value) {
-            if (typeof dicionario[col] === 'object' && dicionario[col] !== null) {
-                let meta = dicionario[col];
+            if (typeof dicionarios[entity][col] === 'object' && dicionarios[entity][col] !== null) {
+                let meta = dicionarios[entity][col];
                 if (typeof meta !== "undefined" && meta.format !== "information" && meta.key !== "identifier") {
                     dados[col] = getDefaultValue(meta, value)
                 }

@@ -249,11 +249,11 @@ function gridCrud(entity, fields, actions) {
             let selecteds = [];
             let offset = ($this.page * $this.limit) - $this.limit;
             let result = "";
-            let read = new Read();
 
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
                 result = await reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
+                let read = new Read();
                 read.setFilter($this.search);
                 read.setOrderColumn($this.order);
                 read.setLimit($this.limit);
