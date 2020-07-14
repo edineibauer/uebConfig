@@ -31,8 +31,6 @@ function menuDashboard(count) {
             let menu = [];
             let indice = 1;
 
-            console.log(info);
-
             $.each(dicionarios, function (entity, meta) {
                 if (typeof info[entity] !== "undefined" && info[entity]['user'] === 3 && typeof allow !== "undefined" && typeof allow[entity] !== "undefined" && typeof allow[entity].menu !== "undefined" && allow[entity].menu) {
                     nome = ucFirst(replaceAll(replaceAll(entity, "_", " "), "-", " "));
