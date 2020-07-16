@@ -743,7 +743,7 @@ async function menuHeader() {
 
     let $headerPerfil = $("#core-header-perfil");
     if ($headerPerfil.length) {
-        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem) : "");
+        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'].thumb) : USER.imagem) : "");
         $headerPerfil.html(src !== "" ? "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\" src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
     }
 
@@ -776,8 +776,8 @@ async function menuHeader() {
         if (localStorage.token === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
             document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
         } else {
-            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'][100]) : USER.imagem);
-            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' height='80' width='100' id='core-sidebar-perfil-img'>"
+            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'].thumb) : USER.imagem);
+            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\" height='80' width='100' id='core-sidebar-perfil-img'>"
         }
     }
 

@@ -598,6 +598,7 @@ function privateFormSetError(form, error, showMessages, destroy) {
 
 function formCrud(entity, $this, parent, parentColumn, store, id) {
     checkformSaved = !1;
+
     return {
         identificador: id || Math.floor((Math.random() * 1000)) + "" + Date.now(),
         entity: entity,
@@ -992,7 +993,15 @@ function loadMask(form) {
     checkUserOptions();
     clearMarginFormInput();
     loadFolderDrag();
-    $form.find("input[type='text'].formCrudInput, input[type='tel'].formCrudInput, input[type='number'].formCrudInput").trigger("change")
+    $form.find("input[type='text'].formCrudInput, input[type='tel'].formCrudInput, input[type='number'].formCrudInput").trigger("change");
+
+    /*$(document).bind('keydown', function(e) {
+        if(e.ctrlKey && (e.which === 83)) {
+            e.preventDefault();
+            form.save();
+            return false;
+        }
+    });*/
 }
 
 function loadFolderDrag() {
