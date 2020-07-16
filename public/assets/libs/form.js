@@ -499,7 +499,7 @@ function searchList($input) {
                     if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information")) {
                         if (results.length > 14) {
                             return !1
-                        } else if (val === "" || (typeof val === "string" && val.toLowerCase() === search.toLocaleString()) || (typeof val === "string" && (val.indexOf(search) > -1 || val.toLowerCase().indexOf(search) > -1))) {
+                        } else {
                             results.push({
                                 id: datum.id,
                                 text: "<span class='color-gray padding-tiny padding-left padding-right s-hide'>" + col + "</span><span class='padding-left'>" + val + "</span>"
