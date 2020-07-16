@@ -2361,7 +2361,8 @@ async function pageTransition(route, type, animation, target, param, scroll, set
                      */
                     if(isGridView) {
                         form.setFuncao(function () {
-                            history.back();
+                            if(formNotHaveError(form.error))
+                                history.back();
                         });
                     }
                     form.show(id);
