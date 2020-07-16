@@ -144,12 +144,15 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     -webkit-box-shadow: 2px 2px 7px -3px rgba(61, 61, 61, 1);
     -moz-box-shadow: 2px 2px 7px -3px rgba(61, 61, 61, 1);
     box-shadow: 2px 2px 7px -3px rgba(61, 61, 61, 1);
+    float: left;
+}
+
+#core-header, #core-header-container, #core-header-container a, #core-header-container li {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    float: left;
 }
 
 .r-network {
