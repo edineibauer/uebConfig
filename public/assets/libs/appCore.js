@@ -1540,7 +1540,7 @@ async function getIndexedDbGets() {
                     indice: infoDic.identifier,
                     column: "system_id",
                     default: !1,
-                    nome: ucFirst(infoDic.system),
+                    nome: ucFirst(infoDic.system || ""),
                     relation: infoDic.system
                 });
             }
