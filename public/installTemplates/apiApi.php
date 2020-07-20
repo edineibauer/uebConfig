@@ -20,6 +20,7 @@ if (!empty($url)) {
         $read = new Read();
         $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
         if ($read->getResult()) {
+            $API = $read->getResult()[0];
 
             \Config\Config::setUser(0);
             $variaveis = array_filter(explode('/', $url));
