@@ -555,19 +555,10 @@ class Delete {
  * Class to read data with filters and options
  */
 class Read {
-    constructor(entity, search) {
-        this.entity = "";
-        this.id = null;
-        this.filter = {};
-        this.columnOrder = "id";
-        this.orderReverse = !1;
-        this.limit = null;
-        this.offset = 0;
-        this.total = 0;
-        this.result = [];
-
+    constructor(entity, id) {
+        this._clearRead();
         this.setEntity(entity);
-        this.setId(search);
+        this.setId(id);
     }
 
     setEntity(entity) {
@@ -614,9 +605,18 @@ class Read {
         return this.result;
     }
 
-    async exeRead(entity, id) {
+    async exeRead(entity, id, limit, offset, order) {
         this.setEntity(entity);
-        this.setId(id);
+
+        if(isNumberPositive(id))
+            this.setId(id);
+        else
+            this.setFilter(id);
+
+        this.setLimit(limit);
+        this.setOffset(offset);
+        this.setOrderColumn(order);
+
         this.result = [];
 
         if (!this.entity)
@@ -631,14 +631,14 @@ class Read {
          * então lê somente os registros locais do navegador.
          */
         if (!navigator.onLine || /^(sync_|__)/.test(this.entity))
-            return this.privateArrayFilterData(await dbLocal.exeRead(this.entity, this.id));
+            return this._privateArrayFilterData(await dbLocal.exeRead(this.entity, this.id));
 
         /**
          * Caso não esteja trabalhando com dados locais indexedDB
          * então realiza a leitura dos dados online
          */
         if (!SERVICEWORKER)
-            return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
@@ -658,7 +658,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id)
-            return (!isEmpty(this.result) ? this.result : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (!isEmpty(this.result) ? this.result : this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
@@ -668,7 +668,7 @@ class Read {
          */
         let maxOffline = LIMITOFFLINE + (await dbLocal.keys("sync_" + this.entity)).length;
         if (this.limit)
-            return (this.total < maxOffline ? this.privateArrayFilterData(this.result) : this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (this.total < maxOffline ? this._privateArrayFilterData(this.result) : this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -677,12 +677,12 @@ class Read {
          * existe mais registros no back-end que não estão no front-end
          */
         if (this.total === maxOffline)
-            return this.privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
          */
-        return this.privateArrayFilterData(this.result);
+        return this._privateArrayFilterData(this.result);
     }
 
     /**
@@ -690,14 +690,10 @@ class Read {
      * retorna registros que passaram nas regras
      *
      * @param data
-     * @param search
-     * @param columnOrder
-     * @param orderReverse
-     * @param limit
-     * @param offset
-     * @returns {*}
+     * @returns {*[]}
+     * @private
      */
-    privateArrayFilterData(data) {
+    _privateArrayFilterData(data) {
 
         if (typeof data !== "object" || data === null || data.constructor !== Array || data.length === 0)
             return [];
@@ -779,6 +775,8 @@ class Read {
         if (this.limit)
             retorno = retorno.slice(this.offset, (this.offset + this.limit));
 
+        this._clearRead();
+
         return this.result = retorno;
     }
 
@@ -792,8 +790,9 @@ class Read {
      * @param limit
      * @param offset
      * @returns {Promise<unknown>}
+     * @private
      */
-    async privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
+    async _privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
         /**
          * Filtra o id, garante que se for um número seja um dado inteiro
          * caso contrário, seta null e ignora o id
@@ -843,11 +842,27 @@ class Read {
                 for (let e of results.data)
                     this.result.push(getDefaultValues(entity, e));
 
+                this._clearRead();
+
                 return this.result;
             });
         })
     }
+
+    _clearRead() {
+        this.entity = "";
+        this.id = null;
+        this.filter = {};
+        this.columnOrder = "id";
+        this.orderReverse = !1;
+        this.limit = null;
+        this.offset = 0;
+        this.total = 0;
+        this.result = [];
+    }
 }
+
+const read = new Read;
 
 const db = {
     async exeRead(entity, key) {
