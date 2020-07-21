@@ -120,7 +120,6 @@ async function get(file) {
  * @param MAX_WIDTH
  * @param MAX_HEIGHT
  * @param format
- * @param response
  * @private
  */
 async function _compressImage(file, MAX_WIDTH, MAX_HEIGHT, format) {
@@ -158,11 +157,18 @@ async function _compressImage(file, MAX_WIDTH, MAX_HEIGHT, format) {
     });
 }
 
+/**
+ * Create a object file from a mock
+ * @param mock
+ * @returns {Promise<*>}
+ * @private
+ */
 async function _createObjectFile(mock) {
 
     let isImage = /^image\//.test(mock.fileType);
     let dateNow = new Date();
 
+    delete(mock.file);
     mock.nome = replaceAll(replaceAll(mock.name, '-', ' '), '_', ' ');
     mock.icon = (!isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(mock.type) > -1 ? mock.type : "file");
     mock.sizeName = (mock.size > 999999 ? parseFloat(mock.size / 1000000).toFixed(1) + "MB" : (mock.size > 999 ? parseInt(mock.size / 1000) + "KB" : mock.size));
@@ -195,6 +201,7 @@ function _createMock(resource, name, extensao, type, size) {
         type: extensao,
         fileType: type,
         size: size,
+        error: "",
         file: _dataURLtoFile(resource, name + "." + type)
     };
 }
@@ -212,6 +219,7 @@ function _dataURLtoFile(dataurl, filename) {
  * Send a post request formData
  * @param formData
  * @returns {Promise<unknown>}
+ * @private
  */
 async function _postFormData(formData) {
     return new Promise((s, f) => {
@@ -316,6 +324,7 @@ class AJAX {
             /**
              * Have a file, turn it to a mock object
              */
+            console.log(file.constructor, file.name);
             if (file.constructor === File && typeof file.name === "string") {
 
                 let nameSplited = file.name.split(".");
@@ -329,25 +338,26 @@ class AJAX {
                 if (/^image\//.test(file.type) && extensao !== "svg") {
                     let resource = await _compressImage(file, 1920, 1080, extensao);
                     var size = parseFloat(4 * Math.ceil(((resource.length - 'data:image/png;base64,'.length) / 3)) * 0.5624896334383812).toFixed(1);
-                    return this.uploadFile(_createMock(resource, name, extensao, file.type, size));
+                    return AJAX.uploadFile(_createMock(resource, name, extensao, file.type, size));
                 } else {
 
                     /**
                      * Work with another file type
                      */
-                    if (file.size < 4096000) {
-                        let reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onloadend = function (event) {
-                            if (event.target.error === null)
-                                return this.uploadFile(_createMock(event.target.result, name, extensao, file.type, file.size));
-
-                            console.error("Arquivo não pode ser lido! Código " + event.target.error.code)
-                        }
+                    console.log(navigator.onLine || file.size < 4096000);
+                    if (navigator.onLine || file.size < 4096000) {
+                        return new Promise((s, f) => {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            reader.onloadend = function (event) {
+                                if (event.target.error === null)
+                                    s(AJAX.uploadFile(_createMock(event.target.result, name, extensao, file.type, file.size)));
+                                else
+                                    s({error: "Arquivo não pode ser lido! Código " + event.target.error.code});
+                            }
+                        });
                     } else {
-                        if (navigator.onLine)
-                            return this.uploadFile(_createMock(!1, name, extensao, file.type, file.size));
-
+                        return {error: "Arquivos maiores que 4MB só podem ser enviados online."};
                         toast("Arquivos maiores que 4MB só podem ser enviados online.", 5000, "toast-warning")
                     }
                 }
@@ -355,34 +365,40 @@ class AJAX {
                 /**
                  * Have a mock object
                  */
-            } else if (file.constructor === Object && typeof file.name === "string") {
-                let formData = new FormData();
-                formData.append("fileInSetFolder", "up/source");
-                formData.append("maestruToken", localStorage.token);
-                formData.append("name", file.name);
-                formData.append("fileType", file.fileType);
-                formData.append("type", file.type);
-                formData.append("upload", file.file, file.file.name);
+            } else if (file.constructor === Object) {
+                if(typeof file.name === "string") {
+                    let formData = new FormData();
+                    formData.append("fileInSetFolder", "up/source");
+                    formData.append("maestruToken", localStorage.token);
+                    formData.append("name", file.name);
+                    formData.append("fileType", file.fileType);
+                    formData.append("type", file.type);
+                    formData.append("upload", file.file, file.file.name);
 
-                let upload = await _postFormData(formData);
+                    let upload = await _postFormData(formData);
 
-                return _createObjectFile(Object.assign({}, file, upload));
+                    return _createObjectFile(Object.assign({}, file, upload));
+                } else if(typeof file.error === "string" && !isEmpty(file.error)) {
+                    return file;
+                }
 
                 /**
-                 * Have a array
+                 * Have a array of Files
                  */
-            } else if (file.constructor === Array) {
-                for (let f of file)
-                    return this.uploadFile(f);
-
             } else if (file.constructor === FileList) {
+                console.log(file);
+                let list = [];
                 for (let f of file)
-                    return this.uploadFile(f);
+                    list.push(await AJAX.uploadFile(f));
+
+                return list;
             }
+
+            return {error: "Arquivo enviado não é um File ou FileList"};
 
         } else {
             console.log("função uploadFile não recebeu um file como parâmetro");
-            return "";
+            return {error: "parâmetro não definido em AJAX.uploadFile"};
         }
     }
 
