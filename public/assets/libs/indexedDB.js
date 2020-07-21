@@ -556,6 +556,7 @@ class Delete {
  */
 class Read {
     constructor(entity, id) {
+        this.result = [];
         this._clearRead();
         this.setEntity(entity);
         this.setId(id);
@@ -659,9 +660,8 @@ class Read {
          */
         if (this.id) {
             if(!isEmpty(this.result)) {
-                let r = this.result;
                 this._clearRead();
-                return r;
+                return this.result;
             } else {
                 return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
             }
@@ -865,7 +865,6 @@ class Read {
         this.limit = null;
         this.offset = 0;
         this.total = 0;
-        this.result = [];
     }
 }
 
