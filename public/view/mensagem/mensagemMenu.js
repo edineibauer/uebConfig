@@ -1,1 +1,0 @@
-$("#menu-chat").htmlTemplate("mensagemMenu", {id: history.state.param.url[0]});
