@@ -366,7 +366,7 @@ class Config
     public static function getHtaccessAssetsRule()
     {
         return '# If the URI is an image then we allow accesses
-SetEnvIfNoCase Request_URI "\\.(gif|jpe?g|png|bmp|svg|pdf|css|js|mustache|ttf|woff|woff2|eot|mp4|mp3)$" let_me_in
+SetEnvIfNoCase Request_URI "\\.(gif|jpe?g|png|bmp|jfif|svg|pdf|css|js|mustache|ttf|woff|woff2|eot|mp4|mp3)$" let_me_in
 
 Order Deny,Allow
 Deny from All
