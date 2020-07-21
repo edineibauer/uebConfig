@@ -1,0 +1,26 @@
+<span>
+    {{#format.isDownload}}
+        <a href='{{url}}' download='{{nome}}.{{type}}' target='_blank' alt='{{nome}}'
+          class='col radius card card-repositorio pointer padding-0'>
+            <span class='preview float-left'>
+                {{{preview}}}
+            </span>
+            <span class='float-left pt-1 modalPreviewFileText'>
+                <i class='material-icons p-1 float-left' style='font-size: 18px'>get_app</i>
+                <span class='p-1 float-left'>{{shortname}}</span>
+            </span>
+        </a>
+    {{/format.isDownload}}
+    {{^format.isDownload}}
+        <span data-url='{{url}}' data-filetype="{{fileType}}" data-type='{{format.type}}' data-name='{{name}}' data-nome='{{nome}}'
+             class='modal-open col radius card card-repositorio pointer padding-0'>
+            <span class='preview float-left'>
+                {{{preview}}}
+            </span>
+            <span class='float-left pt-1 modalPreviewFileText'>
+                <i class='material-icons p-1 float-left' style='font-size: 18px'>get_app</i>
+                <span class='p-1 float-left'>{{shortname}}</span>
+            </span>
+        </span>
+    {{/format.isDownload}}
+</span>

@@ -1,0 +1,8 @@
+{
+  "title": "mensagem {{sitename}}",
+  "css": ["bootstrap"],
+  "js": ["bootstrap", "moment"],
+  "navbar": true,
+  "header": false,
+  "redirect": "login"
+}

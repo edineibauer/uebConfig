@@ -1,0 +1,9 @@
+{
+  "title": "mensagens {{sitename}}",
+  "css": ["bootstrap"],
+  "js": ["moment"],
+  "navbar": true,
+  "header": false,
+  "redirect": "login",
+  "templates": ["notificacoesEmpty"]
+}

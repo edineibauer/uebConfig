@@ -1,0 +1,20 @@
+{{#.}}
+    <a href="{{home}}mensagem/{{usuario.id}}" class="col mb-2 pb-2 mensagens-card">
+        <div class="float-left imagem-perfil-mensagem" style="background-image: url('{{usuario.imagem}}')"></div>
+        <div class="float-left message-card-body">
+            <h6 class="float-left col mb-0">
+                <div class="col p-0 float-left message-card-name">
+                    {{usuario.nome}}
+                </div>
+                <small class="col pl-0 pt-1 float-left message-card-date">
+                    {{#bloqueado}}<i class='material-icons blocked'>block</i>{{/bloqueado}}
+                    {{#silenciado}}<i class='material-icons' style="padding-top: 1px">volume_off</i>{{/silenciado}}
+                    <div id="lastonline" class="float-left" style="padding-top: 2px">{{ultima_vez_online}}</div>
+                </small>
+            </h6>
+            <div class="col float-left message-card-message">
+                {{lastMessage}}
+            </div>
+        </div>
+    </a>
+{{/.}}
