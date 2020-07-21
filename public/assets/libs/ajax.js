@@ -169,6 +169,7 @@ async function _createObjectFile(mock) {
     let dateNow = new Date();
 
     delete(mock.file);
+    mock.shortname = mock.name.substring(0, 20) + "." + mock.type;
     mock.nome = replaceAll(replaceAll(mock.name, '-', ' '), '_', ' ');
     mock.icon = (!isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(mock.type) > -1 ? mock.type : "file");
     mock.sizeName = (mock.size > 999999 ? parseFloat(mock.size / 1000000).toFixed(1) + "MB" : (mock.size > 999 ? parseInt(mock.size / 1000) + "KB" : mock.size));
@@ -324,7 +325,6 @@ class AJAX {
             /**
              * Have a file, turn it to a mock object
              */
-            console.log(file.constructor, file.name);
             if (file.constructor === File && typeof file.name === "string") {
 
                 let nameSplited = file.name.split(".");
@@ -344,7 +344,6 @@ class AJAX {
                     /**
                      * Work with another file type
                      */
-                    console.log(navigator.onLine || file.size < 4096000);
                     if (navigator.onLine || file.size < 4096000) {
                         return new Promise((s, f) => {
                             let reader = new FileReader();
@@ -386,7 +385,6 @@ class AJAX {
                  * Have a array of Files
                  */
             } else if (file.constructor === FileList) {
-                console.log(file);
                 let list = [];
                 for (let f of file)
                     list.push(await AJAX.uploadFile(f));
@@ -397,7 +395,6 @@ class AJAX {
             return {error: "Arquivo enviado não é um File ou FileList"};
 
         } else {
-            console.log("função uploadFile não recebeu um file como parâmetro");
             return {error: "parâmetro não definido em AJAX.uploadFile"};
         }
     }
