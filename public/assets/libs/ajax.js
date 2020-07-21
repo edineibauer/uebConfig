@@ -114,6 +114,155 @@ async function get(file) {
     })
 }
 
+/**
+ * Otimize image
+ * @param file
+ * @param MAX_WIDTH
+ * @param MAX_HEIGHT
+ * @param format
+ * @param response
+ * @private
+ */
+async function _compressImage(file, MAX_WIDTH, MAX_HEIGHT, format) {
+    return new Promise((s, f) => {
+        var img = document.createElement("img");
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            if (e.target.error != null) {
+                console.error("File could not be read! Code " + e.target.error.code);
+                f("File could not be read!");
+            } else {
+                img.src = e.target.result;
+                img.onload = function () {
+                    let canvas = document.createElement("canvas");
+                    let ctx = canvas.getContext("2d");
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH
+                        }
+                    } else if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    s(canvas.toDataURL("image/" + format));
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function _createObjectFile(mock) {
+
+    let isImage = /^image\//.test(mock.fileType);
+    let dateNow = new Date();
+
+    mock.nome = replaceAll(replaceAll(mock.name, '-', ' '), '_', ' ');
+    mock.icon = (!isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(mock.type) > -1 ? mock.type : "file");
+    mock.sizeName = (mock.size > 999999 ? parseFloat(mock.size / 1000000).toFixed(1) + "MB" : (mock.size > 999 ? parseInt(mock.size / 1000) + "KB" : mock.size));
+    mock.data = zeroEsquerda(dateNow.getHours()) + ":" + zeroEsquerda(dateNow.getMinutes()) + ", " + zeroEsquerda(dateNow.getDay()) + "/" + zeroEsquerda(dateNow.getMonth()) + "/" + dateNow.getFullYear();
+    mock.format = {
+        isImage: isImage,
+        isVideo: /^video\//.test(mock.fileType),
+        isAudio: /^audio\//.test(mock.fileType),
+        isDoc: ["txt", "doc", "docx", "dot", "dotx", "dotm", "ppt", "pptx", "pps", "potm", "potx", "pdf", "xls", "xlsx", "xltx", "rtf", "html", "css", "scss", "js", "tpl", "json", "xml", "md", "sql", "dll"].indexOf(mock.type) > -1
+    };
+    mock.format.isDownload = !mock.isDoc && !mock.isVideo && !mock.isImage && !mock.isAudio;
+    mock.format.type = mock.isImage ? 1 : (mock.isVideo ? 2 : (mock.isDoc ? 3 : (mock.isAudio ? 4 : 5)));
+
+    return mock;
+}
+
+/**
+ * Create a object with upload data content
+ * @param resource
+ * @param name
+ * @param extensao
+ * @param type
+ * @param size
+ * @returns {{file: File, size: *, name: *, type: *, fileType: *}}
+ * @private
+ */
+function _createMock(resource, name, extensao, type, size) {
+    return {
+        name: name,
+        type: extensao,
+        fileType: type,
+        size: size,
+        file: _dataURLtoFile(resource, name + "." + type)
+    };
+}
+
+function _dataURLtoFile(dataurl, filename) {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length,
+        u8arr = new Uint8Array(n);
+    while (n--)
+        u8arr[n] = bstr.charCodeAt(n);
+
+    return new File([u8arr], filename, {type: mime})
+}
+
+/**
+ * Send a post request formData
+ * @param formData
+ * @returns {Promise<unknown>}
+ */
+async function _postFormData(formData) {
+    return new Promise((s, f) => {
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: SERVER + "set",
+            success: function(data) {
+                s(_postReturnData(data))
+            },
+            fail: function () {
+                toast("Erro na Conexão", 3000, "toast-warning");
+                f("no-network");
+            },
+            async: !0,
+            data: formData,
+            cache: !1,
+            contentType: !1,
+            processData: !1,
+            timeout: 900000,
+            dataType: "json"
+        });
+    });
+}
+
+/**
+ * Work with the return data from post request
+ * @param data
+ * @returns {Promise<void>}
+ */
+async function _postReturnData(data) {
+    return new Promise((s, f) => {
+        if (data.response !== 1) {
+            switch (data.response) {
+                case 2:
+                    toast(data.error, 7000, "toast-warning");
+                    break;
+                default:
+                    if (data.data === "no-network")
+                        toast("Sem Conexão", 500, "toast-warning");
+                    else
+                        toast("Caminho não encontrado", "toast-warning");
+                    break
+            }
+            f(data.data);
+        } else {
+            s(data.data);
+        }
+    });
+}
+
 class AJAX {
     static async get(fileInGetFolder) {
         return get(fileInGetFolder);
@@ -132,24 +281,8 @@ class AJAX {
                     fileInSetFolder: fileInSetFolder,
                     maestruToken: localStorage.token
                 }, postData)),
-                success: function (data) {
-                    if (data.response === 1) {
-                        s(data.data)
-                    } else {
-                        switch (data.response) {
-                            case 2:
-                                toast(data.error, 7000, "toast-warning");
-                                break;
-                            default:
-                                if (data.data === "no-network")
-                                    toast("Sem Conexão", 500, "toast-warning");
-                                else
-                                    toast("Caminho não encontrado", "toast-warning");
-                                break
-                        }
-
-                        f(data.data);
-                    }
+                success: function(data) {
+                    s(_postReturnData(data))
                 },
                 fail: function () {
                     toast("Erro na Conexão", 3000, "toast-warning");
@@ -174,43 +307,83 @@ class AJAX {
             }
         }
 
-        return new Promise((s, f) => {
-            $.ajax({
-                type: "POST",
-                enctype: 'multipart/form-data',
-                url: SERVER + "set/",
-                xhr: function () {
-                }, success: function (data) {
-                    if (data.response === 1) {
-                        s(data.data)
-                    } else {
-                        switch (data.response) {
-                            case 2:
-                                toast(data.error, 7000, "toast-warning");
-                                break;
-                            default:
-                                if (data.data === "no-network")
-                                    toast("Sem Conexão", 500, "toast-warning");
-                                else
-                                    toast("Caminho não encontrado", "toast-warning");
-                                break
-                        }
+        return _postFormData(formData);
+    }
 
-                        f(data.data);
+    static async uploadFile(file) {
+        if (typeof file !== "undefined" && file !== null) {
+
+            /**
+             * Have a file, turn it to a mock object
+             */
+            if (file.constructor === File && typeof file.name === "string") {
+
+                let nameSplited = file.name.split(".");
+                let extensao = nameSplited.pop().toLowerCase();
+                let name = nameSplited.join('-');
+                name = slug(name);
+
+                /**
+                 * Work with images, otimize size
+                 */
+                if (/^image\//.test(file.type) && extensao !== "svg") {
+                    let resource = await _compressImage(file, 1920, 1080, extensao);
+                    var size = parseFloat(4 * Math.ceil(((resource.length - 'data:image/png;base64,'.length) / 3)) * 0.5624896334383812).toFixed(1);
+                    return this.uploadFile(_createMock(resource, name, extensao, file.type, size));
+                } else {
+
+                    /**
+                     * Work with another file type
+                     */
+                    if (file.size < 4096000) {
+                        let reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onloadend = function (event) {
+                            if (event.target.error === null)
+                                return this.uploadFile(_createMock(event.target.result, name, extensao, file.type, file.size));
+
+                            console.error("Arquivo não pode ser lido! Código " + event.target.error.code)
+                        }
+                    } else {
+                        if (navigator.onLine)
+                            return this.uploadFile(_createMock(!1, name, extensao, file.type, file.size));
+
+                        toast("Arquivos maiores que 4MB só podem ser enviados online.", 5000, "toast-warning")
                     }
-                }, fail: function () {
-                    toast("Erro na Conexão", 3000, "toast-warning");
-                    f("no-network");
-                },
-                async: !0,
-                data: formData,
-                cache: !1,
-                contentType: !1,
-                processData: !1,
-                timeout: 900000,
-                dataType: "json"
-            });
-        });
+                }
+
+                /**
+                 * Have a mock object
+                 */
+            } else if (file.constructor === Object && typeof file.name === "string") {
+                let formData = new FormData();
+                formData.append("fileInSetFolder", "up/source");
+                formData.append("maestruToken", localStorage.token);
+                formData.append("name", file.name);
+                formData.append("fileType", file.fileType);
+                formData.append("type", file.type);
+                formData.append("upload", file.file, file.file.name);
+
+                let upload = await _postFormData(formData);
+
+                return _createObjectFile(Object.assign({}, file, upload));
+
+                /**
+                 * Have a array
+                 */
+            } else if (file.constructor === Array) {
+                for (let f of file)
+                    return this.uploadFile(f);
+
+            } else if (file.constructor === FileList) {
+                for (let f of file)
+                    return this.uploadFile(f);
+            }
+
+        } else {
+            console.log("função uploadFile não recebeu um file como parâmetro");
+            return "";
+        }
     }
 
     static async view(view) {
