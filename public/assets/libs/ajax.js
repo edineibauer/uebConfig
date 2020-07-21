@@ -164,24 +164,22 @@ async function _compressImage(file, MAX_WIDTH, MAX_HEIGHT, format) {
  * @private
  */
 async function _createObjectFile(mock) {
-
-    let isImage = /^image\//.test(mock.fileType);
+    delete(mock.file);
     let dateNow = new Date();
 
-    delete(mock.file);
-    mock.shortname = mock.name.substring(0, 20) + "." + mock.type;
-    mock.nome = replaceAll(replaceAll(mock.name, '-', ' '), '_', ' ');
-    mock.icon = (!isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(mock.type) > -1 ? mock.type : "file");
-    mock.sizeName = (mock.size > 999999 ? parseFloat(mock.size / 1000000).toFixed(1) + "MB" : (mock.size > 999 ? parseInt(mock.size / 1000) + "KB" : mock.size));
-    mock.data = zeroEsquerda(dateNow.getHours()) + ":" + zeroEsquerda(dateNow.getMinutes()) + ", " + zeroEsquerda(dateNow.getDay()) + "/" + zeroEsquerda(dateNow.getMonth()) + "/" + dateNow.getFullYear();
     mock.format = {
-        isImage: isImage,
+        isImage: /^image\//.test(mock.fileType),
         isVideo: /^video\//.test(mock.fileType),
         isAudio: /^audio\//.test(mock.fileType),
         isDoc: ["txt", "doc", "docx", "dot", "dotx", "dotm", "ppt", "pptx", "pps", "potm", "potx", "pdf", "xls", "xlsx", "xltx", "rtf", "html", "css", "scss", "js", "tpl", "json", "xml", "md", "sql", "dll"].indexOf(mock.type) > -1
     };
-    mock.format.isDownload = !mock.isDoc && !mock.isVideo && !mock.isImage && !mock.isAudio;
-    mock.format.type = mock.isImage ? 1 : (mock.isVideo ? 2 : (mock.isDoc ? 3 : (mock.isAudio ? 4 : 5)));
+    mock.format.type = mock.format.isImage ? 1 : (mock.format.isVideo ? 2 : (mock.format.isDoc ? 3 : (mock.format.isAudio ? 4 : 5)));
+    mock.format.isDownload = mock.format.type === 5;
+    mock.shortname = mock.name.substring(0, 20) + "." + mock.type;
+    mock.nome = replaceAll(replaceAll(mock.name, '-', ' '), '_', ' ');
+    mock.icon = (!mock.format.isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(mock.type) > -1 ? mock.type : "file");
+    mock.sizeName = (mock.size > 999999 ? parseFloat(mock.size / 1000000).toFixed(1) + "MB" : (mock.size > 999 ? parseInt(mock.size / 1000) + "KB" : mock.size));
+    mock.data = zeroEsquerda(dateNow.getHours()) + ":" + zeroEsquerda(dateNow.getMinutes()) + ", " + zeroEsquerda(dateNow.getDay()) + "/" + zeroEsquerda(dateNow.getMonth()) + "/" + dateNow.getFullYear();
 
     return mock;
 }
