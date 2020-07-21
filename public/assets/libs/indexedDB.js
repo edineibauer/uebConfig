@@ -657,8 +657,15 @@ class Read {
          * Caso tenha encontrado o registro específico na base local
          * então retorna, senão busca no no back-end
          */
-        if (this.id)
-            return (!isEmpty(this.result) ? this.result : this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+        if (this.id) {
+            if(!isEmpty(this.result)) {
+                let r = this.result;
+                this._clearRead();
+                return r;
+            } else {
+                return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            }
+        }
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
