@@ -704,8 +704,10 @@ class Read {
      */
     _privateArrayFilterData(data) {
 
-        if (typeof data !== "object" || data === null || data.constructor !== Array || data.length === 0)
+        if (typeof data !== "object" || data === null || data.constructor !== Array || data.length === 0) {
+            this._clearRead();
             return [];
+        }
 
         let retorno = [];
 
