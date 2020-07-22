@@ -18,11 +18,11 @@
     "html": "<i class='material-icons left'>assessment</i>"
   },
   {
-    "href": "configuracoes",
+    "href": "UIConfiguracoes",
     "li": {
       "class": "s-hide"
     },
-    "attr": "rel='configuracoes'",
+    "attr": "rel='UIConfiguracoes'",
     "class": "theme-text-aux",
     "html": "<i class='material-icons left'>settings</i>"
   },
