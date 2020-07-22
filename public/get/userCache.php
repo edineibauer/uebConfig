@@ -4,7 +4,7 @@ $data['data'] = [];
 
 $content = [
     "allow" => \Config\Config::getPermission()[$setor] ?? [],
-    "dicionario" => \Entity\Entity::dicionario(),
+    "dicionario" => \Entity\Entity::dicionario(null, !0),
     "info" => \Entity\Entity::info(),
     "template" => [],
     "menu" => [],
