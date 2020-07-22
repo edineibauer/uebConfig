@@ -619,6 +619,7 @@ class Read {
         this.setOrderColumn(order);
 
         this.result = [];
+        this.total = 0;
 
         if (!this.entity)
             toast("entidade não informada na função de leitura", 3000, "toast-warning");
@@ -645,7 +646,7 @@ class Read {
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
          * atualizando a base local com os registros do back-end
          */
-        await dbRemote.syncDownload(this.entity);
+        // await dbRemote.syncDownload(this.entity);
 
         /**
          * Primeiro tenta verificar se uma busca local é suficiente
@@ -833,6 +834,7 @@ class Read {
             if (id) {
                 this.result = getDefaultValues(entity, results.data[0]);
                 this.total = 1;
+                this._clearRead();
                 return this.result;
             }
 
@@ -864,7 +866,6 @@ class Read {
         this.orderReverse = !1;
         this.limit = null;
         this.offset = 0;
-        this.total = 0;
     }
 }
 
