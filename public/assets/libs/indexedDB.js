@@ -641,13 +641,14 @@ class Read {
          * então realiza a leitura dos dados online
          */
         if (!SERVICEWORKER)
-            return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this._privateExeReadOnline();
 
         /**
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
          * atualizando a base local com os registros do back-end
          */
-        // await dbRemote.syncDownload(this.entity);
+        if(!(await dbLocal.keys(this.entity)).length)
+            await dbRemote.syncDownload(this.entity);
 
         /**
          * Primeiro tenta verificar se uma busca local é suficiente
@@ -664,20 +665,20 @@ class Read {
             if(!isEmpty(this.result)) {
                 this._clearRead();
                 return this.result;
-            } else {
-                return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
             }
+
+            return this._privateExeReadOnline();
         }
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
-         * se o número de registros retorna é menor que o limit, retorna os registros
+         * se o número de registros retornado é menor que o limit, retorna os registros
          * se o limit for maior que o LIMITOFFLINE, então lê registros online
          * se o limit for maior, então retorna somente a quantidade desejada
          */
         let maxOffline = LIMITOFFLINE + (await dbLocal.keys("sync_" + this.entity)).length;
         if (this.limit)
-            return (this.total < maxOffline ? this._privateArrayFilterData(this.result) : this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset));
+            return (this.total < maxOffline ? this._privateArrayFilterData(this.result) : this._privateExeReadOnline());
 
         /**
          * Caso não tenha determinado um limit para minha consulta
@@ -686,7 +687,7 @@ class Read {
          * existe mais registros no back-end que não estão no front-end
          */
         if (this.total === maxOffline)
-            return this._privateExeReadOnline(this.entity, this.id, this.filter, this.columnOrder, this.orderReverse, this.limit, this.offset);
+            return this._privateExeReadOnline();
 
         /**
          * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
@@ -793,27 +794,21 @@ class Read {
 
     /**
      * Lê registros no back-end
-     * @param entity
-     * @param id
-     * @param search
-     * @param columnOrder
-     * @param orderReverse
-     * @param limit
-     * @param offset
      * @returns {Promise<unknown>}
      * @private
      */
-    async _privateExeReadOnline(entity, id, search, columnOrder, orderReverse, limit, offset) {
+    async _privateExeReadOnline() {
         /**
          * Filtra o id, garante que se for um número seja um dado inteiro
          * caso contrário, seta null e ignora o id
          */
-        id = isNumberPositive(id) ? parseInt(id) : null;
-        limit = isNumberPositive(limit) ? parseInt(limit) : null;
-        offset = isNumberPositive(offset) ? parseInt(offset) : 0;
-        columnOrder = typeof columnOrder === "string" && columnOrder !== "" ? columnOrder : "id";
-        orderReverse = typeof orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(orderReverse) > -1;
-        search = !isEmpty(search) ? convertCompareStringToFilter(search) : null;
+        let entity = this.entity;
+        let id = isNumberPositive(this.id) ? parseInt(this.id) : null;
+        let limit = isNumberPositive(this.limit) ? parseInt(this.limit) : null;
+        let offset = isNumberPositive(this.offset) ? parseInt(this.offset) : 0;
+        let columnOrder = typeof this.columnOrder === "string" && this.columnOrder !== "" ? this.columnOrder : "id";
+        let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
+        let search = !isEmpty(this.filter) ? convertCompareStringToFilter(this.filter) : null;
 
         return new Promise(function (r) {
             AJAX.post("load/entity", {
