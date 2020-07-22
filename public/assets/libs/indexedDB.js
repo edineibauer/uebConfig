@@ -557,6 +557,7 @@ class Delete {
 class Read {
     constructor(entity, id) {
         this.result = [];
+        this.total = 0;
         this._clearRead();
         this.setEntity(entity);
         this.setId(id);
