@@ -647,8 +647,7 @@ class Read {
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
          * atualizando a base local com os registros do back-end
          */
-        if(!(await dbLocal.keys(this.entity)).length)
-            await dbRemote.syncDownload(this.entity);
+        await dbRemote.syncDownload(this.entity);
 
         /**
          * Primeiro tenta verificar se uma busca local é suficiente
