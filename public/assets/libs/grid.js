@@ -1,6 +1,6 @@
 var grids = [];
 
-function gridTr(identificador, entity, data, fields, info, actions, selecteds) {
+async function gridTr(identificador, entity, data, fields, info, actions, selecteds) {
     let gridContent = {
         id: data.id || 0,
         db_status: (typeof data.db_status !== "boolean" || data.db_status),
@@ -8,61 +8,53 @@ function gridTr(identificador, entity, data, fields, info, actions, selecteds) {
         identificador: identificador,
         entity: entity,
         fields: [],
-        permission: !0,
-        button: {}
+        permission: await permissionToChange(entity, data),
+        button: {
+            delete: (actions['delete'] ? await permissionToAction(entity, 'delete') : !1),
+            update: (actions.update ? await permissionToAction(entity, 'update') : !1),
+            status: {have: !1, status: !1}
+        }
     };
-    let pp = [];
-    pp.push(actions['delete'] ? permissionToAction(entity, 'delete') : !1);
-    pp.push(actions.update ? permissionToAction(entity, 'update') : !1);
-    pp.push(permissionToChange(entity, data));
-    return Promise.all(pp).then(r => {
-        gridContent.button.delete = r[0];
-        gridContent.button.update = r[1];
-        gridContent.permission = r[2];
-        gridContent.button.status = {have: !1, status: !1};
 
-        if (actions.status && gridContent.button.update && isNumberPositive(info.status)) {
-            gridContent.button.status.have = !0;
+    /**
+     * Button status show or not
+     */
+    if (actions.status && gridContent.button.update && isNumberPositive(info.status)) {
+        gridContent.button.status.have = !0;
 
-            for(let col in dicionarios[entity]) {
-                let meta = dicionarios[entity][col];
+        for(let m in dicionarios[entity]) {
+            let meta = dicionarios[entity][m];
+            if (meta.id === info.status) {
+                if (meta.update && meta.datagrid !== !1)
+                    gridContent.button.status.status = (data[meta.column] === "true" || data[meta.column] === !0 || data[meta.column] === 1 || data[meta.column] === "1");
+                else
+                    gridContent.button.status.have = !1;
 
-                if (meta.id === info.status) {
-                    if (meta.update && meta.datagrid !== !1)
-                        gridContent.button.status.status = (data[col] === "true" || data[col] === !0 || data[col] === 1 || data[col] === "1");
-                    else
-                        gridContent.button.status.have = !1;
-
-                    break;
-                }
+                break;
             }
         }
+    }
 
-        let wait = [];
-        $.each(fields, function (i, e) {
-            if (typeof data[e.column] !== "undefined") {
-                let tr = {
-                    id: data.id,
-                    show: e.show,
-                    column: e.column,
-                    entity: gridContent.entity,
-                    style: '',
-                    class: '',
-                    checked: e.first && selecteds.indexOf(parseInt(data.id)) > -1,
-                    first: e.first
-                };
-                tr.class = getTrClass(dicionarios[entity][e.column], data[e.column]);
-                tr.style = getTrStyle(dicionarios[entity][e.column], data[e.column]);
-                gridContent.fields.push(tr);
-                wait.push(gridTdFilterValue(data[e.column], dicionarios[entity][e.column]).then(v => {
-                    tr.value = v
-                }))
-            }
-        });
-        return Promise.all(wait).then(() => {
-            return gridContent
-        })
-    })
+    for(let e of fields) {
+        if (typeof data[e.column] !== "undefined") {
+            let tr = {
+                id: data.id,
+                show: e.show,
+                column: e.column,
+                entity: gridContent.entity,
+                style: '',
+                class: '',
+                checked: e.first && selecteds.indexOf(parseInt(data.id)) > -1,
+                first: e.first
+            };
+            tr.class = getTrClass(dicionarios[entity][e.column], data[e.column]);
+            tr.style = getTrStyle(dicionarios[entity][e.column], data[e.column]);
+            tr.value = await gridTdFilterValue(data[e.column], dicionarios[entity][e.column]);
+            gridContent.fields.push(tr);
+        }
+    }
+
+    return gridContent
 }
 
 function getTrStyle(meta, value) {
@@ -87,7 +79,7 @@ function getTrClass(meta, value) {
     return ""
 }
 
-function gridTdFilterValue(value, meta) {
+async function gridTdFilterValue(value, meta) {
     if (typeof meta !== "undefined") {
         value = !isEmpty(value) ? value : "";
         if (['select', 'radio'].indexOf(meta.format) > -1) {
@@ -104,17 +96,14 @@ function gridTdFilterValue(value, meta) {
             value = "<div class='activeBoolean" + (value == 1 ? " active" : "") + "'></div>";
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
-        } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
-            return db.exeRead(meta.relation, parseInt(value)).then(data => {
-                return getRelevantTitle(meta.relation, data, 1, !1)
-            })
+        } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1 && meta.column !== "system_id") {
+            let data = await read.exeRead(meta.relation, value);
+            return getRelevantTitle(meta.relation, data, 1, !1)
         } else {
             value = applyFilterToTd(value, meta)
         }
     }
-    return Promise.all([]).then(() => {
-        return value
-    })
+    return value;
 }
 
 function applyFilterToTd(value, meta) {
