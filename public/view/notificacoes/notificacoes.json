@@ -5,5 +5,5 @@
     "header": false,
     "!setor": "0",
     "redirect": "login",
-    "templates": "note"
+    "templates": ["note", "notificacoesEmpty"]
 }
