@@ -486,10 +486,7 @@ function searchList($input) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
         let templates = getTemplates();
-        let read = new Read();
-        read.setLimit(10);
-        read.setFilter(search);
-        let dataRead = read.exeRead(entity);
+        let dataRead = exeRead(entity, search, 10);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
             templates = r[0];
@@ -877,10 +874,7 @@ async function getInputsTemplates(form, parent, col) {
 
 async function loadEntityData(entity, id) {
     let dados = {};
-    let read = new Read();
-
-    await read.exeRead(entity, id);
-    let data = read.getResult();
+    let data = await exeRead(entity, id);
 
     if (!isEmpty(data)) {
         $.each(data, function (col, value) {

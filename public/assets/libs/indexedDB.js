@@ -866,7 +866,10 @@ class Read {
     }
 }
 
-const read = new Read;
+const exeRead = async (entity, id, limit, offset, order) => {
+    let a = new Read;
+    return a.exeRead(entity, id, limit, offset, order);
+}
 
 const db = {
     async exeRead(entity, key) {
