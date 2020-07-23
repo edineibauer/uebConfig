@@ -2,6 +2,11 @@
     max-width: 100%;
 }
 
+#notificacoes{
+    float: left;
+    width: 100%;
+}
+
 .voltaRelativo > i {
     font-size: 35px;
     padding: 23px 15px;
