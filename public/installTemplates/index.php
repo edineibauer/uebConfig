@@ -150,7 +150,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <!--Splashscreen-->
     <div class="core-class-container theme" id="core-loader-container">
         <div class="core-class-container" id="core-loader-logo">
-            <img src="<?= !empty(LOGO) ? HOME . "assetsPublic/img/" . pathinfo(LOGO, PATHINFO_BASENAME) : HOME . "assetsPublic/img/" . pathinfo(FAVICON, PATHINFO_BASENAME) ?>" height="50" style="max-height: 50px;" />
+            <img src="<?= !empty(LOGO) ? HOME . "assetsPublic/img/logo." . pathinfo(LOGO, PATHINFO_EXTENSION) : HOME . "assetsPublic/img/favicon." . pathinfo(FAVICON, PATHINFO_EXTENSION) ?>" height="50" style="max-height: 50px;" />
         </div>
     </div>
 

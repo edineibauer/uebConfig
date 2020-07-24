@@ -533,10 +533,10 @@ class UpdateSystem
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/nonetwork.svg", PATH_HOME . "assetsPublic/img/nonetwork.svg");
 
         if (file_exists(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png")))
-            copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png"), PATH_HOME . "assetsPublic/img/" . (!empty($config['favicon']) ? pathinfo($config['favicon'], PATHINFO_BASENAME) : "favicon.png"));
+            copy(PATH_HOME . (!empty($config['favicon']) ? $config['favicon'] : VENDOR . "config/public/assets/libs-img/favicon.png"), PATH_HOME . "assetsPublic/img/favicon." . (!empty($config['favicon']) ? pathinfo($config['favicon'], PATHINFO_EXTENSION) : "png"));
 
         if (!empty($config['logo']) && file_exists(PATH_HOME . $config['logo']))
-            copy(PATH_HOME . $config['logo'], PATH_HOME . "assetsPublic/img/" . pathinfo($config['logo'], PATHINFO_BASENAME));
+            copy(PATH_HOME . $config['logo'], PATH_HOME . "assetsPublic/img/logo." . pathinfo($config['logo'], PATHINFO_EXTENSION));
     }
 
     /**
