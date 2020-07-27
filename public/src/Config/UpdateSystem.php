@@ -418,6 +418,7 @@ class UpdateSystem
         Config::createDir("_cdn/userActivity");
         Config::createDir("libs");
         Config::createDir("public");
+        Config::createDir("public/_config");
         Config::createDir("public/view");
         Config::createDir("public/set");
         Config::createDir("public/get");
