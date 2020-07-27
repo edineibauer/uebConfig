@@ -134,6 +134,11 @@ class UpdateSystem
      */
     private function updateVersion(array $custom)
     {
+        /**
+         * Check if all default folders exists
+         */
+        $this->checkDirBase();
+
         $dados = $this->updateVersionNumber();
         //cria/atualiza update log file
         Config::updateSite();
@@ -263,11 +268,6 @@ class UpdateSystem
             copy(PATH_HOME . VENDOR . "config/public/assets/theme.min.css", PATH_HOME . "public/assets/theme.min.css");
 
         /**
-         * Create cache folders
-         */
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-
-        /**
          * Create fonts and images default system to cache
          */
         $this->createCoreFont(["roboto"], ["https://fonts.googleapis.com/icon?family=Material+Icons"], 'fonts');
@@ -366,11 +366,6 @@ class UpdateSystem
         }
 
         /**
-         * Check if all default folders exists
-         */
-        $this->checkDirBase();
-
-        /**
          * Rewrite default files that route the requests (index, get, set, serviceworker ...)
          */
         $this->copyInstallTemplate();
@@ -406,12 +401,15 @@ class UpdateSystem
     {
         Config::createDir("entity");
         Config::createDir("entity/general");
+        Config::createDir("entity/cache");
+        Config::createDir("entity/cache/info");
         Config::createDir("uploads");
         Config::createDir("uploads/site");
         Config::createDir("_config");
         Config::createDir("_cdn");
         Config::createDir("_cdn/vendor");
         Config::createDir("_cdn/userPerfil");
+        Config::createDir("_cdn/userActivity");
         Config::createDir("libs");
         Config::createDir("public");
         Config::createDir("public/view");
@@ -428,10 +426,13 @@ class UpdateSystem
         Config::createDir("public/tpl");
         Config::createDir("public/cron");
         Config::createDir("public/entity");
+        Config::createDir("public/entity/cache");
+        Config::createDir("public/entity/cache/info");
         Config::createDir("assetsPublic");
         Config::createDir("assetsPublic/img");
         Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
+        Config::createDir("assetsPublic/fonts");
     }
 
     /**
@@ -501,7 +502,6 @@ class UpdateSystem
     private function createCoreFont($fontList, $iconList = null, string $name = 'fonts')
     {
         if (!file_exists(PATH_HOME . "assetsPublic/{$name}.min.css")) {
-            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
             $fonts = "";
             if ($fontList) {
                 foreach ($fontList as $item)
@@ -524,7 +524,6 @@ class UpdateSystem
      */
     private function createCoreImages(array $config)
     {
-        Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/img");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/dino.png", PATH_HOME . "assetsPublic/img/dino.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/file.png", PATH_HOME . "assetsPublic/img/file.png");
         copy(PATH_HOME . VENDOR . "config/public/assets/libs-img/image-not-found.png", PATH_HOME . "assetsPublic/img/img.png");
@@ -554,13 +553,6 @@ class UpdateSystem
      */
     private function updateDependenciesEntity()
     {
-        Helper::createFolderIfNoExist(PATH_HOME . "entity");
-        Helper::createFolderIfNoExist(PATH_HOME . "entity/cache");
-        Helper::createFolderIfNoExist(PATH_HOME . "entity/cache/info");
-        Helper::createFolderIfNoExist(PATH_HOME . "public/entity");
-        Helper::createFolderIfNoExist(PATH_HOME . "public/entity/cache");
-        Helper::createFolderIfNoExist(PATH_HOME . "public/entity/cache/info");
-
         /**
          * Move entitys from entity to the project public folder
          */
@@ -715,9 +707,6 @@ class UpdateSystem
      */
     private function createFaviconSizes(array $dados)
     {
-        Helper::createFolderIfNoExist(PATH_HOME . "uploads");
-        Helper::createFolderIfNoExist(PATH_HOME . "uploads/site");
-
         /**
          * Icones
          */
@@ -780,7 +769,6 @@ class UpdateSystem
                     $urlData = @file_get_contents($url);
                     if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
                         if ($urlData) {
-                            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/fonts");
                             $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
                             fwrite($f, $urlData);
                             fclose($f);
