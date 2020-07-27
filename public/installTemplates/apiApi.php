@@ -21,8 +21,23 @@ if (!empty($url)) {
         $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
         if ($read->getResult()) {
             $API = $read->getResult()[0];
+            $token = 0;
 
-            \Config\Config::setUser(0);
+            if(!empty($API['usuario'])) {
+                $read->exeRead("usuarios_token", "WHERE usuario = :ui", "ui={$API['usuario']}");
+                if($read->getResult()) {
+                    $token = $read->getResult()[0]['token'];
+                } else {
+                    $read->exeRead("usuarios", "WHERE id = :ui", "ui={$API['usuario']}");
+                    if($read->getResult()) {
+                        $token = md5("tokes" . rand(9999, 99999) . md5(base64_encode(date("Y-m-d H:i:s"))) . rand(0, 9999));
+                        $create = new \Conn\Create();
+                        $create->exeCreate("usuarios_token", ['token' => $token, "token_expira" => date("Y-m-d H:i:s"), "usuario" => $API['usuario']]);
+                    }
+                }
+            }
+            \Config\Config::setUser($token);
+
             $variaveis = array_filter(explode('/', $url));
             $route = "";
 
