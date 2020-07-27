@@ -28,14 +28,14 @@ if(!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
     /**
      * Set the time now
      */
-    $dia = json_decode(file_get_contents(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json"), !0);
-    $dia[] = date("H:i:s");
+    $diaContent = json_decode(file_get_contents(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json"), !0);
+    $diaContent[] = date("H:i:s");
 
     /**
      * Save the file
      */
     $f = fopen(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json", "w+");
-    fwrite($f, json_encode($dia));
+    fwrite($f, json_encode($diaContent));
     fclose($f);
 
     /**
