@@ -261,6 +261,12 @@ class UpdateSystem
         Helper::recurseDelete(PATH_HOME . "assetsPublic");
         Helper::recurseDelete(PATH_HOME . "templates_c");
 
+        Config::createDir("assetsPublic");
+        Config::createDir("assetsPublic/img");
+        Config::createDir("assetsPublic/img/splashscreens");
+        Config::createDir("assetsPublic/language");
+        Config::createDir("assetsPublic/fonts");
+
         /**
          * copy default theme from Config to the project folder if not exist
          */
