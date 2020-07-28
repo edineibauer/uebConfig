@@ -248,6 +248,8 @@ $(function ($) {
             for (let i in includeTpls)
                 includes[includeTpls[i]] = templates[includeTpls[i]];
 
+            sseTemplates.push([$this, templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\""), param, includes]);
+
             /**
              * If not defined param, so check skeleton
              */
@@ -2004,6 +2006,7 @@ var app = {
             let g = await AJAX.view(file);
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
+                    sseTemplates = [];
                     TITLE = g.title;
                     headerShow(g.header);
                     checkMenuActive();
@@ -2019,8 +2022,7 @@ var app = {
                         dbLocal.exeCreate("__template", templates);
                     }
 
-                    $div.html("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>");
-                    $div.append(g.content);
+                    $div.htmlTemplate("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content);
 
                     /**
                      * Compile templates
@@ -2078,6 +2080,44 @@ var app = {
                         for (let js of g.js)
                             await $.cachedScript(js);
                     }
+
+                    /**
+                     * Register SSE
+                     */
+                    if(navigator.onLine && typeof (EventSource) !== "undefined") {
+                        sseSource.addEventListener(file, function (e) {
+                            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+                                let response = JSON.parse(event.data);
+                                if(response.response === 1) {
+                                    SSE[file] = response.data;
+
+                                    /**
+                                     * Update Registered Templates
+                                     */
+                                    for (let rtpl of sseTemplates) {
+                                        let variables = {};
+
+                                        if(!isEmpty(rtpl[2]) && typeof rtpl[2] === "object")
+                                            variables = Object.assign({}, rtpl[2]);
+
+                                        mergeObject(variables, {
+                                            home: HOME,
+                                            vendor: VENDOR,
+                                            favicon: FAVICON,
+                                            logo: LOGO,
+                                            theme: THEME,
+                                            themetext: THEMETEXT,
+                                            sitename: SITENAME
+                                        });
+                                        variables[file] = SSE[file];
+
+                                        rtpl[0].html(Mustache.render(rtpl[1], variables, rtpl[3]));
+                                    }
+                                }
+                            }
+                        }, !1);
+                    }
+
                     app.removeLoading();
                 } else {
                     if (USER.setor === 0 && !localStorage.redirectOnLogin)
@@ -2567,6 +2607,24 @@ async function updatedPerfil() {
 }
 
 /**
+ * Get user profile in server to update local
+ * @returns {Promise<void>}
+ */
+var sseTemplates = [];
+var sseSource = {};
+const SSE = {};
+function sseStart() {
+    if (navigator.onLine && typeof (EventSource) !== "undefined") {
+        sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
+
+        sseSource.addEventListener('message', function (e) {
+            if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                SSE.maestru = JSON.parse(e.data);
+        }, !1);
+    }
+}
+
+/**
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
@@ -2680,6 +2738,7 @@ async function onLoadDocument() {
 
 async function startApplication() {
     await checkSessao();
+    sseStart();
     await updateAppOnDev();
     await menuHeader();
     await readRouteState();
