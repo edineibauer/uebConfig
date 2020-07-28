@@ -83,6 +83,7 @@ self.addEventListener('fetch', function (e) {
     let viewJs = new RegExp("assetsPublic\/view\/", "i");
     let core = new RegExp("assetsPublic\/", "i");
     let view = new RegExp("view\/", "i");
+    let getStatic = new RegExp("get\/static\/", "i");
     let get = new RegExp("(get|app\/find|app\/search|app\/get)\/", "i");
     let set = new RegExp("set\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
@@ -167,17 +168,19 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if (get.test(url)) {
-
+    } else if (getStatic.test(url)) {
         e.respondWith(
             caches.open('viewUserGet-v' + VERSION).then(cache => {
                 return cache.match(url).then(response => {
                     if(response) {
                         if(navigator.onLine) {
-                            fetch(e.request).then(networkResponse => {
-                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' && !/get\/(appFilesView|currentFiles|userCache|appFilesViewUser|load\/sync|templatesUser|event)\//.test(url))
+                            return fetch(e.request).then(networkResponse => {
+                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
                                     cache.put(url, networkResponse.clone());
+
+                                return networkResponse;
                             }).catch(() => {
+                                return returnNoNetwork();
                             })
                         }
 
@@ -185,8 +188,6 @@ self.addEventListener('fetch', function (e) {
                     } else {
                         return fetch(e.request).then(networkResponse => {
                             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-
-                                if (["get/appFilesView", "get/currentFiles", "get/userCache", "get/appFilesViewUser", "get/load/sync", "get/templatesUser"].indexOf(url) === -1 && !/get\/event\//.test(url))
                                     cache.put(url, networkResponse.clone());
 
                                 return networkResponse;
@@ -201,7 +202,7 @@ self.addEventListener('fetch', function (e) {
             })
         );
 
-    } else if (set.test(url) || app.test(url)) {
+    } else if (get.test(url) || set.test(url) || app.test(url)) {
 
         e.respondWith(
             fetch(e.request).then(networkResponse => {
