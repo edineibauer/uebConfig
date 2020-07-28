@@ -194,6 +194,12 @@ function createObjectWithStringDotNotation(key, value) {
     return result;
 }
 
+function getObjectDotNotation(obj, dotnotation) {
+    var arr = dotnotation.split(".");
+    while(arr.length && (obj = obj[arr.shift()]));
+    return obj;
+}
+
 /**
  * Obtém o número de parametros do objeto
  * @param obj
@@ -337,7 +343,24 @@ $(function ($) {
                 logo: LOGO,
                 theme: THEME,
                 themetext: THEMETEXT,
-                sitename: SITENAME
+                sitename: SITENAME,
+                jsonParse: function () {
+                    return function (txt, render) {
+                        let txtRender = render(txt);
+                        if(!isEmpty(txtRender)) {
+                            let txtc = document.createElement("textarea");
+                            txtc.innerHTML = txtRender;
+                            txt = txtc.value.split(',');
+                            let variavel = txt.pop();
+                            txt = txt.join(",");
+
+                            if (isJson(txt))
+                                return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
+                        }
+
+                        return "";
+                    }
+                }
             });
             let content = Mustache.render(templateTpl, param, includes);
 
@@ -2085,7 +2108,7 @@ var app = {
                      * Register SSE
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
-                        await AJAX.get("sseEngineClear/" + file);
+                        await AJAX.get("sseEngineClear");
                         sseSource.addEventListener(file, function (e) {
                             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                 let response = JSON.parse(event.data);
@@ -2108,7 +2131,21 @@ var app = {
                                             logo: LOGO,
                                             theme: THEME,
                                             themetext: THEMETEXT,
-                                            sitename: SITENAME
+                                            sitename: SITENAME,
+                                            jsonParse: function () {
+                                                return function (txt, render) {
+                                                    let txtc = document.createElement("textarea");
+                                                    txtc.innerHTML = render(txt);
+                                                    txt = txtc.value.split(',');
+                                                    let variavel = txt.pop();
+                                                    txt = txt.join(",");
+
+                                                    if(isJson(txt))
+                                                        return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
+
+                                                    return "";
+                                                }
+                                            }
                                         });
                                         variables[file] = SSE[file];
 

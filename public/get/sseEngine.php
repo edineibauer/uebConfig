@@ -3,32 +3,39 @@
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
+$view = "";
 $messages = [];
 if (!empty($_SESSION['userlogin'])) {
 
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
-    function writeUserSSE(string $event, string $message) {
+    function writeUserSSE(string $event, array $message) {
         $f = fopen(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json", "w");
-        fwrite($f, $message);
+        fwrite($f, json_encode($message));
         fclose($f);
-
-        echo "event: " . $event . PHP_EOL . "data: " . $message . PHP_EOL . PHP_EOL;
     }
 
-    function returnSSE($messages)
+    function returnSSE(string $view, $messages)
     {
         echo "id: " . time() . PHP_EOL;
         echo "retry: 1000" . PHP_EOL;
+        $content = [];
         foreach ($messages as $event => $message) {
             if(!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json")) {
                 writeUserSSE($event, $message);
+                $content[$event] = $message;
             } else {
                 $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json");
-                if($f !== $message)
+                if($f !== json_encode($message)) {
                     writeUserSSE($event, $message);
+                    $content[$event] = $message;
+                }
             }
         }
+
+        if(!empty($content))
+            echo "event: " . $view . PHP_EOL . "data: " . json_encode($content) . PHP_EOL . PHP_EOL;
+
         ob_flush();
         flush();
     }
@@ -36,7 +43,7 @@ if (!empty($_SESSION['userlogin'])) {
     if(!empty($_SESSION['userlogin']['id'])) {
         $view = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
 
-        foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse") as $route) {
+        foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
             $data = null;
 
             ob_start();
@@ -59,9 +66,9 @@ if (!empty($_SESSION['userlogin'])) {
 
             ob_end_clean();
 
-            $messages[pathinfo($route, PATHINFO_FILENAME)] = json_encode($data);
+            $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
     }
 }
 
-returnSSE($messages);
+returnSSE($view, $messages);
