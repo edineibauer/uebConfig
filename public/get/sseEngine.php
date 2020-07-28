@@ -6,18 +6,33 @@ header('Cache-Control: no-cache');
 $messages = [];
 if (!empty($_SESSION['userlogin'])) {
 
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
+
+    function writeUserSSE(string $event, string $message) {
+        $f = fopen(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json", "w");
+        fwrite($f, $message);
+        fclose($f);
+
+        echo "event: " . $event . PHP_EOL . "data: " . $message . PHP_EOL . PHP_EOL;
+    }
+
     function returnSSE($messages)
     {
         echo "id: " . time() . PHP_EOL;
         echo "retry: 1000" . PHP_EOL;
         foreach ($messages as $event => $message) {
-            echo "event: " . $event . PHP_EOL;
-            echo "data: " . $message . PHP_EOL . PHP_EOL;
+            if(!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json")) {
+                writeUserSSE($event, $message);
+            } else {
+                $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json");
+                if($f !== $message)
+                    writeUserSSE($event, $message);
+            }
         }
         ob_flush();
         flush();
     }
-    
+
     if(!empty($_SESSION['userlogin']['id'])) {
         $view = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
 

@@ -2085,6 +2085,7 @@ var app = {
                      * Register SSE
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
+                        await AJAX.get("sseEngineClear/" + file);
                         sseSource.addEventListener(file, function (e) {
                             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                 let response = JSON.parse(event.data);

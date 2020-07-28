@@ -416,6 +416,8 @@ class UpdateSystem
         Config::createDir("_cdn/vendor");
         Config::createDir("_cdn/userPerfil");
         Config::createDir("_cdn/userActivity");
+        Config::createDir("_cdn/userLastView");
+        Config::createDir("_cdn/userSSE");
         Config::createDir("libs");
         Config::createDir("public");
         Config::createDir("public/_config");
