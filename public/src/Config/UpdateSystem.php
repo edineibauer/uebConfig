@@ -589,7 +589,6 @@ class UpdateSystem
         if(file_exists(PATH_HOME . "_config/config.json")) {
             $conf = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
 
-            $listIntegrations = [];
             foreach (\Config\Config::getRoutesFilesTo("integracoes", "json") as $file => $dir) {
                 $integ = json_decode(file_get_contents($dir), !0);
                 if(!empty($integ['constantes'])) {
@@ -600,7 +599,7 @@ class UpdateSystem
                 }
             }
             $f = fopen(PATH_HOME . "public/_config/config.json", "w+");
-            fwrite($f, json_decode($conf));
+            fwrite($f, json_encode($conf));
             fclose($f);
         }
 

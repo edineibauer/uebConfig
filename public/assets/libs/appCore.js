@@ -2108,7 +2108,7 @@ var app = {
                      * Register SSE
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
-                        AJAX.get("sseEngineClear");
+                        await AJAX.get("sseEngineClear");
                         sseSource.addEventListener(file, function (e) {
                             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                 let response = JSON.parse(event.data);
@@ -2132,8 +2132,6 @@ var app = {
                                         while(arr.length && (obj = obj[arr.shift()]));
                                         return obj;
                                     }
-
-                                    console.log('ok');
 
                                     mergeObject(variables, {
                                         home: HOME,
