@@ -2108,49 +2108,62 @@ var app = {
                      * Register SSE
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
-                        await AJAX.get("sseEngineClear");
+                        AJAX.get("sseEngineClear");
                         sseSource.addEventListener(file, function (e) {
                             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                 let response = JSON.parse(event.data);
-                                if(response.response === 1) {
-                                    SSE[file] = response.data;
 
-                                    /**
-                                     * Update Registered Templates
-                                     */
-                                    for (let rtpl of sseTemplates) {
-                                        let variables = {};
+                                for(let v in response) {
+                                    if (response[v].response === 1)
+                                        SSE[v] = response[v].data;
+                                }
 
-                                        if(!isEmpty(rtpl[2]) && typeof rtpl[2] === "object")
-                                            variables = Object.assign({}, rtpl[2]);
+                                /**
+                                 * Update Registered Templates
+                                 */
+                                for (let rtpl of sseTemplates) {
+                                    let variables = {};
 
-                                        mergeObject(variables, {
-                                            home: HOME,
-                                            vendor: VENDOR,
-                                            favicon: FAVICON,
-                                            logo: LOGO,
-                                            theme: THEME,
-                                            themetext: THEMETEXT,
-                                            sitename: SITENAME,
-                                            jsonParse: function () {
-                                                return function (txt, render) {
+                                    if(!isEmpty(rtpl[2]) && typeof rtpl[2] === "object")
+                                        variables = Object.assign({}, rtpl[2]);
+
+                                    function getObjectDotNotation(obj, dotnotation) {
+                                        var arr = dotnotation.split(".");
+                                        while(arr.length && (obj = obj[arr.shift()]));
+                                        return obj;
+                                    }
+
+                                    console.log('ok');
+
+                                    mergeObject(variables, {
+                                        home: HOME,
+                                        vendor: VENDOR,
+                                        favicon: FAVICON,
+                                        logo: LOGO,
+                                        theme: THEME,
+                                        themetext: THEMETEXT,
+                                        sitename: SITENAME,
+                                        jsonParse: function () {
+                                            return function (txt, render) {
+                                                let txtRender = render(txt);
+                                                if(!isEmpty(txtRender)) {
                                                     let txtc = document.createElement("textarea");
-                                                    txtc.innerHTML = render(txt);
+                                                    txtc.innerHTML = txtRender;
                                                     txt = txtc.value.split(',');
                                                     let variavel = txt.pop();
                                                     txt = txt.join(",");
 
-                                                    if(isJson(txt))
+                                                    if (isJson(txt))
                                                         return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
-
-                                                    return "";
                                                 }
-                                            }
-                                        });
-                                        variables[file] = SSE[file];
 
-                                        rtpl[0].html(Mustache.render(rtpl[1], variables, rtpl[3]));
-                                    }
+                                                return "";
+                                            }
+                                        }
+                                    });
+
+                                    mergeObject(variables, SSE);
+                                    rtpl[0].html(Mustache.render(rtpl[1], variables, rtpl[3]));
                                 }
                             }
                         }, !1);
