@@ -2677,11 +2677,13 @@ function sseStart() {
     }
 }
 
-function sseListen(name, funcao) {
-    sseSource.addEventListener(name, function (e) {
-        if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-            funcao(JSON.parse(e.data));
-    }, !1);
+function sseAdd(name) {
+    return new Promise((s, f) => {
+        sseSource.addEventListener(name, function (e) {
+            if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                s(JSON.parse(e.data));
+        }, !1);
+    });
 }
 
 /**
