@@ -83,7 +83,7 @@ class Config
             "nome" => "Anônimo",
             "imagem" => "assetsPublic/img/img.png",
             "status" => 1,
-            "data" => date("Y-m-d H:i:s"),
+            "data" => null,
             "token_recovery" => null,
             "setor" => "0",
             "system_id" => null,

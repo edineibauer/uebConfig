@@ -2112,11 +2112,25 @@ var app = {
                         await AJAX.get("sseEngineClear");
                         sseSource.addEventListener(file, function (e) {
                             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                                let response = JSON.parse(event.data);
+                                let response = JSON.parse(e.data);
 
+                                /**
+                                 * For each SSE received on view
+                                 */
                                 for(let v in response) {
-                                    if (response[v].response === 1)
+                                    if (response[v].response === 1) {
+
+                                        /**
+                                         * Store the value of the SSE event
+                                         */
                                         SSE[v] = response[v].data;
+
+                                        /**
+                                         * If have event function on receive this SSE to trigger
+                                         */
+                                        if(typeof sseEvents[v] === "function")
+                                            sseEvents[v](SSE[v]);
+                                    }
                                 }
 
                                 /**
@@ -2127,12 +2141,6 @@ var app = {
 
                                     if(!isEmpty(rtpl[2]) && typeof rtpl[2] === "object")
                                         variables = Object.assign({}, rtpl[2]);
-
-                                    function getObjectDotNotation(obj, dotnotation) {
-                                        var arr = dotnotation.split(".");
-                                        while(arr.length && (obj = obj[arr.shift()]));
-                                        return obj;
-                                    }
 
                                     mergeObject(variables, {
                                         home: HOME,
@@ -2662,29 +2670,40 @@ async function updatedPerfil() {
  */
 var sseTemplates = [];
 var sseSource = {};
+const sseEvents = {};
 const SSE = {};
-function sseStart() {
+async function sseStart() {
     if (navigator.onLine && typeof (EventSource) !== "undefined") {
-        AJAX.get("sseEngineClear");
-
         sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
-
-        sseSource.addEventListener('updatePerfil', function (e) {
+        sseSource.addEventListener('base', function (e) {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                USER = JSON.parse(e.data);
-                storeUser();
+                let sseData = JSON.parse(e.data);
+
+                /**
+                 * If have event function on receive this SSE to trigger
+                 */
+                for(let i in sseData) {
+                    if(sseData[i].response === 1) {
+                        /**
+                         * Store the value of the SSE event
+                         */
+                        SSE[i] = sseData[i].data;
+
+                        /**
+                         * For each SSE received on view
+                         */
+                        if(typeof sseEvents[i] === "function")
+                            sseEvents[i](SSE[i]);
+                    }
+                }
             }
         }, !1);
     }
 }
 
-function sseAdd(name) {
-    return new Promise((s, f) => {
-        sseSource.addEventListener(name, function (e) {
-            if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-                s(JSON.parse(e.data));
-        }, !1);
-    });
+function sseAdd(name, funcao) {
+    if(typeof funcao === "function")
+        sseEvents[name] = funcao;
 }
 
 /**

@@ -5,6 +5,7 @@ header('Cache-Control: no-cache');
 
 $view = "";
 $messages = [];
+$messagesBase = [];
 if (!empty($_SESSION['userlogin'])) {
     $view = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
 
@@ -25,10 +26,21 @@ if (!empty($_SESSION['userlogin'])) {
      * @param string $view
      * @param array $messages
      */
-    function returnSSE(string $view, array $messages)
+    function returnSSE(string $view, array $messages, array $messagesBase)
     {
         echo "id: " . time() . PHP_EOL;
         echo "retry: 1000" . PHP_EOL;
+        returnMessagesSSE($view, $messages);
+        returnMessagesSSE("base", $messagesBase);
+        ob_flush();
+        flush();
+    }
+
+    /**
+     * @param string $view
+     * @param array $messages
+     */
+    function returnMessagesSSE(string $view, array $messages) {
         $content = [];
         foreach ($messages as $event => $message) {
             if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json")) {
@@ -46,9 +58,6 @@ if (!empty($_SESSION['userlogin'])) {
 
         if (!empty($content))
             echo "event: " . $view . PHP_EOL . "data: " . json_encode($content) . PHP_EOL . PHP_EOL;
-
-        ob_flush();
-        flush();
     }
 
     /**
@@ -106,8 +115,8 @@ if (!empty($_SESSION['userlogin'])) {
 
         ob_end_clean();
 
-        $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
+        $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
     }
 }
 
-returnSSE($view, $messages);
+returnSSE($view, $messages, $messagesBase);
