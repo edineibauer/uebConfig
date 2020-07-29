@@ -311,11 +311,6 @@ $(function ($) {
                 }
 
                 /**
-                 * Replace link to div
-                 */
-                templateTpl = templateTpl.replace(/<a /gi, "<div ").replace(/<\/a>/gi, "</div>");
-
-                /**
                  * Image error back to loading png default
                  */
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/loading.png'\"");
