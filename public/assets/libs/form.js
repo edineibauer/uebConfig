@@ -493,7 +493,7 @@ function searchList($input) {
             dataRead = r[1];
             $.each(dataRead, function (i, datum) {
                 $.each(datum, function (col, val) {
-                    if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information")) {
+                    if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information" && dicionarios[entity][col].key !== "identifier" && dicionarios[entity][col].nome !== "")) {
                         if (results.length > 14) {
                             return !1
                         } else {
@@ -804,6 +804,13 @@ async function getInputsTemplates(form, parent, col) {
     let dic = orderBy(dicionarios[form.entity], "indice").reverse();
 
     for (let meta of dic) {
+
+        /**
+         * Ignore system_id field if not have association or if not is admin
+         */
+        if(meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin"))
+            continue;
+
         if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
             let metaInput = Object.assign({}, meta);
             metaInput.parent = parent;
