@@ -2698,6 +2698,10 @@ async function sseStart() {
                 }
             }
         }, !1);
+
+        sseAdd("updatePerfil", function(data) {
+            USER = data;
+        });
     }
 }
 
