@@ -14,12 +14,12 @@ class Config
 
     /**
      * Set session to the request user
-     * @param string|null $token
+     * @param string $token
      */
-    public static function setUser($token)
+    public static function setUser(string $token)
     {
-        if (empty($token) || !is_string($token)) {
-            self::setUserAnonimo();
+        if (preg_match("/^T!/i", $token)) {
+            self::setUserAnonimo($token);
         } else {
 
             $sql = new SqlCommand();
@@ -62,22 +62,24 @@ class Config
                      */
                     $del = new Delete();
                     $del->exeDelete("usuarios_token", "WHERE token = :t", "t={$token}");
-                    self::setUserAnonimo();
+                    self::setUserAnonimo("");
                 }
             } else {
-                self::setUserAnonimo();
+                self::setUserAnonimo("");
             }
         }
     }
 
     /**
      * Set anônimo session request
+     * @param string $token
      */
-    private static function setUserAnonimo()
+    private static function setUserAnonimo(string $token)
     {
+        $token = $token ?? "T!" . 0;
         $_SESSION['userlogin'] = [
-            "id" => 0,
-            "token" => "",
+            "id" => (((int) str_replace("T!", "", $token)) * -1),
+            "token" => $token,
             "nome" => "Anônimo",
             "imagem" => "assetsPublic/img/img.png",
             "status" => 1,

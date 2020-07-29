@@ -1247,7 +1247,8 @@ function setUserInNavigator(user, isUserToStore) {
 }
 
 function setCookieAnonimo() {
-    return setCookieUser({token: 0, id: 0, nome: 'Anônimo', imagem: '', setor: 0});
+    let token = Date.now() + Math.floor((Math.random() * 100000) + 1);
+    return setCookieUser({token: "T!" + token, id: (token*-1), nome: 'Anônimo', imagem: '', setor: 0});
 }
 
 function setCookieUser(user) {
