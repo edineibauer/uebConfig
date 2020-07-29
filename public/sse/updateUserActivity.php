@@ -2,12 +2,13 @@
 
 $data['data'] = "";
 if (!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
+
     /**
      * Update the time when this user is online in the app
      */
     $dia = date("Y-m-d");
     if (!file_exists(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json")) {
-        Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id']);
+        \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id']);
         $f = fopen(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json", "w+");
         fwrite($f, "[]");
         fclose($f);
