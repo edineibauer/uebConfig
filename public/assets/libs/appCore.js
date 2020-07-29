@@ -2664,13 +2664,24 @@ var sseSource = {};
 const SSE = {};
 function sseStart() {
     if (navigator.onLine && typeof (EventSource) !== "undefined") {
+        AJAX.get("sseEngineClear");
+
         sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
 
-        sseSource.addEventListener('message', function (e) {
-            if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-                SSE.maestru = JSON.parse(e.data);
+        sseSource.addEventListener('updatePerfil', function (e) {
+            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+                USER = JSON.parse(e.data);
+                storeUser();
+            }
         }, !1);
     }
+}
+
+function sseListen(name, funcao) {
+    sseSource.addEventListener(name, function (e) {
+        if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+            funcao(JSON.parse(e.data));
+    }, !1);
 }
 
 /**
@@ -2794,7 +2805,7 @@ async function startApplication() {
     await onLoadDocument();
 
     await (!localStorage.accesscount ? firstAccess() : thenAccess());
-    await updatedPerfil();
+    // await updatedPerfil();
 
     if (localStorage.accesscount === "1") {
 
