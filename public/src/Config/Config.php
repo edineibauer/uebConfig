@@ -275,16 +275,16 @@ class Config
         if (empty($permissoes[$entity]))
             return !1;
 
-        if (in_array("read", $options) && !$permissoes['read'])
+        if (in_array("read", $options) && !$permissoes[$entity]['read'])
             return !1;
 
-        if (in_array("create", $options) && !$permissoes['create'])
+        if (in_array("create", $options) && !$permissoes[$entity]['create'])
             return !1;
 
-        if (in_array("update", $options) && !$permissoes['update'])
+        if (in_array("update", $options) && !$permissoes[$entity]['update'])
             return !1;
 
-        if (in_array("delete", $options) && !$permissoes['delete'])
+        if (in_array("delete", $options) && !$permissoes[$entity]['delete'])
             return !1;
 
         return !0;
