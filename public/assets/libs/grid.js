@@ -96,7 +96,7 @@ async function gridTdFilterValue(value, meta) {
             value = "<div class='activeBoolean" + (value == 1 ? " active" : "") + "'></div>";
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
-        } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1 && meta.column !== "system_id") {
+        } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
             let data = await exeRead(meta.relation, value);
             return getRelevantTitle(meta.relation, data, 1, !1)
         } else {

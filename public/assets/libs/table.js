@@ -348,8 +348,6 @@ $(function () {
             for(let i in grid.fields){
                 if(grid.fields[i].nome === "id")
                     delete grid.fields[i];
-
-                console.log(Object.assign({}, grid.fields));
             }
         } else {
             grid.fields.find(s => s.column === val).show = checked;

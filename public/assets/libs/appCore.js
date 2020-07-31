@@ -839,6 +839,10 @@ async function menuHeader() {
     }
 }
 
+function allowThisType(meta, fields) {
+    return (meta.column !== "system_id" || (USER.setor === "admin" && meta.nome !== "")) && meta.format !== "password" && meta.key !== "information" && meta.key !== "identifier" && meta.datagrid !== !1 && !fields.find(s => s.nome === meta.nome);
+}
+
 function getFieldsData(entity, haveId, r) {
     let fields = ["", "", "", "", "", "", ""];
     relevants = r[0];
@@ -885,6 +889,7 @@ function getFieldsData(entity, haveId, r) {
             pushToArrayIndex(fields, data, indice);
         }
     });
+
     if (!isEmpty(relation) && typeof relation === "object" && !isEmpty(relation.belongsTo)) {
         $.each(relation.belongsTo, function (i, e) {
             $.each(e, function (relEntity, relData) {
@@ -912,7 +917,7 @@ function getFieldsData(entity, haveId, r) {
         for (let a = 0; a < 6; a++) {
             if (isEmpty(fields[a])) {
                 $.each(dicionarios[entity], function (i, e) {
-                    if (e.format !== "password" && e.key !== "information" && e.key !== "identifier" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
+                    if (allowThisType(e, fields)) {
                         let data = {
                             'nome': e.nome,
                             'column': e.column,
@@ -939,7 +944,7 @@ function getFieldsData(entity, haveId, r) {
      * Preenche campos restantes para disponibilizar visualização por controle na tabela
      */
     $.each(dicionarios[entity], function (i, e) {
-        if (e.format !== "password" && e.key !== "information" && e.key !== "identifier" && !fields.find(s => s.nome === e.nome)) {
+        if (allowThisType(e, fields)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,
