@@ -344,15 +344,7 @@ $(function () {
         let th = grid.$element.find("thead").find("th[rel='" + val + "']");
         let td = grid.$element.find("tbody").find("td[rel='" + val + "']");
 
-        if(val === "id" && grid.fields.find(s => s.nome === "id")) {
-            for(let i in grid.fields){
-                if(grid.fields[i].nome === "id")
-                    delete grid.fields[i];
-            }
-        } else {
-            grid.fields.find(s => s.column === val).show = checked;
-        }
-
+        grid.fields.find(s => s.column === val).show = checked;
         AJAX.post("saveFieldsGrid", {type: "grid", entity: grid.entity, fields: grid.fields});
 
         if(checked) {
