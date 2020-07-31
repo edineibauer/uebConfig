@@ -912,7 +912,7 @@ function getFieldsData(entity, haveId, r) {
         for (let a = 0; a < 6; a++) {
             if (isEmpty(fields[a])) {
                 $.each(dicionarios[entity], function (i, e) {
-                    if (e.format !== "password" && e.key !== "information" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
+                    if (e.format !== "password" && e.key !== "information" && e.key !== "identifier" && e.datagrid !== !1 && !fields.find(s => s.nome === e.nome)) {
                         let data = {
                             'nome': e.nome,
                             'column': e.column,
@@ -939,7 +939,7 @@ function getFieldsData(entity, haveId, r) {
      * Preenche campos restantes para disponibilizar visualização por controle na tabela
      */
     $.each(dicionarios[entity], function (i, e) {
-        if (e.format !== "password" && e.key !== "information" && !fields.find(s => s.nome === e.nome)) {
+        if (e.format !== "password" && e.key !== "information" && e.key !== "identifier" && !fields.find(s => s.nome === e.nome)) {
             let data = {
                 'nome': e.nome,
                 'column': e.column,

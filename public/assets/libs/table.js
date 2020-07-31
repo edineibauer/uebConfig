@@ -344,7 +344,17 @@ $(function () {
         let th = grid.$element.find("thead").find("th[rel='" + val + "']");
         let td = grid.$element.find("tbody").find("td[rel='" + val + "']");
 
-        grid.fields.find(s => s.column === val).show = checked;
+        if(val === "id" && grid.fields.find(s => s.nome === "id")) {
+            for(let i in grid.fields){
+                if(grid.fields[i].nome === "id")
+                    delete grid.fields[i];
+
+                console.log(Object.assign({}, grid.fields));
+            }
+        } else {
+            grid.fields.find(s => s.column === val).show = checked;
+        }
+
         AJAX.post("saveFieldsGrid", {type: "grid", entity: grid.entity, fields: grid.fields});
 
         if(checked) {
