@@ -493,7 +493,7 @@ function searchList($input) {
             dataRead = r[1];
             $.each(dataRead, function (i, datum) {
                 $.each(datum, function (col, val) {
-                    if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information" && dicionarios[entity][col].key !== "identifier" && dicionarios[entity][col].nome !== "")) {
+                    if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information" && dicionarios[entity][col].column !== "system_id" && dicionarios[entity][col].key !== "identifier" && dicionarios[entity][col].nome !== "")) {
                         if (results.length > 14) {
                             return !1
                         } else {
