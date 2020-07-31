@@ -268,7 +268,7 @@ class Config
         if ($setor === "admin")
             return !0;
 
-        $permissoes = self::getPermission($setor);
+        $permissoes = self::getPermission($setor)[$setor];
         if (empty($options))
             return isset($permissoes[$entity]);
 
