@@ -1,0 +1,28 @@
+[
+  {
+    "href": "index",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>home</i><div style='margin-top: -7px;color: gray;font-size: 10px;text-align: center;'>inicio</div>"
+  },
+  {
+    "href": "dashboard",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>dashboard</i><div style='margin-top: -7px;color: gray;font-size: 10px;text-align: center;'>painel</div>"
+  },
+  {
+    "href": "UIRelatorios",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>assessment</i><div style='margin-top: -7px;color: gray;font-size: 10px;text-align: center;'>relatórios</div>"
+  },
+  {
+    "href": "UIConfiguracoes",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>settings</i><div style='margin-top: -7px;color: gray;font-size: 10px;text-align: center;'>configurações</div>"
+  },
+  {
+    "funcao": "toggleSidebar",
+    "class": "color-text-gray",
+    "style": "cursor:pointer",
+    "html": "<i class='material-icons left'>more_horiz</i><div style='margin-top: -7px;color: gray;font-size: 10px;text-align: center;'>mais</div>"
+  }
+]

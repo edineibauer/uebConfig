@@ -213,6 +213,21 @@ Object.size = function (obj) {
     return size;
 };
 
+function _htmlTemplateJsonDecode(txt, render) {
+    let txtRender = render(txt);
+    if(!isEmpty(txtRender)) {
+        let txtc = document.createElement("textarea");
+        txtc.innerHTML = txtRender;
+        txt = txtc.value.split(',');
+        let variavel = txt.pop();
+        txt = txt.join(",");
+
+        if (isJson(txt))
+            return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
+    }
+    return "";
+}
+
 /**
  * Adiciona funções aos elementos jQuery
  * */
@@ -331,6 +346,8 @@ $(function ($) {
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\"");
             }
 
+
+
             mergeObject(param, {
                 home: HOME,
                 vendor: VENDOR,
@@ -339,24 +356,20 @@ $(function ($) {
                 theme: THEME,
                 themetext: THEMETEXT,
                 sitename: SITENAME,
+                USER: USER,
                 jsonParse: function () {
-                    return function (txt, render) {
-                        let txtRender = render(txt);
-                        if(!isEmpty(txtRender)) {
-                            let txtc = document.createElement("textarea");
-                            txtc.innerHTML = txtRender;
-                            txt = txtc.value.split(',');
-                            let variavel = txt.pop();
-                            txt = txt.join(",");
-
-                            if (isJson(txt))
-                                return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
-                        }
-
-                        return "";
+                    return function(txt, render) {
+                        return _htmlTemplateJsonDecode(txt, render);
+                    }
+                },
+                jsonDecode: function() {
+                    return function(txt, render) {
+                        return _htmlTemplateJsonDecode(txt, render);
                     }
                 }
             });
+            mergeObject(param, SSE);
+
             let content = Mustache.render(templateTpl, param, includes);
 
             $this.html(content);
@@ -2150,26 +2163,17 @@ var app = {
                                         theme: THEME,
                                         themetext: THEMETEXT,
                                         sitename: SITENAME,
+                                        USER: USER,
                                         jsonParse: function () {
-                                            return function (txt, render) {
-                                                let txtRender = render(txt);
-                                                if(!isEmpty(txtRender)) {
-                                                    let txtc = document.createElement("textarea");
-                                                    txtc.innerHTML = txtRender;
-                                                    txt = txtc.value.split(',');
-                                                    let variavel = txt.pop();
-                                                    txt = txt.join(",");
-
-                                                    if (isJson(txt))
-                                                        return $.trim(getObjectDotNotation(JSON.parse(txt), variavel));
-                                                }
-
-                                                return "";
-                                            }
+                                            return _htmlTemplateJsonDecode(txt, render);
+                                        },
+                                        jsonDecode: function() {
+                                            return _htmlTemplateJsonDecode(txt, render);
                                         }
                                     });
 
                                     mergeObject(variables, SSE);
+
                                     rtpl[0].html(Mustache.render(rtpl[1], variables, rtpl[3]));
                                 }
                             }

@@ -1,0 +1,36 @@
+[
+  {
+    "href": "dashboard",
+    "attr": "rel='dashboard'",
+    "li": {
+      "class": "s-hide"
+    },
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>dashboard</i>"
+  },
+  {
+    "href": "UIRelatorios",
+    "li": {
+      "class": "s-hide"
+    },
+    "attr": "rel='UIRelatorios'",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>assessment</i>"
+  },
+  {
+    "href": "UIConfiguracoes",
+    "li": {
+      "class": "s-hide"
+    },
+    "attr": "rel='UIConfiguracoes'",
+    "class": "theme-text-aux",
+    "html": "<i class='material-icons left'>settings</i>"
+  },
+  {
+    "funcao": "toggleSidebar",
+    "li": {
+        "class": "not-menu-li"
+    },
+    "html": "<div id='core-header-perfil'></div>"
+  }
+]
