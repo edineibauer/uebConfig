@@ -84,66 +84,53 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
             value = form.$element.find("input[name='" + column + "']:checked").val()
         } else if (format === "source" || format === "source_list") {
             value = !$.isArray(data[column]) ? [] : data[column];
-            let entity = $input.data("entity");
             let max = parseInt($input.attr("max"));
             let now = value.length;
-            if (typeof e.target.files[0] !== "undefined" && now < max) {
-                $.each(e.target.files, function (e, file) {
-                    if (now < max) {
-                        now++;
-                        let loading = createSource({
-                            name: 'Carregando',
-                            nome: '',
-                            sizeName: '',
-                            size: 1,
-                            url: HOME + "assetsPublic/img/loading.gif?v=" + VERSION,
-                            isImage: !0,
-                            icon: ""
-                        }, $input, (dicionarios[entity][column].format === "source_list" ? 1 : 2));
+
+            for (let file of e.target.files) {
+                if (now < max) {
+                    now++;
+                    let idMockLoading = Date.now() + Math.floor((Math.random() * 1000000) + 1);
+
+                    /**
+                     * DOM update info
+                     */
+                    $input.parent().siblings(".info-container").find(".input-info").html(now);
+                    if (now < max)
+                        $input.siblings(".file_gallery").find(".file-more").removeClass("hide");
+                    else
                         $input.siblings(".file_gallery").find(".file-more").addClass("hide");
-                        $input.parent().siblings(".info-container").find(".input-info").html(now);
-                        let name = file.name.split(".");
-                        let extensao = name.pop().toLowerCase();
-                        name = name.join('-');
-                        let nome = replaceAll(replaceAll(name, '-', ' '), '_', ' ');
-                        name = slug(name);
-                        if (/^image\//.test(file.type) && extensao !== "svg") {
-                            compressImage(file, 1920, 1080, extensao, function (resource) {
-                                var size = parseFloat(4 * Math.ceil(((resource.length - 'data:image/png;base64,'.length) / 3)) * 0.5624896334383812).toFixed(1);
-                                let mock = createMock(resource, nome, name, extensao, file.type, size, !0);
-                                value.push(mock);
-                                sendFileUpload(dataURLtoFile(mock.url, mock.name + "." + mock.type), mock, $input, entity, column, data[column], loading, now, max)
-                            })
-                        } else {
-                            if (file.size < 4096000) {
-                                let reader = new FileReader();
-                                reader.readAsDataURL(file);
-                                reader.onloadend = function (e) {
-                                    if (e.target.error != null) {
-                                        console.error("Arquivo não pode ser lido! Código " + e.target.error.code)
-                                    } else {
-                                        let mock = createMock(e.target.result, nome, name, extensao, file.type, file.size);
-                                        value.push(mock);
-                                        sendFileUpload(dataURLtoFile(mock.url, mock.name + "." + mock.type), mock, $input, entity, column, data[column], loading, now, max)
-                                    }
-                                }
-                            } else {
-                                if (navigator.onLine) {
-                                    let mock = createMock(!1, nome, name, extensao, file.type, file.size);
-                                    value.push(mock);
-                                    sendFileUpload(file, mock, $input, entity, column, data[column], loading, now, max)
-                                } else {
-                                    Promise.all([loading]).then(f => {
-                                        $input.siblings(".file_gallery").find("#mock-Carregando").remove();
-                                        if ((now + 1) < max)
-                                            $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-                                    })
-                                    toast("Arquivos maiores que 4MB só podem ser enviados online.", 5000, "toast-warning")
-                                }
-                            }
-                        }
-                    }
-                })
+
+                    /**
+                     * Create loading file
+                     */
+                    createSource({
+                        name: idMockLoading,
+                        nome: '',
+                        sizeName: '',
+                        size: 1,
+                        url: HOME + "assetsPublic/img/loading.gif?v=" + VERSION,
+                        format: {isImage: !0},
+                        icon: ""
+                    }, $input, tipoEnvio);
+
+                    /**
+                     * Upload the file
+                     */
+                    AJAX.uploadFile(file).then(mock => {
+
+                        /**
+                         * Set the file on form
+                         */
+                        value.push(mock);
+
+                        /**
+                         * Remove loading and create DOM file
+                         */
+                        $input.siblings(".file_gallery").find("#mock-" + idMockLoading).remove();
+                        createSource(mock, $input, tipoEnvio);
+                    });
+                }
             }
         } else if (['tel', 'cpf', 'cnpj', 'ie', 'cep', 'card_number'].indexOf(format) > -1) {
             value = $input.cleanVal()
@@ -203,14 +190,7 @@ function removeFileForm($btn, tempo) {
     let parent = $input.data("parent");
     let max = $input.attr("max");
     let name = $btn.attr("rel");
-    if (typeof ajaxUploadProgress[name] !== "undefined") {
-        clearInterval(checkUploadStoped[name]);
-        ajaxUploadProgress[name].abort();
-        delete (ajaxUploadProgress[name]);
-        delete (checkUploadStoped[name]);
-        $(".progress-wrp[rel='" + name + "'] .progress-bar").css("background-color", "#d3d3d3");
-        $(".progress-wrp[rel='" + name + "'] .status").css("left", "31%").html("<span style='color:#e02d36'>CANCELADO</span>")
-    }
+
     if (form.entity !== parent) {
         parent = parent.replace(form.entity + ".", "");
         data = fetchFromObject(form.data, parent)
@@ -239,7 +219,6 @@ function removeFileForm($btn, tempo) {
 }
 
 function checkRules(entity, column, value) {
-    let find = !1;
     $.each(dicionarios[entity], function (k, f) {
         if (!isEmpty(f.rules)) {
             $.each(f.rules, function (j, r) {
@@ -286,187 +265,6 @@ function applyRules(entity, rule, column) {
     }
     if (isEmpty($input.val()) && rule.default !== !1 && !isEmpty(rule.default))
         $input.val(rule.default)
-}
-
-function createMock(resource, nome, name, extensao, type, size, isImage) {
-    if (typeof isImage === "undefined") {
-        let reg = new RegExp("^image", "i");
-        isImage = reg.test(type)
-    }
-    let dateNow = new Date();
-    let icon = (!isImage && ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "search", "txt", "json", "js", "iso", "css", "html", "xml", "mp3", "csv", "psd", "mp4", "svg", "avi"].indexOf(extensao) > -1 ? extensao : "file");
-    return {
-        nome: nome,
-        name: name,
-        type: extensao,
-        fileType: type,
-        size: size,
-        isImage: isImage,
-        icon: icon,
-        sizeName: (size > 999999 ? parseFloat(size / 1000000).toFixed(1) + "MB" : (size > 999 ? parseInt(size / 1000) + "KB" : size)),
-        url: resource,
-        data: zeroEsquerda(dateNow.getHours()) + ":" + zeroEsquerda(dateNow.getMinutes()) + ", " + zeroEsquerda(dateNow.getDay()) + "/" + zeroEsquerda(dateNow.getMonth()) + "/" + dateNow.getFullYear()
-    }
-}
-
-function sendFileUpload(file, mock, $input, entity, column, data, loading, now, max) {
-    sendFileToServerToCache(file, mock, data, entity, column, $input);
-    createSource(mock, $input, (dicionarios[entity][column].format === "source_list" ? 1 : 2)).then(d => {
-        Promise.all([loading]).then(f => {
-            if (navigator.onLine)
-                $(".progress-wrp[rel='" + mock.name + "']").removeClass("hide");
-
-            $input.siblings(".file_gallery").find("#mock-Carregando").remove();
-            if ((now + 1) < max)
-                $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-        })
-    })
-}
-
-function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length,
-        u8arr = new Uint8Array(n);
-    while (n--) {
-        u8arr[n] = bstr.charCodeAt(n)
-    }
-    return new File([u8arr], filename, {type: mime})
-}
-
-function sendFileToServerToCache(file, mock, storeColumn, entity, column, $input) {
-    if (navigator.onLine) {
-        let upload = new Upload(file);
-        upload.exeUpload(mock, $input, function (data) {
-            if (data.url !== "") {
-                mock.url = data.url;
-                mock.image = data.image;
-            }
-        })
-    }
-}
-
-var Upload = function (file) {
-    this.file = file
-};
-var checkUploadStoped = {};
-var ajaxUploadProgress = {};
-Upload.prototype.exeUpload = function (mock, $input, funcao) {
-    var formData = new FormData();
-    formData.append("fileInSetFolder", "up/source");
-    formData.append("maestruToken", localStorage.token);
-    formData.append("name", mock.name);
-    formData.append("fileType", mock.fileType);
-    formData.append("type", mock.type);
-    formData.append("upload", this.file, this.file.name);
-    let atualPercent = 0;
-    let lastPercent = 1;
-    checkUploadStoped[mock.name] = setInterval(function () {
-        if (atualPercent === lastPercent) {
-            clearInterval(checkUploadStoped[mock.name]);
-            if (typeof ajaxUploadProgress[mock.name] !== "undefined") {
-                ajaxUploadProgress[mock.name].abort();
-                delete (ajaxUploadProgress[mock.name])
-            }
-            delete (checkUploadStoped[mock.name]);
-            $(".progress-wrp[rel='" + mock.name + "'] .progress-bar").css("background-color", "#d3d3d3");
-            $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "41%").html("<span style='color:#e02d36'>FALHA</span>");
-            removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
-            toast("Envio de arquivo cancelado. Demorou muito a responder!", 7000, "toast-error")
-        } else {
-            atualPercent = lastPercent
-        }
-    }, 25000);
-    ajaxUploadProgress[mock.name] =
-        $.ajax({
-            type: "POST",
-            enctype: 'multipart/form-data',
-            url: HOME + "post",
-            xhr: function () {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function (event) {
-                        let percent = 0;
-                        let position = event.loaded || event.position;
-                        let total = event.total;
-                        let progress_bar_id = ".progress-wrp[rel='" + mock.name + "']";
-                        if (event.lengthComputable)
-                            percent = Math.ceil(position / total * 100);
-                        lastPercent = percent;
-                        $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
-                        $(progress_bar_id + " .status").text(percent + "%")
-                    }, !1)
-                }
-                return myXhr
-            }, success: function (data) {
-                clearInterval(checkUploadStoped[mock.name]);
-                if (data.response === 1) {
-                    funcao(data.data);
-                    delete (ajaxUploadProgress[mock.name]);
-                    delete (checkUploadStoped[mock.name]);
-                    $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "46%").html("<span style='color:#fff'>OK</span>");
-                    setTimeout(function () {
-                        $(".progress-wrp[rel='" + mock.name + "']").addClass("hide")
-                    }, 1000)
-                } else {
-                    clearInterval(checkUploadStoped[mock.name]);
-                    delete (ajaxUploadProgress[mock.name]);
-                    delete (checkUploadStoped[mock.name]);
-                    $(".progress-wrp[rel='" + mock.name + "'] .progress-bar").css("background-color", "#d3d3d3");
-                    $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "41%").html("<span style='color:#e02d36'>FALHA</span>");
-                    removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
-                    toast("FALHA AO ENVIAR", 6000, "toast-warning");
-                    $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-                }
-            }, error: function (error) {
-                clearInterval(checkUploadStoped[mock.name]);
-                delete (ajaxUploadProgress[mock.name]);
-                delete (checkUploadStoped[mock.name]);
-                $(".progress-wrp[rel='" + mock.name + "'] .progress-bar").css("background-color", "#d3d3d3");
-                $(".progress-wrp[rel='" + mock.name + "'] .status").css("left", "41%").html("<span style='color:#e02d36'>FALHA</span>");
-                removeFileForm($(".remove-file-gallery[rel='" + mock.name + "']"), 2000);
-                toast("FALHA AO ENVIAR", 6000, "toast-warning");
-                $input.siblings(".file_gallery").find(".file-more").removeClass("hide")
-            },
-            async: !0,
-            data: formData,
-            cache: !1,
-            contentType: !1,
-            processData: !1,
-            timeout: 900000,
-            dataType: "json"
-        })
-};
-
-function compressImage(file, MAX_WIDTH, MAX_HEIGHT, format, response) {
-    var img = document.createElement("img");
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        if (e.target.error != null) {
-            console.error("File could not be read! Code " + e.target.error.code);
-            response("")
-        } else {
-            img.src = e.target.result;
-            img.onload = function () {
-                let canvas = document.createElement("canvas");
-                let ctx = canvas.getContext("2d");
-                let width = img.width;
-                let height = img.height;
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH
-                    }
-                } else if (height > MAX_HEIGHT) {
-                    width *= MAX_HEIGHT / height;
-                    height = MAX_HEIGHT
-                }
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-                response(canvas.toDataURL("image/" + format))
-            }
-        }
-    };
-    reader.readAsDataURL(file)
 }
 
 function createSource(mock, $input, tipo, prepend) {
@@ -522,19 +320,6 @@ function searchList($input) {
     } else {
         $input.siblings("#list-result-" + column).html("")
     }
-}
-
-/**
- * Limpa uploads em andamento
- * */
-function clearUploadProgress() {
-    $.each(ajaxUploadProgress, function (name, ajax) {
-        clearInterval(checkUploadStoped[name]);
-        ajax.abort();
-        delete (ajaxUploadProgress[name]);
-        delete (checkUploadStoped[name]);
-        removeFileForm($(".remove-file-gallery[rel='" + name + "']"))
-    });
 }
 
 /**
@@ -641,7 +426,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         setData: async function (dados) {
             let $this = this;
             let dicionario = dicionarios[$this.entity];
-            if(!isEmpty(dicionario)) {
+            if (!isEmpty(dicionario)) {
 
                 $.each(dados, function (col, value) {
                     if (col === "id") {
@@ -711,77 +496,71 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 
             return validateForm(form.identificador).then(validado => {
                 if (validado) {
-                    if (isEmpty(ajaxUploadProgress) || confirm("Você tem arquivos sendo enviados, deseja cancelar o envio e continuar a salvar?")) {
-                        clearUploadProgress();
+                    return saveInternalForm().then(() => {
 
-                        return saveInternalForm().then(() => {
+                        /**
+                         * Obtém dados do formulário
+                         * */
+                        let dados = Object.assign({}, form.data);
+                        if (isNumberPositive(form.id))
+                            dados.id = form.id;
 
-                            /**
-                             * Obtém dados do formulário
-                             * */
-                            let dados = Object.assign({}, form.data);
-                            if (isNumberPositive(form.id))
-                                dados.id = form.id;
+                        form.saved = !0;
+                        if (form.store) {
+                            return db.exeCreate(form.entity, dados).then(syncData => {
+                                let error = syncData.db_errorback;
+                                delete syncData.db_errorback;
 
-                            form.saved = !0;
-                            if (form.store) {
-                                return db.exeCreate(form.entity, dados).then(syncData => {
-                                    let error = syncData.db_errorback;
-                                    delete syncData.db_errorback;
+                                let pp = [];
+                                pp.push(callback());
 
-                                    let pp = [];
-                                    pp.push(callback());
-
-                                    let id = parseInt(dados.id);
-                                    if (error === 0) {
-                                        if (form.id === "" || (typeof syncData.id_old !== "undefined" && parseInt(form.id) === parseInt(syncData.id_old))) {
-                                            syncData.id = parseInt(syncData.id);
-                                            id = syncData.id;
-                                            if (form.id === "" && isNumberPositive(syncData.id_old) && parseInt(syncData.id_old) !== parseInt(syncData.id))
-                                                dbLocal.exeDelete(form.entity, syncData.id_old);
-                                            delete (syncData.id_old);
-                                            delete (syncData.db_action);
-                                            form.setData(syncData);
-                                        }
-
-                                        form.id = id;
-                                        return Promise.all(pp).then(() => {
-                                            return (form.reloadAfterSave ? form.show(id) : !0)
-                                        })
-                                    } else {
-                                        privateFormSetError(form, syncData, showMessages, destroy);
+                                let id = parseInt(dados.id);
+                                if (error === 0) {
+                                    if (form.id === "" || (typeof syncData.id_old !== "undefined" && parseInt(form.id) === parseInt(syncData.id_old))) {
+                                        syncData.id = parseInt(syncData.id);
+                                        id = syncData.id;
+                                        if (form.id === "" && isNumberPositive(syncData.id_old) && parseInt(syncData.id_old) !== parseInt(syncData.id))
+                                            dbLocal.exeDelete(form.entity, syncData.id_old);
+                                        delete (syncData.id_old);
+                                        delete (syncData.db_action);
+                                        form.setData(syncData);
                                     }
-                                }).then(() => {
-                                    if (typeof history.state.param.column !== "undefined")
-                                        history.back();
-                                })
 
-                            } else {
-
-                                if (typeof form.id === "undefined" || isNaN(form.id) || form.id < 1)
-                                    form.id = form.data.id = Date.now();
-
-                                getRelevantTitle(form.entity, form.data).then(title => {
-                                    form.data.columnTituloExtend = title;
-                                    form.data.columnName = history.state.param.column;
-                                    form.data.columnRelation = form.entity;
-                                    form.data.columnStatus = {column: '', have: !1, value: !1};
-                                }).then(() => {
-
-                                    callback();
+                                    form.id = id;
+                                    return Promise.all(pp).then(() => {
+                                        return (form.reloadAfterSave ? form.show(id) : !0)
+                                    })
+                                } else {
+                                    privateFormSetError(form, syncData, showMessages, destroy);
+                                }
+                            }).then(() => {
+                                if (typeof history.state.param.column !== "undefined")
                                     history.back();
-                                });
-                            }
+                            })
 
-                        }).then(() => {
-                            setFormSaveStatus(form, 1);
+                        } else {
 
-                            if (showMessages)
-                                toast("Salvo", 2000, 'toast-success');
-                        })
-                    } else {
+                            if (typeof form.id === "undefined" || isNaN(form.id) || form.id < 1)
+                                form.id = form.data.id = Date.now();
+
+                            getRelevantTitle(form.entity, form.data).then(title => {
+                                form.data.columnTituloExtend = title;
+                                form.data.columnName = history.state.param.column;
+                                form.data.columnRelation = form.entity;
+                                form.data.columnStatus = {column: '', have: !1, value: !1};
+                            }).then(() => {
+
+                                callback();
+                                history.back();
+                            });
+                        }
+
+                    }).then(() => {
                         setFormSaveStatus(form, 1);
-                    }
+
+                        if (showMessages)
+                            toast("Salvo", 2000, 'toast-success');
+                    });
                 } else {
                     privateFormSetError(form, form.error, showMessages, destroy);
                     return 1
@@ -808,7 +587,7 @@ async function getInputsTemplates(form, parent, col) {
         /**
          * Ignore system_id field if not have association or if not is admin
          */
-        if(meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin"))
+        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin"))
             continue;
 
         if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
