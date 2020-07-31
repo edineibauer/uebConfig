@@ -313,7 +313,7 @@ $(function ($) {
                         if (i > 0) {
                             let p = loo[i];
                             let a = loo[i - 1].trim();
-                            if (/(^\w|{)/.test(p)) {
+                            if (/(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
                                 if (/>[\w$\s]*$/.test(a))
                                     a = a.replace(/>[\w$\s]*$/, " data-skeleton='1'>");
                                 else if (/ src=("|')$/.test(a))
