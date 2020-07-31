@@ -197,6 +197,7 @@ function removeFileForm($btn, tempo) {
     } else {
         data = form.data
     }
+
     if ($.isArray(data[column]) && data[column].length > 0) {
         $.each(data[column], function (id, e) {
             if (e.name === name) {
