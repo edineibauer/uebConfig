@@ -225,7 +225,7 @@ async function _postFormData(formData) {
         $.ajax({
             type: "POST",
             enctype: 'multipart/form-data',
-            url: SERVER + "set",
+            url: SERVER + "post",
             success: function(data) {
                 s(_postReturnData(data))
             },

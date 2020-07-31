@@ -16,7 +16,7 @@ function isJson(str) {
 
 function returnNoNetwork() {
     return caches.open('core-v' + VERSION).then(cache => {
-        return cache.match(HOME + "set");
+        return cache.match(HOME + "post");
     });
 }
 

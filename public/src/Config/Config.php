@@ -11,7 +11,6 @@ use Tholu\Packer\Packer;
 
 class Config
 {
-
     /**
      * Set session to the request user
      * @param string $token

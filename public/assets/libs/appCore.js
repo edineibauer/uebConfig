@@ -2858,7 +2858,7 @@ async function startApplication() {
 async function setServiceWorker(swReg) {
     swRegistration = swReg;
 
-    if (USER.token && swRegistration.active)
+    if (USER.setor !== "0" && swRegistration.active)
         return swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
 }
 

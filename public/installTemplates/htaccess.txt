@@ -3,7 +3,7 @@ RewriteEngine On
 
 RewriteRule ^view\/(.*)$ apiView.php?data=$1 [L]
 RewriteRule ^get\/(.*)$ apiGet.php?data=$1 [L]
-RewriteRule ^set\/?$ apiSet.php [L]
+RewriteRule ^post\/?$ apiPost.php [L]
 RewriteRule ^api\/(.*)$ apiApi.php?data=$1 [L]
 RewriteRule ^app\/(.*)$ apiApiPublic.php?data=$1 [L]
 {$rewriteDomain}
