@@ -31,7 +31,7 @@ function post(lib, file, param, funcao) {
     param.maestruToken = localStorage.token;
 
     $.ajax({
-        type: "POST", url: SERVER + 'set', data: convertEmptyArrayToNull(param), success: function (data) {
+        type: "POST", url: SERVER + 'post', data: convertEmptyArrayToNull(param), success: function (data) {
             if (data.response === 1) {
                 if (typeof (funcao) !== "undefined")
                     funcao(data.data)
@@ -283,7 +283,7 @@ class AJAX {
         return new Promise((s, f) => {
             $.ajax({
                 type: "POST",
-                url: SERVER + 'set',
+                url: SERVER + 'post',
                 data: convertEmptyArrayToNull(Object.assign({
                     fileInSetFolder: fileInSetFolder,
                     maestruToken: localStorage.token
