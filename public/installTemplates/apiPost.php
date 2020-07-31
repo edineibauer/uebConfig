@@ -19,7 +19,7 @@ if(isset($_POST['maestruToken']))
     unset($_POST['maestruToken']);
 
 $find = !1;
-foreach (\Config\Config::getRoutesFilesTo("post", "php") as $file => $dir) {
+foreach (\Config\Config::getRoutesFilesTo("post") as $file => $dir) {
     $fileInFindSetor = explode("/public/post/", $dir)[1];
     if($fileInFindSetor === $fileInSetFolder) {
         $find = !0;
