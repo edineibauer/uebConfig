@@ -20,7 +20,7 @@ if(isset($_POST['maestruToken']))
 
 $find = !1;
 foreach (\Config\Config::getRoutesFilesTo("post", "php") as $file => $dir) {
-    $fileInFindSetor = explode("/public/set/", $dir)[1];
+    $fileInFindSetor = explode("/public/post/", $dir)[1];
     if($fileInFindSetor === $fileInSetFolder) {
         $find = !0;
         ob_start();
@@ -42,6 +42,6 @@ foreach (\Config\Config::getRoutesFilesTo("post", "php") as $file => $dir) {
 }
 
 if(!$find)
-    $data = ['error' => "Arquivo {$fileInSetFolder} não encontrado nas pastas `public/set/`", "data" => "", "response" => 2];
+    $data = ['error' => "Arquivo {$fileInSetFolder} não encontrado nas pastas `public/post/`", "data" => "", "response" => 2];
 
 echo json_encode($data);

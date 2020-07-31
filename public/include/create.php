@@ -172,7 +172,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("libs");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
-        Config\Config::createDir("public/set");
+        Config\Config::createDir("public/post");
         Config\Config::createDir("public/get");
         Config\Config::createDir("public/api");
         Config\Config::createDir("public/overload");

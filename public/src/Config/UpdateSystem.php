@@ -422,7 +422,7 @@ class UpdateSystem
         Config::createDir("public");
         Config::createDir("public/_config");
         Config::createDir("public/view");
-        Config::createDir("public/set");
+        Config::createDir("public/post");
         Config::createDir("public/get");
         Config::createDir("public/get/event");
         Config::createDir("public/api");

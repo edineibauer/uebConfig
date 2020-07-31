@@ -379,7 +379,7 @@ Upload.prototype.exeUpload = function (mock, $input, funcao) {
         $.ajax({
             type: "POST",
             enctype: 'multipart/form-data',
-            url: HOME + "set/",
+            url: HOME + "post",
             xhr: function () {
                 var myXhr = $.ajaxSettings.xhr();
                 if (myXhr.upload) {
