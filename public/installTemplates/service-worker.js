@@ -85,7 +85,7 @@ self.addEventListener('fetch', function (e) {
     let view = new RegExp("view\/", "i");
     let getStatic = new RegExp("get\/static\/", "i");
     let get = new RegExp("(get|app\/find|app\/search|app\/get)\/", "i");
-    let set = new RegExp("set\/?$", "i");
+    let set = new RegExp("post\/?$", "i");
     let app = new RegExp("(app|api)\/", "i");
     let linkExterno = new RegExp("^https*:\/\/", "i");
     let imagesEntity = new RegExp("uploads\/form\/", "i");
