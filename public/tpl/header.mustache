@@ -8,7 +8,23 @@
 
     <nav role="navigation">
         <ul id="core-header-nav">
-            <div id="core-menu-custom"></div>
+            <div id="core-menu-custom">
+                {{#menu}}
+                    <li class="menu-li {{li.class}}"  {{#li.style}}style="{{{li.style}}}" {{/li.style}}{{{li.attr}}} >
+                        {{#funcao}}
+                            <div onclick="{{funcao}}()" class="{{class}}" {{#style}}style="{{{style}}}"{{/style}} {{{attr}}}>{{{html}}}</div>
+                        {{/funcao}}
+                        {{#href}}
+                            <a href="{{href}}" class="{{class}}" {{#style}}style="{{{style}}}" {{/style}}{{{attr}}}>{{{html}}}</a>
+                        {{/href}}
+                        {{^funcao}}
+                            {{^href}}
+                                <div class="{{class}}" {{#style}}style="{{{style}}}"{{/style}} {{{attr}}}>{{{html}}}</div>
+                            {{/href}}
+                        {{/funcao}}
+                    </li>
+                {{/menu}}
+            </div>
         </ul>
     </nav>
 </div>
