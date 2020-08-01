@@ -25,6 +25,7 @@ class Config
             $sql->exeCommand("SELECT ut.token, u.* FROM " . PRE . "usuarios_token as ut JOIN " . PRE . "usuarios as u ON u.id = ut.usuario WHERE ut.token = '{$token}'");
             if ($sql->getResult()) {
                 $user = $sql->getResult()[0];
+                $user['imagem'] = (!empty($user['imagem']) ? json_decode($user['imagem'], !0) : null);
                 $user['setorData'] = [];
                 $user['systemData'] = [];
 
@@ -77,10 +78,10 @@ class Config
     {
         $token = $token ?? "T!" . 0;
         $_SESSION['userlogin'] = [
-            "id" => (((int) str_replace("T!", "", $token)) * -1),
+            "id" => (((int)str_replace("T!", "", $token)) * -1),
             "token" => $token,
             "nome" => "Anônimo",
-            "imagem" => "assetsPublic/img/img.png",
+            "imagem" => null,
             "status" => 1,
             "data" => null,
             "token_recovery" => null,
