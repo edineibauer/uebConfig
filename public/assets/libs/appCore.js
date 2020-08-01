@@ -801,9 +801,9 @@ async function menuHeader() {
      */
     $("#app").off("click", ".btn-edit-perfil").on("click", ".btn-edit-perfil", function () {
         let entity = (USER.setor === "admin" ? "usuarios" : USER.setor);
-        let data = (USER.setor === "admin" ? USER : USER.setorData);
+        let id = {id: parseInt(USER.setor === "admin" ? USER.id : USER.setorData.id)};
         if (history.state.route !== entity || history.state.type !== "form")
-            pageTransition(entity, 'form', 'forward', "#dashboard", data);
+            pageTransition(entity, 'form', 'forward', ".main > .container", id);
     });
 
     /**
