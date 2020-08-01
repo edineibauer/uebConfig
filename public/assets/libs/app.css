@@ -353,12 +353,11 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     padding: 5px 10px;
     float: right;
     margin-top: -12px;
-    display: none;
 }
 
 #core-sidebar-edit > i {
-    font-size: 19px !important;
-    padding: 4px;
+    font-size: 17px !important;
+    padding: 6px;
 }
 
 #login-aside > div {
@@ -436,11 +435,11 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 }
 
 #core-sidebar-perfil-img {
-    font-size: 70px;
-    width: 100px;
-    height: 80px;
-    padding: 20px 20px 0;
+    width: 70px;
+    height: 70px;
+    margin: 7px 10px;
     float: left;
+    border-radius: 60px;
 }
 
 #core-sidebar-perfil-img i {
@@ -449,7 +448,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 
 #core-sidebar-perfil-name {
     float: left;
-    padding-top: 62px;
+    padding-top: 56px;
 }
 
 #core-sidebar-name {

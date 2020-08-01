@@ -774,12 +774,6 @@ async function menuHeader() {
         }
     }
 
-    let $headerPerfil = $("#core-header-perfil");
-    if ($headerPerfil.length) {
-        let src = (typeof USER.imagem === "string" && USER.imagem !== "null" && !isEmpty(USER.imagem) ? (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'].thumb) : USER.imagem) : "");
-        $headerPerfil.html(src !== "" ? "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\" src='" + src + "' style='border-radius: 50%; height: 30px;width: 30px;margin: 4px;' width='30' height='30' />" : "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>");
-    }
-
     let $menuNav = null;
     if (($menuNav = $("#core-header-nav-bottom")).length) {
         let $menu = $("#core-menu-custom-bottom").html("");
@@ -800,22 +794,17 @@ async function menuHeader() {
         }
     }
 
-    $("#core-sidebar").html(Mustache.render(tpl.aside));
+    $("#core-sidebar").htmlTemplate('aside');
 
     /**
-     * Sidebar Info
+     * Edit perfil action
      */
-    if ($("#core-sidebar-imagem").length) {
-        if (localStorage.token === "0" || isEmpty(USER.imagem) || USER.imagem === "null" || typeof USER.imagem !== "string") {
-            document.querySelector("#core-sidebar-imagem").innerHTML = "<div id='core-sidebar-perfil-img'><i class='material-icons'>people</i></div>"
-        } else {
-            let src = (isJson(USER.imagem) ? decodeURIComponent(JSON.parse(USER.imagem)[0]['urls'].thumb) : USER.imagem);
-            document.querySelector("#core-sidebar-imagem").innerHTML = "<img src='" + src + "' onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\" height='80' width='100' id='core-sidebar-perfil-img'>"
-        }
-    }
-
-    if ($("#core-sidebar-nome").length)
-        document.querySelector("#core-sidebar-nome").innerHTML = localStorage.token === "0" ? "minha conta" : USER.nome;
+    $("#app").off("click", ".btn-edit-perfil").on("click", ".btn-edit-perfil", function () {
+        let entity = (USER.setor === "admin" ? "usuarios" : USER.setor);
+        let data = (USER.setor === "admin" ? USER : USER.setorData);
+        if (history.state.route !== entity || history.state.type !== "form")
+            pageTransition(entity, 'form', 'forward', "#dashboard", data);
+    });
 
     /**
      * Botão de login

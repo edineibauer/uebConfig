@@ -1,12 +1,19 @@
 <div class="theme core-class-container" id="core-sidebar-header">
     <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
-        <div class="left" id="core-sidebar-imagem"></div>
+        <div class="left" id="core-sidebar-imagem">
+            {{#USER.imagem}}
+                <div id='core-sidebar-perfil-img' class="col radius-circle" style="background-image: url('{{urls.thumb}}');"></div>
+            {{/USER.imagem}}
+            {{^USER.imagem}}
+                <i class='material-icons font-jumbo left'>people</i>
+            {{/USER.imagem}}
+        </div>
 
         <div id="core-sidebar-perfil-name">
             <div class="core-class-container" id="core-header-name">
-                <strong id="core-sidebar-nome"></strong>
+                <strong id="core-sidebar-nome">{{USER.nome}}</strong>
 
-                <span id="core-sidebar-edit">
+                <span id="core-sidebar-edit" class="btn-edit-perfil">
                     <i class="material-icons">edit</i>
                 </span>
             </div>

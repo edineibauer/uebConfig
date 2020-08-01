@@ -49,6 +49,6 @@
     "li": {
         "class": "not-menu-li"
     },
-    "html": "<div id='core-header-perfil'></div>"
+    "html": "<i class='material-icons theme-text-aux' style='padding:8px'>perm_identity</i>"
   }
 ]
