@@ -2,7 +2,7 @@
 $pass = \Helpers\Check::password(filter_input(INPUT_POST, 'pass', FILTER_DEFAULT));
 
 $read = new \Conn\Read();
-$read->exeRead("usuarios", "WHERE nome = 'Admin' AND status = 1 AND password = '{$pass}'");
+$read->exeRead("usuarios", "WHERE setor IS NULL && status = 1 && password = '{$pass}'");
 if($read->getResult()) {
 
     /**
