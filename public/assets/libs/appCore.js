@@ -804,27 +804,12 @@ async function menuHeader() {
         let id = {id: parseInt(USER.setor === "admin" ? USER.id : USER.setorData.id)};
         if (history.state.route !== entity || history.state.type !== "form")
             pageTransition(entity, 'form', 'forward', ".main > .container", id);
+    }).off("click", ".btn-login").on("click", ".btn-login", function () {
+        if (USER.setor != 0)
+            logoutDashboard();
+        else
+            pageTransition("login", "route", "forward", "#core-content", null, null, !1);
     });
-
-    /**
-     * Botão de login
-     */
-    if ($("#login-aside").length) {
-        let btnLoginAside = document.querySelector("#login-aside");
-        if (typeof USER.setor !== "undefined" && USER.setor !== 0 && USER.setor !== "") {
-            btnLoginAside.onclick = function () {
-                logoutDashboard()
-            };
-            btnLoginAside.children[0].innerHTML = "sair";
-            btnLoginAside.children[1].innerHTML = "exit_to_app";
-        } else {
-            btnLoginAside.onclick = function () {
-                pageTransition("login", "route", "forward", "#core-content", null, null, !1)
-            };
-            btnLoginAside.children[0].innerHTML = "login";
-            btnLoginAside.children[1].innerHTML = "lock_open";
-        }
-    }
 
     /**
      * Verifica se remove o botão de Notificação

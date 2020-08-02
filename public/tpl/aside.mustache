@@ -5,7 +5,7 @@
                 <div id='core-sidebar-perfil-img' class="col radius-circle" style="background-image: url('{{urls.thumb}}');"></div>
             {{/USER.imagem}}
             {{^USER.imagem}}
-                <i class='material-icons font-jumbo left'>people</i>
+                <i class='material-icons' style="font-size: 64px;float: left;padding: 20px 10px 0;">people</i>
             {{/USER.imagem}}
         </div>
 
@@ -29,15 +29,26 @@
 <div class="core-sidebar-bottom">
     <div onclick="updateAppUser();" class="theme theme-border-l update-site-btn">
         <i class="material-icons">refresh</i>
-        <span>Atualizar</span>
     </div>
 
-    <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 2px;cursor:pointer">
+    <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 5px;cursor:pointer">
         <i class="material-icons">notifications_active</i>
     </div>
 
-    <div id="login-aside">
+    <div id="login-aside" class="btn-login">
         <div>sair</div>
         <i class="material-icons">exit_to_app</i>
     </div>
 </div>
+
+<script>
+    let btnLoginAside = document.querySelector("#login-aside");
+    if (USER.setor != 0) {
+        btnLoginAside.children[0].innerHTML = "sair";
+        btnLoginAside.children[1].innerHTML = "exit_to_app";
+    } else {
+        $("#core-sidebar-edit, .site-btn-push").remove();
+        btnLoginAside.children[0].innerHTML = "entrar";
+        btnLoginAside.children[1].innerHTML = "lock_open";
+    }
+</script>
