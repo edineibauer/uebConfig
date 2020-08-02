@@ -9,7 +9,7 @@ body {
     z-index: 1;
     width: 500%;
     height: 600px;
-    margin-bottom: -7px; /*Fix for safari gap*/
+    margin-bottom: -200px; /*Fix for safari gap*/
     display: block;
 }
 
