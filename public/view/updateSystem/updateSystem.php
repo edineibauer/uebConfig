@@ -1,7 +1,7 @@
 <script>
     if(navigator.onLine) {
         if (senha = prompt("Senha:")) {
-            toast("Atualizando Sistema...", 100000);
+            toast("Atualizando Sistema...", 1000000000);
             post("config", "updateSystem", {pass: senha}, function (g) {
                 if (g) {
                     localStorage.removeItem('update');
