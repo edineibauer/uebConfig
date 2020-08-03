@@ -2679,6 +2679,7 @@ async function sseStart() {
 
         sseAdd("updatePerfil", function(data) {
             USER = data;
+            storeUser();
         });
     }
 }
