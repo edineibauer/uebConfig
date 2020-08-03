@@ -587,8 +587,11 @@ async function getInputsTemplates(form, parent, col) {
 
         /**
          * Ignore system_id field if not have association or if not is admin
+         * remove status field
+         * Social login remove password fields
          */
-        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin"))
+        let isEditingMyPerfilSocial = (USER.login_social === "2" || USER.login_social === "1") && USER.setor === form.entity && form.id == USER.setorData.id;
+        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin") || meta.format === "status" || (isEditingMyPerfilSocial && meta.format === "password"))
             continue;
 
         if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
