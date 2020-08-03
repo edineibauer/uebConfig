@@ -112,7 +112,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                         url: HOME + "assetsPublic/img/loading.gif?v=" + VERSION,
                         format: {isImage: !0},
                         icon: ""
-                    }, $input, tipoEnvio);
+                    }, $input, 1);
 
                     /**
                      * Upload the file
@@ -128,7 +128,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
                          * Remove loading and create DOM file
                          */
                         $input.siblings(".file_gallery").find("#mock-" + idMockLoading).remove();
-                        createSource(mock, $input, tipoEnvio);
+                        createSource(mock, $input, 1);
                     });
                 }
             }
