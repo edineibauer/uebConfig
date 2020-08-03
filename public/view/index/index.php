@@ -1,4 +1,13 @@
 <div class="container col">
+    <svg xmlns="http://www.w3.org/2000/svg" id="welcome" data-name="Layer 1" width="800" viewBox="0 0 889.07556 1">
+        <circle class="circle" cx="335.07556" cy="150.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="113.07556" cy="250.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="291.07556" cy="450.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="517.07556" cy="177.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="782.07556" cy="442.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="791.07556" cy="206.37952" r="9" fill="#ffffff"/>
+        <circle class="circle" cx="677.07556" cy="368.37952" r="9" fill="#ffffff"/>
+    </svg>
     <div id="cardMaster">
         <svg xmlns="http://www.w3.org/2000/svg" id="logo" width="200" height="120" viewBox="0 0 200 120">
             <g fill-rule="evenodd" clip-rule="evenodd">

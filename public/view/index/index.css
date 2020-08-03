@@ -57,10 +57,7 @@ h2 {
 .container {
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    display: block;
     padding-top: 30px;
 }
 
@@ -110,7 +107,7 @@ h2 {
 .container .card ul {
     z-index: 99;
     position: absolute;
-    left: 39px;
+    left: 0;
     top: 5px;
     list-style-type: none;
 }
@@ -281,12 +278,11 @@ h2 {
     }
 }
 
-
-
 #welcome {
     position: fixed;
     bottom: 0;
     height: 100vh;
+    width: 100%;
 }
 
 #welcome > .circle {
