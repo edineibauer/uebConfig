@@ -199,7 +199,7 @@ $(function () {
                 if(confirm("Sincronizar os " + grid.$content.find(".table-select:checked").length + " registros selecionados?")) {
                     $.each(grid.$content.find(".table-select:checked"), function (i, e) {
                         $(e).prop("checked", !1);
-                        dbRemote.sync(grid.entity, parseInt($(e).attr("rel")), !0).then(() => {
+                        _dbRemote.sync(grid.entity, parseInt($(e).attr("rel")), !0).then(() => {
                             grid.readData()
                         })
                     });
@@ -209,7 +209,7 @@ $(function () {
                 /**
                  * Single sync click
                  * */
-                dbRemote.sync(grid.entity, parseInt($this.attr("rel")), !0).then(() => {
+                _dbRemote.sync(grid.entity, parseInt($this.attr("rel")), !0).then(() => {
                     grid.readData()
                 })
             }
@@ -251,7 +251,7 @@ $(function () {
                     return Promise.all(proccessPromisses).then(() => {
                         grid.$element.find(".table-select, .table-select-all").prop("checked", !1);
                         setTimeout(function () {
-                            dbRemote.syncPost(grid.entity);
+                            _dbRemote.syncPost(grid.entity);
                         },300);
                         return !1
                     })

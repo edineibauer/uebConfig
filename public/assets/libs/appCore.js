@@ -2045,12 +2045,17 @@ var app = {
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
-                    if (g.navbar)
-                        $("#core-header-nav-bottom").addClass("core-show-header-navbar"); else $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                    setTimeout(function () {
+                        if (g.navbar)
+                            $("#core-header-nav-bottom").addClass("core-show-header-navbar");
+                        else
+                            $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-                    $div.css("min-height", getPageContentHeight());
-                    if ($div.attr("id") === "core-content")
-                        $div.css("padding-top", getPaddingTopContent());
+                        $div.css("min-height", getPageContentHeight());
+                        if ($div.attr("id") === "core-content")
+                            $div.css("padding-top", getPaddingTopContent());
+
+                    }, 200);
 
                     /**
                      * add tags to the head of the page
@@ -2239,234 +2244,262 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
+    app.route = route;
+    app.file = file;
 
     if (!app.loading && !aniTransitionPage) {
-        clearPage();
-        app.route = route;
-        app.file = file;
-        if (!$(target).length) {
-            historyReqPosition++;
-            historyPosition = -2;
-            history.back();
-            return;
-        }
-
-        if (!history.state)
-            history.replaceState({
-                id: 0,
-                route: app.route,
-                type: "route",
-                target: "#core-content",
-                param: param,
-                scroll: scroll
-            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
-        else if (setHistory)
-            history.replaceState({
-                id: history.state.id,
-                route: history.state.route,
-                type: history.state.type,
-                target: history.state.target,
-                param: history.state.param,
-                scroll: scroll
-            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + history.state.route);
-
-        if (setHistory && !reload && novaRota) {
-            if (replaceHistory) {
-                history.replaceState({
-                    id: historyPosition++,
-                    route: route,
-                    type: type,
-                    target: target,
-                    param: param,
-                    scroll: 0
-                }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + route);
-            } else {
-                history.pushState({
-                    id: historyPosition++,
-                    route: route,
-                    type: type,
-                    target: target,
-                    param: param,
-                    scroll: 0
-                }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + route);
-            }
-        }
-
-        return Promise.all([]).then(async () => {
-
-            if (typeof destruct === "function")
-                destruct();
-
-            if (historyReqPosition)
-                animation = "none";
-
-            let $page = window["animate" + ucFirst(animation)](target, file, scroll);
-
-            if (type === 'route') {
-                return app.applyView(file, $page)
-            } else if (type === 'grid') {
-
-                //if gridCrud not exist, await until its load
-                if (typeof gridCrud !== "function")
-                    await new Promise(s => rrr = setInterval(() => {
-                        if (typeof gridCrud === "function") {
-                            clearInterval(rrr);
-                            s(1);
-                        }
-                    }, 20));
-
-                $page.grid(history.state.route)
-            } else if (type === 'report') {
-
-                //if reportTable not exist, await until its load
-                if (typeof reportTable !== "function")
-                    await new Promise(s => rrr = setInterval(() => {
-                        if (typeof reportTable === "function") {
-                            clearInterval(rrr);
-                            s(1);
-                        }
-                    }, 20));
-
-                $page.reportTable(history.state.route)
-            } else if (type === 'form') {
-
-                //if formCrud not exist, await until its load
-                if (typeof formCrud !== "function")
-                    await new Promise(s => rrr = setInterval(() => {
-                        if (typeof formCrud === "function") {
-                            clearInterval(rrr);
-                            s(1);
-                        }
-                    }, 20));
-
-                let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
-                let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
-                let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
-                let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
-                let data = (typeof param === "object" && typeof param.data === "object" && !isEmpty(param.data) ? param.data : {});
-
-                if (!isEmpty(id))
-                    data.id = id;
-                else if (!isEmpty(data.id))
-                    id = parseInt(data.id);
-
-                /**
-                 * ## Identificador ##
-                 * Recebe identificador por parâmetro
-                 * Busca identificador no history, ou cria um novo
-                 * */
-                let identificador = "";
-                if (typeof param === "object" && typeof param.identificador === "string") {
-                    identificador = param.identificador;
-                    history.state.param.identificador = identificador;
-                    history.replaceState(history.state, null, HOME + app.route);
-
-                } else if (typeof history.state.param === "object" && typeof history.state.param.identificador !== "undefined") {
-                    identificador = history.state.param.identificador;
-
-                } else {
-                    identificador = Math.floor((Math.random() * 1000)) + "" + Date.now();
-                    history.state.param.identificador = identificador;
-                    history.replaceState(history.state, null, HOME + app.route);
+        return _pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload);
+    } else {
+        return new Promise(s => {
+            let a = setInterval(function () {
+                if(!app.loading && !aniTransitionPage) {
+                    s(_pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload));
+                    clearInterval(a);
                 }
-
-                /**
-                 * Dados do formulário relacional recebido,
-                 * atualiza history com os novos dados
-                 * */
-                let promisses = [];
-                let haveFormRelation = (!isEmpty(form) && form.saved && form.modified && form.id !== "" && formNotHaveError(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador);
-                let isUpdateFormRelation = !1;
-
-                if (haveFormRelation) {
-                    if (history.state.param.openForm.tipo === 1) {
-                        if (dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
-                            data[history.state.param.openForm.column] = form.id;
-                        } else {
-                            if (typeof data[history.state.param.openForm.column] === "undefined" || data[history.state.param.openForm.column] === null || isEmpty(data[history.state.param.openForm.column]))
-                                data[history.state.param.openForm.column] = [];
-
-                            data[history.state.param.openForm.column].push(form.id.toString());
-                        }
-
-                        isUpdateFormRelation = !0;
-                    } else {
-                        if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
-                            data[history.state.param.openForm.column] = [];
-
-                        if (data[history.state.param.openForm.column].length) {
-                            $.each(data[history.state.param.openForm.column], function (i, e) {
-                                if (isUpdateFormRelation = (e.id == form.data.id)) {
-
-                                    promisses.push(getRelevantTitle(form.entity, form.data).then(title => {
-                                        form.data.columnTituloExtend = title;
-                                        form.data.columnName = history.state.param.openForm.column;
-                                        form.data.columnRelation = history.state.param.openForm.entity;
-                                        form.data.columnStatus = {column: '', have: !1, value: !1};
-
-                                        pushToArrayIndex(data[history.state.param.openForm.column], form.data, i);
-                                    }));
-                                    return !1
-                                }
-                            });
-                        }
-                    }
-                }
-
-                Promise.all(promisses).then(() => {
-                    if (haveFormRelation) {
-                        if (!isUpdateFormRelation)
-                            data[history.state.param.openForm.column].push(form.data);
-
-                        delete history.state.param.openForm;
-                        history.state.param.data = data;
-                        history.replaceState(history.state, null, HOME + app.route)
-                    }
-
-                    /**
-                     * Gera formulário
-                     * */
-                    form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
-
-                    if (!isEmpty(data) && (Object.keys(data).length > 1 || typeof data.id === "undefined")) {
-                        form.setData(data);
-                        id = "";
-                    }
-
-                    /**
-                     * Back form after save if is in grid view
-                     */
-                    if(isGridView) {
-                        form.setFuncao(function () {
-                            if(formNotHaveError(form.error))
-                                history.back();
-                        });
-                    }
-                    form.show(id);
-
-                    if (haveFormRelation || history.state.param.modified) {
-                        form.saved = !1;
-                        form.modified = !0;
-                    }
-                });
-            } else {
-                $page.html(history.state.route);
-            }
-        }).then(() => {
-            if (historyReqPosition) {
-                let t = setInterval(function () {
-                    if (!aniTransitionPage) {
-                        clearInterval(t);
-                        historyPosition = -9;
-                        history.go(historyReqPosition);
-                        historyReqPosition = 0
-                    }
-                }, 50)
-            }
-        }).catch(e => {
-            errorLoadingApp("pageTransition", e)
+            }, 10);
         });
     }
+}
+
+/**
+ * @param type
+ * @param animation
+ * @param target
+ * @param param
+ * @param scroll
+ * @param setHistory
+ * @param replaceHistory
+ * @param novaRota
+ * @param isGridView
+ * @param reload
+ * @returns {Promise<unknown[]>}
+ * @private
+ */
+async function _pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload) {
+    clearPage();
+
+    if (!$(target).length) {
+        historyReqPosition++;
+        historyPosition = -2;
+        history.back();
+        return;
+    }
+
+    if (!history.state)
+        history.replaceState({
+            id: 0,
+            route: app.route,
+            type: "route",
+            target: "#core-content",
+            param: param,
+            scroll: scroll
+        }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
+    else if (setHistory)
+        history.replaceState({
+            id: history.state.id,
+            route: history.state.route,
+            type: history.state.type,
+            target: history.state.target,
+            param: history.state.param,
+            scroll: scroll
+        }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + history.state.route);
+
+    if (setHistory && !reload && novaRota) {
+        if (replaceHistory) {
+            history.replaceState({
+                id: historyPosition++,
+                route: app.route,
+                type: type,
+                target: target,
+                param: param,
+                scroll: 0
+            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
+        } else {
+            history.pushState({
+                id: historyPosition++,
+                route: app.route,
+                type: type,
+                target: target,
+                param: param,
+                scroll: 0
+            }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
+        }
+    }
+
+    return Promise.all([]).then(async () => {
+
+        if (typeof destruct === "function")
+            destruct();
+
+        if (historyReqPosition)
+            animation = "none";
+
+        let $page = window["animate" + ucFirst(animation)](target, app.file, scroll);
+
+        if (type === 'route') {
+            return app.applyView(app.file, $page)
+        } else if (type === 'grid') {
+
+            //if gridCrud not exist, await until its load
+            if (typeof gridCrud !== "function")
+                await new Promise(s => rrr = setInterval(() => {
+                    if (typeof gridCrud === "function") {
+                        clearInterval(rrr);
+                        s(1);
+                    }
+                }, 20));
+
+            $page.grid(history.state.route)
+        } else if (type === 'report') {
+
+            //if reportTable not exist, await until its load
+            if (typeof reportTable !== "function")
+                await new Promise(s => rrr = setInterval(() => {
+                    if (typeof reportTable === "function") {
+                        clearInterval(rrr);
+                        s(1);
+                    }
+                }, 20));
+
+            $page.reportTable(history.state.route)
+        } else if (type === 'form') {
+
+            //if formCrud not exist, await until its load
+            if (typeof formCrud !== "function")
+                await new Promise(s => rrr = setInterval(() => {
+                    if (typeof formCrud === "function") {
+                        clearInterval(rrr);
+                        s(1);
+                    }
+                }, 20));
+
+            let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
+            let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
+            let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
+            let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
+            let data = (typeof param === "object" && typeof param.data === "object" && !isEmpty(param.data) ? param.data : {});
+
+            if (!isEmpty(id))
+                data.id = id;
+            else if (!isEmpty(data.id))
+                id = parseInt(data.id);
+
+            /**
+             * ## Identificador ##
+             * Recebe identificador por parâmetro
+             * Busca identificador no history, ou cria um novo
+             * */
+            let identificador = "";
+            if (typeof param === "object" && typeof param.identificador === "string") {
+                identificador = param.identificador;
+                history.state.param.identificador = identificador;
+                history.replaceState(history.state, null, HOME + app.route);
+
+            } else if (typeof history.state.param === "object" && typeof history.state.param.identificador !== "undefined") {
+                identificador = history.state.param.identificador;
+
+            } else {
+                identificador = Math.floor((Math.random() * 1000)) + "" + Date.now();
+                history.state.param.identificador = identificador;
+                history.replaceState(history.state, null, HOME + app.route);
+            }
+
+            /**
+             * Dados do formulário relacional recebido,
+             * atualiza history com os novos dados
+             * */
+            let promisses = [];
+            let haveFormRelation = (!isEmpty(form) && form.saved && form.modified && form.id !== "" && formNotHaveError(form.error) && typeof history.state.param === "object" && typeof history.state.param.openForm === "object" && history.state.param.openForm.identificador === form.identificador);
+            let isUpdateFormRelation = !1;
+
+            if (haveFormRelation) {
+                if (history.state.param.openForm.tipo === 1) {
+                    if (dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
+                        data[history.state.param.openForm.column] = form.id;
+                    } else {
+                        if (typeof data[history.state.param.openForm.column] === "undefined" || data[history.state.param.openForm.column] === null || isEmpty(data[history.state.param.openForm.column]))
+                            data[history.state.param.openForm.column] = [];
+
+                        data[history.state.param.openForm.column].push(form.id.toString());
+                    }
+
+                    isUpdateFormRelation = !0;
+                } else {
+                    if (typeof data[history.state.param.openForm.column] !== "object" || data[history.state.param.openForm.column] === null || data[history.state.param.openForm.column].constructor !== Array)
+                        data[history.state.param.openForm.column] = [];
+
+                    if (data[history.state.param.openForm.column].length) {
+                        $.each(data[history.state.param.openForm.column], function (i, e) {
+                            if (isUpdateFormRelation = (e.id == form.data.id)) {
+
+                                promisses.push(getRelevantTitle(form.entity, form.data).then(title => {
+                                    form.data.columnTituloExtend = title;
+                                    form.data.columnName = history.state.param.openForm.column;
+                                    form.data.columnRelation = history.state.param.openForm.entity;
+                                    form.data.columnStatus = {column: '', have: !1, value: !1};
+
+                                    pushToArrayIndex(data[history.state.param.openForm.column], form.data, i);
+                                }));
+                                return !1
+                            }
+                        });
+                    }
+                }
+            }
+
+            Promise.all(promisses).then(() => {
+                if (haveFormRelation) {
+                    if (!isUpdateFormRelation)
+                        data[history.state.param.openForm.column].push(form.data);
+
+                    delete history.state.param.openForm;
+                    history.state.param.data = data;
+                    history.replaceState(history.state, null, HOME + app.route)
+                }
+
+                /**
+                 * Gera formulário
+                 * */
+                form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
+
+                if (!isEmpty(data) && (Object.keys(data).length > 1 || typeof data.id === "undefined")) {
+                    form.setData(data);
+                    id = "";
+                }
+
+                /**
+                 * Back form after save if is in grid view
+                 */
+                if(isGridView) {
+                    form.setFuncao(function () {
+                        if(formNotHaveError(form.error))
+                            history.back();
+                    });
+                }
+                form.show(id);
+
+                if (haveFormRelation || history.state.param.modified) {
+                    form.saved = !1;
+                    form.modified = !0;
+                }
+            });
+        } else {
+            $page.html(history.state.route);
+        }
+    }).then(() => {
+        if (historyReqPosition) {
+            let t = setInterval(function () {
+                if (!aniTransitionPage) {
+                    clearInterval(t);
+                    historyPosition = -9;
+                    history.go(historyReqPosition);
+                    historyReqPosition = 0
+                }
+            }, 50)
+        }
+    }).catch(e => {
+        errorLoadingApp("pageTransition", e)
+    });
 }
 
 /**
@@ -2580,8 +2613,8 @@ async function setUserData(field, value) {
          */
         for(let i in field) {
             if(typeof field[i] === "string" && typeof value[i] !== "undefined" && dicionarios[USER.setor][field[i]]) {
-                USER.setorData[field[i]] = getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
-                updates[field[i]] = getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
+                USER.setorData[field[i]] = _getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
+                updates[field[i]] = _getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
             }
         }
     }

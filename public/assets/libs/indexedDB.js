@@ -11,7 +11,7 @@ function checkToUpdateDbLocal(entity) {
             let syncLocal = [];
             if (dadosSync.length) {
                 $.each(dadosSync, function (i, e) {
-                    syncLocal.push(moveSyncDataToDb(entity, e, !1));
+                    syncLocal.push(_moveSyncDataToDb(entity, e, !1));
                 });
             }
             return Promise.all(syncLocal);
@@ -46,24 +46,6 @@ async function dbSendData(entity, dados, action) {
                 f(Object.assign({db_errorback: 1}, error.data[0].db_error));
         })
     });
-}
-
-async function exeReadOnline(entity, id) {
-    id = isNumberPositive(id) ? id : null;
-    let history = await dbLocal.exeRead("__historic", 1);
-    let result = await AJAX.post("load/entity", {entity: entity, id: id, historic: history[entity]});
-    if (!isEmpty(result) && !isEmpty(result.data)) {
-        if (id)
-            return getDefaultValues(entity, result.data[0]);
-
-        let results = [];
-        for(let e of result.data)
-            results.push(getDefaultValues(entity, e));
-
-        return results;
-    }
-
-    return id ? {} : [];
 }
 
 /**
@@ -299,259 +281,6 @@ function compareString(registroValor, searchValor) {
 }
 
 /**
- * Class to update data
- */
-class Update {
-    constructor(entity, data) {
-        this.entity = "";
-        this.data = null;
-
-        this.setEntity(entity);
-        this.setData(data);
-    }
-
-    setEntity(entity) {
-        if (typeof entity === "string" && entity !== "")
-            this.entity = entity;
-    }
-
-    setData(data) {
-        if (!isEmpty(data) && data.constructor === Object)
-            this.data = data;
-    }
-
-    async exeUpdate(entity, dados) {
-        this.setEntity(entity);
-        this.setData(dados);
-
-        if (isNumberPositive(this.data.id)) {
-
-            /**
-             * If no using SERVICEWORKER, so send to the back
-             */
-            if (!SERVICEWORKER)
-                return dbSendData(this.entity, this.data, "update");
-
-            /**
-             * Get the id to the new data
-             * and set status sync false
-             */
-            this.data.id = (await getIdAction(this.entity, this.data.id))[0];
-            this.data.db_status = !1;
-
-            /**
-             * exeCreate local
-             */
-            let dadosCreated = await dbLocal.exeCreate(this.entity, this.data);
-
-            /**
-             * Create the sync request local
-             */
-            this.data.db_action = "update";
-            let syncCreated = await dbLocal.insert("sync_" + this.entity, this.data, this.data.id);
-
-            /**
-             * Exe Sync local with back
-             */
-            let syncReturn = await dbRemote.syncPost(this.entity, this.data.id);
-
-            /**
-             * If have erro on back, remove the data on local
-             */
-            if (syncReturn[0].db_errorback !== 0) {
-                await dbLocal.exeDelete(this.entity, dadosCreated);
-                await dbLocal.exeDelete("sync_" + this.entity, syncCreated);
-            }
-
-            /**
-             * Set the data returned from the back to the result function
-             */
-            this.data = syncReturn[0];
-
-            /**
-             * Check if have some react offline action to execute with the success on create new data
-             */
-            let react = await dbLocal.exeRead("__react");
-            if (this.data.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][this.entity] !== "undefined" && typeof react[0][this.entity]["update"] !== "undefined")
-                eval(react[0][this.entity][action]);
-
-            /**
-             * return the data
-             */
-            return this.data;
-
-        } else {
-            toast("id não informado para atualização", 2000, "toast-warning");
-        }
-    }
-}
-
-/**
- * Class to create new data
- */
-class Create {
-    constructor(entity, data) {
-        this.entity = "";
-        this.data = null;
-
-        this.setEntity(entity);
-        this.setData(data);
-    }
-
-    setEntity(entity) {
-        if (typeof entity === "string" && entity !== "")
-            this.entity = entity;
-    }
-
-    setData(data) {
-        if (!isEmpty(data) && data.constructor === Object)
-            this.data = data;
-    }
-
-    async exeCreate(entity, dados) {
-        this.setEntity(entity);
-        this.setData(dados);
-
-        /**
-         * If no using SERVICEWORKER, so send to the back
-         */
-        if (!SERVICEWORKER)
-            return dbSendData(this.entity, this.data, (typeof this.data.id === "undefined" || !isNumberPositive(this.data.id) ? "create" : "update"));
-
-        /**
-         * If have id on data, so send to the update class
-         */
-        if (typeof this.data.id !== "undefined" && isNumberPositive(this.data.id)) {
-            let update = new Update();
-            return update.exeUpdate(this.entity, this.data);
-        }
-
-        /**
-         * Get the id to the new data
-         * and set status sync false
-         */
-        this.data.id = (await getIdAction(this.entity, this.data.id))[0];
-        this.data.db_status = !1;
-
-        /**
-         * exeCreate local
-         */
-        let dadosCreated = await dbLocal.exeCreate(this.entity, this.data);
-
-        /**
-         * Create the sync request local
-         */
-        this.data.db_action = "create";
-        let syncCreated = await dbLocal.insert("sync_" + this.entity, this.data, this.data.id);
-
-        /**
-         * Exe Sync local with back
-         */
-        let syncReturn = await dbRemote.syncPost(this.entity, this.data.id);
-
-        /**
-         * If have erro on back, remove the data on local
-         */
-        if (syncReturn[0].db_errorback !== 0) {
-            await dbLocal.exeDelete(this.entity, dadosCreated);
-            await dbLocal.exeDelete("sync_" + this.entity, syncCreated);
-        }
-
-        /**
-         * Set the data returned from the back to the result function
-         */
-        this.data = syncReturn[0];
-
-        /**
-         * Check if have some react offline action to execute with the success on create new data
-         */
-        let react = await dbLocal.exeRead("__react");
-        if (this.data.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][this.entity] !== "undefined" && typeof react[0][this.entity]["create"] !== "undefined")
-            eval(react[0][this.entity][action]);
-
-        /**
-         * return the data
-         */
-        return this.data;
-    }
-}
-
-/**
- * Class to delete data
- */
-class Delete {
-    constructor(entity, id) {
-        this.entity = "";
-        this.id = null;
-
-        this.setEntity(entity);
-        this.setId(id);
-    }
-
-    setEntity(entity) {
-        if (typeof entity === "string" && entity !== "")
-            this.entity = entity;
-    }
-
-    setId(id) {
-        if (isNumberPositive(id))
-            this.id = parseInt(id);
-    }
-
-    async exeDelete(entity, id) {
-        let ids = [];
-        if (!SERVICEWORKER) {
-            for (let e of id)
-                ids.push(await dbSendData(entity, {id: parseInt(e)}, 'delete'));
-
-            return ids;
-        }
-
-        let react = await dbLocal.exeRead("__react");
-        let allDelete = [];
-
-        //if id is number or array
-        if (isNumberPositive(id))
-            ids.push(id);
-        else if (typeof id === "object" && id !== null && id.constructor === Array)
-            ids = id;
-
-        if (ids.length) {
-            for (let k in ids) {
-                if (isNumberPositive(ids[k])) {
-                    let idU = parseInt(ids[k]);
-
-                    allDelete.push(deleteDB(entity, idU, react).then(() => {
-                        return dbLocal.exeRead("sync_" + entity, idU).then(d => {
-                            if (isEmpty(d) || d.db_action === "update") {
-                                return dbLocal.exeCreate("sync_" + entity, {
-                                    'id': idU,
-                                    'db_action': 'delete'
-                                }).then(id => {
-                                    return dbRemote.syncPost(entity, idU);
-                                });
-                            } else if (d.db_action === "create") {
-                                return dbLocal.exeDelete("sync_" + entity, idU)
-                            }
-                        })
-                    }))
-                }
-            }
-
-            return Promise.all(allDelete).then(() => {
-                //atualiza base local, visto que liberou espaço no LIMITOFF
-                return dbLocal.exeRead("__historic", 1).then(h => {
-                    h[entity] = null;
-                    return dbLocal.exeCreate("__historic", h).then(() => {
-                        return dbRemote.syncDownload(entity);
-                    })
-                });
-            })
-        }
-    }
-}
-
-/**
  * Class to read data with filters and options
  */
 class Read {
@@ -647,7 +376,7 @@ class Read {
          * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
          * atualizando a base local com os registros do back-end
          */
-        await dbRemote.syncDownload(this.entity);
+        await _dbRemote.syncDownload(this.entity);
 
         /**
          * Primeiro tenta verificar se uma busca local é suficiente
@@ -757,7 +486,7 @@ class Read {
                  * Se o registro passou pelos filtros, então adiciona a lista de retorno
                  */
                 if (passou)
-                    retorno.push(getDefaultValues(this.entity, reg));
+                    retorno.push(_getDefaultValues(this.entity, reg));
             }
         } else {
             retorno = data;
@@ -825,11 +554,11 @@ class Read {
 
                 r({data: [], total: 0});
             }).catch(() => {
-                r({result: id ? {} : [], total: 0});
+                r({result: [], total: 0});
             });
         }).then(results => {
             if (id) {
-                this.result = getDefaultValues(entity, results.data[0]);
+                this.result = _getDefaultValues(entity, results.data[0]);
                 this.total = 1;
                 this._clearRead();
                 return this.result;
@@ -842,11 +571,11 @@ class Read {
                 if (!isEmpty(syncs)) {
                     this.total += syncs.length;
                     for (let s of syncs.reverse())
-                        this.result.push(Object.assign({db_status: !1}, getDefaultValues(entity, s)));
+                        this.result.push(Object.assign({db_status: !1}, _getDefaultValues(entity, s)));
                 }
 
                 for (let e of results.data)
-                    this.result.push(getDefaultValues(entity, e));
+                    this.result.push(_getDefaultValues(entity, e));
 
                 this._clearRead();
 
@@ -866,44 +595,28 @@ class Read {
     }
 }
 
-const exeRead = async (entity, id, limit, offset, order) => {
-    let a = new Read;
-    return a.exeRead(entity, id, limit, offset, order);
-}
-
 const db = {
-    async exeRead(entity, key) {
-        let Reg = new RegExp('^(sync_|__)', 'i');
-        if (Reg.test(entity)) {
-            toast("[Erro de programação] não é possível LER registros Sync Online. " + entity, 5000, "toast-error");
-            return;
-        }
 
-        key = isNumberPositive(key) ? parseInt(key) : null;
+    /**
+     * @param entity
+     * @param idOrObject
+     * @param limit
+     * @param offset
+     * @param order
+     * @returns {Promise<*[]|unknown|[]|*>}
+     */
+    async exeRead(entity, idOrObject, limit, offset, order) {
+        let a = new Read;
+        return a.exeRead(entity, idOrObject, limit, offset, order);
 
-        if (!navigator.onLine)
-            return dbLocal.exeRead(entity, key);
-
-        if (!SERVICEWORKER)
-            return exeReadOnline(entity, key);
-
-        return dbRemote.syncDownload(entity).then(() => {
-            return dbLocal.exeRead(entity, key).then(r => {
-                if (!isEmpty(r))
-                    return r;
-
-                if (key)
-                    return exeReadOnline(entity, key);
-
-                return [];
-            })
-        });
+    }, async exeUpdate(entity, dados, sync) {
+        return this.exeCreate(entity, dados, sync);
 
     }, async exeCreate(entity, dados, sync) {
         if (SERVICEWORKER) {
             sync = typeof sync === "undefined" ? !0 : sync;
             dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
-            let idAction = getIdAction(entity, dados.id);
+            let idAction = _getIdAction(entity, dados.id);
             let react = dbLocal.exeRead("__react");
             return Promise.all([idAction, react]).then(r => {
                 dados.id = r[0][0];
@@ -914,7 +627,7 @@ const db = {
                     dados.db_action = action;
                     return dbLocal.insert("sync_" + entity, dados, dados.id).then(syncCreated => {
                         if (sync) {
-                            return dbRemote.syncPost(entity, dados.id).then(syncReturn => {
+                            return _dbRemote.syncPost(entity, dados.id).then(syncReturn => {
 
                                 /**
                                  * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
@@ -956,14 +669,14 @@ const db = {
                     for (let k in ids) {
                         if (isNumberPositive(ids[k])) {
                             let idU = parseInt(ids[k]);
-                            allDelete.push(deleteDB(entity, idU, react).then(() => {
+                            allDelete.push(_deleteDB(entity, idU, react).then(() => {
                                 return dbLocal.exeRead("sync_" + entity, idU).then(d => {
                                     if (isEmpty(d) || d.db_action === "update") {
                                         return dbLocal.exeCreate("sync_" + entity, {
                                             'id': idU,
                                             'db_action': 'delete'
                                         }).then(id => {
-                                            return dbRemote.syncPost(entity, idU);
+                                            return _dbRemote.syncPost(entity, idU);
                                         });
                                     } else if (d.db_action === "create") {
                                         return dbLocal.exeDelete("sync_" + entity, idU)
@@ -977,7 +690,7 @@ const db = {
                         return dbLocal.exeRead("__historic", 1).then(h => {
                             h[entity] = null;
                             return dbLocal.exeCreate("__historic", h).then(() => {
-                                return dbRemote.syncDownload(entity);
+                                return _dbRemote.syncDownload(entity);
                             })
                         });
                     })
@@ -993,14 +706,15 @@ const db = {
         }
     }
 };
-const dbRemote = {
+
+const _dbRemote = {
     sync(entity, id, feedback) {
         if (typeof entity === "string") {
             if (!/^(__|sync)/.test(entity)) {
                 feedback = typeof feedback === "undefined" ? !1 : ([true, 1, "1", "true"].indexOf(feedback) > -1);
                 id = typeof id === "undefined" ? null : id;
-                return dbRemote.syncDownload(entity).then(down => {
-                    return dbRemote.syncPost(entity, id, feedback).then(d => {
+                return _dbRemote.syncDownload(entity).then(down => {
+                    return _dbRemote.syncPost(entity, id, feedback).then(d => {
                         return down === 0 ? d[0] : 1
                     })
                 })
@@ -1045,7 +759,7 @@ const dbRemote = {
                                     }
 
                                     for (let col in response.data[k])
-                                        response.data[k][col] = getDefaultValue(dicionarios[entity][col], response.data[k][col]);
+                                        response.data[k][col] = _getDefaultValue(dicionarios[entity][col], response.data[k][col]);
 
                                     response.data[k].id = id;
                                     response.data[k].db_status = !0;
@@ -1058,7 +772,7 @@ const dbRemote = {
                         })
                     })
                 } else {
-                    return moveSyncDataToDb(entity, response.data).then(() => {
+                    return _moveSyncDataToDb(entity, response.data).then(() => {
                         return response
                     });
                 }
@@ -1092,7 +806,7 @@ const dbRemote = {
                                     });
 
                                 } else if (response.tipo === 1) {
-                                    moveSyncDataToDb(entity, s, !1);
+                                    _moveSyncDataToDb(entity, s, !1);
                                 }
                             }));
                         });
@@ -1157,7 +871,7 @@ const dbRemote = {
                                         dbLocal.exeDelete('sync_' + entity, d.id);
                                         dbLocal.exeDelete(entity, d.id);
                                         if (d.db_action !== "delete")
-                                            allP.push(moveSyncDataToDb(entity, result.data[0]));
+                                            allP.push(_moveSyncDataToDb(entity, result.data[0]));
 
                                         /**
                                          * Atualiza histórico
@@ -1220,7 +934,7 @@ const dbRemote = {
     }
 };
 
-var conn = {};
+const conn = {};
 const dbLocal = {
     conn(entity) {
         if (typeof conn[entity] === "undefined") {
@@ -1340,7 +1054,7 @@ const dbLocal = {
     }
 };
 
-function getIdAction(entity, id) {
+function _getIdAction(entity, id) {
     if (isNaN(id) || id < 1) {
         let keyReg = dbLocal.newKey(entity);
         let keySync = dbLocal.newKey("sync_" + entity);
@@ -1360,7 +1074,7 @@ function getIdAction(entity, id) {
     }
 }
 
-function moveSyncDataToDb(entity, dados, db_status) {
+function _moveSyncDataToDb(entity, dados, db_status) {
     db_status = typeof db_status === "undefined" ? !0 : db_status;
     if (typeof dados === "object" && dados.constructor === Object) {
         let dd = dados;
@@ -1385,7 +1099,7 @@ function moveSyncDataToDb(entity, dados, db_status) {
                 case 'update':
                     let id = parseInt(d.id);
                     for (let col in d)
-                        d[col] = getDefaultValue(dicionarios[entity][col], d[col]);
+                        d[col] = _getDefaultValue(dicionarios[entity][col], d[col]);
                     d.id = id;
                     d.db_status = db_status;
                     // if (!isEmpty(d.ownerpub) && parseInt(d.ownerpub) !== parseInt(USER.id)) {
@@ -1406,18 +1120,18 @@ function moveSyncDataToDb(entity, dados, db_status) {
     })
 }
 
-function deleteDB(entity, id, react) {
+function _deleteDB(entity, id, react) {
     return dbLocal.exeDelete(entity, id).then(() => {
         if (typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity]["delete"] !== "undefined")
             eval(react[0][entity]["delete"]);
     })
 }
 
-function getDefaultValues(entity, values) {
+function _getDefaultValues(entity, values) {
     let valores = {};
     $.each(dicionarios[entity], function (column, meta) {
         let value = (typeof values !== "undefined" && typeof values[meta.column] !== "undefined" ? values[meta.column] : meta.default)
-        valores[column] = getDefaultValue(meta, value)
+        valores[column] = _getDefaultValue(meta, value)
     });
 
     if (typeof values !== "undefined" && isNumber(values.id))
@@ -1426,7 +1140,7 @@ function getDefaultValues(entity, values) {
     return valores
 }
 
-function getDefaultValue(meta, value) {
+function _getDefaultValue(meta, value) {
     let valor = "";
     if (typeof meta === "object" && meta !== null) {
         let jsonStringWrongValidation = new RegExp("^\\[\\s*\\w+\\s*(,\\s*\\w+\\s*)*\\]$", "i");
@@ -1583,7 +1297,7 @@ function getDefaultValue(meta, value) {
                 }
                 break;
             case 'extend':
-                valor = value !== "" ? getDefaultValues(meta.relation, value) : getDefaultValues(meta.relation);
+                valor = value !== "" ? _getDefaultValues(meta.relation, value) : _getDefaultValues(meta.relation);
                 break;
             default:
                 valor = value !== "" ? (value === 0 ? "0" : value) : null
@@ -1594,12 +1308,12 @@ function getDefaultValue(meta, value) {
     return valor
 }
 
-function syncDataBtn(entity) {
+function _syncDataBtn(entity) {
     $(".toast, .btn-panel-sync").remove();
 
     if (navigator.onLine) {
         $(".btn-sync-all").remove();
-        dbRemote.sync(entity, null, !0).then(() => {
+        _dbRemote.sync(entity, null, !0).then(() => {
             for (let i in grids) {
                 if (typeof grids[i] === "object" && (typeof entity === "undefined" || grids[i].entity === entity)) {
                     grids[i].reload();

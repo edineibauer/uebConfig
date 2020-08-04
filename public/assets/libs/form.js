@@ -142,7 +142,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
             value = $input.val()
         }
         if (dicionario[column].format !== "list") {
-            data[column] = getDefaultValue(dicionario[column], value);
+            data[column] = _getDefaultValue(dicionario[column], value);
             if (typeof data[column] !== "number") {
                 let size = (typeof data[column] === "string" || $.isArray(data[column]) ? data[column].length : 0);
                 $input.siblings(".info-container").find(".input-info").html(size)
@@ -285,7 +285,7 @@ function searchList($input) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
         let templates = getTemplates();
-        let dataRead = exeRead(entity, search, 10);
+        let dataRead = db.exeRead(entity, search, 10);
         Promise.all([templates, dataRead]).then(r => {
             let results = [];
             templates = r[0];
@@ -434,7 +434,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                         $this.id = (isNumberPositive(value) ? parseInt(value) : "");
                         $this.data.id = parseInt($this.id);
                     } else if (typeof dicionario[col] === "object") {
-                        $this.data[col] = getDefaultValue(dicionario[col], value)
+                        $this.data[col] = _getDefaultValue(dicionario[col], value)
                     }
                 });
 
@@ -470,7 +470,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 loadData = await loadEntityData(this.entity, id)
             } else if (isEmpty($this.data)) {
                 $this.id = "";
-                loadData = await getDefaultValues(this.entity);
+                loadData = await _getDefaultValues(this.entity);
             }
 
             if (!isEmpty(loadData)) {
@@ -664,14 +664,14 @@ async function getInputsTemplates(form, parent, col) {
 
 async function loadEntityData(entity, id) {
     let dados = {};
-    let data = await exeRead(entity, id);
+    let data = await db.exeRead(entity, id);
 
     if (!isEmpty(data)) {
         $.each(data, function (col, value) {
             if (typeof dicionarios[entity][col] === 'object' && dicionarios[entity][col] !== null) {
                 let meta = dicionarios[entity][col];
                 if (typeof meta !== "undefined" && meta.format !== "information" && meta.key !== "identifier") {
-                    dados[col] = getDefaultValue(meta, value)
+                    dados[col] = _getDefaultValue(meta, value)
                 }
             }
         })

@@ -97,7 +97,7 @@ async function gridTdFilterValue(value, meta) {
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
-            let data = await exeRead(meta.relation, value);
+            let data = await db.exeRead(meta.relation, value);
             return getRelevantTitle(meta.relation, data, 1, !1)
         } else {
             value = applyFilterToTd(value, meta)

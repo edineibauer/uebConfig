@@ -54,7 +54,7 @@ $(function () {
             if (action === "table") {
                 (async () => {
                     let entity = $(this).data("entity");
-                    let result = await exeRead(entity, null, 1);
+                    let result = await db.exeRead(entity, null, 1);
                     let id = (!isEmpty(result) ? result[0].id : null);
                     pageTransition(entity, 'form', 'forward', "#config", {id: id});
                 })();
