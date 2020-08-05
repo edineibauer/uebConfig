@@ -256,20 +256,21 @@ $(function ($) {
      */
     $.fn.htmlTemplate = function (tpl, param, includeTpls) {
         let $this = this;
+        includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
+        let includes = {};
+        for (let i in includeTpls)
+            includes[includeTpls[i]] = templates[includeTpls[i]];
+
+        if(!sseTemplate.length)
+            sseTemplate = [$this, tpl, includes];
+
         return (async () => {
-            includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
             let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
             let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
             let isSkeleton = isEmpty(param);
             let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 2;
-
-            let includes = {};
-            for (let i in includeTpls)
-                includes[includeTpls[i]] = templates[includeTpls[i]];
-
-            sseTemplates.push([$this, templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\""), param, includes]);
 
             /**
              * If not defined param, so check skeleton
@@ -338,6 +339,16 @@ $(function ($) {
                         if (!isEmpty(data))
                             $this.html(Mustache.render(templates[tpl], data, includes));
                     });
+                } else {
+                    if($this.hasAttr("data-get")) {
+                        let results = await AJAX.get($this.data("get"));
+                        if(!isEmpty(results))
+                            $this.htmlTemplate($this.data("template"), results);
+                    } else if($this.hasAttr("data-db")) {
+                        let results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
+                        if(!isEmpty(results))
+                            $this.htmlTemplate($this.data("template"), results)
+                    }
                 }
             } else {
                 /**
@@ -345,8 +356,6 @@ $(function ($) {
                  */
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\"");
             }
-
-
 
             mergeObject(param, {
                 home: HOME,
@@ -376,6 +385,16 @@ $(function ($) {
 
             if (isSkeleton)
                 $this.find("[data-skeleton='1']").addClass("skeleton");
+
+            /**
+             * Compile templates inside the base template
+             */
+            let $templatesToRenderInside = $this.find("[data-template]");
+            if($templatesToRenderInside.length) {
+                $templatesToRenderInside.each(function () {
+                    $(this).htmlTemplate(templates[$(this).data("template")]);
+                });
+            }
 
             return $this;
         })();
@@ -2017,7 +2036,7 @@ var app = {
             let g = await AJAX.view(file);
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                    sseTemplates = [];
+                    sseTemplate = [];
                     TITLE = g.title;
                     headerShow(g.header);
                     checkMenuActive();
@@ -2033,7 +2052,7 @@ var app = {
                         dbLocal.exeCreate("__template", templates);
                     }
 
-                    $div.htmlTemplate("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content);
+                    await $div.htmlTemplate("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content);
 
                     /**
                      * Compile templates
@@ -2109,35 +2128,9 @@ var app = {
                                 }
 
                                 /**
-                                 * Update Registered Templates
+                                 * Update Registered Template
                                  */
-                                for (let rtpl of sseTemplates) {
-                                    let variables = {};
-
-                                    if(!isEmpty(rtpl[2]) && typeof rtpl[2] === "object")
-                                        variables = Object.assign({}, rtpl[2]);
-
-                                    mergeObject(variables, {
-                                        home: HOME,
-                                        vendor: VENDOR,
-                                        favicon: FAVICON,
-                                        logo: LOGO,
-                                        theme: THEME,
-                                        themetext: THEMETEXT,
-                                        sitename: SITENAME,
-                                        USER: USER,
-                                        jsonParse: function () {
-                                            return _htmlTemplateJsonDecode(txt, render);
-                                        },
-                                        jsonDecode: function() {
-                                            return _htmlTemplateJsonDecode(txt, render);
-                                        }
-                                    });
-
-                                    mergeObject(variables, SSE);
-
-                                    rtpl[0].html(Mustache.render(rtpl[1], variables, rtpl[3]));
-                                }
+                                sseTemplate[0].htmlTemplate(sseTemplate[1], Object.assign({}, SSE), sseTemplate[2]);
                             }
                         }, !1);
                     }
@@ -2662,7 +2655,7 @@ async function updatedPerfil() {
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
-var sseTemplates = [];
+var sseTemplate = [];
 var sseSource = {};
 const sseEvents = {};
 const SSE = {};
