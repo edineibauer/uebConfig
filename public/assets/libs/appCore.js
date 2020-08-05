@@ -1700,10 +1700,10 @@ function defaultPageTransitionPosition(direction, $element, route) {
     if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
-        $aux = $element.clone().css({
+        $aux = $("<section />").css({
             "top": topHeader + "px",
             "padding-top": getPaddingTopContent() + "px"
-        }).removeAttr("id").removeClass('r-' + $element.data("file")).addClass("r-network r-403 r-" + (file === "dashboard" ? "dashboard r-panel" : file)).data("file", file).html("").insertBefore($element);
+        }).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
     }
 
     $element.css("margin-top", 0);
@@ -2063,30 +2063,13 @@ var app = {
                      */
                     if (!isEmpty(g.head)) {
                         /**
-                         * Remove link from head not used
-                         */
-
-                        let idsLinks = Object.keys(g.head);
-                        $(".coreLinkHeader").each(function (i, e) {
-                            if (idsLinks.indexOf($(e).attr("id")) === -1) {
-                                setTimeout(function () {
-                                    $(e).remove();
-                                },250);
-                            }
-                        });
-
-                        /**
                          * Add link to head
                          */
                         for (let hid in g.head) {
+                            $div.addClass(hid);
                             if (!$("head > #" + hid).length)
                                 $(g.head[hid]).appendTo("head");
                         }
-                    } else {
-                        /**
-                         * Remove all link from head
-                         */
-                        $(".coreLinkHeader").remove();
                     }
 
                     /**
