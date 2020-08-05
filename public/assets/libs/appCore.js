@@ -254,8 +254,9 @@ $(function ($) {
      * @param includeTpls
      * @returns {Promise<void>}
      */
-    $.fn.htmlTemplate = function (tpl, param, includeTpls) {
+    $.fn.htmlTemplate = function (tpl, param, includeTpls, isRefresh) {
         let $this = this;
+        isRefresh = typeof isRefresh !== "undefined";
         includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
         let includes = {};
         for (let i in includeTpls)
@@ -265,7 +266,6 @@ $(function ($) {
             sseTemplate = [$this, tpl, includes];
 
         return (async () => {
-            let funcao = typeof param === "function" ? param : null;
             param = typeof param === "object" && param !== null ? param : [];
             let templates = await getTemplates();
             let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
@@ -275,7 +275,7 @@ $(function ($) {
             /**
              * If not defined param, so check skeleton
              */
-            if (isEmpty(param)) {
+            if (isSkeleton) {
                 /**
                  * Find arrays
                  */
@@ -331,25 +331,6 @@ $(function ($) {
                  */
                 templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/loading.png'\"");
 
-                /**
-                 * Check if have function to set data
-                 */
-                if (typeof funcao === "function") {
-                    funcao().then(data => {
-                        if (!isEmpty(data))
-                            $this.html(Mustache.render(templates[tpl], data, includes));
-                    });
-                } else {
-                    if($this.hasAttr("data-get")) {
-                        let results = await AJAX.get($this.data("get"));
-                        if(!isEmpty(results))
-                            $this.htmlTemplate($this.data("template"), results);
-                    } else if($this.hasAttr("data-db")) {
-                        let results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
-                        if(!isEmpty(results))
-                            $this.htmlTemplate($this.data("template"), results)
-                    }
-                }
             } else {
                 /**
                  * Image error set default img
@@ -379,21 +360,85 @@ $(function ($) {
             });
             mergeObject(param, SSE);
 
-            let content = Mustache.render(templateTpl, param, includes);
+            let $content = $(Mustache.render(templateTpl, param, includes));
 
-            $this.html(content);
+            if(isRefresh) {
+                /**
+                 * First Compile templates inside the base template
+                 */
+                let $templatesToRenderInside = $content.find("[data-template]");
+                if($templatesToRenderInside.length) {
+                    await new Promise(async s => {
+                        $templatesToRenderInside.each(async function () {
+                            let $this = $(this);
+                            let results = [];
+                            if($this.hasAttr("data-get"))
+                                results = await AJAX.get($this.data("get"));
+                            else if($this.hasAttr("data-db"))
+                                results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
 
-            if (isSkeleton)
-                $this.find("[data-skeleton='1']").addClass("skeleton");
+                            s($this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results: {home: HOME})));
+                        });
+                    });
+                }
 
-            /**
-             * Compile templates inside the base template
-             */
-            let $templatesToRenderInside = $this.find("[data-template]");
-            if($templatesToRenderInside.length) {
-                $templatesToRenderInside.each(function () {
-                    $(this).htmlTemplate(templates[$(this).data("template")]);
+            } else if (isSkeleton) {
+                $content.find("[data-skeleton='1']").addClass("skeleton");
+
+                /**
+                 * Await Compile templates inside the base template to render all together
+                 */
+                let $templatesToRenderInside = $content.find("[data-template]");
+                if($templatesToRenderInside.length) {
+                    await new Promise(async s => {
+                        $templatesToRenderInside.each(async function () {
+                            s($(this).htmlTemplate($(this).data("template")));
+                        });
+                    });
+                }
+
+                $this.html($content);
+
+                /**
+                 * Find data declaration on DOM attr to load on template and replace skeleton
+                 */
+                if($templatesToRenderInside.length) {
+                    $templatesToRenderInside.each(async function () {
+                        let $this = $(this);
+                        if($this.hasAttr("data-get")) {
+                            let results = await AJAX.get($this.data("get"));
+                            if(!isEmpty(results))
+                                $this.htmlTemplate($this.data("template"), results);
+                        } else if($this.hasAttr("data-db")) {
+                            let results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
+                            if(!isEmpty(results))
+                                $this.htmlTemplate($this.data("template"), results);
+                        }
+                    });
+                }
+            }
+
+            if(!isSkeleton) {
+                /**
+                 * await for load images on content before change the content
+                 */
+                let awaitImagesLoad = [];
+                $content.find("img").each(function() {
+                    awaitImagesLoad.push($(this).attr("src"));
                 });
+                $content.find("[style*='background-image']").each(function() {
+                    awaitImagesLoad.push($(this).css("background-image").replace('url(', '').replace(')', '').replace("'", '').replace("'", '').replace('"', '').replace('"', ''));
+                });
+
+                /**
+                 * Await load images to not flickering
+                 */
+                await imagesPreload(awaitImagesLoad);
+                $this.append($content.addClass("loadingImagesPreview").css({"visibility": "hidden", "position": "fixed"}));
+                setTimeout(function () {
+                    $this.children().not(".loadingImagesPreview").remove();
+                    $content.css({"visibility": "visible", "position": "relative"}).removeClass("loadingImagesPreview");
+                }, 500);
             }
 
             return $this;
@@ -1961,6 +2006,26 @@ function openInstallAppPrompt(force) {
 }
 
 /**
+ * Fetch images before add to HTML on view
+ * @param imagesList
+ * @returns {Promise<unknown[]>}
+ */
+async function imagesPreload(imagesList) {
+    let loadAll = [];
+    for(let image of imagesList) {
+        loadAll.push(new Promise(s => {
+            let img = new Image();
+            img.onload = function () {
+                s(1);
+            };
+            img.src = image;
+        }));
+
+    }
+    return Promise.all(loadAll);
+}
+
+/**
  * app global de navegação do app
  * */
 var app = {
@@ -2054,13 +2119,6 @@ var app = {
 
                     await $div.htmlTemplate("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content);
 
-                    /**
-                     * Compile templates
-                     */
-                    $div.find("[data-template]").each(function () {
-                        $(this).htmlTemplate(templates[$(this).data("template")]);
-                    });
-
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
@@ -2101,35 +2159,38 @@ var app = {
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
                         await AJAX.get("sseEngineClear");
-                        sseSource.addEventListener(file, function (e) {
-                            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                                let response = JSON.parse(e.data);
+                        if(typeof sseSourceListeners[file] === "undefined") {
+                            sseSourceListeners[file] = 1;
+                            sseSource.addEventListener(file, function (e) {
+                                if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+                                    let response = JSON.parse(e.data);
 
-                                /**
-                                 * For each SSE received on view
-                                 */
-                                for(let v in response) {
-                                    if (response[v].response === 1) {
+                                    /**
+                                     * For each SSE received on view
+                                     */
+                                    for (let v in response) {
+                                        if (response[v].response === 1) {
 
-                                        /**
-                                         * Store the value of the SSE event
-                                         */
-                                        SSE[v] = response[v].data;
+                                            /**
+                                             * Store the value of the SSE event
+                                             */
+                                            SSE[v] = response[v].data;
 
-                                        /**
-                                         * If have event function on receive this SSE to trigger
-                                         */
-                                        if(typeof sseEvents[v] === "function")
-                                            sseEvents[v](SSE[v]);
+                                            /**
+                                             * If have event function on receive this SSE to trigger
+                                             */
+                                            if (typeof sseEvents[v] === "function")
+                                                sseEvents[v](SSE[v]);
+                                        }
                                     }
-                                }
 
-                                /**
-                                 * Update Registered Template
-                                 */
-                                sseTemplate[0].htmlTemplate(sseTemplate[1], Object.assign({}, SSE), sseTemplate[2]);
-                            }
-                        }, !1);
+                                    /**
+                                     * Update Registered Template
+                                     */
+                                    sseTemplate[0].htmlTemplate(sseTemplate[1], Object.assign({}, SSE[file]), sseTemplate[2], !0);
+                                }
+                            }, !1);
+                        }
                     }
 
                     app.removeLoading();
@@ -2654,6 +2715,7 @@ async function updatedPerfil() {
  */
 var sseTemplate = [];
 var sseSource = {};
+const sseSourceListeners = {};
 const sseEvents = {};
 const SSE = {};
 async function sseStart() {
