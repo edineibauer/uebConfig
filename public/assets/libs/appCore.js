@@ -2064,17 +2064,14 @@ var app = {
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
-                    setTimeout(function () {
-                        if (g.navbar)
-                            $("#core-header-nav-bottom").addClass("core-show-header-navbar");
-                        else
-                            $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                    if (g.navbar)
+                        $("#core-header-nav-bottom").addClass("core-show-header-navbar");
+                    else
+                        $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
 
-                        $div.css("min-height", getPageContentHeight());
-                        if ($div.attr("id") === "core-content")
-                            $div.css("padding-top", getPaddingTopContent());
-
-                    }, 200);
+                    $div.css("min-height", getPageContentHeight());
+                    if ($div.attr("id") === "core-content")
+                        $div.css("padding-top", getPaddingTopContent());
 
                     /**
                      * add tags to the head of the page
