@@ -429,6 +429,7 @@ class UpdateSystem
         Config::createDir("public/overload");
         Config::createDir("public/react");
         Config::createDir("public/assets");
+        Config::createDir("public/assets/core");
         Config::createDir("public/menu");
         Config::createDir("public/menu/admin");
         Config::createDir("public/menu/0");
