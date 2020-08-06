@@ -336,7 +336,7 @@ class Read {
         return this.result;
     }
 
-    async exeRead(entity, id, limit, offset, order) {
+    async exeRead(entity, id, limit, offset, order, orderReverse) {
         this.setEntity(entity);
 
         if(isNumberPositive(id))
@@ -347,6 +347,9 @@ class Read {
         this.setLimit(limit);
         this.setOffset(offset);
         this.setOrderColumn(order);
+
+        if(typeof orderReverse !== "undefined")
+            this.setOrderReverse();
 
         this.result = [];
         this.total = 0;
@@ -605,9 +608,9 @@ const db = {
      * @param order
      * @returns {Promise<*[]|unknown|[]|*>}
      */
-    async exeRead(entity, idOrObject, limit, offset, order) {
+    async exeRead(entity, idOrObject, limit, offset, order, orderReverse) {
         let a = new Read;
-        return a.exeRead(entity, idOrObject, limit, offset, order);
+        return a.exeRead(entity, idOrObject, limit, offset, order, orderReverse);
 
     }, async exeUpdate(entity, dados, sync) {
         return this.exeCreate(entity, dados, sync);
