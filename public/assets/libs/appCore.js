@@ -2135,12 +2135,17 @@ var app = {
                      * add tags to the head of the page
                      * if allready exist, so not do anything
                      */
+                    $("html").removeClass();
                     if (!isEmpty(g.head)) {
                         /**
                          * Add link to head
                          */
                         for (let hid in g.head) {
-                            $div.addClass(hid);
+                            if(/^core-/.test(hid))
+                                $("html").addClass("hid");
+                            else
+                                $div.addClass(hid);
+
                             if (!$("head > #" + hid).length)
                                 $(g.head[hid]).appendTo("head");
                         }
