@@ -375,7 +375,7 @@ $(function ($) {
                             if($this.hasAttr("data-get"))
                                 results = await AJAX.get($this.data("get"));
                             else if($this.hasAttr("data-db"))
-                                results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
+                                results = await db.exeRead($this.data("db"), ($this.hasAttr("data-id") ? $this.data("id") : null), ($this.hasAttr("data-limit") ? $this.data("limit") : null), ($this.hasAttr("data-offset") ? $this.data("offset") : null), ($this.hasAttr("data-order") ? $this.data("order") : null), ($this.hasAttr("data-order-reverse") ? 1 : null));
 
                             s($this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results: {home: HOME})));
                         });
