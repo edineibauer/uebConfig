@@ -347,6 +347,7 @@ $(function ($) {
                 themetext: THEMETEXT,
                 sitename: SITENAME,
                 USER: USER,
+                URL: history.state.param.url,
                 jsonParse: function () {
                     return function(txt, render) {
                         return _htmlTemplateJsonDecode(txt, render);
@@ -372,10 +373,19 @@ $(function ($) {
                         $templatesToRenderInside.each(async function () {
                             let $this = $(this);
                             let results = [];
-                            if($this.hasAttr("data-get"))
+                            if($this.hasAttr("data-get")) {
                                 results = await AJAX.get($this.data("get"));
-                            else if($this.hasAttr("data-db"))
-                                results = await db.exeRead($this.data("db"), ($this.hasAttr("data-id") ? (isNumberPositive($this.data("id")) ? $this.data("id") : (isJson($this.data("id")) ? JSON.parse($this.data("id")) : null)) : null), ($this.hasAttr("data-limit") ? $this.data("limit") : null), ($this.hasAttr("data-offset") ? $this.data("offset") : null), ($this.hasAttr("data-order") ? $this.data("order") : null), ($this.hasAttr("data-order-reverse") ? 1 : null));
+                            } else if($this.hasAttr("data-db")) {
+
+                                let entity = Mustache.render($this.data("db"), param);
+                                let id = (isNumberPositive($this.data("id")) ? Mustache.render($this.data("id"), param) : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
+                                let limit = Mustache.render($this.data("limit"), param);
+                                let offset = Mustache.render($this.data("offset"), param);
+                                let order = Mustache.render($this.data("order"), param);
+                                let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
+
+                                results = await db.exeRead(entity, id, limit, offset, order, orderReverse);
+                            }
 
                             s($this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results: {home: HOME})));
                         });
@@ -410,7 +420,14 @@ $(function ($) {
                             if(!isEmpty(results))
                                 $this.htmlTemplate($this.data("template"), results);
                         } else if($this.hasAttr("data-db")) {
-                            let results = await db.exeRead($this.data("db"), ($this.hasAttr("id") ? $this.data("id") : null), ($this.hasAttr("limit") ? $this.data("limit") : null), ($this.hasAttr("offset") ? $this.data("offset") : null), ($this.hasAttr("order") ? $this.data("order") : null));
+                            let entity = Mustache.render($this.data("db"), param);
+                            let id = (isNumberPositive($this.data("id")) ? Mustache.render($this.data("id"), param) : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
+                            let limit = Mustache.render($this.data("limit"), param);
+                            let offset = Mustache.render($this.data("offset"), param);
+                            let order = Mustache.render($this.data("order"), param);
+                            let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
+
+                            let results = await db.exeRead(entity, id, limit, offset, order, orderReverse);
                             if(!isEmpty(results))
                                 $this.htmlTemplate($this.data("template"), results);
                         }
