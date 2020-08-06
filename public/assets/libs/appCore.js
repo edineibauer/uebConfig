@@ -2045,7 +2045,7 @@ async function imagesPreload(imagesList) {
 /**
  * app global de navegação do app
  * */
-var app = {
+var URL, app = {
     file: "",
     route: "",
     loading: !1,
@@ -2125,6 +2125,7 @@ var app = {
                     $("#core-title").text(g.title);
 
                     let templates = await getTemplates();
+                    URL = history.state.param.url;
 
                     /**
                      * Include templates used in this view
