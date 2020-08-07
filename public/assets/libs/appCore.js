@@ -2160,7 +2160,7 @@ var URL, app = {
                          */
                         for (let hid in g.head) {
                             if(/^core-/.test(hid))
-                                $("html").addClass("hid");
+                                $("html").addClass(hid);
                             else
                                 $div.addClass(hid);
 
