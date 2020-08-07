@@ -407,7 +407,7 @@ $(function ($) {
                     });
                 }
 
-                $this.html($content.html());
+                $this.html($content);
 
                 /**
                  * Find data declaration on DOM attr to load on template and replace skeleton
