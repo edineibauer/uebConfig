@@ -361,7 +361,7 @@ $(function ($) {
             });
             mergeObject(param, SSE);
 
-            let $content = $(Mustache.render(templateTpl, param, includes));
+            let $content = $("<div>" + Mustache.render(templateTpl, param, includes) + "</div>");
 
             if(isRefresh) {
                 /**
