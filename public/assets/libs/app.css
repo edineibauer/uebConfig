@@ -414,8 +414,8 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 }
 
 #core-sidebar.active {
-    transform: translateX(0);
-    opacity: 1;
+    transform: translateX(0)!important;
+    opacity: 1!important;
     color: #555 !important
 }
 
