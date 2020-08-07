@@ -254,10 +254,11 @@ $(function ($) {
      * @param includeTpls
      * @returns {Promise<void>}
      */
-    $.fn.htmlTemplate = function (tpl, param, includeTpls, isRefresh) {
+    $.fn.htmlTemplate = async function (tpl, param, includeTpls, isRefresh) {
+        let templates = await getTemplates();
         let $this = this;
         isRefresh = typeof isRefresh !== "undefined";
-        includeTpls = typeof includeTpls === "object" && includeTpls.constructor === Array ? includeTpls : {};
+        includeTpls = (typeof includeTpls === "string" ? [includeTpls] : (typeof includeTpls === "object" && includeTpls !== null && includeTpls.constructor === Array ? includeTpls : []));
         let includes = {};
         for (let i in includeTpls)
             includes[includeTpls[i]] = templates[includeTpls[i]];
@@ -267,7 +268,6 @@ $(function ($) {
 
         return (async () => {
             param = typeof param === "object" && param !== null ? param : [];
-            let templates = await getTemplates();
             let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
             let isSkeleton = isEmpty(param);
             let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 2;
