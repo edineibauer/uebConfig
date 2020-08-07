@@ -255,7 +255,7 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
 
         Config\Config::writeFile("index.php", file_get_contents("public/installTemplates/index.php"));
         Config\Config::writeFile("apiGet.php", file_get_contents("public/installTemplates/apiGet.php"));
-        Config\Config::writeFile("apiSet.php", file_get_contents("public/installTemplates/apiSet.php"));
+        Config\Config::writeFile("apiPost.php", file_get_contents("public/installTemplates/apiPost.php"));
         Config\Config::writeFile("apiView.php", file_get_contents("public/installTemplates/apiView.php"));
         Config\Config::writeFile("apiApi.php", file_get_contents("public/installTemplates/apiApi.php"));
         Config\Config::writeFile("apiApiPublic.php", file_get_contents("public/installTemplates/apiApiPublic.php"));
