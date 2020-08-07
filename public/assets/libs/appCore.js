@@ -456,6 +456,14 @@ $(function ($) {
                     $this.children().not(".loadingImagesPreview").remove();
                     $content.css({"visibility": "visible", "position": "relative"}).removeClass("loadingImagesPreview");
                 }, 500);
+
+                /**
+                 * Função que permite adicionar value para um select field
+                 */
+                $content.find("select").each(function () {
+                    if ($(this).hasAttr("value"))
+                        $(this).val($(this).hasAttr("value")).trigger("change");
+                });
             }
 
             return $this;
