@@ -88,7 +88,7 @@ async function getJSON(url) {
     })
 }
 
-async function get(file, errorFuncao) {
+async function get(file, errorControl) {
     let url = SERVER + "get/" + file;
 
     if(HOME === "" && HOME !== SERVER && ["appFilesView", "appFilesViewUser", "currentFiles", "userCache"].indexOf(file) > -1)
@@ -100,9 +100,7 @@ async function get(file, errorFuncao) {
         } else {
             switch (data.response) {
                 case 2:
-                    if(typeof errorFuncao === "function")
-                        errorFuncao(data.error);
-                    else if(typeof errorFuncao === "undefined")
+                    if(typeof errorControl === "undefined")
                         toast(data.error, 1500, "toast-warning");
 
                     throw data.error;
@@ -275,8 +273,8 @@ async function _postReturnData(data) {
 }
 
 class AJAX {
-    static async get(fileInGetFolder, errorFuncao) {
-        return get(fileInGetFolder, errorFuncao);
+    static async get(fileInGetFolder, errorControl) {
+        return get(fileInGetFolder, errorControl);
     }
 
     static async getUrl(url) {
