@@ -88,7 +88,7 @@ async function getJSON(url) {
     })
 }
 
-async function get(file) {
+async function get(file, errorFuncao) {
     let url = SERVER + "get/" + file;
 
     if(HOME === "" && HOME !== SERVER && ["appFilesView", "appFilesViewUser", "currentFiles", "userCache"].indexOf(file) > -1)
@@ -100,8 +100,12 @@ async function get(file) {
         } else {
             switch (data.response) {
                 case 2:
-                    toast(data.error, 1500, "toast-warning");
-                    break;
+                    if(typeof errorFuncao === "function")
+                        errorFuncao(data.error);
+                    else if(typeof errorFuncao === "undefined")
+                        toast(data.error, 1500, "toast-warning");
+
+                    throw data.error;
                 case 3:
                     location.href = data.data;
                     break;
@@ -271,8 +275,8 @@ async function _postReturnData(data) {
 }
 
 class AJAX {
-    static async get(fileInGetFolder) {
-        return get(fileInGetFolder);
+    static async get(fileInGetFolder, errorFuncao) {
+        return get(fileInGetFolder, errorFuncao);
     }
 
     static async getUrl(url) {
