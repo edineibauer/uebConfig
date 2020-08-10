@@ -270,7 +270,7 @@ $(function ($) {
             param = typeof param === "object" && param !== null ? param : [];
             let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
             let isSkeleton = isEmpty(param);
-            let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 2;
+            let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 1;
 
             /**
              * If not defined param, so check skeleton
