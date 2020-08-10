@@ -54,7 +54,11 @@ if (!empty($url)) {
                 $data["response"] = 2;
                 $data["data"] = "";
             } elseif (!isset($data['data'])) {
-                $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                $conteudo = ob_get_contents();
+                if(\Helpers\Check::isJson($conteudo))
+                    $conteudo = json_decode($conteudo);
+
+                $data = ["response" => 1, "error" => "", "data" => $conteudo];
             } elseif (!isset($data['response'])) {
                 $data['response'] = 1;
                 $data['error'] = "";
