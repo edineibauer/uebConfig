@@ -290,15 +290,11 @@ $(function ($) {
                                     param.push([]);
                             } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
                                 let vp = [];
-                                for (let e = 0; e < loop; e++) {
-                                    if(typeof param[e] === "undefined")
-                                        param.push([]);
-
-                                    vp.push({});
-                                }
 
                                 for (let e = 0; e < loop; e++)
-                                    param[e].push(createObjectWithStringDotNotation(p, vp));
+                                    vp.push({});
+
+                                mergeObject(param, createObjectWithStringDotNotation(p, vp));
                             }
                         }
                     }
