@@ -39,6 +39,7 @@ textarea:focus {
 /* estrela de avaliação */
 .estrelas {
     padding-top: 1px;
+    text-align: right;
 }
 
 .estrelas input[type=radio] {
