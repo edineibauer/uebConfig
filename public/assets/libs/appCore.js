@@ -1808,14 +1808,15 @@ function getPaddingTopContent() {
 function defaultPageTransitionPosition(direction, $element, route) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
-    $element.css({
+    let style = {
         "min-height": getPageContentHeight(),
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
         "left": left + "px",
         "overflow": "hidden"
-    });
+    };
+    $element.css(style);
 
     let file = app.file.split("/");
     file = file[0];
@@ -1825,10 +1826,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
     if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
-        $aux = $("<section />").css({
-            "top": topHeader + "px",
-            "padding-top": getPaddingTopContent() + "px"
-        }).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
+        $aux = $("<section />").css(style).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
     }
 
     $element.css("margin-top", 0);
