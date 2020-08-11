@@ -33,6 +33,7 @@ textarea:focus {
     font-weight: bold;
     margin-top: 2px;
     margin-bottom: 15px;
+    max-width: calc(100% - 70px);
 }
 
 
