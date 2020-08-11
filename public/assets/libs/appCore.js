@@ -13,6 +13,17 @@ function isBuild() {
     return !SERVICEWORKER && HOME === "";
 }
 
+function dateTimeFormat(date) {
+    let dateObj = new Date(date || Date.now());
+    let day = String(dateObj.getDate()).padStart(2, '0');
+    let month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    let year = dateObj.getFullYear();
+    let hour = String(dateObj.getHours()).padStart(2, '0');
+    let min = String(dateObj.getMinutes()).padStart(2, '0');
+    let sec = String(dateObj.getSeconds()).padStart(2, '0');
+    return year + '-' + month  + '-' + day + " " + hour + ":" + min + ":" + sec ;
+}
+
 function dateFormat(date) {
     let dateObj = new Date(date || Date.now());
     let day = String(dateObj.getDate()).padStart(2, '0');
