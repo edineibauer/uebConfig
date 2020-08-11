@@ -259,10 +259,11 @@ $(function ($) {
     };
 
     $.fn.dbExeRead = async function() {
+        let $this = $(this);
+
         if(!$this.hasAttr("data-db"))
             return [];
 
-        let $this = $(this);
         let param = {USER: USER, URL: URL};
         mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
