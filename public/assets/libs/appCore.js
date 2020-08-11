@@ -259,14 +259,17 @@ $(function ($) {
     };
 
     $.fn.dbExeRead = async function() {
+        if(!$this.hasAttr("data-db"))
+            return [];
+
         let $this = $(this);
         let param = {USER: USER, URL: URL};
         mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
         let id = ($this.hasAttr("data-id") && isNumberPositive($this.data("id")) ? $this.data("id") : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
-        let limit = Mustache.render($this.data("limit"), param);
-        let offset = Mustache.render($this.data("offset"), param);
-        let order = Mustache.render($this.data("order"), param);
+        let limit = ($this.hasAttr("data-limit") ? Mustache.render($this.data("limit"), param) : null);
+        let offset = ($this.hasAttr("data-offset") ? Mustache.render($this.data("offset"), param) : null);
+        let order = ($this.hasAttr("data-order") ? Mustache.render($this.data("order"), param) : null);
         let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
         return db.exeRead(entity, id, limit, offset, order, orderReverse);
     }
