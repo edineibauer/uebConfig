@@ -52,7 +52,7 @@
                     </div>
                     <div class="row justify-content-center">
                         <div class="form-group col-12 col-lg-6">
-                            <button id="enviar" type="submit" class="btn btn-primary">Enviar</button>
+                            <button id="enviar" type="submit" class="btn theme col py-2">Enviar</button>
                         </div>
                     </div>
                 </div>
