@@ -258,6 +258,19 @@ $(function ($) {
         return typeof (this.attr(name)) !== "undefined"
     };
 
+    $.fn.dbExeRead = async function() {
+        let $this = $(this);
+        let param = {USER: USER, URL: URL};
+        mergeObject(param, SSE);
+        let entity = Mustache.render($this.data("db"), param);
+        let id = ($this.hasAttr("data-id") && isNumberPositive($this.data("id")) ? $this.data("id") : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
+        let limit = Mustache.render($this.data("limit"), param);
+        let offset = Mustache.render($this.data("offset"), param);
+        let order = Mustache.render($this.data("order"), param);
+        let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
+        return db.exeRead(entity, id, limit, offset, order, orderReverse);
+    }
+
     /**
      * Renderiza template mustache no elemento
      * @param tpl
@@ -368,6 +381,8 @@ $(function ($) {
             });
             mergeObject(param, SSE);
 
+            let $contentDb = $("<div>" + templateTpl + "</div>").find("[data-db]:not([data-template])");
+            let $contentGet = $("<div>" + templateTpl + "</div>").find("[data-get]:not([data-template])");
             let $content = $("<div>" + Mustache.render(templateTpl, param, includes) + "</div>");
 
             if(isRefresh) {
@@ -380,19 +395,11 @@ $(function ($) {
                         $templatesToRenderInside.each(async function () {
                             let $this = $(this);
                             let results = [];
-                            if($this.hasAttr("data-get")) {
+
+                            if($this.hasAttr("data-get"))
                                 results = await AJAX.get($this.data("get"));
-                            } else if($this.hasAttr("data-db")) {
-
-                                let entity = Mustache.render($this.data("db"), param);
-                                let id = (isNumberPositive($this.data("id")) ? Mustache.render($this.data("id"), param) : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
-                                let limit = Mustache.render($this.data("limit"), param);
-                                let offset = Mustache.render($this.data("offset"), param);
-                                let order = Mustache.render($this.data("order"), param);
-                                let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
-
-                                results = await db.exeRead(entity, id, limit, offset, order, orderReverse);
-                            }
+                            else if($this.hasAttr("data-db"))
+                                results = await $this.dbExeRead();
 
                             s($this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results: {home: HOME})));
                         });
@@ -425,19 +432,34 @@ $(function ($) {
                         if($this.hasAttr("data-get")) {
                             let results = await AJAX.get($this.data("get"));
                             if(!isEmpty(results))
-                                $this.htmlTemplate($this.data("template"), results);
+                                $this.htmlTemplate($this.data("template"), results, includeTpls, !0);
                         } else if($this.hasAttr("data-db")) {
-                            let entity = Mustache.render($this.data("db"), param);
-                            let id = (isNumberPositive($this.data("id")) ? Mustache.render($this.data("id"), param) : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
-                            let limit = Mustache.render($this.data("limit"), param);
-                            let offset = Mustache.render($this.data("offset"), param);
-                            let order = Mustache.render($this.data("order"), param);
-                            let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
-
-                            let results = await db.exeRead(entity, id, limit, offset, order, orderReverse);
+                            let results = await $this.dbExeRead();
                             if(!isEmpty(results))
-                                $this.htmlTemplate($this.data("template"), results);
+                                $this.htmlTemplate($this.data("template"), results, includeTpls, !0);
                         }
+                    });
+                }
+
+                /**
+                 * Find data-get and data-db to read data without have a db-template
+                 * @type {*|jQuery|HTMLElement}
+                 */
+                if($contentDb.length) {
+                    $contentDb.each(async function(i, e) {
+                        let $this = $content.find("[data-db]:not([data-template])").eq(i);
+                        let results = await $this.dbExeRead();
+                        if(!isEmpty(results))
+                            $this.htmlTemplate($(e).html(), results, includeTpls, !0);
+                    });
+
+                }
+                if($contentGet.length) {
+                    $contentGet.each(async function(i, e) {
+                        let $this = $content.find("[data-get]:not([data-template])").eq(i);
+                        let results = await AJAX.get($this.data("get"));
+                        if(!isEmpty(results))
+                            $this.htmlTemplate($(e).html(), results, includeTpls, !0);
                     });
                 }
             }
@@ -461,6 +483,9 @@ $(function ($) {
                 $this.append($content.addClass("loadingImagesPreview").css({"visibility": "hidden", "position": "fixed"}));
                 setTimeout(function () {
                     $this.children().not(".loadingImagesPreview").remove();
+                    $this.contents().filter(function(){
+                        return (this.nodeType == 3);
+                    }).remove();
                     $content.css({"visibility": "visible", "position": "relative"}).removeClass("loadingImagesPreview");
                 }, 500);
 
