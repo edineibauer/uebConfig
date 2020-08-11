@@ -5,9 +5,7 @@ if (USER.id == URL[0]) {
 
 } else {
     db.exeRead("avaliacao", {"usuario": URL[0]}).then(result => {
-        console.log(result);
         if (!isEmpty(result)) {
-            //show my preview review
             $("#revision").html("Você esta revisando sua avaliação");
             $("#comentario").val(result[0].comentario);
             for(let i=1;i<=result[0].avaliacao;i++)

@@ -1,7 +1,6 @@
 {
-    "title": "Avaliação - {{sitename}}",
-    "css": ["bootstrap", "core/_base"],
-    "js": ["homeMap", "core/_base"],
+    "title": "Avaliação de Usuário",
+    "css": ["bootstrap"],
     "navbar": true,
     "header": false
 }
