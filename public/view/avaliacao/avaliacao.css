@@ -1,0 +1,97 @@
+body {
+    font-family: 'Roboto', sans-serif !important;
+    background: #F1F0F5;
+}
+
+.volta {
+    float: left;
+    color: #222;
+    padding: 5px 5px 0 0;
+}
+
+.volta:focus, .volta:active {
+    color: #222
+}
+
+textarea:focus {
+    background: #ffffff!important;
+}
+
+.avaliacao-principal ul.horizontal-list>li:nth-last-child(1) {
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.avaliacao-principal ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.titulo {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 2px;
+    margin-bottom: 15px;
+}
+
+
+/* estrela de avaliação */
+.estrelas {
+    padding-top: 1px;
+}
+
+.estrelas input[type=radio] {
+    display: none;
+}
+
+.estrelas label i.material-icons {
+    font-size: 33px;
+    color: {{theme}};
+}
+
+#revision {
+    text-transform: uppercase;
+    font-size: 15px;
+    padding: 0;
+    text-align: center;
+    line-height: 33px;
+}
+
+.estrelas input[type=radio]:checked~label i.material-icons {
+    color: #CCC;
+}
+
+.mt-28 {
+    margin-top: 28px;
+}
+
+.atendimento {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.avalicao-atendimento {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    text-transform: uppercase;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    width: 100%;
+    padding: 10px 0 !important;
+    margin-top: 0;
+}
+
+.sua-avaliacao {
+    margin-bottom: -10px;
+}
+
+.form-control:focus {
+    outline: 0;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+}
