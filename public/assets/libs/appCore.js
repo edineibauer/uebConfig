@@ -927,8 +927,9 @@ async function menuHeader() {
     $("#app").off("click", ".btn-edit-perfil").on("click", ".btn-edit-perfil", function () {
         let entity = (USER.setor === "admin" ? "usuarios" : USER.setor);
         let id = {id: parseInt(USER.setor === "admin" ? USER.id : USER.setorData.id)};
+        let target = $(".main > .container").length ? ".main > .container" : ".main > .core-class-container";
         if (history.state.route !== entity || history.state.type !== "form")
-            pageTransition(entity, 'form', 'forward', ".main > .container", id);
+            pageTransition(entity, 'form', 'forward', target, id);
     }).off("click", ".btn-login").on("click", ".btn-login", function () {
         if (USER.setor != 0)
             logoutDashboard();
