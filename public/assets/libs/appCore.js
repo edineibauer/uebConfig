@@ -239,6 +239,33 @@ function _htmlTemplateJsonDecode(txt, render) {
     return "";
 }
 
+function _htmlTemplateDefaultParam(param) {
+    mergeObject(param, {
+        home: HOME,
+        vendor: VENDOR,
+        favicon: FAVICON,
+        logo: LOGO,
+        theme: THEME,
+        themetext: THEMETEXT,
+        sitename: SITENAME,
+        USER: USER,
+        URL: history.state.param.url,
+        jsonParse: function () {
+            return function(txt, render) {
+                return _htmlTemplateJsonDecode(txt, render);
+            }
+        },
+        jsonDecode: function() {
+            return function(txt, render) {
+                return _htmlTemplateJsonDecode(txt, render);
+            }
+        }
+    });
+    mergeObject(param, SSE);
+
+    return param;
+}
+
 /**
  * Adiciona funções aos elementos jQuery
  * */
@@ -279,33 +306,25 @@ $(function ($) {
      * Renderiza template mustache no elemento
      * @param tpl
      * @param param
-     * @param includeTpls
      * @returns {Promise<void>}
      */
-    $.fn.htmlTemplate = async function (tpl, param, includeTpls, isRefresh) {
-        let templates = await getTemplates();
+    $.fn.htmlTemplate = async function (tpl, param) {
         let $this = this;
-        isRefresh = typeof isRefresh !== "undefined";
-        includeTpls = (typeof includeTpls === "string" ? [includeTpls] : (typeof includeTpls === "object" && includeTpls !== null && includeTpls.constructor === Array ? includeTpls : []));
-        let includes = {};
-        for (let i in includeTpls)
-            includes[includeTpls[i]] = templates[includeTpls[i]];
-
-        if(!sseTemplate.length)
-            sseTemplate = [$this, tpl, includes];
+        let templates = await getTemplates();
+        let isSkeleton = typeof param === "undefined";
+        param = !isSkeleton ? param : [];
+        let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 1;
+        let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
+        templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/" + (isSkeleton ? "loading" : "img") + ".png'\"");
 
         return (async () => {
-            param = typeof param === "object" && param !== null ? param : [];
-            let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
-            let isSkeleton = isEmpty(param);
-            let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 1;
 
             /**
-             * If not defined param, so check skeleton
+             * Se for skeleton, create the skeleton style
              */
             if (isSkeleton) {
                 /**
-                 * Find arrays
+                 * Find arrays to create loop skeleton
                  */
                 let loo = templateTpl.split("{{#");
                 if (loo.length) {
@@ -349,74 +368,27 @@ $(function ($) {
                     }
                     templateTpl += loo[loo.length - 1];
                 }
-
-                /**
-                 * Image error back to loading png default
-                 */
-                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/loading.png'\"");
-
-            } else {
-                /**
-                 * Image error set default img
-                 */
-                templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/img.png'\"");
             }
 
-            mergeObject(param, {
-                home: HOME,
-                vendor: VENDOR,
-                favicon: FAVICON,
-                logo: LOGO,
-                theme: THEME,
-                themetext: THEMETEXT,
-                sitename: SITENAME,
-                USER: USER,
-                URL: history.state.param.url,
-                jsonParse: function () {
-                    return function(txt, render) {
-                        return _htmlTemplateJsonDecode(txt, render);
-                    }
-                },
-                jsonDecode: function() {
-                    return function(txt, render) {
-                        return _htmlTemplateJsonDecode(txt, render);
-                    }
-                }
-            });
-            mergeObject(param, SSE);
+            param = _htmlTemplateDefaultParam(param);
+            if(!isSkeleton)
+                mergeObject(param, SSE);
 
             let $contentDb = $("<div>" + templateTpl + "</div>").find("[data-db]:not([data-template])");
             let $contentGet = $("<div>" + templateTpl + "</div>").find("[data-get]:not([data-template])");
-            let $content = $("<div>" + Mustache.render(templateTpl, param, includes) + "</div>");
+            let $content = $("<div>" + Mustache.render(templateTpl, param, templates) + "</div>");
+            let $templatesToRenderInside = $content.find("[data-template]");
 
-            if(isRefresh) {
-                /**
-                 * First Compile templates inside the base template
-                 */
-                let $templatesToRenderInside = $content.find("[data-template]");
-                if($templatesToRenderInside.length) {
-                    await new Promise(async s => {
-                        $templatesToRenderInside.each(async function () {
-                            let $this = $(this);
-                            let results = [];
-
-                            if($this.hasAttr("data-get"))
-                                results = await AJAX.get($this.data("get"));
-                            else if($this.hasAttr("data-db"))
-                                results = await $this.dbExeRead();
-
-                            s($this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results: {home: HOME})));
-                        });
-                    });
-                }
-
-            } else if (isSkeleton) {
+            /**
+             * If skeleton, so compile templates inside as skeleton
+             */
+            if (isSkeleton) {
                 $content.find("[data-skeleton='1']").addClass("skeleton");
 
                 /**
-                 * Await Compile templates inside the base template to render all together
+                 * Await Compile templates inside as skeleton
+                 * to render all templates together
                  */
-                let $templatesToRenderInside = $content.find("[data-template]");
                 if($templatesToRenderInside.length) {
                     await new Promise(async s => {
                         $templatesToRenderInside.each(async function () {
@@ -425,52 +397,61 @@ $(function ($) {
                     });
                 }
 
+                /**
+                 * Finish render template skeleton
+                 * add the result to the html element
+                 * and next, go to load data template
+                 */
                 $this.html($content);
-
-                /**
-                 * Find data declaration on DOM attr to load on template and replace skeleton
-                 */
-                if($templatesToRenderInside.length) {
-                    $templatesToRenderInside.each(async function () {
-                        let $this = $(this);
-                        if($this.hasAttr("data-get")) {
-                            let results = await AJAX.get($this.data("get"));
-                            if(!isEmpty(results))
-                                $this.htmlTemplate($this.data("template"), results, includeTpls, !0);
-                        } else if($this.hasAttr("data-db")) {
-                            let results = await $this.dbExeRead();
-                            if(!isEmpty(results))
-                                $this.htmlTemplate($this.data("template"), results, includeTpls, !0);
-                        }
-                    });
-                }
-
-                /**
-                 * Find data-get and data-db to read data without have a db-template
-                 * @type {*|jQuery|HTMLElement}
-                 */
-                if($contentDb.length) {
-                    $contentDb.each(async function(i, e) {
-                        let $this = $content.find("[data-db]:not([data-template])").eq(i);
-                        let results = await $this.dbExeRead();
-                        if(!isEmpty(results))
-                            $this.htmlTemplate($(e).html(), results, includeTpls, !0);
-                    });
-
-                }
-                if($contentGet.length) {
-                    $contentGet.each(async function(i, e) {
-                        let $this = $content.find("[data-get]:not([data-template])").eq(i);
-                        let results = await AJAX.get($this.data("get"));
-                        if(!isEmpty(results))
-                            $this.htmlTemplate($(e).html(), results, includeTpls, !0);
-                    });
-                }
             }
 
-            if(!isSkeleton) {
+            /**
+             * Find data declaration on DOM attr
+             * load the data on template and replace skeleton after
+             */
+            if($templatesToRenderInside.length) {
+                $templatesToRenderInside.each(function () {
+                    let $this = $(this);
+                    if($this.hasAttr("data-get")) {
+                        AJAX.get($this.data("get")).then(results => {
+                            $this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results : {home: HOME}));
+                        });
+                    } else if($this.hasAttr("data-db")) {
+                        $this.dbExeRead().then(results => {
+                            $this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results : {home: HOME}));
+                        });
+                    } else if(!isSkeleton) {
+                        $this.htmlTemplate($this.data("template"), {home: HOME});
+                    }
+                });
+            }
+
+            /**
+             * Find data-get and data-db to read data without have a db-template
+             * @type {*|jQuery|HTMLElement}
+             */
+            if($contentDb.length) {
+                $contentDb.each(function(i, e) {
+                    let $this = $content.find("[data-db]:not([data-template])").eq(i);
+                    $this.dbExeRead().then(results => {
+                        $this.htmlTemplate($(e).html(), (!isEmpty(results) ? results : {home: HOME}));
+                    })
+                });
+            }
+
+            if($contentGet.length) {
+                $contentGet.each(function(i, e) {
+                    let $this = $content.find("[data-get]:not([data-template])").eq(i);
+                    AJAX.get($this.data("get")).then(results => {
+                        $this.htmlTemplate($(e).html(), (!isEmpty(results) ? results : {home: HOME}));
+                    });
+                });
+            }
+
+            if (!isSkeleton) {
                 /**
                  * await for load images on content before change the content
+                 * Await load images to not flickering
                  */
                 let awaitImagesLoad = [];
                 $content.find("img").each(function() {
@@ -479,22 +460,34 @@ $(function ($) {
                 $content.find("[style*='background-image']").each(function() {
                     awaitImagesLoad.push($(this).css("background-image").replace('url(', '').replace(')', '').replace("'", '').replace("'", '').replace('"', '').replace('"', ''));
                 });
+                await imagesPreload(awaitImagesLoad);
 
                 /**
-                 * Await load images to not flickering
+                 * add content as hidden
                  */
-                await imagesPreload(awaitImagesLoad);
                 $this.append($content.addClass("loadingImagesPreview").css({"visibility": "hidden", "position": "fixed"}));
+
+                /**
+                 * Await the content insert on DOM (load)
+                 */
                 setTimeout(function () {
+                    /**
+                     * Remove the old content
+                     */
                     $this.children().not(".loadingImagesPreview").remove();
                     $this.contents().filter(function(){
                         return (this.nodeType == 3);
                     }).remove();
+
+                    /**
+                     * Show new content
+                     */
                     $content.css({"visibility": "visible", "position": "relative"}).removeClass("loadingImagesPreview");
                 }, 500);
 
                 /**
-                 * Função que permite adicionar value para um select field
+                 * Função especial que permite adicionar value para um select field
+                 * no render de templates
                  */
                 $content.find("select").each(function () {
                     if ($(this).hasAttr("value"))
@@ -2016,15 +2009,18 @@ function openInstallAppPrompt(force) {
  */
 async function imagesPreload(imagesList) {
     let loadAll = [];
-    for(let image of imagesList) {
-        loadAll.push(new Promise(s => {
-            let img = new Image();
-            img.onload = function () {
-                s(1);
-            };
-            img.src = image;
-        }));
-
+    if(!isEmpty(imagesList)) {
+        for (let image of imagesList) {
+            if(!isEmpty(image)) {
+                loadAll.push(new Promise(s => {
+                    let img = new Image();
+                    img.onload = function () {
+                        s(1);
+                    };
+                    img.src = image;
+                }));
+            }
+        }
     }
     return Promise.all(loadAll);
 }
@@ -2105,7 +2101,6 @@ var URL, app = {
             let g = await AJAX.view(file);
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                    sseTemplate = [];
                     TITLE = g.title;
                     headerShow(g.header);
                     checkMenuActive();
@@ -2122,7 +2117,8 @@ var URL, app = {
                         dbLocal.exeCreate("__template", templates);
                     }
 
-                    await $div.htmlTemplate("<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content);
+                    let htmlTemplate = "<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content;
+                    await $div.htmlTemplate(htmlTemplate);
 
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
@@ -2170,7 +2166,7 @@ var URL, app = {
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
                         await AJAX.get("sseEngineClear");
                         if(typeof sseSourceListeners[file] === "undefined") {
-                            sseSourceListeners[file] = 1;
+                            sseSourceListeners[file] = $div;
                             sseSource.addEventListener(file, function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                     let response = JSON.parse(e.data);
@@ -2197,9 +2193,11 @@ var URL, app = {
                                     /**
                                      * Update Registered Template
                                      */
-                                    sseTemplate[0].htmlTemplate(sseTemplate[1], Object.assign({}, SSE[file]), sseTemplate[2], !0);
+                                    sseSourceListeners[file].htmlTemplate(htmlTemplate, {home: HOME});
                                 }
                             }, !1);
+                        } else {
+                            sseSourceListeners[file] = $div;
                         }
                     }
 
@@ -2689,7 +2687,6 @@ function storeUser() {
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
-var sseTemplate = [];
 var sseSource = {};
 const sseSourceListeners = {};
 const sseEvents = {};
