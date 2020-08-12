@@ -9,7 +9,7 @@
 
                     localStorage.removeItem('update');
                     checkUpdate().then(() => {
-                        location.href = HOME + "dashboard";
+                        location.href = HOME;
                     })
                 } else {
                     toast("Senha inválida", 2000, "toast-warning");

@@ -2748,7 +2748,7 @@ async function sseStart() {
         /**
          * Notificações pendentes show badge
          */
-        sseAdd("updateNotificationsBadge", async function(data) {
+        sseAdd("notificationsBadge", async function(data) {
             if (USER.setor !== 0) {
                 if(data !== "0") {
                     /**
