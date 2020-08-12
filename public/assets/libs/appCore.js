@@ -1528,43 +1528,6 @@ async function setNotificationOpen(id) {
     db.exeCreate("notifications_report", {id: id, abriu: 1});
 }
 
-/**
- * Verifica se tem notificações pendentes
- * @returns {Promise<void>}
- */
-async function updateNotificationsBadge() {
-    if ($("#core-header-nav-bottom").find("a[href='notificacoes']").length && USER.setor !== 0) {
-        if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
-            let notefications = new EventSource(SERVER + "get/event/notifications_badge", {withCredentials: true});
-            notefications.onmessage = function (event) {
-                $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
-                pendentes = event.data;
-
-                /**
-                 * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
-                 */
-                if (pendentes !== "0")
-                    $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
-            };
-        } else {
-            setInterval(function () {
-                let pendentes = 0;
-                db.exeRead("notifications_report").then(notifications => {
-                    $("#core-header-nav-bottom").find("a[href='notificacoes']").find(".badge-notification").remove();
-                    if (!isEmpty(notifications)) {
-                        for (let i in notifications) {
-                            if (notifications[i].recebeu === 0)
-                                pendentes++
-                        }
-                        if (pendentes !== 0)
-                            $("#core-header-nav-bottom").find("a[href='notificacoes']").append("<span class='badge-notification'>" + pendentes + "</span>");
-                    }
-                });
-            }, 3000);
-        }
-    }
-}
-
 async function closeNote(id, notification) {
 
     /**
@@ -2745,40 +2708,6 @@ function storeUser() {
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
-async function updatedPerfil() {
-    if (navigator.onLine) {
-        if (typeof (EventSource) !== "undefined" && HOME !== "" && HOME === SERVER) {
-            let u = new EventSource(SERVER + "get/event/updatePerfil/maestruToken/" + USER.token, {withCredentials: true});
-            u.onmessage = function (event) {
-                if (typeof event.data === "string" && event.data !== "" && isJson(event.data)) {
-                    USER = JSON.parse(event.data);
-                    storeUser();
-                }
-            };
-        } else {
-            setInterval(function () {
-                AJAX.getUrl(SERVER + "get/event/updatePerfilAjax").then(u => {
-                    if (u.data !== "" && typeof u.data === "string" && isJson(u.data)) {
-                        USER = JSON.parse(u.data);
-                        storeUser();
-                    }
-                });
-            }, 3000);
-        }
-    } else {
-        let checkUpdatePerfilOffline = setInterval(function () {
-            if (navigator.onLine) {
-                clearInterval(checkUpdatePerfilOffline);
-                updatedPerfil();
-            }
-        }, 2000);
-    }
-}
-
-/**
- * Get user profile in server to update local
- * @returns {Promise<void>}
- */
 var sseTemplate = [];
 var sseSource = {};
 const sseSourceListeners = {};
@@ -2814,6 +2743,26 @@ async function sseStart() {
         sseAdd("updatePerfil", function(data) {
             USER = data;
             storeUser();
+        });
+
+        /**
+         * Notificações pendentes show badge
+         */
+        sseAdd("updateNotificationsBadge", async function(data) {
+            if (USER.setor !== 0) {
+                if(data !== "0") {
+                    /**
+                     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+                     */
+                    let $navbarNotify = $("#core-header-nav-bottom").find("a[href='notificacoes']");
+                    if ($navbarNotify.length && !$navbarNotify.find(".badge-notification").length)
+                        $navbarNotify.append("<span class='badge-notification'>" + data + "</span>");
+
+                    $(".badge-notification").html(data);
+                } else {
+                    $(".badge-notification").remove();
+                }
+            }
         });
     }
 }
@@ -2924,15 +2873,6 @@ async function onLoadDocument() {
     $(".core-open-menu").off("click").on("click", function () {
         toggleSidebar();
     });
-
-    /**
-     * Busca notificações pendentes
-     */
-    if (USER.setor !== 0) {
-        let allow = await dbLocal.exeRead("__allow", 1);
-        if (allow.notifications_report && allow.notifications_report.read)
-            await updateNotificationsBadge();
-    }
 }
 
 async function startApplication() {
@@ -2944,7 +2884,6 @@ async function startApplication() {
     await onLoadDocument();
 
     await (!localStorage.accesscount ? firstAccess() : thenAccess());
-    // await updatedPerfil();
 
     if (localStorage.accesscount === "1") {
 
