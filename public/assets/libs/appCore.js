@@ -1528,7 +1528,7 @@ async function setNotificationOpen(id) {
     db.exeCreate("notifications_report", {id: id, abriu: 1});
 }
 
-async function closeNote(id, notification) {
+async function closeNote(id) {
 
     /**
      * Deleta card de notificação
@@ -1542,26 +1542,7 @@ async function closeNote(id, notification) {
     /**
      * Deleta notification report
      */
-    await db.exeDelete("notifications_report", id);
-
-    /**
-     * Revisa os badge para atualizar as notificações pendentes
-     */
-    $(".badge-notification").each(function (i, e) {
-        let n = parseInt($(e).text());
-        if (n === 1)
-            $(e).remove();
-        else
-            $(e).text(n - 1);
-    });
-
-    /**
-     * Check if some notification report use the notification
-     * case not, delete notification not used
-     */
-    let note = await getJSON(SERVER + "app/find/notifications_report/notificacao/" + notification);
-    if (isEmpty(note.notifications_report))
-        await db.exeDelete("notifications", notification);
+    db.exeDelete("notifications_report", id);
 }
 
 function getNotche(side) {
