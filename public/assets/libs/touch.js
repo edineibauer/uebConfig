@@ -12,7 +12,7 @@ class TouchTrack {
         this.minBound = 70;
         this.tracking = !1;
         this.ignoreQueryElements = ignoreQueryElements || [];
-        this.translateY = $el.css("transform") === "none" ? 0 : parseInt($el.css("transform").replace("matrix(1, 0, 0, 1, 0, ", "").replace(")", ""));
+        this.translateY = typeof $el.css("transform") === "undefined" || $el.css("transform") === "none" ? 0 : parseInt($el.css("transform").replace("matrix(1, 0, 0, 1, 0, ", "").replace(")", ""));
         this.translateYStart = null;
         this.distancia = distancia;
         this.distanciaAlvo = distanciaAlvo;

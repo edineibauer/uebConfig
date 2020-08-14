@@ -239,8 +239,16 @@ function _htmlTemplateJsonDecode(txt, render) {
     return "";
 }
 
-function _htmlTemplateDefaultParam(param) {
-    mergeObject(param, {
+/**
+ *
+ * @param bool isSkeleton
+ * @param object param
+ * @returns {[]}
+ * @private
+ */
+function _htmlTemplateDefaultParam(isSkeleton, param) {
+    let p = [];
+    mergeObject(p, {
         home: HOME,
         vendor: VENDOR,
         favicon: FAVICON,
@@ -261,9 +269,13 @@ function _htmlTemplateDefaultParam(param) {
             }
         }
     });
-    mergeObject(param, SSE);
 
-    return param;
+    mergeObject(p, SSE);
+
+    if(!isSkeleton)
+        mergeObject(p, param);
+
+    return p;
 }
 
 /**
@@ -311,68 +323,90 @@ $(function ($) {
     $.fn.htmlTemplate = async function (tpl, param) {
         let $this = this;
         let templates = await getTemplates();
-        let isSkeleton = typeof param === "undefined";
-        param = !isSkeleton ? param : [];
+        let isSkeleton = typeof param === "undefined" || isEmpty(param);
+        param = _htmlTemplateDefaultParam(isSkeleton, param);
         let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 1;
         let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
         templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/" + (isSkeleton ? "loading" : "img") + ".png'\"");
 
         return (async () => {
-
             /**
              * Se for skeleton, create the skeleton style
              */
             if (isSkeleton) {
-                /**
-                 * Find arrays to create loop skeleton
-                 */
-                let loo = templateTpl.split("{{#");
-                if (loo.length) {
-                    param = [];
-                    for (let i in loo) {
-                        if (i > 0) {
-                            let p = loo[i].split("}}")[0];
-                            if (p === ".") {
-                                for (let e = 0; e < loop; e++)
-                                    param.push([]);
-                            } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
-                                let vp = [];
-
-                                for (let e = 0; e < loop; e++)
-                                    vp.push({});
-
-                                mergeObject(param, createObjectWithStringDotNotation(p, vp));
-                            }
-                        }
-                    }
-                }
 
                 /**
                  * Find content to add class skeleton
                  */
                 loo = templateTpl.split("{{");
                 if (loo.length) {
-                    templateTpl = "";
+                    let novotemplateTpl = "";
+                    let awaitUntil = "";
                     for (let i in loo) {
                         if (i > 0) {
-                            let p = loo[i];
+                            let p = loo[i].split("}}")[0].replace("{", "").trim();
                             let a = loo[i - 1];
-                            if (/(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
+
+                            /**
+                             * Check if is waiting for a loop ends
+                             */
+                            if(awaitUntil !== "") {
+                                if(p === awaitUntil)
+                                    awaitUntil = "";
+
+                                novotemplateTpl += a + "{{";
+                                continue;
+                            }
+
+                            /**
+                             * Check if is a loop
+                             */
+                            if(/^#/.test(p)) {
+                                p = p.replace("#", "");
+                                if((p === "." && !isEmpty(param)) || typeof getObjectDotNotation(param, p) !== "undefined") {
+
+                                    /**
+                                     * If is a loop and have the variable declared on param,
+                                     * so render this and ignore skeleton
+                                     */
+                                    awaitUntil = "/" + p;
+                                    novotemplateTpl += a + "{{";
+                                    continue;
+                                } else {
+
+                                    /**
+                                     * Create a array empty to loop into skeleton struct
+                                     */
+                                    if (p === ".") {
+                                        for (let e = 0; e < loop; e++)
+                                            param.push([]);
+                                    } else if (!/(^is\w+|\.is\w+|ativo|status|active)/.test(p)) {
+                                        let vp = [];
+
+                                        for (let e = 0; e < loop; e++)
+                                            vp.push({});
+
+                                        mergeObject(param, createObjectWithStringDotNotation(p, vp));
+                                    }
+                                }
+                            }
+
+                            /**
+                             * Var not exist on param, so add skeleton
+                             */
+                            if(typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
                                 if (/>[\w$\s]*$/.test(a))
                                     a = a.replace(/>[\w$\s]*$/, " data-skeleton='1'>");
                                 else if (/ src=("|')$/.test(a))
                                     a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
                             }
-                            templateTpl += a + "{{";
+
+                            novotemplateTpl += a + "{{";
                         }
                     }
-                    templateTpl += loo[loo.length - 1];
+                    templateTpl = novotemplateTpl + loo[loo.length - 1];
                 }
             }
-
-            param = _htmlTemplateDefaultParam(param);
-            if(!isSkeleton)
-                mergeObject(param, SSE);
 
             let $contentDb = $("<div>" + templateTpl + "</div>").find("[data-db]:not([data-template])");
             let $contentGet = $("<div>" + templateTpl + "</div>").find("[data-get]:not([data-template])");
@@ -465,7 +499,8 @@ $(function ($) {
                 /**
                  * add content as hidden
                  */
-                $this.append($content.addClass("loadingImagesPreview").css({"visibility": "hidden", "position": "fixed"}));
+                let height = $this.children().first().innerHeight()*-1;
+                $this.append($content.addClass("loadingImagesPreview").css({"margin-top": height + "px"}));
 
                 /**
                  * Await the content insert on DOM (load)
@@ -482,8 +517,8 @@ $(function ($) {
                     /**
                      * Show new content
                      */
-                    $content.css({"visibility": "visible", "position": "relative"}).removeClass("loadingImagesPreview");
-                }, 500);
+                    $content.css({"margin-top": 0}).removeClass("loadingImagesPreview");
+                }, 10);
 
                 /**
                  * Função especial que permite adicionar value para um select field
