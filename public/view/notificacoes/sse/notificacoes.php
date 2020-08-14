@@ -12,6 +12,6 @@ if($sql->getResult()) {
         $item['data'] = substr($d[1], 0, 5) . "\n" . $dd[2] . "/" . $dd[1] . "/" . $dd[0];
         $item['imagem'] = !empty($item['imagem']) ? json_decode($item['imagem'], !0)[0]['urls']['thumb'] : HOME . "assetsPublic/img/favicon-256.png";
         $data['data'][] = $item;
-        $up->exeUpdate("notifications_report", [], "WHERE id =:id", "id={$item['id']}");
+        $up->exeUpdate("notifications_report", ["recebeu" => 1], "WHERE id =:id", "id={$item['id']}");
     }
 }
