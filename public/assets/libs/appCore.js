@@ -2199,8 +2199,8 @@ var URL, app = {
                      * Register SSE
                      */
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
-                        await AJAX.get("sseEngineClear");
                         if(typeof sseSourceListeners[file] === "undefined") {
+                            await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = $div;
                             sseSource.addEventListener(file, function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
