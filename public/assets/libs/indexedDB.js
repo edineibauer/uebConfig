@@ -370,7 +370,7 @@ class Read {
          * Read local and apply filters
          */
         let results = await dbLocal.exeRead(this.entity, this.id);
-        this.result = this._privateArrayFilterData(results);
+        this.result = (!this.id ? this._privateArrayFilterData(results) : results);
         this.total = this.result.length;
 
         /**
@@ -512,8 +512,6 @@ class Read {
          */
         if (this.limit)
             retorno = retorno.slice(this.offset, (this.offset + this.limit));
-
-        this._clearRead();
 
         return this.result = retorno;
     }

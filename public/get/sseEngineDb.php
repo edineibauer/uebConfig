@@ -78,7 +78,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                 /**
                  * Set the limit result to return to front
                  */
-                $command = "SELECT " . $selects . " {$command}";
+                $command = "SELECT " . $selects . " {$command} ORDER BY id DESC";
 
                 /**
                  * Execute the read command
