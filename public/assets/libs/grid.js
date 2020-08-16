@@ -49,7 +49,7 @@ async function gridTr(identificador, entity, data, fields, info, actions, select
             };
             tr.class = getTrClass(dicionarios[entity][e.column], data[e.column]);
             tr.style = getTrStyle(dicionarios[entity][e.column], data[e.column]);
-            tr.value = await gridTdFilterValue(data[e.column], dicionarios[entity][e.column]);
+            tr.value = await gridTdFilterValue(data[e.column], data['relationData'], dicionarios[entity][e.column]);
             gridContent.fields.push(tr);
         }
     }
@@ -79,7 +79,7 @@ function getTrClass(meta, value) {
     return ""
 }
 
-async function gridTdFilterValue(value, meta) {
+async function gridTdFilterValue(value, relationData, meta) {
     if (typeof meta !== "undefined") {
         value = !isEmpty(value) ? value : "";
         if (['select', 'radio'].indexOf(meta.format) > -1) {
@@ -97,8 +97,7 @@ async function gridTdFilterValue(value, meta) {
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
-            let data = await db.exeRead(meta.relation, value);
-            return getRelevantTitle(meta.relation, data, 1, !1)
+            return getRelevantTitle(meta.relation, relationData[meta.column], 1, !1)
         } else {
             value = applyFilterToTd(value, meta)
         }
@@ -242,16 +241,8 @@ function gridCrud(entity, fields, actions) {
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
                 result = await reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
-                let read = new Read();
-                read.setFilter($this.search);
-                read.setOrderColumn($this.order);
-                read.setLimit($this.limit);
-                read.setOffset(offset -1);
-                if ($this.orderPosition)
-                    read.setOrderReverse();
-
-                await read.exeRead(entity);
-                result = {data: read.getResult(), length: read.getTotal()};
+                result = await db.exeRead(entity, $this.search, $this.limit, offset, $this.order, $this.orderPosition);
+                result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             }
 
             let info = await dbLocal.exeRead("__info", 1);

@@ -360,15 +360,6 @@ class Read {
             toast("entidade não existe na função de leitura", 3000, "toast-warning");
 
         /**
-         * Se o navegador estiver sem conexão com a internet, ou
-         * se a leitura for em uma tabela de sincronização ou se
-         * for em uma tabela de controle de dados,
-         * então lê somente os registros locais do navegador.
-         */
-        if (!navigator.onLine || /^(sync_|__)/.test(this.entity))
-            return this._privateArrayFilterData(await dbLocal.exeRead(this.entity, this.id));
-
-        /**
          * Caso não esteja trabalhando com dados locais indexedDB
          * então realiza a leitura dos dados online
          */
@@ -376,16 +367,22 @@ class Read {
             return this._privateExeReadOnline();
 
         /**
-         * Primeiro, baixa os dados da entidade, caso não tenha feito isso ainda,
-         * atualizando a base local com os registros do back-end
+         * Read local and apply filters
          */
-        await _dbRemote.syncDownload(this.entity);
+        let results = await dbLocal.exeRead(this.entity, this.id);
+        this.result = this._privateArrayFilterData(results);
+        this.total = this.result.length;
 
         /**
-         * Primeiro tenta verificar se uma busca local é suficiente
+         * Se o navegador estiver sem conexão com a internet, ou
+         * se a leitura for em uma tabela de sincronização ou se
+         * for em uma tabela de controle de dados,
+         * então lê somente os registros locais do navegador.
          */
-        this.result = await dbLocal.exeRead(this.entity, this.id);
-        this.total = this.result.length;
+        if (!navigator.onLine || /^(sync_|__)/.test(this.entity)) {
+            this._clearRead();
+            return this.result;
+        }
 
         /**
          * Se estiver procurando um ID em específico
@@ -393,7 +390,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id) {
-            if(!isEmpty(this.result)) {
+            if(this.result.length === 1) {
                 this._clearRead();
                 return this.result;
             }
@@ -403,27 +400,25 @@ class Read {
 
         /**
          * Se tiver um limit de registros estabelecido então verifica
-         * se o número de registros retornado é menor que o limit, retorna os registros
-         * se o limit for maior que o LIMITOFFLINE, então lê registros online
-         * se o limit for maior, então retorna somente a quantidade desejada
+         * se o número de resultados forem menor que o limit e se tiver mais registros online, então lê online
          */
-        let maxOffline = LIMITOFFLINE + (await dbLocal.keys("sync_" + this.entity)).length;
-        if (this.limit)
-            return (this.total < maxOffline ? this._privateArrayFilterData(this.result) : this._privateExeReadOnline());
+        if (this.limit) {
+            if(this.total < this.limit && results.length >= LIMITOFFLINE)
+                return this._privateExeReadOnline();
 
+            this._clearRead();
+            return this.result;
+        }
         /**
-         * Caso não tenha determinado um limit para minha consulta
-         * e a lista de registros retornadas é igual ao meu limite de
-         * registros offline, então busca online para verificar se
-         * existe mais registros no back-end que não estão no front-end
+         * Caso não tenha determinado um limit, e se tiver mais registros online,
+         * então lê online e retorna todos os registros
+         * senão retorna registros locais
          */
-        if (this.total === maxOffline)
+        if(results.length >= LIMITOFFLINE)
             return this._privateExeReadOnline();
 
-        /**
-         * Retorna leitura local caso não tenha limit estabelecido e o número de registros não seja o máximo
-         */
-        return this._privateArrayFilterData(this.result);
+        this._clearRead();
+        return this.result;
     }
 
     /**

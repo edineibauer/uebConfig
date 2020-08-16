@@ -3,7 +3,7 @@ $setor = \Config\Config::getSetor();
 $data['data'] = [];
 
 $content = [
-    "allow" => \Config\Config::getPermission()[$setor] ?? [],
+    "allow" => \Config\Config::getPermission($setor) ?? [],
     "dicionario" => \Entity\Entity::dicionario(null, !0),
     "info" => \Entity\Entity::info(),
     "template" => [],
@@ -12,7 +12,8 @@ $content = [
     "react" => [],
     "relevant" => [],
     "general" => [],
-    "graficos" => []
+    "graficos" => [],
+    "totalRegisters" => [],
 ];
 
 include 'templates.php';
@@ -35,5 +36,8 @@ $content['general'] = $data['data'];
 
 include 'graficos.php';
 $content['graficos'] = $data['data'];
+
+foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userTotalRegisterDB/{$_SESSION['userlogin']['id']}") as $item)
+    $content['totalRegisters'][str_replace(".json", "", $item)] = file_get_contents(PATH_HOME . "_cdn/userTotalRegisterDB/{$_SESSION['userlogin']['id']}/{$item}");
 
 $data['data'] = $content;

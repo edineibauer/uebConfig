@@ -43,9 +43,9 @@ if (!empty($_SESSION['userlogin'])) {
     /**
      * @param string $view
      * @param array $messages
-     * @param array $messagesData
+     * @param array|null $messagesData
      */
-    function returnMessagesSSE(string $view, array $messages, array $messagesData) {
+    function returnMessagesSSE(string $view, array $messages, array $messagesData = null) {
         $content = [];
         foreach ($messages as $event => $message) {
             if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json")) {

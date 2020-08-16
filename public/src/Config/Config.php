@@ -229,7 +229,7 @@ class Config
 
             //convert true string para true boolean
             if (is_array($file)) {
-                if (!empty($setor)) {
+                if (!empty($setor) || $setor == 0) {
                     $file = self::checkPermissionValues($file[$setor] ?? []);
                 } else {
                     if (is_array($file)) {
@@ -276,16 +276,16 @@ class Config
         if (empty($permissoes[$entity]))
             return !1;
 
-        if (in_array("read", $options) && !$permissoes[$entity]['read'])
+        if (in_array("read", $options) && (!isset($permissoes[$entity]['read']) || !$permissoes[$entity]['read']))
             return !1;
 
-        if (in_array("create", $options) && !$permissoes[$entity]['create'])
+        if (in_array("create", $options) && (!isset($permissoes[$entity]['create']) || !$permissoes[$entity]['create']))
             return !1;
 
-        if (in_array("update", $options) && !$permissoes[$entity]['update'])
+        if (in_array("update", $options) && (!isset($permissoes[$entity]['update']) || !$permissoes[$entity]['update']))
             return !1;
 
-        if (in_array("delete", $options) && !$permissoes[$entity]['delete'])
+        if (in_array("delete", $options) && (!isset($permissoes[$entity]['delete']) || !$permissoes[$entity]['delete']))
             return !1;
 
         return !0;

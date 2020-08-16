@@ -1632,6 +1632,7 @@ function clearIndexedDbGets() {
     clear.push(dbLocal.clear('__react'));
     clear.push(dbLocal.clear('__relevant'));
     clear.push(dbLocal.clear('__general'));
+    clear.push(dbLocal.clear('__totalRegisters'));
 
     return Promise.all(clear);
 }
@@ -1667,7 +1668,8 @@ async function getIndexedDbGets() {
     await dbLocal.exeCreate('__react', r['react']);
     await dbLocal.exeCreate('__relevant', r['relevant']);
     await dbLocal.exeCreate('__general', r['general']);
-    return dbLocal.exeCreate('__graficos', r['graficos']);
+    await dbLocal.exeCreate('__graficos', r['graficos']);
+    return dbLocal.exeCreate('__totalRegisters', r['totalRegisters']);
 }
 
 /**
