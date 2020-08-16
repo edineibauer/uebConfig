@@ -2753,6 +2753,24 @@ async function sseStart() {
             }
         }, !1);
 
+        /**
+         * Listen for database local updates
+         */
+        sseSource.addEventListener('db', function (e) {
+            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+                let sseData = JSON.parse(e.data);
+                if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
+                    for (let entity in sseData) {
+                        dbLocal.clear(entity);
+                        if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
+                            for (let registro of sseData[entity])
+                                dbLocal.exeCreate(entity, registro);
+                        }
+                    }
+                }
+            }
+        }, !1);
+
         sseAdd("updatePerfil", function(data) {
             USER = data;
             storeUser();
