@@ -49,7 +49,7 @@ async function gridTr(identificador, entity, data, fields, info, actions, select
             };
             tr.class = getTrClass(dicionarios[entity][e.column], data[e.column]);
             tr.style = getTrStyle(dicionarios[entity][e.column], data[e.column]);
-            tr.value = await gridTdFilterValue(data[e.column], data['relationData'], dicionarios[entity][e.column]);
+            tr.value = await gridTdFilterValue(data[e.column], data['relationData'] ?? [], dicionarios[entity][e.column]);
             gridContent.fields.push(tr);
         }
     }
@@ -97,7 +97,7 @@ async function gridTdFilterValue(value, relationData, meta) {
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
-            return getRelevantTitle(meta.relation, relationData[meta.column], 1, !1)
+            return getRelevantTitle(meta.relation, relationData[meta.column] ?? [], 1, !1)
         } else {
             value = applyFilterToTd(value, meta)
         }
