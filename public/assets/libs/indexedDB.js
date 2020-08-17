@@ -483,8 +483,11 @@ class Read {
                 /**
                  * Se o registro passou pelos filtros, então adiciona a lista de retorno
                  */
-                if (passou)
-                    retorno.push(_getDefaultValues(this.entity, reg));
+                if (passou) {
+                    let registro = _getDefaultValues(this.entity, reg);
+                    registro.relationData = reg.relationData;
+                    retorno.push(registro);
+                }
             }
         } else {
             retorno = data;
@@ -570,8 +573,11 @@ class Read {
                         this.result.push(Object.assign({db_status: !1}, _getDefaultValues(entity, s)));
                 }
 
-                for (let e of results.data)
-                    this.result.push(_getDefaultValues(entity, e));
+                for (let e of results.data) {
+                    let registro = _getDefaultValues(entity, e);
+                    registro.relationData = e.relationData;
+                    this.result.push(registro);
+                }
 
                 this._clearRead();
 
