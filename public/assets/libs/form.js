@@ -584,10 +584,14 @@ async function getInputsTemplates(form, parent, col) {
          * remove status field
          * Social login remove password fields
          */
-        let isEditingMyPerfilSocial = (USER.login_social === "2" || USER.login_social === "1") && USER.setor === form.entity && form.id == USER.setorData.id;
-        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin") || meta.format === "status" || (isEditingMyPerfilSocial && meta.format === "password"))
+        let isEditingMyPerfil = USER.setor === form.entity && form.id == USER.setorData.id;
+        let myPerfilIsSocial = isEditingMyPerfil && (USER.login_social === "2" || USER.login_social === "1");
+        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin") || (isEditingMyPerfil && meta.format === "status") || (myPerfilIsSocial && meta.format === "password"))
             continue;
 
+        /**
+         * Check if have to show this field
+         */
         if ((isEmpty(form.fields) && isEmpty(col)) || (!isEmpty(form.fields) && form.fields.indexOf(meta.column) > -1) || (!isEmpty(col) && col === meta.column)) {
             let metaInput = Object.assign({}, meta);
             metaInput.parent = parent;
@@ -596,20 +600,26 @@ async function getInputsTemplates(form, parent, col) {
             metaInput.valueLenght = (metaInput.isNumeric && isNumber(metaInput.minimo) ? metaInput.minimo : metaInput.value.length);
             metaInput.isFull = metaInput.valueLenght === metaInput.size;
             metaInput.disabled = isNumberPositive(form.id) && !metaInput.update;
+
             if (!isEmpty(metaInput.default) && metaInput.default.length > 7)
                 metaInput.default = Mustache.render(metaInput.default, {
                     vendor: VENDOR,
                     home: HOME,
-                    version: VERSION
+                    version: VERSION,
+                    USER: USER,
+                    URL: URL
                 });
+
             metaInput = getExtraMeta(form.identificador, form.entity, metaInput);
+
             if (metaInput.format === "password") {
                 metaInput.value = "";
-                metaInput.nome = "Nova Senha"
+                metaInput.nome = "Definir nova senha"
             }
-            if (typeof metaInput.form !== "object")
-                metaInput.form = {};
+
+            metaInput.form = (typeof metaInput.form !== "object" ? {} : metaInput.form);
             metaInput.form.class = (!isEmpty(metaInput.form.class) ? metaInput.form.class : "") + (typeof meta.form.display !== "undefined" && !meta.form.display ? " hide" : "");
+
             if (metaInput.format === "extend") {
                 let p = position;
                 promessas.push(getInputsTemplates({
@@ -620,7 +630,8 @@ async function getInputsTemplates(form, parent, col) {
                 }, parent + "." + meta.column).then(inp => {
                     metaInput.inputs = inp;
                     inputs.splice(p, 0, Mustache.render(templates[metaInput.form.input], metaInput))
-                }))
+                }));
+
             } else if (typeof templates[metaInput.form.input] === "string") {
                 let file_source = "";
                 switch (metaInput.format) {
@@ -644,13 +655,19 @@ async function getInputsTemplates(form, parent, col) {
                     })
                 }
 
+                /**
+                 * Include JS and CSS defined on input type metadados
+                 */
                 let jsContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.js) ? "<script src='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.js + ".js'></script>" : "");
                 let cssContent = (!isEmpty(metaInput.lib) && !isEmpty(metaInput.css) ? "<link rel='stylesheet' href='" + HOME + VENDOR + metaInput.lib + "/public/assets/" + metaInput.css + ".css'>" : "");
+
                 inputs.splice(position, 0, Mustache.render(templates[metaInput.form.input], metaInput, {file_source: templates[file_source]}) + jsContent + cssContent);
             }
+
             position++
         }
     }
+
     return Promise.all(promessas).then(d => {
         return inputs
     })
@@ -661,17 +678,13 @@ async function loadEntityData(entity, id) {
     let data = await db.exeRead(entity, id);
 
     if (!isEmpty(data)) {
-        $.each(data, function (col, value) {
-            if (typeof dicionarios[entity][col] === 'object' && dicionarios[entity][col] !== null) {
-                let meta = dicionarios[entity][col];
-                if (typeof meta !== "undefined" && meta.format !== "information" && meta.key !== "identifier") {
-                    dados[col] = _getDefaultValue(meta, value)
-                }
-            }
-        })
+        for(let col in data) {
+            if (typeof dicionarios[entity][col] === 'object' && dicionarios[entity][col] !== null && dicionarios[entity][col].format !== "information" && dicionarios[entity][col].key !== "identifier")
+                dados[col] = _getDefaultValue(dicionarios[entity][col], data[col])
+        }
     }
 
-    return dados;
+    return [dados, data.relationData];
 }
 
 function getExtraMeta(identificador, entity, meta) {
@@ -682,12 +695,14 @@ function getExtraMeta(identificador, entity, meta) {
     meta.multiples = meta.size && meta.size > 1;
     meta.allow.empty = typeof meta.allow.options === "object" && $.isEmptyObject(meta.allow.options);
     meta.required = meta.default === !1;
+
     if (meta.group === "select") {
         $.each(meta.allow.options, function (i, e) {
             e.formIdentificador = identificador;
             if (meta.format === "checkbox")
                 meta.allow.options[i].isChecked = (meta.value && (meta.value == e.valor || ($.isArray(meta.value) && (meta.value.indexOf(parseInt(e.valor)) > -1 || meta.value.indexOf(e.valor.toString()) > -1)) || (isJson(meta.value) && $.isArray(JSON.parse(meta.value)) && (JSON.parse(meta.value).indexOf(parseInt(e.valor)) > -1 || JSON.parse(meta.value).indexOf(e.valor.toString()) > -1)))); else meta.allow.options[i].isChecked = (meta.value && meta.value == e.valor)
         })
+
     } else if (meta.format === "extend_folder" || meta.format === "extend_mult" && !isEmpty(meta.value) && meta.value.constructor === Array && meta.value.length) {
         $.each(meta.value, function (i, e) {
             if (typeof e.columnStatus === "undefined") {
@@ -699,6 +714,7 @@ function getExtraMeta(identificador, entity, meta) {
             }
         })
     }
+
     return meta
 }
 
