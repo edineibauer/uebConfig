@@ -390,7 +390,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id) {
-            if(this.result.length === 1) {
+            if(!isEmpty(this.result)) {
                 this._clearRead();
                 return this.result;
             }
@@ -609,47 +609,22 @@ const db = {
         return this.exeCreate(entity, dados, sync);
 
     }, async exeCreate(entity, dados, sync) {
-        if (SERVICEWORKER) {
-            sync = typeof sync === "undefined" ? !0 : sync;
-            dados.id = isNumberPositive(dados.id) ? parseInt(dados.id) : 0;
-            let idAction = _getIdAction(entity, dados.id);
-            let react = dbLocal.exeRead("__react");
-            return Promise.all([idAction, react]).then(r => {
-                dados.id = r[0][0];
-                dados.db_status = !1;
-                let action = r[0][1];
-                react = r[1];
-                return dbLocal.exeCreate(entity, dados).then(dadosCreated => {
-                    dados.db_action = action;
-                    return dbLocal.insert("sync_" + entity, dados, dados.id).then(syncCreated => {
-                        if (sync) {
-                            return _dbRemote.syncPost(entity, dados.id).then(syncReturn => {
 
-                                /**
-                                 * Se tiver algum erro no back e for um novo registro, desfaz excluindo o registro recém criado.
-                                 */
-                                if (syncReturn[0].db_errorback !== 0 && action === "create") {
-                                    dbLocal.exeDelete(entity, dadosCreated);
-                                    dbLocal.exeDelete("sync_" + entity, syncCreated);
-                                }
+        let result = "";
+        if(navigator.onLine) {
+            result = await AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)});
 
-                                return syncReturn;
-                            });
-                        }
-
-                        return [Object.assign({db_errorback: 0}, dados)];
-                    });
-                }).then(dados => {
-                    dados = dados[0];
-                    if (dados.db_errorback === 0 && typeof react !== "undefined" && typeof react[0] !== "undefined" && typeof react[0][entity] !== "undefined" && typeof react[0][entity][action] !== "undefined")
-                        eval(react[0][entity][action]);
-
-                    return dados;
-                });
-            })
-        } else {
-            return dbSendData(entity, dados, (typeof dados.id === "undefined" || isNaN(dados.id) || dados.id < 1 ? "create" : "update"));
+        } else if (SERVICEWORKER) {
+            /**
+             * Work offline
+             * Put the request on syncDB to send after
+             */
+            dbLocal.exeCreate("syncDB", {entity: entity, dados: dados});
+            result = await dbLocal.exeCreate(entity, dados);
         }
+
+        return {data: result, response: (isNumberPositive(result) ? 1 : 0)};
+
     }, async exeDelete(entity, id) {
         let ids = [];
         let allDelete = [];

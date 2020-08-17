@@ -156,6 +156,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
         checkRules(form.entity, column, value);
     }
     history.state.param.data = form.data;
+    history.state.param.dataRelation = form.dataRelation;
     history.replaceState(history.state, null, HOME + app.route);
 
 }).off("click", ".remove-file-gallery").on("click", ".remove-file-gallery", function () {
@@ -388,13 +389,14 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
         id: "",
         data: {},
         dataOld: {},
+        dataRelation: [],
         error: {},
         inputs: [],
         funcao: "",
         parent: typeof parent === "string" && typeof parentColumn === "string" ? parent : "",
         parentColumn: typeof parentColumn === "string" ? parentColumn : "",
         store: typeof store === "undefined" || ["false", "0", 0, false].indexOf(store) === -1 ? 1 : 0,
-        reloadAfterSave: !0,
+        reloadAfterSave: !1,
         header: !0,
         modified: !1,
         saved: !0,
@@ -411,28 +413,14 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 return ucFirst(replaceAll(replaceAll(render(text), "_", " "), "-", " "));
             }
         },
-        getShow: function () {
-            this.loading = !0
-            let action = isNumberPositive(this.id) ? "update" : "create";
-            return permissionToAction(this.entity, action).then(have => {
-                if (have) {
-                    return getTemplates().then(templates => {
-                        return Mustache.render(templates.form, this)
-                    })
-                } else {
-                    return "<h2 class='form-control col align-center padding-32 color-text-gray-dark'>Sem Permissão para " + (action === "update" ? "Atualizar" : "Adicionar") + "</h2>"
-                }
-            })
-        },
         setData: async function (dados) {
             let $this = this;
             let dicionario = dicionarios[$this.entity];
-            if (!isEmpty(dicionario)) {
 
+            if (!isEmpty(dicionario)) {
                 $.each(dados, function (col, value) {
                     if (col === "id") {
-                        $this.id = (isNumberPositive(value) ? parseInt(value) : "");
-                        $this.data.id = parseInt($this.id);
+                        $this.id = $this.data.id = (isNumberPositive(value) ? parseInt(value) : "");
                     } else if (typeof dicionario[col] === "object") {
                         $this.data[col] = _getDefaultValue(dicionario[col], value)
                     }
@@ -467,7 +455,9 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
             let loadData = $this.data;
             if (isNumberPositive(id)) {
                 $this.id = parseInt(id);
-                loadData = await loadEntityData(this.entity, id)
+                loadData = await loadEntityData(this.entity, id);
+                $this.dataRelation = loadData[1];
+                loadData = loadData[0];
             } else if (isEmpty($this.data)) {
                 $this.id = "";
                 loadData = await _getDefaultValues(this.entity);
@@ -486,7 +476,20 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                 this.loading = !1;
             }
         },
-        save: function (showMessages, destroy) {
+        getShow: function () {
+            this.loading = !0
+            let action = isNumberPositive(this.id) ? "update" : "create";
+            return permissionToAction(this.entity, action).then(have => {
+                if (have) {
+                    return getTemplates().then(templates => {
+                        return Mustache.render(templates.form, this)
+                    })
+                } else {
+                    return "<h2 class='form-control col align-center padding-32 color-text-gray-dark'>Sem Permissão para " + (action === "update" ? "Atualizar" : "Adicionar") + "</h2>"
+                }
+            })
+        },
+        save: async function (showMessages, destroy) {
             showMessages = typeof showMessages === "undefined" || ["false", "0", 0, false].indexOf(showMessages) === -1;
             let form = this;
 
@@ -495,78 +498,69 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 
             setFormSaveStatus(form);
 
-            return validateForm(form.identificador).then(validado => {
+            return validateForm(form.identificador).then(async validado => {
                 if (validado) {
-                    return saveInternalForm().then(() => {
+                    await saveInternalForm();
+
+                    /**
+                     * Obtém dados do formulário
+                     * */
+                    let dados = Object.assign({}, form.data);
+                    dados.id = (isNumberPositive(form.id) ? form.id : dados.id);
+
+                    form.saved = !0;
+                    if (form.store) {
+                        let dbCreate = await db.exeCreate(form.entity, dados);
+
+                        setFormSaveStatus(form, 1);
 
                         /**
-                         * Obtém dados do formulário
-                         * */
-                        let dados = Object.assign({}, form.data);
-                        if (isNumberPositive(form.id))
-                            dados.id = form.id;
-
-                        form.saved = !0;
-                        if (form.store) {
-                            return db.exeCreate(form.entity, dados).then(syncData => {
-                                let error = syncData.db_errorback;
-                                delete syncData.db_errorback;
-
-                                let pp = [];
-                                pp.push(callback());
-
-                                let id = parseInt(dados.id);
-                                if (error === 0) {
-                                    if (form.id === "" || (typeof syncData.id_old !== "undefined" && parseInt(form.id) === parseInt(syncData.id_old))) {
-                                        syncData.id = parseInt(syncData.id);
-                                        id = syncData.id;
-                                        if (form.id === "" && isNumberPositive(syncData.id_old) && parseInt(syncData.id_old) !== parseInt(syncData.id))
-                                            dbLocal.exeDelete(form.entity, syncData.id_old);
-                                        delete (syncData.id_old);
-                                        delete (syncData.db_action);
-                                        form.setData(syncData);
-                                    }
-
-                                    form.id = id;
-                                    return Promise.all(pp).then(() => {
-                                        return (form.reloadAfterSave ? form.show(id) : !0)
-                                    })
-                                } else {
-                                    privateFormSetError(form, syncData, showMessages, destroy);
-                                }
-                            }).then(() => {
-                                if (typeof history.state.param.column !== "undefined")
-                                    history.back();
-                            })
+                         * Show errors on form
+                         */
+                        if(!dbCreate.response) {
+                            privateFormSetError(form, dbCreate.data, showMessages, destroy);
 
                         } else {
 
-                            if (typeof form.id === "undefined" || isNaN(form.id) || form.id < 1)
-                                form.id = form.data.id = Date.now();
+                            /**
+                             * Show success
+                             */
+                            if (showMessages)
+                                toast("Salvo", 2000, 'toast-success');
 
-                            getRelevantTitle(form.entity, form.data).then(title => {
-                                form.data.columnTituloExtend = title;
-                                form.data.columnName = history.state.param.column;
-                                form.data.columnRelation = form.entity;
-                                form.data.columnStatus = {column: '', have: !1, value: !1};
-                            }).then(() => {
-
-                                callback();
+                            /**
+                             * Recarrega formulário ou volta
+                             */
+                            if(!form.reloadAfterSave)
                                 history.back();
-                            });
                         }
 
-                    }).then(() => {
-                        setFormSaveStatus(form, 1);
+                    } else {
 
-                        if (showMessages)
-                            toast("Salvo", 2000, 'toast-success');
-                    });
+                        /**
+                         * Cria novo id para o novo registro
+                         */
+                        if (typeof form.id === "undefined" || isNaN(form.id) || form.id < 1)
+                            form.id = form.data.id = Date.now();
+
+                        form.data.columnTituloExtend = await getRelevantTitle(form.entity, form.data);
+                        form.data.columnName = history.state.param.column;
+                        form.data.columnRelation = form.entity;
+                        form.data.columnStatus = {column: '', have: !1, value: !1};
+
+                        if (typeof form.funcao === "function")
+                            await form.funcao();
+
+                        history.back();
+                    }
+
                 } else {
                     privateFormSetError(form, form.error, showMessages, destroy);
                     return 1
                 }
             }).catch(e => {
+                toast("Erro ao salvar formulário.", 2000, 'toast-error');
+                console.log(e);
             })
         },
         destroy: function () {
@@ -768,24 +762,25 @@ function loadMask(form) {
     $form.find("input").on("click focus", function () {
         $(this).removeAttr("readonly")
     });
+
     $.each($form.find(".list"), function () {
-        let v = $(this).data("value");
+        let value = (!isEmpty(form.dataRelation[$(this).attr("id")]) ? form.dataRelation[$(this).attr("id")] : $(this).data("value"));
         let parent = $(this).attr('data-parent').replace(form.entity + ".", "").replace(form.entity, "");
-        if (isNumber(v))
-            addListSetTitle(form, $(this).data("entity"), $(this).data("column"), parent, $(this).attr('data-value'), $(this).parent())
+        addListSetTitle(form, $(this).data("entity"), $(this).data("column"), parent, value, $(this).parent());
     });
+
     checkUserOptions();
     clearMarginFormInput();
     loadFolderDrag();
     $form.find("input[type='text'].formCrudInput, input[type='tel'].formCrudInput, input[type='number'].formCrudInput").trigger("change");
 
-    /*$(document).bind('keydown', function(e) {
+    $(document).bind('keydown', function(e) {
         if(e.ctrlKey && (e.which === 83)) {
             e.preventDefault();
             form.save();
             return false;
         }
-    });*/
+    });
 }
 
 function loadFolderDrag() {
@@ -828,49 +823,58 @@ async function addListSetTitle(form, entity, column, parent, id, $input) {
         let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
         formData[column] = id;
         let data = await db.exeRead(entity, id);
-        if (!isEmpty(data)) {
+        if (!isEmpty(data))
+            setInputFormatListValue(form, entity, column, data, $input);
 
-            let point = ".";
-            $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
-            let intt = setInterval(function () {
-                $input.find("input[type='text']").val("carregando valor " + point);
-                point = (point === "." ? ".." : (point === ".." ? "..." : "."))
-            }, 300);
-
-            let title = await getRelevantTitle(entity, data);
-
-            clearInterval(intt);
-            $input.siblings(".btn").find(".list-btn-icon").html("edit");
-            $input.siblings(".btn").find("div").html("editar");
-            $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
-                "padding": "10px 2px 4px",
-                "margin-bottom": "20px"
-            }).html(title);
-
-            $input.siblings(".list-remove-btn").remove();
-            let dicionario = dicionarios[form.entity];
-            if (isNaN(form.id) || dicionario[column].update)
-                $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
-        }
+    } else if(typeof id === "object" && id !== null && id.constructor === Object && isNumberPositive(id.id)) {
+        let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
+        formData[column] = id.id;
+        setInputFormatListValue(form, entity, column, id, $input);
     }
 }
 
-function addRegisterAssociation(entity, column) {
+async function setInputFormatListValue(form, entity, column, data, $input) {
+    let point = ".";
+    $input.find("input[type='text']").prop("disabled", !0).val("carregando valor");
+    let intt = setInterval(function () {
+        $input.find("input[type='text']").val("carregando valor " + point);
+        point = (point === "." ? ".." : (point === ".." ? "..." : "."))
+    }, 300);
+
+    let title = await getRelevantTitle(entity, data);
+
+    clearInterval(intt);
+    $input.siblings(".btn").find(".list-btn-icon").html("edit");
+    $input.siblings(".btn").find("div").html("editar");
+    $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
+        "padding": "10px 2px 4px",
+        "margin-bottom": "20px"
+    }).html(title);
+
+    $input.siblings(".list-remove-btn").remove();
+    let dicionario = dicionarios[form.entity];
+    if (isNaN(form.id) || dicionario[column].update)
+        $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
+}
+
+async function addRegisterAssociation(entity, column) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
     history.state.param.data = Object.assign({id: form.id}, form.data);
+    history.state.param.dataRelation = Object.assign({}, form.dataRelation);
     history.replaceState(history.state, null, HOME + app.route);
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
     if (isNumber(form.data[column])) {
-        db.exeRead(entity, parseInt(form.data[column])).then(data => {
-            if (data)
-                pageTransition(entity, "form", "forward", "#dashboard", {
-                    data: data,
-                    parent: entity,
-                    column: column,
-                    store: !0,
-                    identificador: identificadorExtend
-                }); else toast("Registro não encontrado", 2500, "toast-warning")
-        })
+        let data = await db.exeRead(entity, parseInt(form.data[column]));
+        if (data)
+            pageTransition(entity, "form", "forward", "#dashboard", {
+                data: data,
+                parent: entity,
+                column: column,
+                store: !0,
+                identificador: identificadorExtend
+            });
+        else
+            toast("Registro não encontrado", 2500, "toast-warning")
     } else {
         pageTransition(entity, "form", "forward", "#dashboard", {
             parent: entity,
@@ -910,6 +914,7 @@ function addRegisterRelation(entity, column) {
         let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
         history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
         history.state.param.data = Object.assign({id: form.id}, form.data);
+        history.state.param.dataRelation = Object.assign({}, form.dataRelation);
         history.state.param.modified = form.modified;
         history.replaceState(history.state, null, HOME + app.route);
         pageTransition(entity, "form", "forward", "#dashboard", {
@@ -930,6 +935,7 @@ function editRegisterRelation(entity, column, id) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
     history.state.param.data = Object.assign({id: form.id}, form.data);
+    history.state.param.dataRelation = Object.assign({}, form.dataRelation);
     history.state.param.modified = form.modified;
     history.replaceState(history.state, null, HOME + app.route);
     let data = {};
@@ -956,6 +962,7 @@ function editFormRelation(entity, column) {
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 2};
     history.state.param.modified = form.modified;
     history.state.param.data = Object.assign({id: form.id}, form.data);
+    history.state.param.dataRelation = Object.assign({}, form.dataRelation);
     history.replaceState(history.state, null, HOME + app.route);
 
     if (typeof form.data[column] === "object" && form.data[column] !== null && form.data[column].constructor === Array && form.data[column].length && typeof form.data[column][0] === "object")

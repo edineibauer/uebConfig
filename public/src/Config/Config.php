@@ -229,7 +229,7 @@ class Config
 
             //convert true string para true boolean
             if (is_array($file)) {
-                if (!empty($setor) || $setor == 0) {
+                if (!empty($setor) || $setor === 0 || $setor === "0") {
                     $file = self::checkPermissionValues($file[$setor] ?? []);
                 } else {
                     if (is_array($file)) {

@@ -2457,6 +2457,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             let parentColumn = typeof param === "object" && typeof param.column === "string" ? param.column : null;
             let store = typeof param.store === "undefined" || ["false", "0", 0, false].indexOf(param.store) === -1 ? 1 : 0;
             let data = (typeof param === "object" && typeof param.data === "object" && !isEmpty(param.data) ? param.data : {});
+            let relationData = typeof history.state.param.dataRelation !== "undefined" ? history.state.param.dataRelation : [];
 
             if (!isEmpty(id))
                 data.id = id;
@@ -2492,6 +2493,9 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             let isUpdateFormRelation = !1;
 
             if (haveFormRelation) {
+                relationData[history.state.param.openForm.column] = form.data;
+                relationData[history.state.param.openForm.column].id = form.id;
+
                 if (history.state.param.openForm.tipo === 1) {
                     if (dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
                         data[history.state.param.openForm.column] = form.id;
@@ -2541,6 +2545,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                  * */
                 form = formCrud(history.state.route, $page, parent, parentColumn, store, identificador);
 
+                form.dataRelation = relationData;
                 if (!isEmpty(data) && (Object.keys(data).length > 1 || typeof data.id === "undefined")) {
                     form.setData(data);
                     id = "";
@@ -2549,12 +2554,9 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                 /**
                  * Back form after save if is in grid view
                  */
-                if(isGridView) {
-                    form.setFuncao(function () {
-                        if(formNotHaveError(form.error))
-                            history.back();
-                    });
-                }
+                if(!isGridView)
+                    form.setReloadAfterSave(!1);
+
                 form.show(id);
 
                 if (haveFormRelation || history.state.param.modified) {
