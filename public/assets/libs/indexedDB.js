@@ -537,53 +537,23 @@ class Read {
         let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
         let search = !isEmpty(this.filter) ? convertCompareStringToFilter(this.filter) : null;
 
-        return new Promise(function (r) {
-            AJAX.post("load/entity", {
-                entity: entity,
-                id: id,
-                filter: search,
-                order: columnOrder,
-                reverse: orderReverse,
-                limit: limit,
-                offset: offset,
-                historic: null
-            }).then(result => {
-                if (!isEmpty(result))
-                    r(result);
+        let results = await reportRead(entity, search, null, null, null, null, null, null, columnOrder, orderReverse, limit, offset);
+        this.result = [];
+        this.total = results.length;
 
-                r({data: [], total: 0});
-            }).catch(() => {
-                r({result: [], total: 0});
-            });
-        }).then(results => {
-            if (id) {
-                this.result = _getDefaultValues(entity, results.data[0]);
-                this.total = 1;
-                this._clearRead();
-                return this.result;
+        if (id) {
+            this.result = _getDefaultValues(entity, results.data[0]);
+            this.total = 1;
+        } else {
+            for(let registro of results.data) {
+                let reg = _getDefaultValues(entity, registro);
+                reg.relationData = registro.relationData ?? [];
+                this.result.push(reg);
             }
+        }
 
-            this.result = [];
-            this.total = results.total;
-
-            return dbLocal.exeRead("sync_" + entity).then(syncs => {
-                if (!isEmpty(syncs)) {
-                    this.total += syncs.length;
-                    for (let s of syncs.reverse())
-                        this.result.push(Object.assign({db_status: !1}, _getDefaultValues(entity, s)));
-                }
-
-                for (let e of results.data) {
-                    let registro = _getDefaultValues(entity, e);
-                    registro.relationData = e.relationData;
-                    this.result.push(registro);
-                }
-
-                this._clearRead();
-
-                return this.result;
-            });
-        })
+        this._clearRead();
+        return this.result;
     }
 
     _clearRead() {
