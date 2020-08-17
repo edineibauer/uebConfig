@@ -610,20 +610,25 @@ const db = {
 
     }, async exeCreate(entity, dados) {
 
+        let response = 1;
         let result = "";
         if(navigator.onLine) {
             result = await AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)});
+            response = (typeof result.id !== "undefined" && isNumberPositive(result.id) ? 1 : 0);
+            if(response)
+                await dbLocal.exeCreate(entity, result);
 
         } else if (SERVICEWORKER) {
             /**
              * Work offline
              * Put the request on syncDB to send after
              */
-            dbLocal.exeCreate("_syncDB", {entity: entity, dados: dados});
+            dbLocal.exeCreate("syncDB", {entity: entity, dados: dados});
             result = await dbLocal.exeCreate(entity, dados);
+            response = (typeof result.id !== "undefined" && isNumberPositive(result.id) ? 1 : 0);
         }
 
-        return {data: result, response: (isNumberPositive(result) ? 1 : 0)};
+        return {data: result, response: response};
 
     }, async exeDelete(entity, id) {
         let ids = [];
