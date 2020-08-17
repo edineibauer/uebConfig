@@ -1263,24 +1263,18 @@ function loadSyncNotSaved() {
     });
 }
 
-function clearCacheUser() {
+async function clearCacheUser() {
     let clear = [];
     localStorage.removeItem("accesscount");
 
     /**
      * Sobe pendências para o servidor e limpa base local
      */
-    for (let entity in dicionarios) {
-        clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
-            if (!d.length)
-                return;
+    let syncData = await dbLocal.exeRead("_syncDB");
+    if(!isEmpty(syncData))
+        await AJAX.post("up/sync", syncData);
 
-            AJAX.post("up/sync", {entity: entity, dados: d});
-            return dbLocal.clear("sync_" + entity)
-        }).then(() => {
-            return dbLocal.clear(entity);
-        }));
-    }
+    dbLocal.clear("_syncDB");
 
     return Promise.all(clear).then(() => {
         return clearIndexedDbGets().then(() => {
@@ -1301,25 +1295,18 @@ function clearCacheUser() {
     })
 }
 
-function clearCacheAll() {
+async function clearCacheAll() {
     localStorage.removeItem('update');
     localStorage.removeItem('accesscount');
 
     /**
      * Sobe pendências para o servidor e limpa base local
      */
-    let clear = [];
-    for (let entity in dicionarios) {
-        clear.push(dbLocal.exeRead("sync_" + entity).then(d => {
-            if (!d.length)
-                return;
+    let syncData = await dbLocal.exeRead("_syncDB");
+    if(!isEmpty(syncData))
+        await AJAX.post("up/sync", syncData);
 
-            AJAX.post("up/sync", {entity: entity, dados: d});
-            return dbLocal.clear("sync_" + entity)
-        }).then(() => {
-            return dbLocal.clear(entity);
-        }));
-    }
+    dbLocal.clear("_syncDB");
 
     return clearIndexedDbGets().then(() => {
         if (!SERVICEWORKER)
@@ -2493,8 +2480,26 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             let isUpdateFormRelation = !1;
 
             if (haveFormRelation) {
-                relationData[history.state.param.openForm.column] = form.data;
-                relationData[history.state.param.openForm.column].id = form.id;
+
+                /**
+                 * Update the actual register relation Data
+                 */
+                let dataOnRelation = form.data;
+                dataOnRelation.id = form.id;
+                relationData[history.state.param.openForm.column] = dataOnRelation;
+
+                /**
+                 * Check for same relation in others registers to update
+                 */
+                let allRegisters = await dbLocal.exeRead(history.state.route);
+                if(!isEmpty(allRegisters)) {
+                    for (let reg of allRegisters) {
+                        if(reg[history.state.param.openForm.column] == form.id) {
+                            reg.relationData[history.state.param.openForm.column] = dataOnRelation;
+                            dbLocal.exeCreate(history.state.route, reg);
+                        }
+                    }
+                }
 
                 if (history.state.param.openForm.tipo === 1) {
                     if (dicionarios[history.state.route][history.state.param.openForm.column].type === "int") {
@@ -2760,12 +2765,12 @@ async function sseStart() {
         /**
          * Listen for database local updates
          */
-        sseSource.addEventListener('db', function (e) {
+        sseSource.addEventListener('db', async function (e) {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
                 if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
                     for (let entity in sseData) {
-                        dbLocal.clear(entity);
+                        await dbLocal.clear(entity);
                         if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
                             for (let registro of sseData[entity])
                                 dbLocal.exeCreate(entity, registro);

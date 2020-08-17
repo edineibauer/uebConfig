@@ -780,7 +780,7 @@ function loadMask(form) {
     });
 
     $.each($form.find(".list"), function () {
-        let value = (!isEmpty(form.dataRelation[$(this).attr("id")]) ? form.dataRelation[$(this).attr("id")] : $(this).data("value"));
+        let value = (typeof form.dataRelation !== "undefined" && typeof form.dataRelation[$(this).attr("id")] !== "undefined" && !isEmpty(form.dataRelation[$(this).attr("id")]) ? form.dataRelation[$(this).attr("id")] : $(this).data("value"));
         let parent = $(this).attr('data-parent').replace(form.entity + ".", "").replace(form.entity, "");
         addListSetTitle(form, $(this).data("entity"), $(this).data("column"), parent, value, $(this).parent());
     });

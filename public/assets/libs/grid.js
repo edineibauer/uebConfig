@@ -205,6 +205,8 @@ function gridCrud(entity, fields, actions) {
         filterAggroupMenor: [],
         historic: 0,
         filterTotal: -1,
+        loadingTimer: null,
+        loadingHtml: "",
         actions: actions || {autor: !1, create: !0, update: !0, delete: !0, status: !0},
         fields: fields || [],
         goodName: function () {
@@ -230,6 +232,22 @@ function gridCrud(entity, fields, actions) {
             let $this = this;
             $this.readData()
         },
+        loading: function() {
+            let $this = this;
+            if(!$this.$element.find(".tr-loading").length) {
+                $this.$element.find(".table-all").css("opacity", ".5");
+                $this.loadingHtml = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertBefore($this.$element.find(".table-all"));
+                $this.loadingHtml.loading();
+                $this.loadingTimer = setInterval(function () {
+                    $this.loadingHtml.loading()
+                }, 2000);
+            }
+        },
+        clearLoading: function() {
+            this.loadingHtml.remove();
+            this.$element.find(".table-all").css("opacity", 1);
+            clearInterval(this.loadingTimer);
+        },
         readData: async function () {
             clearHeaderScrollPosition();
             let $this = this;
@@ -247,12 +265,7 @@ function gridCrud(entity, fields, actions) {
 
             let info = await dbLocal.exeRead("__info", 1);
             let templates = await getTemplates();
-            let $loadingLoading = $("<div class='col tr-loading' style='position: relative;height: 4px;'></div>").insertAfter($this.$element.find(".table-all"));
-
-            $loadingLoading.loading();
-            let loadingContent = setInterval(function () {
-                $loadingLoading.loading()
-            }, 2000);
+            $this.loading();
 
             if ($this.$content.find(".table-select:checked").length > 0) {
                 $.each($this.$content.find(".table-select:checked"), function (i, e) {
@@ -305,13 +318,11 @@ function gridCrud(entity, fields, actions) {
                         $this.$content.parent().find("thead").addClass("hide");
                         $this.$content.parent().after(Mustache.render(templates.no_registers));
                     }
-                    $loadingLoading.remove();
-                    clearInterval(loadingContent);
+                    $this.clearLoading();
                     $this.posData()
                 })
             } else {
-                $loadingLoading.remove();
-                clearInterval(loadingContent)
+                $this.clearLoading();
             }
         },
         readDataConfigAltered: function (limit) {

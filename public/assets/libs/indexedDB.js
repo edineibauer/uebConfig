@@ -608,7 +608,7 @@ const db = {
     }, async exeUpdate(entity, dados, sync) {
         return this.exeCreate(entity, dados, sync);
 
-    }, async exeCreate(entity, dados, sync) {
+    }, async exeCreate(entity, dados) {
 
         let result = "";
         if(navigator.onLine) {
@@ -619,7 +619,7 @@ const db = {
              * Work offline
              * Put the request on syncDB to send after
              */
-            dbLocal.exeCreate("syncDB", {entity: entity, dados: dados});
+            dbLocal.exeCreate("_syncDB", {entity: entity, dados: dados});
             result = await dbLocal.exeCreate(entity, dados);
         }
 
