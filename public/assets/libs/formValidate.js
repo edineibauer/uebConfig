@@ -88,7 +88,7 @@ function permissionToChange(entity, data) {
         let id = parseInt(USER.id);
         if (typeof info[entity].autor === "number" && info[entity].autor === 1 && isNumberPositive(data.id)) {
             return db.exeRead(entity, data.id).then(dados => {
-                return typeof dados.autorpub === "number" && dados.autorpub === id;
+                return !isEmpty(dados) && typeof dados[0].autorpub === "number" && dados[0].autorpub === id;
             })
         } else {
             return !0;

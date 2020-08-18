@@ -1216,7 +1216,7 @@ function getRelevantTitle(entity, data, limit, etiqueta) {
                     if (count < limit && typeof data[e.column] !== "undefined" && data[e.column] !== null) {
                         if (e.format === "list") {
                             pp.push(db.exeRead(e.relation, parseInt(data[e.column])).then(d => {
-                                return getRelevantTitle(e.relation, d, 1, etiqueta).then(ff => {
+                                return getRelevantTitle(e.relation, (!isEmpty(d) ? d[0] : null), 1, etiqueta).then(ff => {
                                     field += ff
                                 })
                             }))

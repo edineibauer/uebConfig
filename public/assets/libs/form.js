@@ -678,13 +678,14 @@ async function loadEntityData(entity, id) {
     let data = await db.exeRead(entity, id);
 
     if (!isEmpty(data)) {
-        for(let col in data) {
+        for(let col in data[0]) {
             if (typeof dicionarios[entity][col] === 'object' && dicionarios[entity][col] !== null && dicionarios[entity][col].format !== "information" && dicionarios[entity][col].key !== "identifier")
-                dados[col] = _getDefaultValue(dicionarios[entity][col], data[col])
+                dados[col] = _getDefaultValue(dicionarios[entity][col], data[0][col])
         }
+        return [dados, data[0].relationData];
     }
 
-    return [dados, data.relationData];
+    return [{}, []];
 }
 
 function getExtraMeta(identificador, entity, meta) {
@@ -840,7 +841,7 @@ async function addListSetTitle(form, entity, column, parent, id, $input) {
         formData[column] = id;
         let data = await db.exeRead(entity, id);
         if (!isEmpty(data))
-            setInputFormatListValue(form, entity, column, data, $input);
+            setInputFormatListValue(form, entity, column, data[0], $input);
 
     } else if(typeof id === "object" && id !== null && id.constructor === Object && isNumberPositive(id.id)) {
         let formData = (parent !== "" ? fetchFromObject(form.data, parent) : form.data);
@@ -881,9 +882,9 @@ async function addRegisterAssociation(entity, column) {
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
     if (isNumber(form.data[column])) {
         let data = await db.exeRead(entity, parseInt(form.data[column]));
-        if (data)
+        if (!isEmpty(data))
             pageTransition(entity, "form", "forward", "#dashboard", {
-                data: data,
+                data: data[0],
                 parent: entity,
                 column: column,
                 store: !0,
