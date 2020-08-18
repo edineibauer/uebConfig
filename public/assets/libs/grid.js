@@ -203,7 +203,6 @@ function gridCrud(entity, fields, actions) {
         filterAggroupMedia: [],
         filterAggroupMaior: [],
         filterAggroupMenor: [],
-        historic: 0,
         filterTotal: -1,
         loadingTimer: null,
         loadingHtml: "",
@@ -259,12 +258,13 @@ function gridCrud(entity, fields, actions) {
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
                 result = await reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
-                result = await db.exeRead(entity, $this.search, $this.limit, offset, $this.order, $this.orderPosition);
+                result = await db.exeRead(entity, {"*": $this.search}, $this.limit, offset, $this.order, $this.orderPosition);
                 result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             }
 
             let info = await dbLocal.exeRead("__info", 1);
             let templates = await getTemplates();
+
             $this.loading();
 
             if ($this.$content.find(".table-select:checked").length > 0) {
@@ -275,10 +275,6 @@ function gridCrud(entity, fields, actions) {
 
             $(".table-info-result").remove();
             $this.$content.parent().find("thead").removeClass("hide");
-
-            dbLocal.exeRead('__historic', 1).then(hist => {
-                $this.historic = hist[$this.entity]
-            });
 
             if (typeof info !== "undefined") {
                 let totalFormated = "";

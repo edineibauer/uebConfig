@@ -48,149 +48,270 @@ async function dbSendData(entity, dados, action) {
     });
 }
 
-/**
- * Converte modelo de comparação usado na função CompareString
- * para modelo usado nos filtros de tabela no back-end
- *
- * @param search
- * @returns {[]}
- */
-function convertCompareStringToFilter(search) {
+function _filterReport(entity, info, filters, isOrOperator) {
+    isOrOperator = typeof isOrOperator !== "undefined" && isOrOperator;
 
+    let grupos = [];
     let filter = [];
-    /**
-     * Para cada filtro, aplica em cima de cada registro
-     */
-    for (let column in search) {
-        /**
-         * Se a coluna for um corringa, então aplica em cima de todas as colunas do registro
-         */
-        if (column === "*") {
-            filter.push({operator: "por", column: column.replace(/^\d+/, ""), value: search[column]});
-        } else {
 
-            let searchValor = !isEmpty(search[column]) ? search[column].toString().toLowerCase().trim() : "";
+    /**
+     * Foreach filter, build the struct report
+     */
+    for (let column in filters) {
+        column = column.toString().toLowerCase().trim();
+        let searchValor = (!isEmpty(filters[column]) ? (typeof filters[column] === "object" ? filters[column] : filters[column].toString().toLowerCase().trim()) : "");
+
+        /**
+         * New group filter
+         */
+        if ((column === "and" || column === "or" || column === "&&" || column === "||" || (column === "" && typeof searchValor === "object"))) {
+            if (typeof searchValor === "object") {
+                if (!isEmpty(filter)) {
+                    grupos.push({filtros: filter});
+                    filter = [];
+                }
+
+                for(let g of _filterReport(entity, info, searchValor, (column === "or" || column === "||")))
+                    grupos.push(g);
+            }
 
             /**
-             * Se registroValor tiver o valor de searchValor em alguma parte
+             * Se a coluna for um corringa, então aplica a busca em todos os campos
+             * para isso, isola essa busca em um grupo
              */
-            if (/^>/.test(searchValor)) {
-                filter.push({
-                    operator: "maior que",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^>/, "").trim()
-                });
+        } else {
+            let logica = (isOrOperator || /^\|\|/.test(column) ? "or" : "and");
+            isOrOperator = !1;
+            column = (logica === "or" ? column.replace("||", "") : column);
 
-                /**
-                 * Se registroValor tiver o valor de searchValor em alguma parte
-                 */
-            } else if (/^>=/.test(searchValor)) {
-                filter.push({
-                    operator: "maior igual a",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^>=/, "").trim()
-                });
+            if (column === "*" || column === "") {
 
-                /**
-                 * Se registroValor tiver o valor de searchValor em alguma parte
-                 */
-            } else if (/^</.test(searchValor)) {
-                filter.push({
-                    operator: "menor que",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^</, "").trim()
-                });
+                if (!isEmpty(filter)) {
+                    grupos.push({filtros: filter});
+                    filter = [];
+                }
 
-                /**
-                 * Se registroValor tiver o valor de searchValor em alguma parte
-                 */
-            } else if (/^<=/.test(searchValor)) {
-                filter.push({
-                    operator: "menor igual a",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^<=/, "").trim()
-                });
+                if (!isEmpty(info.columns_readable)) {
+                    for (let col of info.columns_readable) {
+                        filter.push({
+                            logica: (isEmpty(filter) ? logica : "or"),
+                            coluna: col,
+                            colunas: JSON.stringify([col]),
+                            operador: "contém",
+                            valor: searchValor.replace(/^%/, "").replace(/%$/, "").trim(),
+                            entidades: JSON.stringify([entity])
+                        });
+                    }
+                }
 
-                /**
-                 * Se registroValor não tiver o valor de searchValor em alguma parte
-                 */
-            } else if (/^!%.+%$/.test(searchValor)) {
-                filter.push({
-                    operator: "não contém",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^!%/, "").replace(/%$/, "").trim()
-                });
+                if (!isEmpty(filter)) {
+                    grupos.push({filtros: filter});
+                    filter = [];
+                }
 
-                /**
-                 * Se registroValor não termina com o mesmo valor que searchValor
-                 */
-            } else if (/^!%.+/.test(searchValor)) {
-                filter.push({
-                    operator: "não termina com",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^!%/, "").trim()
-                });
-
-                /**
-                 * Se registroValor não começa com o mesmo valor que searchValor
-                 */
-            } else if (/^!.+%$/.test(searchValor)) {
-                filter.push({
-                    operator: "não começa com",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/%$/, "").replace(/^!/, "").trim()
-                });
-
-                /**
-                 * Se registroValor tiver o valor de searchValor em alguma parte
-                 */
-            } else if (/^%.+%$/.test(searchValor)) {
-                filter.push({
-                    operator: "contém",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^%/, "").replace(/%$/, "").trim()
-                });
-
-                /**
-                 * Se registroValor termina com o mesmo valor que searchValor
-                 */
-            } else if (/^%.+/.test(searchValor)) {
-                filter.push({
-                    operator: "termina com",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^%/, "").trim()
-                });
-
-                /**
-                 * Se registroValor começa com o mesmo valor que searchValor
-                 */
-            } else if (/.+%$/.test(searchValor)) {
-                filter.push({
-                    operator: "começa com",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/%$/, "").trim()
-                });
-
-                /**
-                 * Se registroValor for diferente de searchValor
-                 */
-            } else if (/^!=*/.test(searchValor)) {
-                filter.push({
-                    operator: "diferente de",
-                    column: column.replace(/^\d+/, ""),
-                    value: searchValor.replace(/^!=*/, "").trim()
-                });
-
-                /**
-                 * Padrão igual a
-                 */
             } else {
-                filter.push({operator: "igual a", column: column.replace(/^\d+/, ""), value: searchValor.trim()});
+
+                let entidades = [entity];
+                let columnGroup = [column];
+                if(/\w+.\w+/.test(column)) {
+                    columnGroup = column.split(".");
+                    column = columnGroup[columnGroup.length -1];
+                    let tempEntity = entity;
+
+                    for(let i in columnGroup) {
+                        if(i < columnGroup.length - 1) {
+                            entidades.push(dicionarios[tempEntity][columnGroup[i]].relation);
+                            tempEntity = dicionarios[tempEntity][columnGroup[i]].relation;
+                        }
+                    }
+                }
+
+                columnGroup = JSON.stringify(columnGroup);
+                entidades = JSON.stringify(entidades);
+
+                /**
+                 * Se registroValor tiver o valor de searchValor em alguma parte
+                 */
+                if (/^>/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "maior que",
+                        valor: searchValor.replace(/^>/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor tiver o valor de searchValor em alguma parte
+                     */
+                } else if (/^>=/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "maior igual a",
+                        valor: searchValor.replace(/^>=/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor tiver o valor de searchValor em alguma parte
+                     */
+                } else if (/^</.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "menor que",
+                        valor: searchValor.replace(/^</, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor tiver o valor de searchValor em alguma parte
+                     */
+                } else if (/^<=/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "menor igual a",
+                        valor: searchValor.replace(/^<=/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor não tiver o valor de searchValor em alguma parte
+                     */
+                } else if (/^!%.+%$/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "não contém",
+                        valor: searchValor.replace(/^!%/, "").replace(/%$/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor não termina com o mesmo valor que searchValor
+                     */
+                } else if (/^!%.+/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "não termina com",
+                        valor: searchValor.replace(/^!%/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor não começa com o mesmo valor que searchValor
+                     */
+                } else if (/^!.+%$/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "não começa com",
+                        valor: searchValor.replace(/%$/, "").replace(/^!/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor tiver o valor de searchValor em alguma parte
+                     */
+                } else if (/^%.+%$/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "contém",
+                        valor: searchValor.replace(/^%/, "").replace(/%$/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor termina com o mesmo valor que searchValor
+                     */
+                } else if (/^%.+/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "termina com",
+                        valor: searchValor.replace(/^%/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor começa com o mesmo valor que searchValor
+                     */
+                } else if (/.+%$/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "começa com",
+                        valor: searchValor.replace(/%$/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Se registroValor for diferente de searchValor
+                     */
+                } else if (/^!=*/.test(searchValor)) {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "diferente de",
+                        valor: searchValor.replace(/^!=*/, "").trim(),
+                        entidades: entidades
+                    });
+
+                    /**
+                     * Padrão igual a
+                     */
+                } else {
+                    filter.push({
+                        logica: logica,
+                        coluna: column,
+                        colunas: columnGroup,
+                        operador: "igual a",
+                        valor: searchValor.trim(),
+                        entidades: entidades
+                    });
+                }
             }
         }
     }
 
-    return filter;
+    if (!isEmpty(filter))
+        grupos.push({filtros: filter});
+
+    return grupos;
+}
+
+/**
+ * Converte modelo de comparação usado na função CompareString
+ * para modelo usado nos filtros de tabela no back-end
+ *
+ * @param entity
+ * @param filter
+ * @returns {Promise<[]|*[]>}
+ */
+async function convertStringToFilter(entity, filters) {
+    let info = await dbLocal.exeRead("__info", 1);
+
+    if (isEmpty(filters) || typeof info[entity] === "undefined" || isEmpty(info[entity]))
+        return [{tipo: "select", tipoColumn: "", grupos: []}];
+
+    info = info[entity];
+
+    return [{tipo: "select", tipoColumn: "", grupos: _filterReport(entity, info, filters)}];
 }
 
 /**
@@ -339,7 +460,7 @@ class Read {
     async exeRead(entity, id, limit, offset, order, orderReverse) {
         this.setEntity(entity);
 
-        if(isNumberPositive(id))
+        if (isNumberPositive(id))
             this.setId(id);
         else
             this.setFilter(id);
@@ -348,7 +469,7 @@ class Read {
         this.setOffset(offset);
         this.setOrderColumn(order);
 
-        if(typeof orderReverse !== "undefined")
+        if (typeof orderReverse !== "undefined")
             this.setOrderReverse();
 
         this.result = [];
@@ -390,7 +511,7 @@ class Read {
          * então retorna, senão busca no no back-end
          */
         if (this.id) {
-            if(!isEmpty(this.result)) {
+            if (!isEmpty(this.result)) {
                 this._clearRead();
                 return this.result;
             }
@@ -403,18 +524,19 @@ class Read {
          * se o número de resultados forem menor que o limit e se tiver mais registros online, então lê online
          */
         if (this.limit) {
-            if(this.total < this.limit && results.length >= LIMITOFFLINE)
+            if (this.total < this.limit && results.length >= LIMITOFFLINE)
                 return this._privateExeReadOnline();
 
             this._clearRead();
             return this.result;
         }
+
         /**
          * Caso não tenha determinado um limit, e se tiver mais registros online,
          * então lê online e retorna todos os registros
          * senão retorna registros locais
          */
-        if(results.length >= LIMITOFFLINE)
+        if (results.length >= LIMITOFFLINE)
             return this._privateExeReadOnline();
 
         this._clearRead();
@@ -530,22 +652,18 @@ class Read {
          * caso contrário, seta null e ignora o id
          */
         let entity = this.entity;
-        let id = isNumberPositive(this.id) ? parseInt(this.id) : null;
+        let filter = isNumberPositive(this.id) ? {id: parseInt(this.id)} : (!isEmpty(this.filter) ? this.filter : null);
         let limit = isNumberPositive(this.limit) ? parseInt(this.limit) : null;
         let offset = isNumberPositive(this.offset) ? parseInt(this.offset) : 0;
         let columnOrder = typeof this.columnOrder === "string" && this.columnOrder !== "" ? this.columnOrder : "id";
         let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
-        let search = !isEmpty(this.filter) ? convertCompareStringToFilter(this.filter) : null;
 
-        let results = await reportRead(entity, search, null, null, null, null, null, null, columnOrder, orderReverse, limit, offset);
+        let results = await reportRead(entity, null, (await convertStringToFilter(entity, filter)), null, null, null, null, null, columnOrder, orderReverse, limit, offset);
         this.result = [];
-        this.total = results.length;
+        this.total = results.total;
 
-        if (id) {
-            this.result = _getDefaultValues(entity, results.data[0]);
-            this.total = 1;
-        } else {
-            for(let registro of results.data) {
+        if (!isEmpty(results.data)) {
+            for (let registro of results.data) {
                 let reg = _getDefaultValues(entity, registro);
                 reg.relationData = registro.relationData ?? [];
                 this.result.push(reg);
@@ -588,10 +706,10 @@ const db = {
 
         let response = 1;
         let result = "";
-        if(navigator.onLine) {
+        if (navigator.onLine) {
             result = await AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)});
             response = (typeof result.id !== "undefined" && isNumberPositive(result.id) ? 1 : 0);
-            if(response)
+            if (response)
                 await dbLocal.exeCreate(entity, result);
 
         } else if (SERVICEWORKER) {

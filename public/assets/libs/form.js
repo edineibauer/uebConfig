@@ -500,7 +500,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 
             return validateForm(form.identificador).then(async validado => {
                 if (validado) {
-                    await saveInternalForm();
+                    // await saveInternalForm();
 
                     /**
                      * Obtém dados do formulário
