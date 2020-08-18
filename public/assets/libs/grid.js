@@ -256,9 +256,9 @@ function gridCrud(entity, fields, actions) {
             let result = "";
 
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
-                result = await reportRead(entity, $this.search, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
+                result = await reportRead(entity, !isEmpty($this.search) ? $this.search : null, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
-                result = await db.exeRead(entity, {"*": $this.search}, $this.limit, offset, $this.order, $this.orderPosition);
+                result = await db.exeRead(entity, !isEmpty($this.search) ? {"*": $this.search} : null, $this.limit, offset, $this.order, $this.orderPosition);
                 result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             }
 
