@@ -5,6 +5,7 @@ namespace Config;
 use Conn\Delete;
 use Conn\Read;
 use Conn\SqlCommand;
+use Entity\Meta;
 use Entity\Metadados;
 use Helpers\Helper;
 use Tholu\Packer\Packer;
@@ -35,19 +36,51 @@ class Config
                      * Search for setor Data
                      */
                     if (!empty($user['setor'])) {
-                        $read = new Read();
-                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0);
-                        $user['setorData'] = !empty($read->getResult()) ? $read->getResult()[0] : [];
 
                         /**
-                         * Search for System data
+                         * Check to get setor data
                          */
-                        if (!empty($user['setorData']) && !empty($user['setorData']['system_id'])) {
-                            $infoSetor = Metadados::getInfo($user['setor']);
-                            if (!empty($infoSetor) && !empty($infoSetor['system'])) {
-                                $read->exeRead($infoSetor['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
-                                $user['systemData'] = !empty($read->getResult()) ? $read->getResult()[0] : [];
+                        $read = new Read();
+                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0);
+                        if($read->getResult()) {
+                            $setorInfo = Metadados::getInfo($user['setor']);
+                            $setorDic = Metadados::getDicionario($user['setor']);
+                            foreach ($read->getResult()[0] as $coluna => $valor) {
+                                if(in_array($coluna, $setorInfo['columns_readable'])) {
+                                    foreach ($setorDic as $meta) {
+                                        if($meta['column'] === $coluna) {
+                                            $m = new Meta($meta);
+                                            $m->setValue($valor);
+                                            $user['setorData'][$coluna] = $m->getValue();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            $user['setorData']['system_id'] = !empty($read->getResult()[0]['system_id']) ? (int) $read->getResult()[0]['system_id'] : null;
+
+                            /**
+                             * Check to get System data
+                             */
+                            if (!empty($user['setorData']) && !empty($user['setorData']['system_id']) && !empty($setorInfo['system'])) {
                                 $user['system_id'] = $user['setorData']['system_id'];
+                                $read->exeRead($setorInfo['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
+                                if($read->getResult()) {
+                                    $systemInfo = Metadados::getInfo($setorInfo['system']);
+                                    $systemDic = Metadados::getDicionario($setorInfo['system']);
+                                    foreach ($read->getResult()[0] as $coluna => $valor) {
+                                        if(in_array($coluna, $systemInfo['columns_readable'])) {
+                                            foreach ($systemDic as $meta) {
+                                                if($meta['column'] === $coluna) {
+                                                    $m = new Meta($meta);
+                                                    $m->setValue($valor);
+                                                    $user['systemData'][$coluna] = $m->getValue();
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     } else {
