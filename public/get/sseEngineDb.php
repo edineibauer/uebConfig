@@ -137,11 +137,12 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                             $relationData = [];
 
                             /**
-                             * Decode all json on base register
+                             * convert data from default format
                              */
                             foreach ($dicionarios[$entity] as $meta) {
-                                if ($meta['type'] === "json" && !empty($register[$meta['column']]))
-                                    $register[$meta['column']] = json_decode($register[$meta['column']], !0);
+                                $m = new \Entity\Meta($meta);
+                                $m->setValue($register[$meta['column']]);
+                                $register[$meta['column']] = $m->getValue();
                             }
 
                             /**
@@ -216,8 +217,9 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                                      * Decode all json on base relation register
                                      */
                                     foreach ($dicionarios[$info['system']] as $meta) {
-                                        if ($meta['type'] === "json" && !empty($relationData["system_id"][$meta['column']]))
-                                            $relationData["system_id"][$meta['column']] = json_decode($relationData["system_id"][$meta['column']], !0);
+                                        $m = new \Entity\Meta($meta);
+                                        $m->setValue($relationData["system_id"][$meta['column']]);
+                                        $relationData["system_id"][$meta['column']] = $m->getValue();
                                     }
                                 }
                             }
@@ -235,9 +237,11 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                                     /**
                                      * Decode all json on base relation register
                                      */
+
                                     foreach ($dicionarios["usuarios"] as $meta) {
-                                        if ($meta['type'] === "json" && !empty($relationData["usuarios"][$meta['column']]))
-                                            $relationData["usuarios"][$meta['column']] = json_decode($relationData["usuarios"][$meta['column']], !0);
+                                        $m = new \Entity\Meta($meta);
+                                        $m->setValue($relationData["usuarios"][$meta['column']]);
+                                        $relationData["usuarios"][$meta['column']] = $m->getValue();
                                     }
 
                                     $relationData[$info['autor'] == 1 ? "autorpub" : "ownerpub"] = $relationData["usuarios"];
@@ -265,8 +269,9 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                                          * Decode all json on base relation register
                                          */
                                         foreach ($dicionarios[$relation] as $meta) {
-                                            if ($meta['type'] === "json" && !empty($relationData[$RelationColumn][$meta['column']]))
-                                                $relationData[$RelationColumn][$meta['column']] = json_decode($relationData[$RelationColumn][$meta['column']], !0);
+                                            $m = new \Entity\Meta($meta);
+                                            $m->setValue($relationData[$RelationColumn][$meta['column']]);
+                                            $relationData[$RelationColumn][$meta['column']] = $m->getValue();
                                         }
                                     }
                                 }
