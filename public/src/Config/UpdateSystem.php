@@ -312,8 +312,7 @@ class UpdateSystem
             /**
              * AppCore Report JS Generator
              */
-            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js");
-            $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
+            $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
 
             $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreReport.js", "w+");
@@ -355,8 +354,7 @@ class UpdateSystem
             /**
              * AppCore Report JS Generator
              */
-            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/reportRead.js"));
-            $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js"));
+            $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js"));
             $m->minify(PATH_HOME . VENDOR . "config/public/assets/coreReport.js");
 
