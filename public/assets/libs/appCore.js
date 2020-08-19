@@ -446,16 +446,17 @@ $(function ($) {
             if($templatesToRenderInside.length) {
                 $templatesToRenderInside.each(function () {
                     let $this = $(this);
+                    let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                     if($this.hasAttr("data-get")) {
                         AJAX.get($this.data("get")).then(results => {
-                            $this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results : {home: HOME}));
+                            $this.htmlTemplate($this.data("template"), Object.assign(param, (!isEmpty(results) ? results : {})));
                         });
                     } else if($this.hasAttr("data-db")) {
                         $this.dbExeRead().then(results => {
-                            $this.htmlTemplate($this.data("template"), (!isEmpty(results) ? results : {home: HOME}));
+                            $this.htmlTemplate($this.data("template"), Object.assign(param, (!isEmpty(results) ? results : {})));
                         });
-                    } else if(!isSkeleton) {
-                        $this.htmlTemplate($this.data("template"), {home: HOME});
+                    } else {
+                        $this.htmlTemplate($this.data("template"), param);
                     }
                 });
             }
@@ -468,7 +469,8 @@ $(function ($) {
                 $contentDb.each(function(i, e) {
                     let $this = $content.find("[data-db]:not([data-template])").eq(i);
                     $this.dbExeRead().then(results => {
-                        $this.htmlTemplate($(e).html(), (!isEmpty(results) ? results : {home: HOME}));
+                        let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                        $this.htmlTemplate($(e).html(), Object.assign(param, (!isEmpty(results) ? results : {})));
                     })
                 });
             }
@@ -477,7 +479,8 @@ $(function ($) {
                 $contentGet.each(function(i, e) {
                     let $this = $content.find("[data-get]:not([data-template])").eq(i);
                     AJAX.get($this.data("get")).then(results => {
-                        $this.htmlTemplate($(e).html(), (!isEmpty(results) ? results : {home: HOME}));
+                        let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                        $this.htmlTemplate($(e).html(), Object.assign(param, (!isEmpty(results) ? results : {})));
                     });
                 });
             }
@@ -2739,6 +2742,31 @@ function storeUser() {
 }
 
 /**
+ * Search for USER use on template and reload the content
+ */
+function _updateContentBetweenHtmlTemplate(inicio, fim) {
+    let uu = sseSourceListeners[app.route][1].split(inicio);
+    for(let i = 0; i < uu.length; i++) {
+        if(typeof uu[i+1] !== "undefined") {
+            let u = uu[i].split("<");
+            if(typeof u[1] === "undefined")
+                continue;
+
+            let ut = u[u.length - 1].split(">");
+            if(typeof ut[1] === "undefined")
+                continue;
+
+            let tag = ut[0].split(" ")[0];
+            let reg = new RegExp(inicio + uu[i + 1].split(fim)[0] + fim, "i");
+            $("<div>" + sseSourceListeners[app.route][1] + "</div>").find(tag).each(function (i, e) {
+                if (reg.test($(e).html()))
+                    sseSourceListeners[app.route][0].find(tag).eq(i).html(Mustache.render($(e).html(), {USER: USER}));
+            });
+        }
+    }
+}
+
+/**
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
@@ -2769,16 +2797,6 @@ async function sseStart() {
                         if(typeof sseEvents[i] === "function")
                             sseEvents[i](SSE[i]);
                     }
-                }
-
-                await sseSourceListeners[app.route][0].htmlTemplate(sseSourceListeners[app.route][1], {home: HOME});
-
-                /**
-                 * execute script to this page again
-                 */
-                if (!isEmpty(sseSourceListeners[app.route][2])) {
-                    for (let js of sseSourceListeners[app.route][2])
-                        $.cachedScript(js);
                 }
             }
         }, !1);
@@ -2846,6 +2864,8 @@ async function sseStart() {
         sseAdd("updatePerfil", function(data) {
             USER = data;
             storeUser();
+            _updateContentBetweenHtmlTemplate("{{USER.", "}}");
+            _updateContentBetweenHtmlTemplate("{{#USER.", "{{/USER.");
         });
 
         /**
