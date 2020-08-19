@@ -57,6 +57,7 @@ class Config
                                     }
                                 }
                             }
+                            $user['setorData']['id'] = (int) $read->getResult()[0]['id'];
                             $user['setorData']['system_id'] = !empty($read->getResult()[0]['system_id']) ? (int) $read->getResult()[0]['system_id'] : null;
 
                             /**
