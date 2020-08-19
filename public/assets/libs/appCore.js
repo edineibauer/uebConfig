@@ -501,6 +501,7 @@ $(function ($) {
                  */
                 let height = $this.children().first().innerHeight()*-1;
                 $this.append($content.addClass("loadingImagesPreview").css({"margin-top": height + "px"}));
+                $this.parent().removeClass("skeleton").find(".skeleton").removeClass("skeleton");
 
                 /**
                  * Await the content insert on DOM (load)
@@ -2190,8 +2191,8 @@ var URL, app = {
                     if(navigator.onLine && typeof (EventSource) !== "undefined") {
                         if(typeof sseSourceListeners[file] === "undefined") {
                             await AJAX.get("sseEngineClear");
-                            sseSourceListeners[file] = $div;
-                            sseSource.addEventListener(file, function (e) {
+                            sseSourceListeners[file] = [$div, htmlTemplate, g.js];
+                            sseSource.addEventListener(file, async function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                     let response = JSON.parse(e.data);
 
@@ -2217,11 +2218,21 @@ var URL, app = {
                                     /**
                                      * Update Registered Template
                                      */
-                                    sseSourceListeners[file].htmlTemplate(htmlTemplate, {home: HOME});
+                                    if(app.route === file) {
+                                        await sseSourceListeners[file][0].htmlTemplate(sseSourceListeners[file][1], {home: HOME});
+
+                                        /**
+                                         * execute script to this page again
+                                         */
+                                        if (!isEmpty(sseSourceListeners[file][2])) {
+                                            for (let js of sseSourceListeners[file][2])
+                                                $.cachedScript(js);
+                                        }
+                                    }
                                 }
                             }, !1);
                         } else {
-                            sseSourceListeners[file] = $div;
+                            sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                         }
                     }
 
@@ -2738,7 +2749,7 @@ const SSE = {};
 async function sseStart() {
     if (navigator.onLine && typeof (EventSource) !== "undefined") {
         sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
-        sseSource.addEventListener('base', function (e) {
+        sseSource.addEventListener('base', async function (e) {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
 
@@ -2759,6 +2770,16 @@ async function sseStart() {
                             sseEvents[i](SSE[i]);
                     }
                 }
+
+                await sseSourceListeners[app.route][0].htmlTemplate(sseSourceListeners[app.route][1], {home: HOME});
+
+                /**
+                 * execute script to this page again
+                 */
+                if (!isEmpty(sseSourceListeners[app.route][2])) {
+                    for (let js of sseSourceListeners[app.route][2])
+                        $.cachedScript(js);
+                }
             }
         }, !1);
 
@@ -2777,12 +2798,43 @@ async function sseStart() {
                             break;
                         }
                     }
+
+                    /**
+                     * Update the view where have a db read declaration with same entity
+                     */
+                    let dbTemplate = {};
+                    if($(sseSourceListeners[app.route][1]).find("[data-db]").length) {
+                        $(sseSourceListeners[app.route][1]).find("[data-db]").each(function(i, e) {
+                            dbTemplate[$(e).data("db")] = [sseSourceListeners[app.route][0].find("[data-db]").eq(i), ($(e).hasAttr("data-template") ? $(e).data("template") : $(e).html()), sseSourceListeners[app.route][2]];
+                        });
+                    }
+
                     for (let entity in sseData) {
                         await dbLocal.clear(entity);
                         if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
                             for (let registro of sseData[entity])
                                 await dbLocal.exeCreate(entity, registro);
 
+                            /**
+                             * Reload the view db content if have
+                             */
+                            if(typeof dbTemplate[entity] === "object") {
+                                dbTemplate[entity][0].dbExeRead().then(async results => {
+                                    await dbTemplate[entity][0].htmlTemplate(dbTemplate[entity][1], (!isEmpty(results) ? results : {home: HOME}));
+
+                                    /**
+                                     * execute script to this page again
+                                     */
+                                    if (!isEmpty(dbTemplate[entity][2])) {
+                                        for (let js of dbTemplate[entity][2])
+                                            $.cachedScript(js);
+                                    }
+                                })
+                            }
+
+                            /**
+                             * Reload the grid if have
+                             */
                             if(grid && grid.entity === entity)
                                 grid.reload();
                         }
