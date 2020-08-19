@@ -2769,11 +2769,22 @@ async function sseStart() {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
                 if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
+                    let grid = null;
+                    if(typeof grids === 'object') {
+                        for(let i in grids) {
+                            grid = grids[i];
+                            grid.loading();
+                            break;
+                        }
+                    }
                     for (let entity in sseData) {
                         await dbLocal.clear(entity);
                         if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
                             for (let registro of sseData[entity])
-                                dbLocal.exeCreate(entity, registro);
+                                await dbLocal.exeCreate(entity, registro);
+
+                            if(grid && grid.entity === entity)
+                                grid.reload();
                         }
                     }
                 }
