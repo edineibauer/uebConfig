@@ -1,130 +1,130 @@
-{{#notificacoes}}
+{{#.}}
     <div class="notification-item" rel="{{id}}">
-        <div class="notification-card{{#recebeu}} readed{{/recebeu}} no-select">
+        <div class="notification-card no-select">
             <div class="notification-content-left">
-                <img src="{{imagem}}" width="50" height="50" class="imagem-notificacao"/>
-                <div class="note-time font-weight-bold">{{data}}</div>
+                <img src="{{relationData.notificacao.imagem.0.urls.medium}}" width="50" height="50" class="imagem-notificacao"/>
+                <div class="note-time font-weight-bold">{{data_de_envio}}</div>
             </div>
             <div class="notification-content-right">
-                <{{#url}}a href="{{url}}"{{/url}}{{^url}}div{{/url}} data-id="{{id}}" class="notification-content notification-title font-weight-bold h6 mb-2">
-                    {{{titulo}}}
-                    </{{#url}}a{{/url}}{{^url}}div{{/url}}>
+                <{{#relationData.notificacao.url}}a href="{{relationData.notificacao.url}}"{{/relationData.notificacao.url}}{{^relationData.notificacao.url}}div{{/relationData.notificacao.url}} data-id="{{id}}" class="notification-content notification-title font-weight-bold h6 mb-2">
+                    {{{relationData.notificacao.titulo}}}
+                    </{{#relationData.notificacao.url}}a{{/relationData.notificacao.url}}{{^relationData.notificacao.url}}div{{/relationData.notificacao.url}}>
                     <div class="notification-content notification-desc">
-                        {{{descricao}}}
+                        {{{relationData.notificacao.descricao}}}
                     </div>
             </div>
         </div>
         {{#id}}
-            <i class="material-icons" onclick="closeNote({{id}}, {{notificacao}})">delete</i>
+            <i class="material-icons" onclick="closeNote({{id}}, {{relationData.notificacao.id}})">delete</i>
         {{/id}}
         {{^id}}
             <i class="material-icons" style="color: green">mood</i>
         {{/id}}
     </div>
-{{/notificacoes}}
-{{^notificacoes}}
-    {{> notificacoesEmpty}}
-{{/notificacoes}}
 
-<script>
-    new TouchLeft($(".notification-card"), -70, 50, 0);
-</script>
+    <script>
+        new TouchLeft($(".notification-card"), -70, 50, 0);
+    </script>
 
-<style>
-    .notification-item {
-        position: relative;
-        padding-bottom: 10px;
-        float: left;
-        width: 100%;
-    }
+    <style>
+        .notification-item {
+            position: relative;
+            padding-bottom: 10px;
+            float: left;
+            width: 100%;
+        }
 
-    .notification-item > i.material-icons {
-        font-size: 24px;
-        padding: 10px;
-        cursor: pointer;
-        position: absolute;
-        top: calc(50% - 25px);
-        right: 10px;
-        color: #e26a6a;
-        z-index: 1;
-    }
+        .notification-item > i.material-icons {
+            font-size: 24px;
+            padding: 10px;
+            cursor: pointer;
+            position: absolute;
+            top: calc(50% - 25px);
+            right: 10px;
+            color: #e26a6a;
+            z-index: 1;
+        }
 
-    .notification-card {
-        position: relative;
-        border: solid 1px #ddd;
-        background: #ffffff !important;
-        color: #555555 !important;
-        border-radius: 5px;
-        float: left;
-        width: 100%;
-        box-shadow: 1px 1px 11px -8px black;
-        transition: all ease .15s;
-        z-index: 2;
-        padding: 16px 15px 8px;
-    }
+        .notification-card {
+            position: relative;
+            border: solid 1px #ddd;
+            background: #ffffff !important;
+            color: #555555 !important;
+            border-radius: 5px;
+            float: left;
+            width: 100%;
+            box-shadow: 1px 1px 11px -8px black;
+            transition: all ease .15s;
+            z-index: 2;
+            padding: 16px 15px 8px;
+        }
 
-    .notification-card.readed {
-        box-shadow: none;
-        border: solid 1px #eee;
-    }
+        .notification-card.readed {
+            box-shadow: none;
+            border: solid 1px #eee;
+        }
 
-    .notification-card.readed img {
-        opacity: .6;
-    }
+        .notification-card.readed img {
+            opacity: .6;
+        }
 
-    .notification-content-left {
-        float: left;
-        width: 50px;
-    }
+        .notification-content-left {
+            float: left;
+            width: 50px;
+        }
 
-    .notification-content-right {
-        float: left;
-        width: calc(100% - 50px);
-        margin-top: -2px;
-        margin-bottom: 5px;
-    }
+        .notification-content-right {
+            float: left;
+            width: calc(100% - 50px);
+            margin-top: -2px;
+            margin-bottom: 5px;
+        }
 
-    .notification-title {
-        margin-bottom: 5px !important;
-        font-size: 15px !important;
-        max-height: 38px !important;
-        overflow: hidden !important;
-        color: #555555 !important;
-    }
+        .notification-title {
+            margin-bottom: 5px !important;
+            font-size: 15px !important;
+            max-height: 38px !important;
+            overflow: hidden !important;
+            color: #555555 !important;
+        }
 
-    .notification-desc {
-        font-size: 12px;
-        line-height: 15px;
-        max-height: 46px;
-        overflow: hidden;
-    }
+        .notification-desc {
+            font-size: 12px;
+            line-height: 15px;
+            max-height: 46px;
+            overflow: hidden;
+        }
 
-    .notification-content {
-        float: left;
-        width: 100%;
-        padding-left: 15px;
-    }
+        .notification-content {
+            float: left;
+            width: 100%;
+            padding-left: 15px;
+        }
 
-    .imagem-notificacao {
-        border-radius: 50px;
-    }
+        .imagem-notificacao {
+            border-radius: 50px;
+        }
 
-    .notification-item.activeRemove > .notification-card {
-        transform: translateX(-170px);
-        opacity: 0;
-    }
+        .notification-item.activeRemove > .notification-card {
+            transform: translateX(-170px);
+            opacity: 0;
+        }
 
-    .notification-item.activeRemove > i.material-icons {
-        opacity: 0;
-    }
+        .notification-item.activeRemove > i.material-icons {
+            opacity: 0;
+        }
 
-    .note-time {
-        width: 100%;
-        font-size: 9px;
-        color: #999999;
-        text-align: center;
-        line-height: 12px;
-        padding-top: 5px;
-        float: left;
-    }
-</style>
+        .note-time {
+            width: 100%;
+            font-size: 9px;
+            color: #999999;
+            text-align: center;
+            line-height: 12px;
+            padding-top: 5px;
+            float: left;
+        }
+    </style>
+{{/.}}
+{{^.}}
+    {{> empty}}
+{{/.}}
