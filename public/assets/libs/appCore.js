@@ -2745,23 +2745,25 @@ function storeUser() {
  * Search for USER use on template and reload the content
  */
 function _updateContentBetweenHtmlTemplate(inicio, fim) {
-    let uu = sseSourceListeners[app.route][1].split(inicio);
-    for(let i = 0; i < uu.length; i++) {
-        if(typeof uu[i+1] !== "undefined") {
-            let u = uu[i].split("<");
-            if(typeof u[1] === "undefined")
-                continue;
+    if(typeof sseSourceListeners[app.route] === "object") {
+        let uu = sseSourceListeners[app.route][1].split(inicio);
+        for (let i = 0; i < uu.length; i++) {
+            if (typeof uu[i + 1] !== "undefined") {
+                let u = uu[i].split("<");
+                if (typeof u[1] === "undefined")
+                    continue;
 
-            let ut = u[u.length - 1].split(">");
-            if(typeof ut[1] === "undefined")
-                continue;
+                let ut = u[u.length - 1].split(">");
+                if (typeof ut[1] === "undefined")
+                    continue;
 
-            let tag = ut[0].split(" ")[0];
-            let reg = new RegExp(inicio + uu[i + 1].split(fim)[0] + fim, "i");
-            $("<div>" + sseSourceListeners[app.route][1] + "</div>").find(tag).each(function (i, e) {
-                if (reg.test($(e).html()))
-                    sseSourceListeners[app.route][0].find(tag).eq(i).html(Mustache.render($(e).html(), {USER: USER}));
-            });
+                let tag = ut[0].split(" ")[0];
+                let reg = new RegExp(inicio + uu[i + 1].split(fim)[0] + fim, "i");
+                $("<div>" + sseSourceListeners[app.route][1] + "</div>").find(tag).each(function (i, e) {
+                    if (reg.test($(e).html()))
+                        sseSourceListeners[app.route][0].find(tag).eq(i).html(Mustache.render($(e).html(), {USER: USER}));
+                });
+            }
         }
     }
 }
@@ -2808,20 +2810,11 @@ async function sseStart() {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
                 if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
-                    let grid = null;
-                    if(typeof grids === 'object') {
-                        for(let i in grids) {
-                            grid = grids[i];
-                            grid.loading();
-                            break;
-                        }
-                    }
-
                     /**
                      * Update the view where have a db read declaration with same entity
                      */
                     let dbTemplate = {};
-                    if($(sseSourceListeners[app.route][1]).find("[data-db]").length) {
+                    if(typeof sseSourceListeners[app.route] === "object" && $(sseSourceListeners[app.route][1]).find("[data-db]").length) {
                         $(sseSourceListeners[app.route][1]).find("[data-db]").each(function(i, e) {
                             dbTemplate[$(e).data("db")] = [sseSourceListeners[app.route][0].find("[data-db]").eq(i), ($(e).hasAttr("data-template") ? $(e).data("template") : $(e).html()), sseSourceListeners[app.route][2]];
                         });
@@ -2849,12 +2842,6 @@ async function sseStart() {
                                     }
                                 })
                             }
-
-                            /**
-                             * Reload the grid if have
-                             */
-                            if(grid && grid.entity === entity)
-                                grid.reload();
                         }
                     }
                 }
