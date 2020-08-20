@@ -2185,7 +2185,10 @@ async function _updateTemplateRealTime($element, $template, param) {
          */
         $.each($t[0].attributes, async function () {
             if (this.specified) {
-                let valor = Mustache.render(this.value, param);
+                let txtc = document.createElement("textarea");
+                txtc.innerHTML = Mustache.render(this.value, param);
+                let valor = txtc.value
+
                 if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
                     valor = await window[$(e).data("realtime-" + this.name)](valor);
 
@@ -2198,7 +2201,7 @@ async function _updateTemplateRealTime($element, $template, param) {
      * Render html realtime only
      */
     $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-html]").eq(i);
+        let $t = $template.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").eq(i);
         let html = Mustache.render($t.html(), param);
         let funcao = $(e).data("realtime-html");
         if (funcao !== "" && typeof window[funcao] === "function")
@@ -2238,8 +2241,8 @@ function _checkRealtimeDbUpdate(entity) {
              * get the data to use on template if need
              */
             let dados = await $tag.dbExeRead();
-            if($tag.hasAttr("data-db-funcao")) {
-                let funcao = $(e).data("db-funcao");
+            if($tag.hasAttr("data-db-function")) {
+                let funcao = $(e).data("db-function");
                 if (funcao !== "" && typeof window[funcao] === "function")
                     dados = await window[funcao](dados);
                 else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
