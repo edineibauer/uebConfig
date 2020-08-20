@@ -350,8 +350,8 @@ $(function ($) {
                             /**
                              * Check if is waiting for a loop ends
                              */
-                            if(awaitUntil !== "") {
-                                if(p === awaitUntil)
+                            if (awaitUntil !== "") {
+                                if (p === awaitUntil)
                                     awaitUntil = "";
 
                                 novotemplateTpl += a + "{{";
@@ -361,9 +361,9 @@ $(function ($) {
                             /**
                              * Check if is a loop
                              */
-                            if(/^#/.test(p)) {
+                            if (/^#/.test(p)) {
                                 p = p.replace("#", "");
-                                if((p === "." && !isEmpty(param)) || typeof getObjectDotNotation(param, p) !== "undefined") {
+                                if ((p === "." && !isEmpty(param)) || typeof getObjectDotNotation(param, p) !== "undefined") {
 
                                     /**
                                      * If is a loop and have the variable declared on param,
@@ -394,7 +394,7 @@ $(function ($) {
                             /**
                              * Var not exist on param, so add skeleton
                              */
-                            if(typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
+                            if (typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
                                 if (/>[\w$\s]*$/.test(a))
                                     a = a.replace(/>[\w$\s]*$/, " data-skeleton='1'>");
                                 else if (/ src=("|')$/.test(a))
@@ -423,7 +423,7 @@ $(function ($) {
                  * Await Compile templates inside as skeleton
                  * to render all templates together
                  */
-                if($templatesToRenderInside.length) {
+                if ($templatesToRenderInside.length) {
                     await new Promise(async s => {
                         $templatesToRenderInside.each(async function () {
                             s($(this).htmlTemplate($(this).data("template")));
@@ -443,21 +443,47 @@ $(function ($) {
              * Find data declaration on DOM attr
              * load the data on template and replace skeleton after
              */
-            if($templatesToRenderInside.length) {
-                $templatesToRenderInside.each(function () {
+            if ($templatesToRenderInside.length) {
+                $templatesToRenderInside.each(async function () {
                     let $this = $(this);
-                    let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
-                    if($this.hasAttr("data-get")) {
-                        AJAX.get($this.data("get")).then(results => {
-                            $this.htmlTemplate($this.data("template"), Object.assign(param, (!isEmpty(results) ? results : {})));
-                        });
-                    } else if($this.hasAttr("data-db")) {
-                        $this.dbExeRead().then(results => {
-                            $this.htmlTemplate($this.data("template"), Object.assign(param, (!isEmpty(results) ? results : {})));
-                        });
-                    } else {
-                        $this.htmlTemplate($this.data("template"), param);
+
+                    let dados = [];
+                    if ($this.hasAttr("data-get")) {
+                        dados = await AJAX.get($this.data("get"));
+
+                        if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                            dados = await window[$this.data("get-function")](dados);
+                        else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                            dados = await window[$this.data("realtime-get")](dados);
+
+                    } else if ($this.hasAttr("data-db")) {
+                        dados = await $this.dbExeRead();
+
+                        if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
+                            dados = await window[$this.data("db-function")](dados);
+                        else if($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
+                            dados = await window[$this.data("realtime-db")](dados);
+
                     }
+
+                    let $templateChild = $this.data("template");
+                    let parametros = {};
+
+                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                        parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                        $templateChild = $this.data("template-empty");
+                    } else {
+                        parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                    }
+
+                    if(!isEmpty(parametros)) {
+                        if(!isEmpty(dados))
+                            mergeObject(dados, parametros);
+                        else
+                            dados = parametros;
+                    }
+
+                    $this.htmlTemplate($templateChild, dados);
                 });
             }
 
@@ -465,23 +491,71 @@ $(function ($) {
              * Find data-get and data-db to read data without have a db-template
              * @type {*|jQuery|HTMLElement}
              */
-            if($contentDb.length) {
-                $contentDb.each(function(i, e) {
+            if ($contentDb.length) {
+                $contentDb.each(async function (i, e) {
                     let $this = $content.find("[data-db]:not([data-template])").eq(i);
-                    $this.dbExeRead().then(results => {
-                        let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
-                        $this.htmlTemplate($(e).html(), Object.assign(param, (!isEmpty(results) ? results : {})));
-                    })
+
+                    /**
+                     * get the data to use on template if need
+                     */
+                    let dados = await $this.dbExeRead();
+                    if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
+                        dados = await window[$this.data("db-function")](dados);
+                    else if($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
+                        dados = await window[$this.data("realtime-db")](dados);
+
+                    let $templateChild = $(e).html();
+                    let parametros = {};
+
+                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                        parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                        $templateChild = $this.data("template-empty");
+                    } else {
+                        parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                    }
+
+                    if(!isEmpty(parametros)) {
+                        if(!isEmpty(dados))
+                            mergeObject(dados, parametros);
+                        else
+                            dados = parametros;
+                    }
+
+                    $this.htmlTemplate($templateChild, dados);
                 });
             }
 
-            if($contentGet.length) {
-                $contentGet.each(function(i, e) {
+            if ($contentGet.length) {
+                $contentGet.each(async function (i, e) {
                     let $this = $content.find("[data-get]:not([data-template])").eq(i);
-                    AJAX.get($this.data("get")).then(results => {
-                        let param = Object.assign({home: HOME}, ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
-                        $this.htmlTemplate($(e).html(), Object.assign(param, (!isEmpty(results) ? results : {})));
-                    });
+
+                    /**
+                     * get the data to use on template if need
+                     */
+                    let dados = await AJAX.get($this.data("get"));
+                    if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                        dados = await window[$this.data("get-function")](dados);
+                    else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                        dados = await window[$this.data("realtime-get")](dados);
+
+                    let $templateChild = $(e).html();
+                    let parametros = {};
+
+                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                        parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                        $templateChild = $this.data("template-empty");
+                    } else {
+                        parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+                    }
+
+                    if(!isEmpty(parametros)) {
+                        if(!isEmpty(dados))
+                            mergeObject(dados, parametros);
+                        else
+                            dados = parametros;
+                    }
+
+                    $this.htmlTemplate($templateChild, dados);
                 });
             }
 
@@ -491,10 +565,10 @@ $(function ($) {
                  * Await load images to not flickering
                  */
                 let awaitImagesLoad = [];
-                $content.find("img").each(function() {
+                $content.find("img").each(function () {
                     awaitImagesLoad.push($(this).attr("src"));
                 });
-                $content.find("[style*='background-image']").each(function() {
+                $content.find("[style*='background-image']").each(function () {
                     awaitImagesLoad.push($(this).css("background-image").replace('url(', '').replace(')', '').replace("'", '').replace("'", '').replace('"', '').replace('"', ''));
                 });
                 await imagesPreload(awaitImagesLoad);
@@ -502,7 +576,7 @@ $(function ($) {
                 /**
                  * add content as hidden
                  */
-                let height = $this.children().first().innerHeight()*-1;
+                let height = $this.children().first().innerHeight() * -1;
                 $this.append($content.addClass("loadingImagesPreview").css({"margin-top": height + "px"}));
                 $this.parent().removeClass("skeleton").find(".skeleton").removeClass("skeleton");
 
@@ -514,7 +588,7 @@ $(function ($) {
                      * Remove the old content
                      */
                     $this.children().not(".loadingImagesPreview").remove();
-                    $this.contents().filter(function(){
+                    $this.contents().filter(function () {
                         return (this.nodeType == 3);
                     }).remove();
 
@@ -2030,6 +2104,175 @@ function openInstallAppPrompt(force) {
     }
 }
 
+
+/**
+ *
+ * @param $element
+ * @param $template
+ * @param param
+ * @private
+ */
+async function _updateTemplateRealTime($element, $template, param) {
+    if (typeof sseSourceListeners[app.file] !== "object")
+        return;
+
+    param = _htmlTemplateDefaultParam(!1, param);
+
+    if(typeof $element === "undefined")
+        $element = sseSourceListeners[app.file][0];
+
+    if(typeof $template === "undefined")
+        $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
+
+    /**
+     * First, find by the variables used
+     */
+    $element.find("[data-get][data-realtime-get]").each(async function (i, e) {
+        let $t = $template.find("[data-get][data-realtime-get]").eq(i);
+
+        /**
+         * get the data to use on template if need
+         */
+        let dados = await AJAX.get($(e).data("get"));
+        if($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
+            dados = await window[$(e).data("get-function")](dados);
+        else if($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
+            dados = await window[$(e).data("realtime-get")](dados);
+
+        let $templateChild = $t;
+        let parametros = {};
+
+        if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+            parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+            $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
+        } else {
+            parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+            if($(e).hasAttr("data-template"))
+                $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
+        }
+
+        if(!isEmpty(parametros)) {
+            if(!isEmpty(dados))
+                mergeObject(dados, parametros);
+            else
+                dados = parametros;
+        }
+
+        if($(e).hasAttr("data-template-empty"))
+            await $(e).htmlTemplate($templateChild.html(), dados);
+        else
+            await _updateTemplateRealTime($(e), $templateChild, dados);
+    });
+
+    /**
+     * Render all tags
+     */
+    $element.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").eq(i);
+
+        /**
+         * Update the html
+         */
+        let html = Mustache.render($t.html(), param);
+        let funcao = $(e).data("realtime");
+        if (funcao !== "" && typeof window[funcao] === "function")
+            html = await window[funcao](html);
+
+        $(e).html(html);
+
+        /**
+         * Update all attributes of element
+         */
+        $.each($t[0].attributes, async function () {
+            if (this.specified) {
+                let valor = Mustache.render(this.value, param);
+                if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                    valor = await window[$(e).data("realtime-" + this.name)](valor);
+
+                $(e).removeAttr(this.name).attr(this.name, valor);
+            }
+        });
+    });
+
+    /**
+     * Render html realtime only
+     */
+    $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-html]").eq(i);
+        let html = Mustache.render($t.html(), param);
+        let funcao = $(e).data("realtime-html");
+        if (funcao !== "" && typeof window[funcao] === "function")
+            html = await window[funcao](html);
+
+        $(e).html(html);
+    });
+
+    /**
+     * Render all attributes realtime only
+     */
+    $element.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").each(function (i, e) {
+        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").eq(i);
+
+        $.each($t[0].attributes, async function () {
+            if (this.specified) {
+                let valor = Mustache.render(this.value, param);
+                if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                    valor = await window[$(e).data("realtime-" + this.name)](valor);
+
+                $(e).removeAttr(this.name).attr(this.name, valor);
+            }
+        });
+    });
+}
+
+/**
+ * Check for render DB data again
+ */
+function _checkRealtimeDbUpdate(entity) {
+    if(typeof sseSourceListeners[app.file] === "object") {
+        let dbFind = "[data-db='" + entity + "'][data-realtime-db]";
+        $("<div>" + sseSourceListeners[app.file][1] + "</div>").find(dbFind).each(async function (i, e) {
+            let $tag = sseSourceListeners[app.file][0].find(dbFind).eq(i);
+
+            /**
+             * get the data to use on template if need
+             */
+            let dados = await $tag.dbExeRead();
+            if($tag.hasAttr("data-db-funcao")) {
+                let funcao = $(e).data("db-funcao");
+                if (funcao !== "" && typeof window[funcao] === "function")
+                    dados = await window[funcao](dados);
+                else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
+                    dados = await window[$tag.data("realtime-db")](dados);
+            }
+
+            let $templateChild = $(e);
+            let parametros = {};
+
+            if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+                parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
+            } else {
+                parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                if($(e).hasAttr("data-template"))
+                    $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
+            }
+
+            if(!isEmpty(parametros)) {
+                if(!isEmpty(dados))
+                    mergeObject(dados, parametros);
+                else
+                    dados = parametros;
+            }
+
+            if($tag.hasAttr("data-template-empty"))
+                await $tag.htmlTemplate($templateChild.html(), dados);
+            else
+                await _updateTemplateRealTime($tag, $templateChild, dados);
+        });
+    }
+}
+
 /**
  * Fetch images before add to HTML on view
  * @param imagesList
@@ -2221,17 +2464,8 @@ var URL, app = {
                                     /**
                                      * Update Registered Template
                                      */
-                                    /*if(app.file === file) {
-                                        await sseSourceListeners[file][0].htmlTemplate(sseSourceListeners[file][1], {home: HOME});
-
-                                        /!**
-                                         * execute script to this page again
-                                         *!/
-                                        if (!isEmpty(sseSourceListeners[file][2])) {
-                                            for (let js of sseSourceListeners[file][2])
-                                                $.cachedScript(js);
-                                        }
-                                    }*/
+                                    if (file === app.file)
+                                        _updateTemplateRealTime();
                                 }
                             }, !1);
                         } else {
@@ -2742,33 +2976,6 @@ function storeUser() {
 }
 
 /**
- * Search for USER use on template and reload the content
- */
-function _updateContentBetweenHtmlTemplate(inicio, fim) {
-    if(typeof sseSourceListeners[app.file] === "object") {
-        let uu = sseSourceListeners[app.file][1].split(inicio);
-        for (let i = 0; i < uu.length; i++) {
-            if (typeof uu[i + 1] !== "undefined") {
-                let u = uu[i].split("<");
-                if (typeof u[1] === "undefined")
-                    continue;
-
-                let ut = u[u.length - 1].split(">");
-                if (typeof ut[1] === "undefined")
-                    continue;
-
-                let tag = ut[0].split(" ")[0];
-                let reg = new RegExp(inicio + uu[i + 1].split(fim)[0] + fim, "i");
-                $("<div>" + sseSourceListeners[app.file][1] + "</div>").find(tag).each(function (i, e) {
-                    if (reg.test($(e).html()))
-                        sseSourceListeners[app.file][0].find(tag).eq(i).html(Mustache.render($(e).html(), {USER: USER}));
-                });
-            }
-        }
-    }
-}
-
-/**
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
@@ -2810,38 +3017,13 @@ async function sseStart() {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
                 if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
-                    /**
-                     * Update the view where have a db read declaration with same entity
-                     */
-                    /*let dbTemplate = {};
-                    if(typeof sseSourceListeners[app.file] === "object" && $(sseSourceListeners[app.file][1]).find("[data-db]").length) {
-                        $(sseSourceListeners[app.file][1]).find("[data-db]").each(function(i, e) {
-                            dbTemplate[$(e).data("db")] = [sseSourceListeners[app.file][0].find("[data-db]").eq(i), ($(e).hasAttr("data-template") ? $(e).data("template") : $(e).html()), sseSourceListeners[app.file][2]];
-                        });
-                    }*/
-
                     for (let entity in sseData) {
                         await dbLocal.clear(entity);
                         if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
                             for (let registro of sseData[entity])
                                 await dbLocal.exeCreate(entity, registro);
 
-                            /**
-                             * Reload the view db content if have
-                             */
-                            /*if(typeof dbTemplate[entity] === "object") {
-                                dbTemplate[entity][0].dbExeRead().then(async results => {
-                                    await dbTemplate[entity][0].htmlTemplate(dbTemplate[entity][1], (!isEmpty(results) ? results : {home: HOME}));
-
-                                    /!**
-                                     * execute script to this page again
-                                     *!/
-                                    if (!isEmpty(dbTemplate[entity][2])) {
-                                        for (let js of dbTemplate[entity][2])
-                                            $.cachedScript(js);
-                                    }
-                                })
-                            }*/
+                            _checkRealtimeDbUpdate(entity)
                         }
                     }
                 }
@@ -2851,8 +3033,7 @@ async function sseStart() {
         sseAdd("updatePerfil", function(data) {
             USER = data;
             storeUser();
-            // _updateContentBetweenHtmlTemplate("{{USER.", "}}");
-            // _updateContentBetweenHtmlTemplate("{{#USER.", "{{/USER.");
+            _updateTemplateRealTime();
         });
 
         /**
