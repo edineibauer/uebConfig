@@ -81,6 +81,7 @@ class Config
                                             }
                                         }
                                     }
+                                    $user['systemData']['id'] = (int) $read->getResult()[0]['id'];
                                 }
                             }
                         }
