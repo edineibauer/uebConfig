@@ -2221,17 +2221,17 @@ var URL, app = {
                                     /**
                                      * Update Registered Template
                                      */
-                                    if(app.file === file) {
+                                    /*if(app.file === file) {
                                         await sseSourceListeners[file][0].htmlTemplate(sseSourceListeners[file][1], {home: HOME});
 
-                                        /**
+                                        /!**
                                          * execute script to this page again
-                                         */
+                                         *!/
                                         if (!isEmpty(sseSourceListeners[file][2])) {
                                             for (let js of sseSourceListeners[file][2])
                                                 $.cachedScript(js);
                                         }
-                                    }
+                                    }*/
                                 }
                             }, !1);
                         } else {
@@ -2813,12 +2813,12 @@ async function sseStart() {
                     /**
                      * Update the view where have a db read declaration with same entity
                      */
-                    let dbTemplate = {};
+                    /*let dbTemplate = {};
                     if(typeof sseSourceListeners[app.file] === "object" && $(sseSourceListeners[app.file][1]).find("[data-db]").length) {
                         $(sseSourceListeners[app.file][1]).find("[data-db]").each(function(i, e) {
                             dbTemplate[$(e).data("db")] = [sseSourceListeners[app.file][0].find("[data-db]").eq(i), ($(e).hasAttr("data-template") ? $(e).data("template") : $(e).html()), sseSourceListeners[app.file][2]];
                         });
-                    }
+                    }*/
 
                     for (let entity in sseData) {
                         await dbLocal.clear(entity);
@@ -2829,19 +2829,19 @@ async function sseStart() {
                             /**
                              * Reload the view db content if have
                              */
-                            if(typeof dbTemplate[entity] === "object") {
+                            /*if(typeof dbTemplate[entity] === "object") {
                                 dbTemplate[entity][0].dbExeRead().then(async results => {
                                     await dbTemplate[entity][0].htmlTemplate(dbTemplate[entity][1], (!isEmpty(results) ? results : {home: HOME}));
 
-                                    /**
+                                    /!**
                                      * execute script to this page again
-                                     */
+                                     *!/
                                     if (!isEmpty(dbTemplate[entity][2])) {
                                         for (let js of dbTemplate[entity][2])
                                             $.cachedScript(js);
                                     }
                                 })
-                            }
+                            }*/
                         }
                     }
                 }
@@ -2851,8 +2851,8 @@ async function sseStart() {
         sseAdd("updatePerfil", function(data) {
             USER = data;
             storeUser();
-            _updateContentBetweenHtmlTemplate("{{USER.", "}}");
-            _updateContentBetweenHtmlTemplate("{{#USER.", "{{/USER.");
+            // _updateContentBetweenHtmlTemplate("{{USER.", "}}");
+            // _updateContentBetweenHtmlTemplate("{{#USER.", "{{/USER.");
         });
 
         /**
