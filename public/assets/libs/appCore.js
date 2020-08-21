@@ -918,7 +918,7 @@ async function checkUpdate() {
     if (navigator.onLine && SERVICEWORKER) {
         if (!localStorage.update)
             localStorage.update = await AJAX.post("update");
-        else if (VERSION > parseFloat(localStorage.update))
+        else if (parseFloat(VERSION) > parseFloat(localStorage.update))
             toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;box-shadow: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
     }
 }
@@ -3179,6 +3179,10 @@ async function startApplication() {
 
     await (!localStorage.accesscount ? firstAccess() : thenAccess());
 
+    setTimeout(function () {
+        checkUpdate();
+    }, 1000);
+
     if (localStorage.accesscount === "1") {
 
         /**
@@ -3187,9 +3191,6 @@ async function startApplication() {
         loadSyncNotSaved();
 
         if (SERVICEWORKER && HOME !== "" && HOME === SERVER) {
-            setTimeout(function () {
-                checkUpdate();
-            }, 1000);
             setTimeout(function () {
                 loadUserViews();
             }, 3000);
