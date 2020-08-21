@@ -396,7 +396,7 @@ $(function ($) {
                              */
                             if (typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
                                 if (/>[\w$\s]*$/.test(a))
-                                    a = a.replace(/>[\w$\s]*$/, " data-skeleton='1'>");
+                                    a = a.replace(/>([\w$\s]*)$/, " data-skeleton='1'>$1");
                                 else if (/ src=("|')$/.test(a))
                                     a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
                             }
