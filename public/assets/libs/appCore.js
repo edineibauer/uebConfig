@@ -306,7 +306,7 @@ $(function ($) {
         let param = {USER: USER, URL: URL};
         mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
-        let id = ($this.hasAttr("data-id") && isNumberPositive($this.data("id")) ? $this.data("id") : (isJson($this.data("id")) ? JSON.parse(Mustache.render($this.data("id"), param)) : null));
+        let id = ($this.hasAttr("data-id") && isNumberPositive($this.data("id")) ? $this.data("id") : (typeof $this.data("id") === "object" ? $this.data("id") : null));
         let limit = ($this.hasAttr("data-limit") ? Mustache.render($this.data("limit"), param) : null);
         let offset = ($this.hasAttr("data-offset") ? Mustache.render($this.data("offset"), param) : null);
         let order = ($this.hasAttr("data-order") ? Mustache.render($this.data("order"), param) : null);
