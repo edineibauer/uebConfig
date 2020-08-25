@@ -306,7 +306,8 @@ $(function ($) {
         let param = {USER: USER, URL: URL};
         mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
-        let id = ($this.hasAttr("data-id") && isNumberPositive($this.data("id")) ? $this.data("id") : (typeof $this.data("id") === "object" ? $this.data("id") : null));
+        let id = ($this.hasAttr("data-id") ? $this.attr("data-id") : {});
+        id = isNumberPositive(id) ? parseInt(id) : (isJson(id) ? JSON.parse(id) : (typeof id === "string" ? {"*": "%" + id + "%"} : {}));
         let limit = ($this.hasAttr("data-limit") ? Mustache.render($this.data("limit"), param) : null);
         let offset = ($this.hasAttr("data-offset") ? Mustache.render($this.data("offset"), param) : null);
         let order = ($this.hasAttr("data-order") ? Mustache.render($this.data("order"), param) : null);
@@ -2272,6 +2273,41 @@ function _checkRealtimeDbUpdate(entity) {
                 await $tag.htmlTemplate($templateChild.html(), dados);
             else
                 await _updateTemplateRealTime($tag, $templateChild, dados);
+
+            /**
+             * Listen for changes on data-filter fields
+             */
+            $.each($tag[0].attributes, function () {
+                if (this.specified) {
+                    if (/^data-filter-/.test(this.name) || this.name === "data-filter") {
+                        if (this.name === "data-filter") {
+
+                        } else {
+                            let field = this.name.replace("data-filter-", "");
+                            let $filterField = $(this.value);
+                            if ($filterField.length === 1) {
+                                if ($filterField.hasAttr("type") && $filterField.attr("type") === "text") {
+                                    $filterField.off("keyup change click").on("keyup", function () {
+                                        let value = $(this).val();
+                                        clearTimeout(timerWriting);
+                                        timerWriting = setTimeout(function () {
+                                            let data = ($tag.hasAttr("data-id") ? $tag.attr("data-id") : {});
+                                            data = isNumberPositive(data) ? {"id": data} : (isJson(data) ? JSON.parse(data) : (typeof data === "string" ? {"*": "%" + data + "%"} : {}));
+                                            if(value !== "")
+                                                data[field] = "%" + value + "%";
+                                            else if(typeof data[field] !== "undefined")
+                                                delete data[field];
+
+                                            $tag.attr("data-id", JSON.stringify(data));
+                                            _checkRealtimeDbUpdate($tag.data("db"));
+                                        }, 300);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         });
     }
 }
