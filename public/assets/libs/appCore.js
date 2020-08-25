@@ -328,7 +328,7 @@ $(function ($) {
         param = _htmlTemplateDefaultParam(isSkeleton, param);
         let loop = $this.hasAttr('data-template-loop') ? parseInt($this.data("template-loop")) : 1;
         let templateTpl = tpl.length > 100 || typeof templates[tpl] === "undefined" ? tpl : templates[tpl];
-        templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.src='" + HOME + "assetsPublic/img/" + (isSkeleton ? "loading" : "img") + ".png'\"");
+        templateTpl = templateTpl.replace(/<img /gi, "<img onerror=\"this.classList.add('skeleton');this.src='" + HOME + "assetsPublic/img/" + (isSkeleton ? "loading" : "img") + ".png'\"");
 
         return (async () => {
             /**
@@ -395,12 +395,8 @@ $(function ($) {
                             /**
                              * Var not exist on param, so add skeleton
                              */
-                            if (typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p)) {
-                                if (/>[\w$\s]*$/.test(a))
-                                    a = a.replace(/>([\w$\s]*)$/, " data-skeleton='1'>$1");
-                                else if (/ src=("|')$/.test(a))
-                                    a = a.replace(/ src=("|')$/, " data-skeleton='1' src=" + (/'$/.test(a) ? "'" : '"'));
-                            }
+                            if (typeof getObjectDotNotation(param, p) === "undefined" && /(^\w|{)/.test(p) && !/^(USER\.|sitename)/.test(p) && />[\w$\s]*$/.test(a))
+                                a = a.replace(/>([\w$\s]*)$/, " data-skeleton='1'>$1");
 
                             novotemplateTpl += a + "{{";
                         }
@@ -579,7 +575,6 @@ $(function ($) {
                  */
                 let height = $this.children().first().innerHeight() * -1;
                 $this.append($content.addClass("loadingImagesPreview").css({"margin-top": height + "px"}));
-                $this.parent().removeClass("skeleton").find(".skeleton").removeClass("skeleton");
 
                 /**
                  * Await the content insert on DOM (load)
