@@ -619,7 +619,6 @@ $(function ($) {
                                 if ($filterField.length === 1) {
                                     if ($filterField.hasAttr("type") && $filterField.attr("type") === "text") {
                                         $filterField.off("keyup change click").on("keyup", function () {
-                                            console.log('foi');
                                             let value = $(this).val();
                                             clearTimeout(timerWriting);
                                             timerWriting = setTimeout(async function () {
