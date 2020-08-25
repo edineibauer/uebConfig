@@ -2232,6 +2232,7 @@ async function _updateTemplateRealTime($element, $template, param) {
 /**
  * Check for render DB data again
  */
+var timerWriting;
 function _checkRealtimeDbUpdate(entity) {
     if(typeof sseSourceListeners[app.file] === "object") {
         let dbFind = "[data-db='" + entity + "'][data-realtime-db]";
@@ -2269,7 +2270,7 @@ function _checkRealtimeDbUpdate(entity) {
                     dados = parametros;
             }
 
-            if($tag.hasAttr("data-template-empty"))
+            if($tag.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
                 await $tag.htmlTemplate($templateChild.html(), dados);
             else
                 await _updateTemplateRealTime($tag, $templateChild, dados);
