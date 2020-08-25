@@ -21,7 +21,7 @@ function dateTimeFormat(date) {
     let hour = String(dateObj.getHours()).padStart(2, '0');
     let min = String(dateObj.getMinutes()).padStart(2, '0');
     let sec = String(dateObj.getSeconds()).padStart(2, '0');
-    return year + '-' + month  + '-' + day + " " + hour + ":" + min + ":" + sec ;
+    return year + '-' + month + '-' + day + " " + hour + ":" + min + ":" + sec;
 }
 
 function dateFormat(date) {
@@ -29,7 +29,7 @@ function dateFormat(date) {
     let day = String(dateObj.getDate()).padStart(2, '0');
     let month = String(dateObj.getMonth() + 1).padStart(2, '0');
     let year = dateObj.getFullYear();
-    return day + '/' + month  + '/' + year;
+    return day + '/' + month + '/' + year;
 }
 
 function timeFormat(date) {
@@ -207,7 +207,7 @@ function createObjectWithStringDotNotation(key, value) {
 
 function getObjectDotNotation(obj, dotnotation) {
     var arr = dotnotation.split(".");
-    while(arr.length && (obj = obj[arr.shift()]));
+    while (arr.length && (obj = obj[arr.shift()])) ;
     return obj;
 }
 
@@ -226,7 +226,7 @@ Object.size = function (obj) {
 
 function _htmlTemplateJsonDecode(txt, render) {
     let txtRender = render(txt);
-    if(!isEmpty(txtRender)) {
+    if (!isEmpty(txtRender)) {
         let txtc = document.createElement("textarea");
         txtc.innerHTML = txtRender;
         txt = txtc.value.split(',');
@@ -259,12 +259,12 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
         USER: USER,
         URL: history.state.param.url,
         jsonParse: function () {
-            return function(txt, render) {
+            return function (txt, render) {
                 return _htmlTemplateJsonDecode(txt, render);
             }
         },
-        jsonDecode: function() {
-            return function(txt, render) {
+        jsonDecode: function () {
+            return function (txt, render) {
                 return _htmlTemplateJsonDecode(txt, render);
             }
         }
@@ -272,7 +272,7 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
 
     mergeObject(p, SSE);
 
-    if(!isSkeleton)
+    if (!isSkeleton)
         mergeObject(p, param);
 
     return p;
@@ -297,10 +297,10 @@ $(function ($) {
         return typeof (this.attr(name)) !== "undefined"
     };
 
-    $.fn.dbExeRead = async function() {
+    $.fn.dbExeRead = async function () {
         let $this = $(this);
 
-        if(!$this.hasAttr("data-db"))
+        if (!$this.hasAttr("data-db"))
             return [];
 
         let param = {USER: USER, URL: URL};
@@ -448,17 +448,17 @@ $(function ($) {
                     if ($this.hasAttr("data-get")) {
                         dados = await AJAX.get($this.data("get"));
 
-                        if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                        if ($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
                             dados = await window[$this.data("get-function")](dados);
-                        else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                        else if ($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
                             dados = await window[$this.data("realtime-get")](dados);
 
                     } else if ($this.hasAttr("data-db")) {
                         dados = await $this.dbExeRead();
 
-                        if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
+                        if ($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
                             dados = await window[$this.data("db-function")](dados);
-                        else if($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
+                        else if ($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
                             dados = await window[$this.data("realtime-db")](dados);
 
                     }
@@ -466,15 +466,15 @@ $(function ($) {
                     let $templateChild = $this.data("template");
                     let parametros = {};
 
-                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                    if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
                         parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                         $templateChild = $this.data("template-empty");
                     } else {
                         parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                     }
 
-                    if(!isEmpty(parametros)) {
-                        if(!isEmpty(dados))
+                    if (!isEmpty(parametros)) {
+                        if (!isEmpty(dados))
                             mergeObject(dados, parametros);
                         else
                             dados = parametros;
@@ -496,23 +496,23 @@ $(function ($) {
                      * get the data to use on template if need
                      */
                     let dados = await $this.dbExeRead();
-                    if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
+                    if ($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
                         dados = await window[$this.data("db-function")](dados);
-                    else if($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
+                    else if ($this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
                         dados = await window[$this.data("realtime-db")](dados);
 
                     let $templateChild = $(e).html();
                     let parametros = {};
 
-                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                    if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
                         parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                         $templateChild = $this.data("template-empty");
                     } else {
                         parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                     }
 
-                    if(!isEmpty(parametros)) {
-                        if(!isEmpty(dados))
+                    if (!isEmpty(parametros)) {
+                        if (!isEmpty(dados))
                             mergeObject(dados, parametros);
                         else
                             dados = parametros;
@@ -530,23 +530,23 @@ $(function ($) {
                      * get the data to use on template if need
                      */
                     let dados = await AJAX.get($this.data("get"));
-                    if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                    if ($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
                         dados = await window[$this.data("get-function")](dados);
-                    else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                    else if ($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
                         dados = await window[$this.data("realtime-get")](dados);
 
                     let $templateChild = $(e).html();
                     let parametros = {};
 
-                    if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                    if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
                         parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                         $templateChild = $this.data("template-empty");
                     } else {
                         parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
                     }
 
-                    if(!isEmpty(parametros)) {
-                        if(!isEmpty(dados))
+                    if (!isEmpty(parametros)) {
+                        if (!isEmpty(dados))
                             mergeObject(dados, parametros);
                         else
                             dados = parametros;
@@ -603,6 +603,51 @@ $(function ($) {
                         $(this).val($(this).hasAttr("value")).trigger("change");
                 });
             }
+
+            /**
+             * Listen for changes on data-filter fields
+             */
+            $("#app").find("[data-db][data-realtime-db]").each(function(i, e) {
+                $.each(e.attributes, function () {
+                    if (this.specified) {
+                        if (/^data-filter-/.test(this.name) || this.name === "data-filter") {
+                            if (this.name === "data-filter") {
+
+                            } else {
+                                let field = this.name.replace("data-filter-", "");
+                                let $filterField = $(this.value);
+                                if ($filterField.length === 1) {
+                                    if ($filterField.hasAttr("type") && $filterField.attr("type") === "text") {
+                                        $filterField.off("keyup change click").on("keyup", function () {
+                                            console.log('foi');
+                                            let value = $(this).val();
+                                            clearTimeout(timerWriting);
+                                            timerWriting = setTimeout(async function () {
+                                                let data = ($(e).hasAttr("data-id") ? $(e).attr("data-id") : {});
+                                                data = isNumberPositive(data) ? {"id": data} : (isJson(data) ? JSON.parse(data) : (typeof data === "string" ? {"*": "%" + data + "%"} : {}));
+                                                if(value !== "")
+                                                    data[field] = "%" + value + "%";
+                                                else if(typeof data[field] !== "undefined")
+                                                    delete data[field];
+
+                                                $(e).attr("data-id", JSON.stringify(data)).loading();
+
+                                                let intL = setInterval(function() {
+                                                    $(e).loading();
+                                                }, 2000);
+
+                                                await _checkRealtimeDbUpdate($(e).data("db"));
+
+                                                clearInterval(intL);
+                                            }, 300);
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
 
             return $this;
         })();
@@ -663,19 +708,19 @@ function lightBoxTouch($images) {
             $gallery.remove();
         });
 
-        new TouchHorizontal($gallery, 0, 0, 20, function(touch, target, direction) {
+        new TouchHorizontal($gallery, 0, 0, 20, function (touch, target, direction) {
             let next = direction === "right";
             let img = $gallery.attr("src");
             let imgBefore = !1;
             let now = !1;
-            $images.each(function(i, e) {
-                if(now && next) {
+            $images.each(function (i, e) {
+                if (now && next) {
 
                     /**
                      * Next Slide
                      */
-                    $gallery.attr("src", $(e).attr("src")).load(function() {
-                        $gallery.css("top", "calc(50% - " + ($gallery.height() /2) + "px")
+                    $gallery.attr("src", $(e).attr("src")).load(function () {
+                        $gallery.css("top", "calc(50% - " + ($gallery.height() / 2) + "px")
                     });
                     return !1;
                 }
@@ -684,9 +729,9 @@ function lightBoxTouch($images) {
                 /**
                  * Back Slide
                  */
-                if(now && imgBefore && !next) {
-                    $gallery.attr("src", imgBefore).load(function() {
-                        $gallery.css("top", "calc(50% - " + ($gallery.height() /2) + "px")
+                if (now && imgBefore && !next) {
+                    $gallery.attr("src", imgBefore).load(function () {
+                        $gallery.css("top", "calc(50% - " + ($gallery.height() / 2) + "px")
                     });
                     return !1;
                 }
@@ -1345,7 +1390,7 @@ async function clearCacheUser() {
      * Sobe pendências para o servidor e limpa base local
      */
     let syncData = await dbLocal.exeRead("_syncDB");
-    if(!isEmpty(syncData))
+    if (!isEmpty(syncData))
         await AJAX.post("up/sync", syncData);
 
     dbLocal.clear("_syncDB");
@@ -1377,7 +1422,7 @@ async function clearCacheAll() {
      * Sobe pendências para o servidor e limpa base local
      */
     let syncData = await dbLocal.exeRead("_syncDB");
-    if(!isEmpty(syncData))
+    if (!isEmpty(syncData))
         await AJAX.post("up/sync", syncData);
 
     dbLocal.clear("_syncDB");
@@ -1450,7 +1495,7 @@ function setUserInNavigator(user, isUserToStore) {
 
 function setCookieAnonimo() {
     let token = Date.now() + Math.floor((Math.random() * 100000) + 1);
-    return setCookieUser({token: "T!" + token, id: (token*-1), nome: 'Anônimo', imagem: '', setor: 0});
+    return setCookieUser({token: "T!" + token, id: (token * -1), nome: 'Anônimo', imagem: '', setor: 0});
 }
 
 function setCookieUser(user) {
@@ -1702,9 +1747,9 @@ async function getIndexedDbGets() {
     let r = await AJAX.get("userCache");
 
     dicionarios = r['dicionario'];
-    if(USER.setor === "admin") {
+    if (USER.setor === "admin") {
         let inputTypes = await get("inputTypes");
-        for(let entity in dicionarios) {
+        for (let entity in dicionarios) {
             infoDic = r['info'][entity];
             if (infoDic.system !== "" && infoDic.user === 1) {
                 dicionarios[entity].system_id = Object.assign({}, inputTypes.list, {
@@ -1957,7 +2002,7 @@ function animateBack(id, file, scroll) {
             clearInterval(t);
 
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", (- (scroll - topHeader)) + "px");
+            $aux.css("top", (-(scroll - topHeader)) + "px");
             if (window.innerWidth < 900) {
                 $aux.animate({left: '0'}, 250, () => {
                     animateTimeout($element, $aux, scroll);
@@ -2114,10 +2159,10 @@ async function _updateTemplateRealTime($element, $template, param) {
 
     param = _htmlTemplateDefaultParam(!1, param);
 
-    if(typeof $element === "undefined")
+    if (typeof $element === "undefined")
         $element = sseSourceListeners[app.file][0];
 
-    if(typeof $template === "undefined")
+    if (typeof $template === "undefined")
         $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
 
     /**
@@ -2130,31 +2175,31 @@ async function _updateTemplateRealTime($element, $template, param) {
          * get the data to use on template if need
          */
         let dados = await AJAX.get($(e).data("get"));
-        if($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
+        if ($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
             dados = await window[$(e).data("get-function")](dados);
-        else if($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
+        else if ($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
             dados = await window[$(e).data("realtime-get")](dados);
 
         let $templateChild = $t;
         let parametros = {};
 
-        if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+        if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
             parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
             $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
         } else {
             parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
-            if($(e).hasAttr("data-template"))
+            if ($(e).hasAttr("data-template"))
                 $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
         }
 
-        if(!isEmpty(parametros)) {
-            if(!isEmpty(dados))
+        if (!isEmpty(parametros)) {
+            if (!isEmpty(dados))
                 mergeObject(dados, parametros);
             else
                 dados = parametros;
         }
 
-        if($(e).hasAttr("data-template-empty"))
+        if ($(e).hasAttr("data-template-empty"))
             await $(e).htmlTemplate($templateChild.html(), dados);
         else
             await _updateTemplateRealTime($(e), $templateChild, dados);
@@ -2228,84 +2273,54 @@ async function _updateTemplateRealTime($element, $template, param) {
  * Check for render DB data again
  */
 var timerWriting;
-function _checkRealtimeDbUpdate(entity) {
-    if(typeof sseSourceListeners[app.file] === "object") {
-        let dbFind = "[data-db='" + entity + "'][data-realtime-db]";
-        $("<div>" + sseSourceListeners[app.file][1] + "</div>").find(dbFind).each(async function (i, e) {
-            let $tag = sseSourceListeners[app.file][0].find(dbFind).eq(i);
 
-            /**
-             * get the data to use on template if need
-             */
-            let dados = await $tag.dbExeRead();
-            if($tag.hasAttr("data-db-function")) {
-                let funcao = $(e).data("db-function");
-                if (funcao !== "" && typeof window[funcao] === "function")
-                    dados = await window[funcao](dados);
-                else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
-                    dados = await window[$tag.data("realtime-db")](dados);
-            }
+async function _checkRealtimeDbUpdate(entity) {
+    return new Promise(s => {
+        if (typeof sseSourceListeners[app.file] === "object") {
+            let dbFind = "[data-db='" + entity + "'][data-realtime-db]";
+            $("<div>" + sseSourceListeners[app.file][1] + "</div>").find(dbFind).each(async function (i, e) {
+                let $tag = sseSourceListeners[app.file][0].find(dbFind).eq(i);
 
-            let $templateChild = $(e);
-            let parametros = {};
-
-            if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
-                parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
-                $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
-            } else {
-                parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
-                if($(e).hasAttr("data-template"))
-                    $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
-            }
-
-            if(!isEmpty(parametros)) {
-                if(!isEmpty(dados))
-                    mergeObject(dados, parametros);
-                else
-                    dados = parametros;
-            }
-
-            if($tag.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                await $tag.htmlTemplate($templateChild.html(), dados);
-            else
-                await _updateTemplateRealTime($tag, $templateChild, dados);
-
-            /**
-             * Listen for changes on data-filter fields
-             */
-            $.each($tag[0].attributes, function () {
-                if (this.specified) {
-                    if (/^data-filter-/.test(this.name) || this.name === "data-filter") {
-                        if (this.name === "data-filter") {
-
-                        } else {
-                            let field = this.name.replace("data-filter-", "");
-                            let $filterField = $(this.value);
-                            if ($filterField.length === 1) {
-                                if ($filterField.hasAttr("type") && $filterField.attr("type") === "text") {
-                                    $filterField.off("keyup change click").on("keyup", function () {
-                                        let value = $(this).val();
-                                        clearTimeout(timerWriting);
-                                        timerWriting = setTimeout(function () {
-                                            let data = ($tag.hasAttr("data-id") ? $tag.attr("data-id") : {});
-                                            data = isNumberPositive(data) ? {"id": data} : (isJson(data) ? JSON.parse(data) : (typeof data === "string" ? {"*": "%" + data + "%"} : {}));
-                                            if(value !== "")
-                                                data[field] = "%" + value + "%";
-                                            else if(typeof data[field] !== "undefined")
-                                                delete data[field];
-
-                                            $tag.attr("data-id", JSON.stringify(data));
-                                            _checkRealtimeDbUpdate($tag.data("db"));
-                                        }, 300);
-                                    });
-                                }
-                            }
-                        }
-                    }
+                /**
+                 * get the data to use on template if need
+                 */
+                let dados = await $tag.dbExeRead();
+                if ($tag.hasAttr("data-db-function")) {
+                    let funcao = $(e).data("db-function");
+                    if (funcao !== "" && typeof window[funcao] === "function")
+                        dados = await window[funcao](dados);
+                    else if ($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
+                        dados = await window[$tag.data("realtime-db")](dados);
                 }
+
+                let $templateChild = $(e);
+                let parametros = {};
+
+                if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+                    parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                    $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
+                } else {
+                    parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                    if ($(e).hasAttr("data-template"))
+                        $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
+                }
+
+                if (!isEmpty(parametros)) {
+                    if (!isEmpty(dados))
+                        mergeObject(dados, parametros);
+                    else
+                        dados = parametros;
+                }
+
+                if ($tag.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+                    await $tag.htmlTemplate($templateChild.html(), dados);
+                else
+                    await _updateTemplateRealTime($tag, $templateChild, dados);
+
+                s(1);
             });
-        });
-    }
+        }
+    })
 }
 
 /**
@@ -2315,9 +2330,9 @@ function _checkRealtimeDbUpdate(entity) {
  */
 async function imagesPreload(imagesList) {
     let loadAll = [];
-    if(!isEmpty(imagesList)) {
+    if (!isEmpty(imagesList)) {
         for (let image of imagesList) {
-            if(!isEmpty(image)) {
+            if (!isEmpty(image)) {
                 loadAll.push(new Promise(s => {
                     let img = new Image();
                     img.onload = function () {
@@ -2418,7 +2433,7 @@ var URL, app = {
                     /**
                      * Include templates used in this view
                      */
-                    if(!isEmpty(g.templates)) {
+                    if (!isEmpty(g.templates)) {
                         templates = Object.assign(templates, g.templates);
                         dbLocal.exeCreate("__template", templates);
                     }
@@ -2448,7 +2463,7 @@ var URL, app = {
                          * Add link to head
                          */
                         for (let hid in g.head) {
-                            if(/^core-/.test(hid))
+                            if (/^core-/.test(hid))
                                 $("html").addClass(hid);
                             else
                                 $div.addClass(hid);
@@ -2469,8 +2484,8 @@ var URL, app = {
                     /**
                      * Register SSE
                      */
-                    if(navigator.onLine && typeof (EventSource) !== "undefined") {
-                        if(typeof sseSourceListeners[file] === "undefined") {
+                    if (navigator.onLine && typeof (EventSource) !== "undefined") {
+                        if (typeof sseSourceListeners[file] === "undefined") {
                             await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                             sseSource.addEventListener(file, async function (e) {
@@ -2601,7 +2616,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     } else {
         return new Promise(s => {
             let a = setInterval(function () {
-                if(!app.loading && !aniTransitionPage) {
+                if (!app.loading && !aniTransitionPage) {
                     s(_pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload));
                     clearInterval(a);
                 }
@@ -2775,9 +2790,9 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                  * Check for same relation in others registers to update
                  */
                 let allRegisters = await dbLocal.exeRead(history.state.route);
-                if(!isEmpty(allRegisters)) {
+                if (!isEmpty(allRegisters)) {
                     for (let reg of allRegisters) {
-                        if(reg[history.state.param.openForm.column] == form.id) {
+                        if (reg[history.state.param.openForm.column] == form.id) {
                             reg.relationData[history.state.param.openForm.column] = dataOnRelation;
                             dbLocal.exeCreate(history.state.route, reg);
                         }
@@ -2842,7 +2857,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                 /**
                  * Back form after save if is in grid view
                  */
-                if(!isGridView)
+                if (!isGridView)
                     form.setReloadAfterSave(!1);
 
                 form.show(id);
@@ -2958,30 +2973,30 @@ async function setUserData(field, value) {
     /**
      * Update user local application
      */
-    if(typeof value !== "undefined" && typeof field === "string" && dicionarios[USER.setor][field]) {
+    if (typeof value !== "undefined" && typeof field === "string" && dicionarios[USER.setor][field]) {
         /**
          * one field and one value
          */
         USER.setorData[field] = value;
         updates[field] = value;
 
-    } else if(typeof field === "object" && field !== null && field.constructor === Object && typeof value === "undefined") {
+    } else if (typeof field === "object" && field !== null && field.constructor === Object && typeof value === "undefined") {
         /**
          * One object
          */
-        for(let c in field) {
-            if(typeof c === "string" && typeof field[c] !== "undefined" && dicionarios[USER.setor][c]) {
+        for (let c in field) {
+            if (typeof c === "string" && typeof field[c] !== "undefined" && dicionarios[USER.setor][c]) {
                 USER.setorData[c] = field[c];
                 updates[c] = field[c];
             }
         }
 
-    } else if(typeof field === "object" && field !== null && field.constructor === Array && typeof value === "object" && value !== null && value.constructor === Array) {
+    } else if (typeof field === "object" && field !== null && field.constructor === Array && typeof value === "object" && value !== null && value.constructor === Array) {
         /**
          * Two arrays, first is fields, second is values
          */
-        for(let i in field) {
-            if(typeof field[i] === "string" && typeof value[i] !== "undefined" && dicionarios[USER.setor][field[i]]) {
+        for (let i in field) {
+            if (typeof field[i] === "string" && typeof value[i] !== "undefined" && dicionarios[USER.setor][field[i]]) {
                 USER.setorData[field[i]] = _getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
                 updates[field[i]] = _getDefaultValue(dicionarios[USER.setor][field[i]], value[i]);
             }
@@ -2996,7 +3011,7 @@ async function setUserData(field, value) {
     /**
      * Update user in server base
      */
-    if(navigator.onLine)
+    if (navigator.onLine)
         return AJAX.post("setUserData", updates);
 }
 
@@ -3018,6 +3033,7 @@ var sseSource = {};
 const sseSourceListeners = {};
 const sseEvents = {};
 const SSE = {};
+
 async function sseStart() {
     if (navigator.onLine && typeof (EventSource) !== "undefined") {
         sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
@@ -3028,8 +3044,8 @@ async function sseStart() {
                 /**
                  * If have event function on receive this SSE to trigger
                  */
-                for(let i in sseData) {
-                    if(sseData[i].response === 1) {
+                for (let i in sseData) {
+                    if (sseData[i].response === 1) {
                         /**
                          * Store the value of the SSE event
                          */
@@ -3038,7 +3054,7 @@ async function sseStart() {
                         /**
                          * For each SSE received on view
                          */
-                        if(typeof sseEvents[i] === "function")
+                        if (typeof sseEvents[i] === "function")
                             sseEvents[i](SSE[i]);
                     }
                 }
@@ -3051,10 +3067,10 @@ async function sseStart() {
         sseSource.addEventListener('db', async function (e) {
             if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                 let sseData = JSON.parse(e.data);
-                if(!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
+                if (!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
                     for (let entity in sseData) {
                         await dbLocal.clear(entity);
-                        if(!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
+                        if (!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
                             for (let registro of sseData[entity])
                                 await dbLocal.exeCreate(entity, registro);
 
@@ -3065,7 +3081,7 @@ async function sseStart() {
             }
         }, !1);
 
-        sseAdd("updatePerfil", function(data) {
+        sseAdd("updatePerfil", function (data) {
             USER = data;
             storeUser();
             _updateTemplateRealTime();
@@ -3074,9 +3090,9 @@ async function sseStart() {
         /**
          * Notificações pendentes show badge
          */
-        sseAdd("notificationsBadge", async function(data) {
+        sseAdd("notificationsBadge", async function (data) {
             if (USER.setor !== 0) {
-                if(data !== "0") {
+                if (data !== "0") {
                     /**
                      * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
                      */
@@ -3094,7 +3110,7 @@ async function sseStart() {
 }
 
 function sseAdd(name, funcao) {
-    if(typeof funcao === "function")
+    if (typeof funcao === "function")
         sseEvents[name] = funcao;
 }
 
