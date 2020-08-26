@@ -2,7 +2,7 @@
     <div class="notification-item" rel="{{id}}">
         <div class="notification-card no-select">
             <div class="notification-content-left">
-                <img src="{{relationData.notificacao.imagem.0.urls.medium}}" width="50" height="50" class="imagem-notificacao"/>
+                <img src="{{#relationData.notificacao.imagem}}{{urls.medium}}{{/relationData.notificacao.imagem}}{{^relationData.notificacao.imagem}}{{home}}assetsPublic/img/favicon.png{{/relationData.notificacao.imagem}}" width="50" height="50" class="imagem-notificacao"/>
                 <div class="note-time font-weight-bold">{{data_de_envio}}</div>
             </div>
             <div class="notification-content-right">
