@@ -103,9 +103,9 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
 
                         if (!empty($inf['columns_readable'])) {
                             foreach ($inf['columns_readable'] as $column)
-                                $selects .= ", data_" . $dicionarios[$entity][$relationItem]['relation'] . ".{$column} as {$dicionarios[$entity][$relationItem]['relation']}___{$column}";
+                                $selects .= ", data_" . $dicionarios[$entity][$relationItem]['column'] . ".{$column} as {$dicionarios[$entity][$relationItem]['relation']}___{$column}";
                         }
-                        $command .= " LEFT JOIN " . PRE . $dicionarios[$entity][$relationItem]['relation'] . " as data_" . $dicionarios[$entity][$relationItem]['relation'] . " ON data_" . $dicionarios[$entity][$relationItem]['relation'] . ".id = e." . $dicionarios[$entity][$relationItem]['column'];
+                        $command .= " LEFT JOIN " . PRE . $dicionarios[$entity][$relationItem]['relation'] . " as data_" . $dicionarios[$entity][$relationItem]['column'] . " ON data_" . $dicionarios[$entity][$relationItem]['column'] . ".id = e." . $dicionarios[$entity][$relationItem]['column'];
                     }
                 }
 
