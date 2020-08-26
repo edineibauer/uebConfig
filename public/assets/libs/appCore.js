@@ -2169,39 +2169,41 @@ async function _updateTemplateRealTime($element, $template, param) {
      */
     $element.find("[data-get][data-realtime-get]").each(async function (i, e) {
         let $t = $template.find("[data-get][data-realtime-get]").eq(i);
+        if($t.length) {
 
-        /**
-         * get the data to use on template if need
-         */
-        let dados = await AJAX.get($(e).data("get"));
-        if ($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
-            dados = await window[$(e).data("get-function")](dados);
-        else if ($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
-            dados = await window[$(e).data("realtime-get")](dados);
+            /**
+             * get the data to use on template if need
+             */
+            let dados = await AJAX.get($(e).data("get"));
+            if ($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
+                dados = await window[$(e).data("get-function")](dados);
+            else if ($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
+                dados = await window[$(e).data("realtime-get")](dados);
 
-        let $templateChild = $t;
-        let parametros = {};
+            let $templateChild = $t;
+            let parametros = {};
 
-        if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
-            parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
-            $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
-        } else {
-            parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
-            if ($(e).hasAttr("data-template"))
-                $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
-        }
+            if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+                parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
+            } else {
+                parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                if ($(e).hasAttr("data-template"))
+                    $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
+            }
 
-        if (!isEmpty(parametros)) {
-            if (!isEmpty(dados))
-                mergeObject(dados, parametros);
+            if (!isEmpty(parametros)) {
+                if (!isEmpty(dados))
+                    mergeObject(dados, parametros);
+                else
+                    dados = parametros;
+            }
+
+            if ($(e).hasAttr("data-template-empty"))
+                await $(e).htmlTemplate($templateChild.html(), dados);
             else
-                dados = parametros;
+                await _updateTemplateRealTime($(e), $templateChild, dados);
         }
-
-        if ($(e).hasAttr("data-template-empty"))
-            await $(e).htmlTemplate($templateChild.html(), dados);
-        else
-            await _updateTemplateRealTime($(e), $templateChild, dados);
     });
 
     /**
@@ -2209,32 +2211,34 @@ async function _updateTemplateRealTime($element, $template, param) {
      */
     $element.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").each(async function (i, e) {
         let $t = $template.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").eq(i);
+        if($t.length) {
 
-        /**
-         * Update the html
-         */
-        let html = Mustache.render($t.html(), param);
-        let funcao = $(e).data("realtime");
-        if (funcao !== "" && typeof window[funcao] === "function")
-            html = await window[funcao](html);
+            /**
+             * Update the html
+             */
+            let html = Mustache.render($t.html(), param);
+            let funcao = $(e).data("realtime");
+            if (funcao !== "" && typeof window[funcao] === "function")
+                html = await window[funcao](html);
 
-        $(e).html(html);
+            $(e).html(html);
 
-        /**
-         * Update all attributes of element
-         */
-        $.each($t[0].attributes, async function () {
-            if (this.specified) {
-                let txtc = document.createElement("textarea");
-                txtc.innerHTML = Mustache.render(this.value, param);
-                let valor = txtc.value
+            /**
+             * Update all attributes of element
+             */
+            $.each($t[0].attributes, async function () {
+                if (this.specified) {
+                    let txtc = document.createElement("textarea");
+                    txtc.innerHTML = Mustache.render(this.value, param);
+                    let valor = txtc.value
 
-                if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
-                    valor = await window[$(e).data("realtime-" + this.name)](valor);
+                    if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                        valor = await window[$(e).data("realtime-" + this.name)](valor);
 
-                $(e).removeAttr(this.name).attr(this.name, valor);
-            }
-        });
+                    $(e).removeAttr(this.name).attr(this.name, valor);
+                }
+            });
+        }
     });
 
     /**
@@ -2242,12 +2246,14 @@ async function _updateTemplateRealTime($element, $template, param) {
      */
     $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").each(async function (i, e) {
         let $t = $template.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").eq(i);
-        let html = Mustache.render($t.html(), param);
-        let funcao = $(e).data("realtime-html");
-        if (funcao !== "" && typeof window[funcao] === "function")
-            html = await window[funcao](html);
+        if($t.length) {
+            let html = Mustache.render($t.html(), param);
+            let funcao = $(e).data("realtime-html");
+            if (funcao !== "" && typeof window[funcao] === "function")
+                html = await window[funcao](html);
 
-        $(e).html(html);
+            $(e).html(html);
+        }
     });
 
     /**
@@ -2255,16 +2261,18 @@ async function _updateTemplateRealTime($element, $template, param) {
      */
     $element.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").each(function (i, e) {
         let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").eq(i);
+        if($t.length) {
 
-        $.each($t[0].attributes, async function () {
-            if (this.specified) {
-                let valor = Mustache.render(this.value, param);
-                if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
-                    valor = await window[$(e).data("realtime-" + this.name)](valor);
+            $.each($t[0].attributes, async function () {
+                if (this.specified) {
+                    let valor = Mustache.render(this.value, param);
+                    if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                        valor = await window[$(e).data("realtime-" + this.name)](valor);
 
-                $(e).removeAttr(this.name).attr(this.name, valor);
-            }
-        });
+                    $(e).removeAttr(this.name).attr(this.name, valor);
+                }
+            });
+        }
     });
 }
 
