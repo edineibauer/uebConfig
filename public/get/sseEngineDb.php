@@ -121,6 +121,13 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                 $sql->exeCommand($command);
 
                 /**
+                 * Save total register
+                 */
+                $f = fopen(PATH_HOME . "_cdn/userTotalRegisterDB/" . $_SESSION['userlogin']['id'] . "/{$entity}.json", "w");
+                fwrite($f, $sql->getRowCount());
+                fclose($f);
+
+                /**
                  * Convert join values into a array of relation data
                  * Convert json values into array
                  */
