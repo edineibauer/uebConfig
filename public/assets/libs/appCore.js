@@ -583,6 +583,20 @@ $(function ($) {
         if ($templatesToRenderInside.length) {
             await new Promise(async s => {
                 $templatesToRenderInside.each(async function () {
+                    let $this = $(this);
+
+                    /**
+                     * Allow to send data-param-empty to skeleton
+                     */
+                    if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
+                        mergeObject(paramReceived, $this.data("param-empty"));
+
+                    /**
+                     * Allow to apply function on param to skeleton
+                     */
+                    if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                        paramReceived = await window[$this.data("param-function")](paramReceived);
+
                     s($(this).htmlTemplate($(this).data("template"), paramReceived));
                 });
             });
@@ -596,6 +610,19 @@ $(function ($) {
             $contentDb.each(async function (i, e) {
                 let $this = $content.find("[data-db]").eq(i);
                 if($this.length) {
+
+                    /**
+                     * Allow to send data-param-empty to skeleton
+                     */
+                    if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
+                        mergeObject(param, $this.data("param-empty"));
+
+                    /**
+                     * Allow to apply function on param to skeleton
+                     */
+                    if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                        param = await window[$this.data("param-function")](param);
+
                     /**
                      * Apply Skeleton
                      */
@@ -615,6 +642,19 @@ $(function ($) {
             $contentGet.each(async function (i, e) {
                 let $this = $content.find("[data-get]").eq(i);
                 if($this.length) {
+
+                    /**
+                     * Allow to send data-param-empty to skeleton
+                     */
+                    if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
+                        mergeObject(param, $this.data("param-empty"));
+
+                    /**
+                     * Allow to apply function on param to skeleton
+                     */
+                    if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                        param = await window[$this.data("param-function")](param);
+
                     /**
                      * Apply Skeleton
                      */
