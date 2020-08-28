@@ -424,13 +424,16 @@ $(function ($) {
         let parametros = {};
 
         if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
-            parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+            parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
             $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());;
         } else {
-            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
         }
 
-        if(!isEmpty(parametros)) {
+        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+            parametros = await window[$this.data("param-function")](parametros);
+
+        if(!isEmpty(parametros) && typeof parametros === "object") {
             if(!isEmpty(dados))
                 mergeObject(dados, parametros);
             else
@@ -474,13 +477,16 @@ $(function ($) {
         let parametros = {};
 
         if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
-            parametros = ($this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+            parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
             $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
         } else {
-            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") && typeof $this.data("param-empty") === "object" ? $this.data("param-empty") : ($this.hasAttr("data-param") && typeof $this.data("param") === "object" ? $this.data("param") : {}));
+            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
         }
 
-        if(!isEmpty(parametros)) {
+        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+            parametros = await window[$this.data("param-function")](parametros);
+
+        if (!isEmpty(parametros) && typeof parametros === "object") {
             if(!isEmpty(dados))
                 mergeObject(dados, parametros);
             else
@@ -2205,15 +2211,18 @@ async function _updateTemplateRealTime($element, $template, param) {
             let parametros = {};
 
             if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
-                parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                parametros = ($(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
                 $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template-empty"), param)] + "</div>");
             } else {
-                parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
                 if ($(e).hasAttr("data-template"))
                     $templateChild = $("<div>" + (await getTemplates())[Mustache.render($(e).data("template"), param)] + "</div>");
             }
 
-            if (!isEmpty(parametros)) {
+            if ($(e).hasAttr("data-param-function") && $(e).data("param-function") !== "" && typeof window[$(e).data("param-function")] === "function")
+                parametros = await window[$(e).data("param-function")](parametros);
+
+            if (!isEmpty(parametros) && typeof parametros === "object") {
                 if (!isEmpty(dados))
                     mergeObject(dados, parametros);
                 else
@@ -2325,15 +2334,18 @@ async function _checkRealtimeDbUpdate(entity) {
                 let parametros = {};
 
                 if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
-                    parametros = ($(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                    parametros = ($(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
                     $templateChild = $("<div>" + (await getTemplates())[$(e).data("template-empty")] + "</div>");
                 } else {
-                    parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") && typeof $(e).data("param-empty") === "object" ? $(e).data("param-empty") : ($(e).hasAttr("data-param") && typeof $(e).data("param") === "object" ? $(e).data("param") : {}));
+                    parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
                     if($(e).hasAttr("data-template"))
                         $templateChild = $("<div>" + (await getTemplates())[$(e).data("template-empty")] + "</div>");
                 }
 
-                if(!isEmpty(parametros)) {
+                if ($(e).hasAttr("data-param-function") && $(e).data("param-function") !== "" && typeof window[$(e).data("param-function")] === "function")
+                    parametros = await window[$(e).data("param-function")](parametros);
+
+                if (!isEmpty(parametros) && typeof parametros === "object") {
                     if(!isEmpty(dados))
                         mergeObject(dados, parametros);
                     else
@@ -2455,6 +2467,26 @@ var URL, app = {
                     checkMenuActive();
                     $("#core-title").text(g.title);
 
+                    /**
+                     * add tags to the head of the page
+                     * if allready exist, so not do anything
+                     */
+                    $("html").removeClass();
+                    if (!isEmpty(g.head)) {
+                        /**
+                         * Add link to head
+                         */
+                        for (let hid in g.head) {
+                            if (/^core-/.test(hid))
+                                $("html").addClass(hid);
+                            else
+                                $div.addClass(hid);
+
+                            if (!$("head > #" + hid).length)
+                                $(g.head[hid]).appendTo("head");
+                        }
+                    }
+
                     let templates = await getTemplates();
                     URL = history.state.param.url;
 
@@ -2480,26 +2512,6 @@ var URL, app = {
                     $div.css("min-height", getPageContentHeight());
                     if ($div.attr("id") === "core-content")
                         $div.css("padding-top", getPaddingTopContent());
-
-                    /**
-                     * add tags to the head of the page
-                     * if allready exist, so not do anything
-                     */
-                    $("html").removeClass();
-                    if (!isEmpty(g.head)) {
-                        /**
-                         * Add link to head
-                         */
-                        for (let hid in g.head) {
-                            if (/^core-/.test(hid))
-                                $("html").addClass(hid);
-                            else
-                                $div.addClass(hid);
-
-                            if (!$("head > #" + hid).length)
-                                $(g.head[hid]).appendTo("head");
-                        }
-                    }
 
                     /**
                      * add script to page
