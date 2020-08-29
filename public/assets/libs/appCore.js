@@ -695,8 +695,7 @@ $(function ($) {
             /**
              * add content as hidden
              */
-            let height = $this.children().first().innerHeight() * -1;
-            $this.append($content.addClass("loadingImagesPreview").css({"margin-top": height + "px"}));
+            $this.append($content.addClass("loadingImagesPreview"));
             $this._functionsToExecuteAfterTemplate();
 
             /**
@@ -714,7 +713,7 @@ $(function ($) {
                 /**
                  * Show new content
                  */
-                $content.css({"margin-top": 0}).removeClass("loadingImagesPreview");
+                $content.removeClass("loadingImagesPreview");
             }, 10);
         }
     };
