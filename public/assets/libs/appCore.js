@@ -676,7 +676,7 @@ $(function ($) {
             /**
              * Change the content direct
              */
-            $this.html($content);
+            $this.html($content.contents());
             $this._functionsToExecuteAfterTemplate();
 
         } else {
