@@ -173,6 +173,15 @@ function orderBy(data, order) {
 }
 
 /**
+ * use like: await sleep(100) to await for 100 mileseconds
+ * @param ms
+ * @returns {Promise<unknown>}
+ */
+function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+}
+
+/**
  * Verifica se variável é numérica
  * @param n
  * @returns {boolean|boolean}
@@ -408,6 +417,9 @@ $(function ($) {
         if(!$this.hasAttr("data-db"))
             return;
 
+        while(app.loading)
+            await sleep(10);
+
         updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
 
         /**
@@ -444,9 +456,9 @@ $(function ($) {
          * Check if use the realtime render or the default render
          */
         if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-            await $this.htmlTemplate($templateChild, dados);
+            $this.htmlTemplate($templateChild, dados);
         else
-            await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
+            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
     };
 
     /**
@@ -460,6 +472,9 @@ $(function ($) {
         let $this = $(this);
         if(!$this.hasAttr("data-get"))
             return;
+
+        while(app.loading)
+            await sleep(10);
 
         updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
 
@@ -497,9 +512,9 @@ $(function ($) {
          * Check if use the realtime render or the default render
          */
         if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-            await $this.htmlTemplate($templateChild, dados);
+            $this.htmlTemplate($templateChild, dados);
         else
-            await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
+            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
     };
 
     $.fn._functionsToExecuteAfterTemplate = async function() {
@@ -695,6 +710,7 @@ $(function ($) {
             /**
              * add content as hidden
              */
+            $content.find(".skeleton").removeClass("skeleton");
             $this.append($content.addClass("loadingImagesPreview"));
             $this._functionsToExecuteAfterTemplate();
 
@@ -714,7 +730,7 @@ $(function ($) {
                  * Show new content
                  */
                 $content.removeClass("loadingImagesPreview");
-            }, 10);
+            }, 1);
         }
     };
 }(jQuery));
@@ -3176,12 +3192,11 @@ async function sseStart() {
                      * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
                      */
                     let $navbarNotify = $("#core-header-nav-bottom").find("a[href='notificacoes']");
-                    if ($navbarNotify.length && !$navbarNotify.find(".badge-notification").length)
-                        $navbarNotify.append("<span class='badge-notification'>" + data + "</span>");
+                    if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length)
+                        $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
 
-                    $(".badge-notification").html(data);
                 } else {
-                    $(".badge-notification").remove();
+                    $("#badge-note").remove();
                 }
             }
         });

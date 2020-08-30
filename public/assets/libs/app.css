@@ -365,6 +365,11 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     float: left;
 }
 
+.loadingImagesPreview {
+    position: absolute;
+    visibility: hidden;
+}
+
 .btn-editLogin {
     box-shadow: none !important;
     height: 29px;
