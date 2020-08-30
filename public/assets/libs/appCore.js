@@ -267,6 +267,7 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
         sitename: SITENAME,
         USER: USER,
         URL: history.state.param.url,
+        PAGE: history.state.param,
         jsonParse: function () {
             return function (txt, render) {
                 return _htmlTemplateJsonDecode(txt, render);
