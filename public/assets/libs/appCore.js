@@ -2378,13 +2378,10 @@ async function _checkRealtimeDbUpdate(entity) {
                  * get the data to use on template if need
                  */
                 let dados = await $tag.dbExeRead();
-                if($tag.hasAttr("data-db-function")) {
-                    let funcao = $(e).data("db-function");
-                    if (funcao !== "" && typeof window[funcao] === "function")
-                        dados = await window[funcao](dados);
-                    else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
-                        dados = await window[$tag.data("realtime-db")](dados);
-                }
+                if ($(e).hasAttr("data-db-function") && $(e).data("db-function") !== "" && typeof window[$(e).data("db-function")] === "function")
+                    dados = await window[$(e).data("db-function")](dados);
+                else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
+                    dados = await window[$tag.data("realtime-db")](dados);
 
                 let $templateChild = $(e);
                 let parametros = {};
