@@ -529,7 +529,7 @@ class Read {
         if (!this.entity)
             toast("entidade não informada na função de leitura", 3000, "toast-warning");
         else if (typeof dicionarios[this.entity] === "undefined")
-            toast("entidade não existe na função de leitura", 3000, "toast-warning");
+            toast("entidade '"+this.entity+"' não existe na função de leitura", 3000, "toast-warning");
 
         /**
          * Caso não esteja trabalhando com dados locais indexedDB
