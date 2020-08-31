@@ -631,6 +631,16 @@ class UpdateSystem
         }
 
         /**
+         * Get list of entity on public
+         */
+        if (file_exists(PATH_HOME . "public/entity/cache")) {
+            foreach (Helper::listFolder(PATH_HOME . "public/entity/cache") as $file) {
+                if (preg_match('/\w+\.json$/i', $file))
+                    $listaEntity[$file] = PATH_HOME . "public/entity/cache/{$file}";
+            }
+        }
+
+        /**
          * Import/Update all
          */
         foreach ($listaEntity as $file => $dir) {
