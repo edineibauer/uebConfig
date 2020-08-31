@@ -713,8 +713,8 @@ $(function ($) {
              */
             let $allOldChildren = $this.children();
             let $allContents = $this.contents();
-            $content.find(".skeleton").removeClass("skeleton");
-            $this.append($content.contents());
+            $content.addClass("loadingImagesPreview").find(".skeleton").removeClass("skeleton");
+            $this.append($content);
             $this._functionsToExecuteAfterTemplate();
 
             /**
@@ -724,11 +724,12 @@ $(function ($) {
                 /**
                  * Remove the old content
                  */
+                $content.removeClass("loadingImagesPreview").contents().unwrap();
                 $allOldChildren.remove();
                 $allContents.filter(function () {
                     return (this.nodeType == 3);
                 }).remove();
-            }, 1);
+            }, 50);
         }
     };
 }(jQuery));
