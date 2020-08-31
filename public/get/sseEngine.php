@@ -3,11 +3,11 @@
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
-$view = "";
+$viewActual = "";
 $messages = [];
 $messagesBase = [];
 if (!empty($_SESSION['userlogin'])) {
-    $view = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
+    $viewActual = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
 
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
@@ -48,14 +48,14 @@ if (!empty($_SESSION['userlogin'])) {
     function returnMessagesSSE(string $view, array $messages, array $messagesData = null) {
         $content = [];
         foreach ($messages as $event => $message) {
-            if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json")) {
-                writeUserSSE($event, $messagesData[$event] ?? json_encode($message));
+            if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}-{$event}.json")) {
+                writeUserSSE($view . "-" . $event, $messagesData[$event] ?? json_encode($message));
                 $content[$event] = $message;
             } else {
-                $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$event}.json");
+                $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}-{$event}.json");
                 $messageString = $messagesData[$event] ?? json_encode($message);
                 if ($f !== $messageString) {
-                    writeUserSSE($event, $messageString);
+                    writeUserSSE($view . "-" . $event, $messageString);
                     $content[$event] = $message;
                 }
             }
@@ -68,61 +68,63 @@ if (!empty($_SESSION['userlogin'])) {
     /**
      * For each SSE on each view
      */
-    foreach (\Config\Config::getRoutesTo("view") as $view) {
+    foreach (\Config\Config::getRoutesTo("view") as $folderView) {
+        foreach (\Helpers\Helper::listFolder($folderView) as $view) {
 
-        /**
-         * For each SSE on a view
-         */
-        foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
-            $data = null;
+            /**
+             * For each SSE on a view
+             */
+            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
+                $data = null;
 
-            ob_start();
+                ob_start();
 
-            try {
-                include_once $route;
-                if (!empty($data['error'])) {
-                    $data["response"] = 2;
-                    $data["data"] = "";
-                } elseif (!isset($data['data'])) {
-                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                } elseif (!isset($data['response'])) {
-                    $data['response'] = 1;
-                    $data['error'] = "";
+                try {
+                    include_once $route;
+                    if (!empty($data['error'])) {
+                        $data["response"] = 2;
+                        $data["data"] = "";
+                    } elseif (!isset($data['data'])) {
+                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                    } elseif (!isset($data['response'])) {
+                        $data['response'] = 1;
+                        $data['error'] = "";
+                    }
+
+                } catch (Exception $e) {
+                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
                 }
 
-            } catch (Exception $e) {
-                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                ob_end_clean();
+
+                $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
             }
 
-            ob_end_clean();
+            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/{$_SESSION['userlogin']['setor']}/sse", "php") as $route) {
+                $data = null;
 
-            $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
-        }
+                ob_start();
 
-        foreach (\Config\Config::getRoutesFilesTo("view/{$view}/{$_SESSION['userlogin']['setor']}/sse", "php") as $route) {
-            $data = null;
+                try {
+                    include_once $route;
+                    if (!empty($data['error'])) {
+                        $data["response"] = 2;
+                        $data["data"] = "";
+                    } elseif (!isset($data['data'])) {
+                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                    } elseif (!isset($data['response'])) {
+                        $data['response'] = 1;
+                        $data['error'] = "";
+                    }
 
-            ob_start();
-
-            try {
-                include_once $route;
-                if (!empty($data['error'])) {
-                    $data["response"] = 2;
-                    $data["data"] = "";
-                } elseif (!isset($data['data'])) {
-                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                } elseif (!isset($data['response'])) {
-                    $data['response'] = 1;
-                    $data['error'] = "";
+                } catch (Exception $e) {
+                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
                 }
 
-            } catch (Exception $e) {
-                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                ob_end_clean();
+
+                $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
             }
-
-            ob_end_clean();
-
-            $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
     }
 
@@ -160,4 +162,4 @@ if (!empty($_SESSION['userlogin'])) {
     include_once 'sseEngineDb.php';
 }
 
-returnSSE($view, $messages, $messagesBase, $resultDb, $resultDbHistory);
+returnSSE($viewActual, $messages, $messagesBase, $resultDb, $resultDbHistory);
