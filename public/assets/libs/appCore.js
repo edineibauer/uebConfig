@@ -2293,8 +2293,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render all tags
      */
-    $element.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").eq(i);
+    $element.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").not("[data-db][data-realtime-db] [data-realtime]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").not("[data-db][data-realtime-db] [data-realtime]").eq(i);
         if($t.length) {
 
             /**
@@ -2328,8 +2328,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render html realtime only
      */
-    $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").eq(i);
+    $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").not("[data-db][data-realtime-db] [data-realtime-html]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").not("[data-db][data-realtime-db] [data-realtime-html]").eq(i);
         if($t.length) {
             let html = Mustache.render($t.html(), param);
             let funcao = $(e).data("realtime-html");
@@ -2343,8 +2343,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render all attributes realtime only
      */
-    $element.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").each(function (i, e) {
-        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").eq(i);
+    $element.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").not("[data-db][data-realtime-db] [data-realtime-attr]").each(function (i, e) {
+        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").not("[data-db][data-realtime-db] [data-realtime-attr]").eq(i);
         if($t.length) {
 
             $.each($t[0].attributes, async function () {
