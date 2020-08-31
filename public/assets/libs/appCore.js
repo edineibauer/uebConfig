@@ -2581,7 +2581,7 @@ var URL, app = {
                         if (typeof sseSourceListeners[file] === "undefined") {
                             await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
-                            sseSource.addEventListener(file, async function (e) {
+                            sseSource.addEventListener(file.split("/")[0], async function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                     let response = JSON.parse(e.data);
 
