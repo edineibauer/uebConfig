@@ -525,8 +525,8 @@ $(function ($) {
          * no render de templates
          */
         $this.find("select").each(function () {
-            if ($(this).hasAttr("value"))
-                $(this).val($(this).hasAttr("value")).trigger("change");
+            if ($(this).hasAttr("data-value"))
+                $(this).val($(this).data("value")).trigger("change");
         });
 
         /**
