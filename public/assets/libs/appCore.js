@@ -430,6 +430,8 @@ $(function ($) {
 
         if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
             dados = await window[$this.data("db-function")](dados);
+        else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+            dados = await window[$this.data("function")](dados);
         else if($this.hasAttr("data-realtime-db") && $this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
             dados = await window[$this.data("realtime-db")](dados);
 
@@ -485,6 +487,8 @@ $(function ($) {
         let dados = await AJAX.get($this.data("get"));
         if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
             dados = await window[$this.data("get-function")](dados);
+        else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+            dados = await window[$this.data("function")](dados);
         else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
             dados = await window[$this.data("realtime-get")](dados);
 
