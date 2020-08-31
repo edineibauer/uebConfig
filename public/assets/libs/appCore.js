@@ -711,8 +711,10 @@ $(function ($) {
             /**
              * add content as hidden
              */
+            let $allOldChildren = $this.children();
+            let $allContents = $this.contents();
             $content.find(".skeleton").removeClass("skeleton");
-            $this.append($content.addClass("loadingImagesPreview"));
+            $this.append($content.contents());
             $this._functionsToExecuteAfterTemplate();
 
             /**
@@ -722,15 +724,10 @@ $(function ($) {
                 /**
                  * Remove the old content
                  */
-                $this.children().not(".loadingImagesPreview").remove();
-                $this.contents().filter(function () {
+                $allOldChildren.remove();
+                $allContents.filter(function () {
                     return (this.nodeType == 3);
                 }).remove();
-
-                /**
-                 * Show new content
-                 */
-                $content.removeClass("loadingImagesPreview");
             }, 1);
         }
     };

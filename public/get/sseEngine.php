@@ -48,14 +48,14 @@ if (!empty($_SESSION['userlogin'])) {
     function returnMessagesSSE(string $view, array $messages, array $messagesData = null) {
         $content = [];
         foreach ($messages as $event => $message) {
-            if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}-{$event}.json")) {
-                writeUserSSE($view . "-" . $event, $messagesData[$event] ?? json_encode($message));
+            if (!file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}_{$event}.json")) {
+                writeUserSSE($view . "_" . $event, $messagesData[$event] ?? json_encode($message));
                 $content[$event] = $message;
             } else {
-                $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}-{$event}.json");
+                $f = file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/{$view}_{$event}.json");
                 $messageString = $messagesData[$event] ?? json_encode($message);
                 if ($f !== $messageString) {
-                    writeUserSSE($view . "-" . $event, $messageString);
+                    writeUserSSE($view . "_" . $event, $messageString);
                     $content[$event] = $message;
                 }
             }
