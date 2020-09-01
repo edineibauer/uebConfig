@@ -1837,6 +1837,20 @@ async function getIndexedDbGets() {
         }
     }
 
+    /**
+     * Add the base registers with LIMITOFFLINE
+     */
+    for (let entity in r['db']) {
+        /**
+         * Clear all entity
+         */
+        await dbLocal.clear(entity);
+        if (typeof r['db'][entity] === "object" && r['db'][entity] !== null && r['db'][entity].constructor === Array) {
+            for (let registro of r['db'][entity])
+                await dbLocal.exeCreate(entity, registro);
+        }
+    }
+
     await dbLocal.exeCreate('__allow', r['allow']);
     await dbLocal.exeCreate('__dicionario', dicionarios);
     await dbLocal.exeCreate('__info', r['info']);

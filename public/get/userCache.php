@@ -16,6 +16,9 @@ $content = [
     "totalRegisters" => [],
 ];
 
+include 'dbFirstLoad.php';
+$content['db'] = $data['data'];
+
 include 'templates.php';
 $content['template'] = $data['data'];
 
