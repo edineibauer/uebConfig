@@ -25,7 +25,7 @@ if (!empty($dirViews)) {
                  */
                 foreach (\Helpers\Helper::listFolder($fileDir . $dirViews) as $view) {
                     $extensao = pathinfo($view, PATHINFO_EXTENSION);
-                    if (in_array($extensao, ["html", "php"]) && empty($viewPath)) {
+                    if (in_array($extensao, ["html", "php", "mustache"]) && empty($viewPath)) {
                         $viewPath = $dirViews;
                     } elseif ($extensao === "json" && !isset($view[$dirViews])) {
                         $param = json_decode(file_get_contents($fileDir . $dirViews . "/" . $view), !0);
