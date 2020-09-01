@@ -701,18 +701,6 @@ $(function ($) {
 
         } else {
             /**
-             * Try change the content smooth without flickering
-             */
-            let awaitImagesLoad = [];
-            $content.find("img").each(function () {
-                awaitImagesLoad.push($(this).attr("src"));
-            });
-            $content.find("[style*='background-image']").each(function () {
-                awaitImagesLoad.push($(this).css("background-image").replace('url(', '').replace(')', '').replace("'", '').replace("'", '').replace('"', '').replace('"', ''));
-            });
-            await imagesPreload(awaitImagesLoad);
-
-            /**
              * add content as hidden
              */
             let $allOldChildren = $this.children();
@@ -733,7 +721,7 @@ $(function ($) {
                 $allContents.filter(function () {
                     return (this.nodeType == 3);
                 }).remove();
-            }, 50);
+            }, 150);
         }
     };
 }(jQuery));
@@ -2416,29 +2404,6 @@ async function _checkRealtimeDbUpdate(entity) {
             });
         }
     })
-}
-
-/**
- * Fetch images before add to HTML on view
- * @param imagesList
- * @returns {Promise<unknown[]>}
- */
-async function imagesPreload(imagesList) {
-    let loadAll = [];
-    if (!isEmpty(imagesList)) {
-        for (let image of imagesList) {
-            if (!isEmpty(image)) {
-                loadAll.push(new Promise(s => {
-                    let img = new Image();
-                    img.onload = function () {
-                        s(1);
-                    };
-                    img.src = image;
-                }));
-            }
-        }
-    }
-    return Promise.all(loadAll);
 }
 
 /**
