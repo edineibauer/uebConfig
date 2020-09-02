@@ -442,6 +442,12 @@ class UpdateSystem
         Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
         Config::createDir("assetsPublic/fonts");
+
+        if(!file_exists(PATH_HOME . "firebase-messaging-sw.js")) {
+            $f = fopen(PATH_HOME . "firebase-messaging-sw.js", "w");
+            fwrite($f, "");
+            fclose($f);
+        }
     }
 
     /**
