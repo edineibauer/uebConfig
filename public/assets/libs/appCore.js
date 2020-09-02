@@ -1857,6 +1857,22 @@ function sendPushTokenToServer(token) {
     });
 }
 
+function subscribeUser() {
+    if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
+        swRegistration.pushManager.getSubscription().then(function (subscription) {
+            const messaging = firebase.messaging();
+            if (subscription === null) {
+                messaging.requestPermission().then(() => {
+                    $(".site-btn-push").remove();
+                    messaging.getToken().then(sendPushTokenToServer);
+                }).catch(err => {
+                    console.log("Error Firebase ", err);
+                });
+            }
+        });
+    }
+}
+
 async function thenAccess() {
     /**
      * Conta acesso
@@ -1868,18 +1884,9 @@ async function thenAccess() {
      * */
     if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
-            const messaging = firebase.messaging();
-            if (subscription === null) {
-                messaging.requestPermission().then(() => {
-                    $(".site-btn-push").remove();
-                    messaging.getToken().then(sendPushTokenToServer);
-                }).catch(err => {
-                    console.log("Error Firebase");
-                });
-            } else {
+            if (subscription !== null) {
                 $(".site-btn-push").remove();
-
-                // Callback fired if Instance ID token is updated.
+                const messaging = firebase.messaging();
                 messaging.onTokenRefresh(() => {
                     messaging.getToken().then((refreshedToken) => {
                         sendPushTokenToServer(refreshedToken);
