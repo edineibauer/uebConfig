@@ -3166,7 +3166,7 @@ async function sseStart() {
          */
         sseAdd("notificationsBadge", async function (data) {
             if (USER.setor !== 0) {
-                if (data !== "0") {
+                if (data != "0") {
                     /**
                      * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
                      */
@@ -3177,6 +3177,8 @@ async function sseStart() {
                 } else {
                     $("#badge-note").remove();
                 }
+            } else {
+                $("#badge-note").remove();
             }
         });
     }
