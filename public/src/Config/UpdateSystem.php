@@ -35,6 +35,28 @@ class UpdateSystem
     private function start(array $custom)
     {
         if (file_exists(PATH_HOME . "composer.lock")) {
+
+            /**
+             * Check if firebase.json config ADMIN SDK exist, if so add credentials
+             */
+            if(file_exists(PATH_HOME . ".well-known") && !file_exists(PATH_HOME . ".well-known/firebase-credentials-added.json")) {
+                foreach (Helper::listFolder(PATH_HOME . ".well-known") as $item) {
+                    if(pathinfo($item, PATHINFO_EXTENSION) === "json") {
+                        $json = json_decode(file_get_contents(PATH_HOME . ".well-known/{$item}"), !0);
+
+                        /**
+                         * This is the firebase condig admin sdk file
+                         */
+                        if(!empty($json['type']) && $json['type'] === "service_account" && !empty($json['private_key_id'])) {
+                            $f = fopen(PATH_HOME . ".well-known/firebase-credentials-added.json", "w");
+                            fwrite($f, "1");
+                            fclose($f);
+                            shell_exec('export GOOGLE_APPLICATION_CREDENTIALS="' . PATH_HOME . '.well-known/' . $item . '"');
+                        }
+                    }
+                }
+            }
+
             $this->createJsonConfigFileIfNotExist();
 
             //check if is the first time in the system to clear database
