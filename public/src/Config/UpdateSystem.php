@@ -51,6 +51,12 @@ class UpdateSystem
                             $f = fopen(PATH_HOME . ".well-known/firebase-credentials-added.json", "w");
                             fwrite($f, "1");
                             fclose($f);
+                            $f = fopen(PATH_HOME . ".well-known/.htaccess", "w");
+                            fwrite($f, '<Files "' . $item . '">  
+  Order Allow,Deny
+  Deny from all
+</Files>');
+                            fclose($f);
                             shell_exec('export GOOGLE_APPLICATION_CREDENTIALS="' . PATH_HOME . '.well-known/' . $item . '"');
                         }
                     }
