@@ -1102,12 +1102,6 @@ async function menuHeader() {
     });
 
     /**
-     * Verifica se remove o botão de Notificação
-     * */
-    if ((swRegistration && !swRegistration.pushManager) || localStorage.token === "0" || typeof Notification === "undefined" || Notification.permission !== "default" || typeof firebaseConfig !== "undefined")
-        $(".site-btn-push").remove();
-
-    /**
      * Edição do perfil somente usuários logados
      */
     if ($("#core-sidebar-edit").length) {
