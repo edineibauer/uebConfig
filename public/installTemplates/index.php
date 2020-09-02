@@ -171,5 +171,21 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         </nav>
     </div>
 </div>
+
+<?php if(defined('FIREBASECONFIG') && !empty(FIREBASECONFIG)) { ?>
+<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-messaging.js"></script>
+
+<script>
+    // Your web app's Firebase configuration
+    <?=FIREBASECONFIG?>
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+</script>
+<?php } ?>
+
 </body>
 </html>

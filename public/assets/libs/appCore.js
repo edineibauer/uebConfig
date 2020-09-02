@@ -962,24 +962,6 @@ function isEmpty(valor) {
     return false;
 }
 
-/**
- * Notificação Push
- * */
-function urlB64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
-
 function pushNotification(title, body, url, image, background) {
     swRegistration.showNotification(title, {
         body: body || "",
@@ -988,43 +970,6 @@ function pushNotification(title, body, url, image, background) {
         image: background || "",
         badge: HOME + FAVICON
     });
-}
-
-function subscribeUser(showMessageSuccess) {
-    if (swRegistration && swRegistration.pushManager) {
-        if (PUSH_PUBLIC_KEY !== "") {
-            showMessageSuccess = typeof showMessageSuccess === "undefined" || !["false", "0", 0, false].indexOf(showMessageSuccess) > -1;
-            const applicationServerKey = urlB64ToUint8Array(PUSH_PUBLIC_KEY);
-            swRegistration.pushManager.subscribe({
-                applicationServerKey: applicationServerKey,
-                userVisibleOnly: !0,
-            }).then(function (subscription) {
-                updateSubscriptionOnServer(subscription, showMessageSuccess);
-                $(".site-btn-push").remove()
-            }).catch(function (err) {
-                toast("Erro ao tentar receber as notificações", 7500, "toast-warning")
-            })
-        } else {
-            toast("Chave pública do Push não definida", 7500, "toast-warning")
-        }
-    } else {
-        $(".site-btn-push").remove();
-        toast("Desculpa! Seu aparelho não tem suporte.", "toast-warning", 2500);
-    }
-}
-
-function updateSubscriptionOnServer(subscription, showMessageSuccess) {
-    if (subscription && USER.setor !== 0 && typeof USER.setor === "string" && USER.setor !== "0" && !isEmpty(USER.setor)) {
-        AJAX.post('push', {
-            "push": JSON.stringify(subscription),
-            'p1': navigator.appName,
-            'p2': navigator.appCodeName,
-            'p3': navigator.platform
-        }).then(() => {
-            if (!showMessageSuccess)
-                pushNotification("Parabéns " + USER.nome, "A partir de agora, você receberá notificações importantes!");
-        })
-    }
 }
 
 async function checkUpdate() {
@@ -1159,7 +1104,7 @@ async function menuHeader() {
     /**
      * Verifica se remove o botão de Notificação
      * */
-    if ((swRegistration && !swRegistration.pushManager) || localStorage.token === "0" || typeof Notification === "undefined" || Notification.permission !== "default" || PUSH_PUBLIC_KEY === "")
+    if ((swRegistration && !swRegistration.pushManager) || localStorage.token === "0" || typeof Notification === "undefined" || Notification.permission !== "default" || typeof firebaseConfig !== "undefined")
         $(".site-btn-push").remove();
 
     /**
@@ -1903,6 +1848,15 @@ function updateAppOnDev() {
     });
 }
 
+function sendPushTokenToServer(token) {
+    AJAX.post('push', {
+        "push": token,
+        'p1': navigator.appName,
+        'p2': navigator.appCodeName,
+        'p3': navigator.platform
+    });
+}
+
 async function thenAccess() {
     /**
      * Conta acesso
@@ -1912,19 +1866,26 @@ async function thenAccess() {
     /**
      * Check if have permission to send notification but not is registered on service worker
      * */
-    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && swRegistration && swRegistration.pushManager) {
+    if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
+            const messaging = firebase.messaging();
             if (subscription === null) {
-                return swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted")
-                        return subscribeUser(1);
+                messaging.requestPermission().then(() => {
+                    $(".site-btn-push").remove();
+                    messaging.getToken().then(sendPushTokenToServer);
+                }).catch(err => {
+                    console.log("Error Firebase");
                 });
             } else {
-                AJAX.post('push', {
-                    "push": JSON.stringify(subscription),
-                    'p1': navigator.appName,
-                    'p2': navigator.appCodeName,
-                    'p3': navigator.platform
+                $(".site-btn-push").remove();
+
+                // Callback fired if Instance ID token is updated.
+                messaging.onTokenRefresh(() => {
+                    messaging.getToken().then((refreshedToken) => {
+                        sendPushTokenToServer(refreshedToken);
+                    }).catch((err) => {
+                        console.log('token atualizado não recebido ', err);
+                    });
                 });
             }
         });
