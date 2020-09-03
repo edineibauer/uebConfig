@@ -42,30 +42,6 @@ self.addEventListener('appinstalled', (evt) => {
     localStorage.installAppAction = 1;
 });
 
-self.addEventListener('push', function (event) {
-    let title = "";
-    let options = {};
-    if (isJson(event.data.text())) {
-        options = JSON.parse(event.data.text());
-        title = options.title;
-        delete options.title;
-    } else {
-        title = event.data.text();
-    }
-    options.badge = options.badge || (HOME + "assetsPublic/img/favicon.png?v=" + VERSION);
-    options.icon = options.icon || (HOME + "assetsPublic/img/favicon.png?v=" + VERSION);
-    options.data = options.data || HOME;
-    options.tag = options.id || "";
-
-    if (typeof title === "string" && title.length > 2) {
-        event.waitUntil(
-            fetch(HOME + "get/receivePush/" + options.id).then(() => {
-                self.registration.showNotification(title, options)
-            })
-        );
-    }
-});
-
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     event.waitUntil(

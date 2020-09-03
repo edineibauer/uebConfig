@@ -442,12 +442,6 @@ class UpdateSystem
         Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
         Config::createDir("assetsPublic/fonts");
-
-        if(!file_exists(PATH_HOME . "firebase-messaging-sw.js")) {
-            $f = fopen(PATH_HOME . "firebase-messaging-sw.js", "w");
-            fwrite($f, "");
-            fclose($f);
-        }
     }
 
     /**
@@ -775,6 +769,16 @@ class UpdateSystem
         $f = fopen(PATH_HOME . "service-worker.js", "w+");
         fwrite($f, $service);
         fclose($f);
+
+        //copia firebase-messaging
+        if(defined("PUSH_PUBLIC_KEY") && !empty(PUSH_PUBLIC_KEY) && defined("FIREBASECONFIG") && !empty(FIREBASECONFIG)) {
+            $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/firebase-messaging-sw.js");
+            $service = str_replace(["var VERSION = '';", "const HOME = '';", "const PUSH_PUBLIC_KEY = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "'; \n" . FIREBASECONFIG . "\n", "const HOME = '" . HOME . "';", "const PUSH_PUBLIC_KEY = '" . PUSH_PUBLIC_KEY . "';"], $service);
+
+            $f = fopen(PATH_HOME . "firebase-messaging-sw.js", "w+");
+            fwrite($f, $service);
+            fclose($f);
+        }
     }
 
     /**

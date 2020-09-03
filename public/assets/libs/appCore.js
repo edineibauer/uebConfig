@@ -1842,39 +1842,8 @@ function updateAppOnDev() {
     });
 }
 
-/**
- * Notificação Push
- * */
-function urlB64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
-
-function subscribeUserToPush() {
-    if (swRegistration && swRegistration.pushManager && PUSH_PUBLIC_KEY) {
-        swRegistration.pushManager.subscribe({
-            applicationServerKey: urlB64ToUint8Array(PUSH_PUBLIC_KEY),
-            userVisibleOnly: !0,
-        })
-    } else {
-        $(".site-btn-push").remove();
-        toast("Aparelho sem suporte", "toast-warning", 2500);
-    }
-}
-
 function sendPushTokenToServer(token) {
     $(".site-btn-push").remove();
-    subscribeUserToPush();
     AJAX.post('push', {
         "push": token,
         'p1': navigator.appName,
@@ -1885,25 +1854,38 @@ function sendPushTokenToServer(token) {
 
 function subscribeUser() {
     if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
-        swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription === null) {
-                swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    const messaging = firebase.messaging();
-                    messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
-                    if (p === "granted") {
-                        messaging.onTokenRefresh(() => {
-                            messaging.getToken().then(sendPushTokenToServer);
-                        });
-                    } else {
-                        messaging.requestPermission().then(() => {
-                            messaging.getToken().then(sendPushTokenToServer);
-                        }).catch(err => {
-                            console.log("Error getting token push Firebase ", err);
-                        });
-                    }
-                });
-            }
-        });
+
+        const messaging = firebase.messaging();
+        messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
+
+        if(Notification.permission === "granted") {
+
+            /**
+             * Check for token update
+             */
+            messaging.onTokenRefresh(() => {
+                messaging.getToken().then(sendPushTokenToServer);
+            });
+
+        } else if(Notification.permission === "default") {
+
+            /**
+             * Ask for permission
+             */
+            messaging.requestPermission().then(() => {
+                messaging.getToken().then(sendPushTokenToServer);
+            }).catch(err => {
+                console.log("Permissão para notificação negada. ", err);
+            });
+
+        } else {
+
+            /**
+             * Permissions denied
+             */
+            toast("Notificações já foram negadas! Para permitir novamente, limpe o cache do navegador para o site " + HOME.replace("https://", ""), 5000, "toast-infor");
+
+        }
     }
 }
 
@@ -1922,6 +1904,16 @@ async function thenAccess() {
         messaging.onTokenRefresh(() => {
             messaging.getToken().then(sendPushTokenToServer);
         });
+
+        /**
+         * receive notifications here when app open
+         */
+        messaging.onMessage((payload) => {
+            toast("<div id='push-icon'>" + payload.notification.icon + "</div><div id='push-title'>" + payload.notification.title + "</div><div id='push-body'>" + payload.notification.body + "</div>", payload.notification.time || 4000, "toast-push");
+            console.log('Message received. ', payload);
+        });
+    } else {
+        $(".site-btn-push").remove();
     }
 }
 
