@@ -69,6 +69,12 @@
     color: #a94442 !important;
 }
 
+.toast-push {
+    width: 96%;
+    margin: 5px 2%;
+    border-radius: 10px;
+}
+
 @media only screen and (min-width: 993px) {
     .toast {
 		top: initial!important;
