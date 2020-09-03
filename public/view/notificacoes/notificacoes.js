@@ -10,14 +10,8 @@ async function noteFuncao(note) {
 $(async function () {
     $(".badge-notification").remove();
 
-    if (USER.setor === 0 || typeof firebaseConfig === "undefined" || !swRegistration || !swRegistration.pushManager) {
+    if (USER.setor === 0 || typeof firebaseConfig === "undefined" || !swRegistration || !swRegistration.pushManager || Notification.permission === "granted")
         $(".btn-notify").remove();
-    } else {
-        swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription !== null)
-                $(".btn-notify").remove();
-        });
-    }
 
     $("#app").off("keydown touchstart", ".notification-item").on("keydown touchstart", ".notification-item", async function () {
         db.exeUpdate("notifications_report", {id: parseInt($(this).attr("rel")), abriu: 1});
