@@ -766,7 +766,7 @@ class UpdateSystem
         $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js");
         $service = str_replace(["var VERSION = '';", "const HOME = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';"], $service);
 
-        $f = fopen(PATH_HOME . "service-worker.js", "w+");
+        $f = fopen(PATH_HOME . "service-worker.js", "w");
         fwrite($f, $service);
         fclose($f);
 
@@ -775,7 +775,7 @@ class UpdateSystem
             $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/firebase-messaging-sw.js");
             $service = str_replace(["var VERSION = '';", "const HOME = '';", "const PUSH_PUBLIC_KEY = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "'; \n" . FIREBASECONFIG . "\n", "const HOME = '" . HOME . "';", "const PUSH_PUBLIC_KEY = '" . PUSH_PUBLIC_KEY . "';"], $service);
 
-            $f = fopen(PATH_HOME . "firebase-messaging-sw.js", "w+");
+            $f = fopen(PATH_HOME . "firebase-messaging-sw.js", "w");
             fwrite($f, $service);
             fclose($f);
         }
