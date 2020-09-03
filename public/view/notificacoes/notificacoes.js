@@ -9,8 +9,15 @@ async function noteFuncao(note) {
 
 $(async function () {
     $(".badge-notification").remove();
-    if (swRegistration && swRegistration.pushManager && typeof Notification !== "undefined" && Notification.permission === "default")
+
+    if (USER.setor === 0 || typeof firebaseConfig === "undefined" || !swRegistration || !swRegistration.pushManager) {
         $(".btn-notify").remove();
+    } else {
+        swRegistration.pushManager.getSubscription().then(function (subscription) {
+            if (subscription !== null)
+                $(".btn-notify").remove();
+        });
+    }
 
     $("#app").off("keydown touchstart", ".notification-item").on("keydown touchstart", ".notification-item", async function () {
         db.exeUpdate("notifications_report", {id: parseInt($(this).attr("rel")), abriu: 1});
