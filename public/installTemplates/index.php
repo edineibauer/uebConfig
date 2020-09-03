@@ -172,7 +172,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     </div>
 </div>
 
-<?php if(defined('FIREBASECONFIG') && !empty(FIREBASECONFIG)) { ?>
+<?php if(defined('FIREBASECONFIG') && !empty(FIREBASECONFIG) && defined('PUSH_PUBLIC_KEY') && !empty(PUSH_PUBLIC_KEY)) { ?>
 <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-messaging.js"></script>
