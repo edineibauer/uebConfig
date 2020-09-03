@@ -2,18 +2,6 @@ const HOME = '';
 var VERSION = '';
 var TOKEN = "0";
 
-function isJson(str) {
-    if (typeof str !== "string")
-        return !1;
-    try {
-        if (typeof JSON.parse(str) !== "object")
-            return !1
-    } catch (e) {
-        return !1
-    }
-    return !0
-}
-
 function returnNoNetwork() {
     return caches.open('core-v' + VERSION).then(cache => {
         return cache.match(HOME + "post");
