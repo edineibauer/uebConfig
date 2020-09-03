@@ -1889,6 +1889,7 @@ function subscribeUser() {
             if (subscription === null) {
                 swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
                     const messaging = firebase.messaging();
+                    messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
                     if (p === "granted") {
                         messaging.onTokenRefresh(() => {
                             messaging.getToken().then(sendPushTokenToServer);
@@ -1917,6 +1918,7 @@ async function thenAccess() {
      * */
     if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager && Notification && Notification.permission === "granted") {
         const messaging = firebase.messaging();
+        messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
         messaging.onTokenRefresh(() => {
             messaging.getToken().then(sendPushTokenToServer);
         });
