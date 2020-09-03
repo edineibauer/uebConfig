@@ -1842,7 +1842,39 @@ function updateAppOnDev() {
     });
 }
 
+/**
+ * Notificação Push
+ * */
+function urlB64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+function subscribeUserToPush() {
+    if (swRegistration && swRegistration.pushManager && PUSH_PUBLIC_KEY) {
+        swRegistration.pushManager.subscribe({
+            applicationServerKey: urlB64ToUint8Array(PUSH_PUBLIC_KEY),
+            userVisibleOnly: !0,
+        })
+    } else {
+        $(".site-btn-push").remove();
+        toast("Aparelho sem suporte", "toast-warning", 2500);
+    }
+}
+
 function sendPushTokenToServer(token) {
+    $(".site-btn-push").remove();
+    subscribeUserToPush();
     AJAX.post('push', {
         "push": token,
         'p1': navigator.appName,
@@ -1854,13 +1886,20 @@ function sendPushTokenToServer(token) {
 function subscribeUser() {
     if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
-            const messaging = firebase.messaging();
             if (subscription === null) {
-                messaging.requestPermission().then(() => {
-                    $(".site-btn-push").remove();
-                    messaging.getToken().then(sendPushTokenToServer);
-                }).catch(err => {
-                    console.log("Error Firebase ", err);
+                swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                    const messaging = firebase.messaging();
+                    if (p === "granted") {
+                        messaging.onTokenRefresh(() => {
+                            messaging.getToken().then(sendPushTokenToServer);
+                        });
+                    } else {
+                        messaging.requestPermission().then(() => {
+                            messaging.getToken().then(sendPushTokenToServer);
+                        }).catch(err => {
+                            console.log("Error getting token push Firebase ", err);
+                        });
+                    }
                 });
             }
         });
@@ -1876,17 +1915,21 @@ async function thenAccess() {
     /**
      * Check if have permission to send notification but not is registered on service worker
      * */
-    if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
+    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
         swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription !== null) {
-                $(".site-btn-push").remove();
+            if (subscription === null) {
+                swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
+                    if (p === "granted") {
+                        const messaging = firebase.messaging();
+                        messaging.onTokenRefresh(() => {
+                            messaging.getToken().then(sendPushTokenToServer);
+                        });
+                    }
+                });
+            } else {
                 const messaging = firebase.messaging();
                 messaging.onTokenRefresh(() => {
-                    messaging.getToken().then((refreshedToken) => {
-                        sendPushTokenToServer(refreshedToken);
-                    }).catch((err) => {
-                        console.log('token atualizado não recebido ', err);
-                    });
+                    messaging.getToken().then(sendPushTokenToServer);
                 });
             }
         });

@@ -5,6 +5,10 @@
     "firebaseConfig": {
       "input": "textarea",
       "column": "firebaseConfig"
+    },
+    "push_public_key": {
+      "input": "input",
+      "column": "push_public_key"
     }
   }
 }
