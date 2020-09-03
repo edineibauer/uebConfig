@@ -1913,25 +1913,12 @@ async function thenAccess() {
     localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
 
     /**
-     * Check if have permission to send notification but not is registered on service worker
+     * Check for refresh token if allready have push permission
      * */
-    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
-        swRegistration.pushManager.getSubscription().then(function (subscription) {
-            if (subscription === null) {
-                swRegistration.pushManager.permissionState({userVisibleOnly: !0}).then(p => {
-                    if (p === "granted") {
-                        const messaging = firebase.messaging();
-                        messaging.onTokenRefresh(() => {
-                            messaging.getToken().then(sendPushTokenToServer);
-                        });
-                    }
-                });
-            } else {
-                const messaging = firebase.messaging();
-                messaging.onTokenRefresh(() => {
-                    messaging.getToken().then(sendPushTokenToServer);
-                });
-            }
+    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager && Notification && Notification.permission === "granted") {
+        const messaging = firebase.messaging();
+        messaging.onTokenRefresh(() => {
+            messaging.getToken().then(sendPushTokenToServer);
         });
     }
 }
