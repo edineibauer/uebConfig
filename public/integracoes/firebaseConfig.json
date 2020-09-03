@@ -1,5 +1,5 @@
 {
-  "nome": "firebaseConfig const",
+  "nome": "Firebase",
   "link": "https://console.firebase.google.com/u/0/project/",
   "constantes": {
     "firebaseConfig": {
@@ -7,7 +7,7 @@
       "column": "firebaseConfig"
     },
     "push_public_key": {
-      "input": "input",
+      "input": "text",
       "column": "push_public_key"
     }
   }
