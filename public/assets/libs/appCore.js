@@ -3186,6 +3186,12 @@ async function onLoadDocument() {
         }, 250);
     }, 100);
 
+    window.oncontextmenu = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    };
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
