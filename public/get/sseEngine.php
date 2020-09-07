@@ -74,56 +74,59 @@ if (!empty($_SESSION['userlogin'])) {
             /**
              * For each SSE on a view
              */
-            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
-                $data = null;
-
-                ob_start();
-
-                try {
-                    include_once $route;
-                    if (!empty($data['error'])) {
-                        $data["response"] = 2;
-                        $data["data"] = "";
-                    } elseif (!isset($data['data'])) {
-                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                    } elseif (!isset($data['response'])) {
-                        $data['response'] = 1;
-                        $data['error'] = "";
-                    }
-
-                } catch (Exception $e) {
-                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
-                }
-
-                ob_end_clean();
-
-                $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
-            }
-
             foreach (\Config\Config::getRoutesFilesTo("view/{$view}/{$_SESSION['userlogin']['setor']}/sse", "php") as $route) {
-                $data = null;
+                if (!isset($messages[pathinfo($route, PATHINFO_FILENAME)])) {
+                    $data = null;
 
-                ob_start();
+                    ob_start();
 
-                try {
-                    include_once $route;
-                    if (!empty($data['error'])) {
-                        $data["response"] = 2;
-                        $data["data"] = "";
-                    } elseif (!isset($data['data'])) {
-                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                    } elseif (!isset($data['response'])) {
-                        $data['response'] = 1;
-                        $data['error'] = "";
+                    try {
+                        include_once $route;
+                        if (!empty($data['error'])) {
+                            $data["response"] = 2;
+                            $data["data"] = "";
+                        } elseif (!isset($data['data'])) {
+                            $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                        } elseif (!isset($data['response'])) {
+                            $data['response'] = 1;
+                            $data['error'] = "";
+                        }
+
+                    } catch (Exception $e) {
+                        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
                     }
 
-                } catch (Exception $e) {
-                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                    ob_end_clean();
+
+                    $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
                 }
+            }
+            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
+                if (!isset($messages[pathinfo($route, PATHINFO_FILENAME)])) {
+                    $data = null;
 
-                ob_end_clean();
+                    ob_start();
 
-                $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
+                    try {
+                        include_once $route;
+                        if (!empty($data['error'])) {
+                            $data["response"] = 2;
+                            $data["data"] = "";
+                        } elseif (!isset($data['data'])) {
+                            $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                        } elseif (!isset($data['response'])) {
+                            $data['response'] = 1;
+                            $data['error'] = "";
+                        }
+
+                    } catch (Exception $e) {
+                        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                    }
+
+                    ob_end_clean();
+
+                    $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
+                }
             }
         }
     }
