@@ -1899,6 +1899,9 @@ async function thenAccess() {
      * Check for refresh token if allready have push permission
      * */
     if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager && Notification && Notification.permission === "granted") {
+
+        $(".site-btn-push").remove();
+
         const messaging = firebase.messaging();
         messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
         messaging.onTokenRefresh(() => {
@@ -1912,7 +1915,8 @@ async function thenAccess() {
             toast("<div id='push-icon'>" + payload.notification.icon + "</div><div id='push-title'>" + payload.notification.title + "</div><div id='push-body'>" + payload.notification.body + "</div>", payload.notification.time || 4000, "toast-push");
             console.log('Message received. ', payload);
         });
-    } else {
+
+    } else if (USER.setor === 0 || PUSH_PUBLIC_KEY === "" || typeof firebaseConfig === "undefined" || !swRegistration || !swRegistration.pushManager || !Notification || Notification.permission !== "default") {
         $(".site-btn-push").remove();
     }
 }
