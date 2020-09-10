@@ -846,7 +846,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
         height: calc(70px + env(safe-area-inset-top));
     }
 
-    #core-content {
+    .r-network {
         padding-top: constant(safe-area-inset-top);
         padding-top: env(safe-area-inset-top);
     }
