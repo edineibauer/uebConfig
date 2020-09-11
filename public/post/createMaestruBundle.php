@@ -83,7 +83,7 @@ foreach (\Config\Config::getSetores() as $setor) {
                      */
                     if (file_exists($view . $folderView . "/" . $setor)) {
                         foreach (\Helpers\Helper::listFolder($view . $folderView . "/" . $setor) as $item) {
-                            if (!isset($views[$folderView]) && in_array(pathinfo($item, PATHINFO_EXTENSION), ["php", "html"])) {
+                            if (!isset($views[$folderView]) && in_array(pathinfo($item, PATHINFO_EXTENSION), ["php", "html", "mustache"])) {
                                 $views[$folderView] = $view . $folderView . "/" . $setor . "/" . $item;
                                 break;
                             }
@@ -94,7 +94,7 @@ foreach (\Config\Config::getSetores() as $setor) {
                      * then, check default view
                      */
                     foreach (\Helpers\Helper::listFolder($view . $folderView) as $item) {
-                        if (!isset($views[$folderView]) && in_array(pathinfo($item, PATHINFO_EXTENSION), ["php", "html"])) {
+                        if (!isset($views[$folderView]) && in_array(pathinfo($item, PATHINFO_EXTENSION), ["php", "html", "mustache"])) {
                             $views[$folderView] = $view . $folderView . "/" . $item;
                             break;
                         }
