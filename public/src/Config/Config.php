@@ -701,38 +701,7 @@ Allow from env=let_me_in';
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
 
-        if(DEV) {
-            $file = "";
-
-            /**
-             * If find JS assets on view, so add all to the cache
-             */
-            if (!empty($viewJS)) {
-                foreach ($viewJS as $viewJ) {
-                    if (file_exists($viewJ))
-                        $file .= (!empty($file) ? (!preg_match("/;$/i", $file) ? "\n;\n" : "\n\n" ) : "") . file_get_contents($viewJ);
-                }
-            }
-
-            $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js", "w+");
-            fwrite($f, $file);
-            fclose($f);
-
-        } else {
-            $minifier = new \MatthiasMullie\Minify\JS("");
-
-            /**
-             * If find JS assets on view, so add all to the cache
-             */
-            if (!empty($viewJS)) {
-                foreach ($viewJS as $viewJ) {
-                    if (file_exists($viewJ))
-                        $minifier->add(file_get_contents($viewJ));
-                }
-            }
-
-            $minifier->minify(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
-        }
+        exec("webpack --mode=" . (DEV ? "development " : "production ") . implode(" ", $viewJS) . " -o " . PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js");
     }
 
     /**
