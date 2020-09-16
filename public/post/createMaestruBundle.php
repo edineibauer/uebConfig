@@ -3,48 +3,48 @@
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
-if(!file_exists("bundle"))
-    mkdir("bundle", 0777);
+if(!file_exists("www"))
+    mkdir("www", 0777);
 
 /**
  * Create config file with HOME empty
  */
 $config = file_get_contents("_config/config.php");
 $home = explode("'", explode("define('HOME', '", $config)[1])[0];
-$f = fopen("bundle/config.php", "w+");
+$f = fopen("www/config.php", "w+");
 fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');"], ["define('HOME', '');", "define('DEV', '0');"], $config));
 fclose($f);
 
-$f = fopen("bundle/index.php", "w+");
+$f = fopen("www/index.php", "w+");
 $index = file_get_contents("index.php");
 $service = explode(";", explode("const SERVICEWORKER = ", $index)[1])[0];
 fwrite($f, str_replace(["include_once '_config/config.php';", "const SERVICEWORKER = {$service};"], ["", "const SERVICEWORKER = !1;"], $index));
 fclose($f);
 
-require_once './bundle/config.php';
+require_once './www/config.php';
 
 /**
- * Remove bundle to create new
+ * Remove www to create new
  */
-if (file_exists(PATH_HOME . "bundle/view"))
-    \Helpers\Helper::recurseDelete(PATH_HOME . "bundle/view");
+if (file_exists(PATH_HOME . "www/view"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "www/view");
 
-if (file_exists(PATH_HOME . "bundle/assetsPublic"))
-    \Helpers\Helper::recurseDelete(PATH_HOME . "bundle/assetsPublic");
+if (file_exists(PATH_HOME . "www/assetsPublic"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "www/assetsPublic");
 
 /**
  * ------------- start Create views
  */
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/view");
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/assetsPublic");
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/get");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/view");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/assetsPublic");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/get");
 
 /**
  * ------------ start Create index
  */
 
 ob_start();
-include_once PATH_HOME . 'bundle/index.php';
+include_once PATH_HOME . 'www/index.php';
 $index = ob_get_contents();
 ob_end_clean();
 
@@ -52,12 +52,12 @@ $manifest = explode('>', explode('<link rel="manifest" ', $index)[1])[0];
 $index = str_replace('<link rel="manifest" ' . $manifest . '>', "", $index);
 $index = str_replace('</head>', "    <script src=\"cordova.js\"></script>\n</head>", $index);
 
-$f = fopen(PATH_HOME . "bundle/index.html", "w+");
+$f = fopen(PATH_HOME . "www/index.html", "w+");
 fwrite($f, $index);
 fclose($f);
 
 
-unlink( PATH_HOME . 'bundle/index.php');
+unlink( PATH_HOME . 'www/index.php');
 
 /**
  * ------------- finish Create index
@@ -69,8 +69,8 @@ unlink( PATH_HOME . 'bundle/index.php');
  */
 \Config\Config::setUser(0);
 foreach (\Config\Config::getSetores() as $setor) {
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/view/{$setor}");
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "bundle/get/{$setor}");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/view/{$setor}");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/get/{$setor}");
     $_SESSION['userlogin']['setor'] = $setor;
 
     $views = [];
@@ -143,7 +143,7 @@ foreach (\Config\Config::getSetores() as $setor) {
             $data["response"] = 4;
         }
 
-        $f = fopen(PATH_HOME . "bundle/view/{$setor}/{$view}.json", "w+");
+        $f = fopen(PATH_HOME . "www/view/{$setor}/{$view}.json", "w+");
         fwrite($f, json_encode($data));
         fclose($f);
     }
@@ -154,14 +154,14 @@ foreach (\Config\Config::getSetores() as $setor) {
     foreach (["appFilesView", "appFilesViewUser", "currentFiles", "userCache"] as $get) {
         $data = ["data" => "", "response" => 1, "error" => ""];
         include PATH_HOME . VENDOR . "config/public/get/{$get}.php";
-        $f = fopen(PATH_HOME . "bundle/get/{$setor}/{$get}.json", "w+");
+        $f = fopen(PATH_HOME . "www/get/{$setor}/{$get}.json", "w+");
         fwrite($f, json_encode($data));
         fclose($f);
     }
 }
 
 /**
- * Copy assetsPublic to bundle
+ * Copy assetsPublic to www
  */
-\Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "bundle/assetsPublic");
-unlink(PATH_HOME . "bundle/config.php");
+\Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "www/assetsPublic");
+unlink(PATH_HOME . "www/config.php");

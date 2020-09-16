@@ -29,6 +29,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
             /**
              * save info that says to front that the data entity is send to front right now
              */
+            \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
             $f = fopen(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json", "w");
             fwrite($f, $hist[$entity]);
             fclose($f);
