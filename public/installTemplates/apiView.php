@@ -22,9 +22,8 @@ if (!empty($url)) {
             /**
              * Store last user view request
              */
-            $f = fopen(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt", "w");
-            fwrite($f, $link->getFile());
-            fclose($f);
+            $up = new \Conn\Update();
+            $up->exeUpdate("usuarios", ["lastView" => $link->getFile()], "WHERE id = :id", "id={$_SESSION['userlogin']['id']}");
 
             if(!DEV && file_exists(PATH_HOME . "bundle/view/" . $_SESSION['userlogin']['setor'] . "/" . $link->getFile() . ".json")) {
                 $data = ["response" => 1, "error" => "", "data" => file_get_contents(PATH_HOME . "bundle/view/" . $_SESSION['userlogin']['setor'] . "/" . $link->getFile() . ".json")];

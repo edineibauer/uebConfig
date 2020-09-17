@@ -3,12 +3,9 @@
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
-$viewActual = "";
 $messages = [];
 $messagesBase = [];
 if (!empty($_SESSION['userlogin'])) {
-    $viewActual = file_get_contents(PATH_HOME . "_cdn/userLastView/" . $_SESSION['userlogin']['id'] . ".txt");
-
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
     /**
@@ -165,4 +162,4 @@ if (!empty($_SESSION['userlogin'])) {
     include_once 'sseEngineDb.php';
 }
 
-returnSSE($viewActual, $messages, $messagesBase, $resultDb, $resultDbHistory);
+returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);
