@@ -716,7 +716,7 @@ class Read {
         if (!isEmpty(results.data)) {
             for (let registro of results.data) {
                 let reg = _getDefaultValues(entity, registro);
-                reg.relationData = registro.relationData ?? [];
+                reg.relationData = !isEmpty(registro.relationData) ? registro.relationData : [];
                 this.result.push(reg);
             }
         }
