@@ -688,40 +688,6 @@ class UpdateSystem
     }
 
     /**
-     * Copia SplashScreen se existir
-     * @param string $file
-     * @param string $dir
-     */
-    private function copySplashScreenIphone(string $file, string $dir)
-    {
-        if (file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
-            $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
-            $fav->resize(1242, 2688, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone6.png");
-            $fav->resize(1125, 2436, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone5.png");
-            $fav->resize(1242, 2208, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone4.png");
-            $fav->resize(828, 1792, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone3.png");
-            $fav->resize(750, 1334, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone2.png");
-            $fav->resize(640, 1136, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/iphone1.png");
-        }
-    }
-
-    /**
-     * Copia SplashScreen se existir
-     * @param string $file
-     * @param string $dir
-     */
-    private function copySplashScreenIpad(string $file, string $dir)
-    {
-        if (file_exists($dir . "public/assets/splashscreens/{$file}.png")) {
-            $fav = \WideImage\WideImage::load($dir . "public/assets/splashscreens/{$file}.png");
-            $fav->resize(2048, 2732, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad4.png");
-            $fav->resize(1668, 2388, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad3.png");
-            $fav->resize(1668, 2224, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad2.png");
-            $fav->resize(1536, 2048, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/splashscreens/ipad1.png");
-        }
-    }
-
-    /**
      * @param array $dados
      */
     private function createFaviconSizes(array $dados)
@@ -729,30 +695,17 @@ class UpdateSystem
         /**
          * Icones
          */
-        $favicon = PATH_HOME . str_replace($dados['home'], '', $dados['favicon']);
-        $fav = \WideImage\WideImage::load($favicon);
-        $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
-        $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
-        $fav->resize(144, 144, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-144.png");
-        $fav->resize(96, 96, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-96.png");
-        $fav->resize(72, 72, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-72.png");
-        $fav->resize(48, 48, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-48.png");
+        try {
+            $favicon = PATH_HOME . str_replace($dados['home'], '', $dados['favicon']);
+            $fav = \WideImage\WideImage::load($favicon);
+            $fav->resize(256, 256, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-256.png");
+            $fav->resize(192, 192, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-192.png");
+            $fav->resize(144, 144, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-144.png");
+            $fav->resize(96, 96, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-96.png");
+            $fav->resize(72, 72, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-72.png");
+            $fav->resize(48, 48, 'fill')->saveToFile(PATH_HOME . "assetsPublic/img/favicon-48.png");
+        } catch (\Exception $e) {
 
-        /**
-         * Copia a launch screen
-         * Gerador das splashScreen: https://appsco.pe/developer/splash-screens
-         */
-        if (file_exists(PATH_HOME . "public/assets/splashscreens/iphone.png")) {
-            $this->copySplashScreenIphone("iphone", PATH_HOME);
-            $this->copySplashScreenIpad("ipad", PATH_HOME);
-        } else {
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if (file_exists(PATH_HOME . VENDOR . "/{$lib}/public/_config") && file_exists(PATH_HOME . VENDOR . "/{$lib}/public/assets/splashscreens/iphone.png")) {
-                    $this->copySplashScreenIphone("iphone", PATH_HOME . VENDOR . "/{$lib}/");
-                    $this->copySplashScreenIpad("ipad", PATH_HOME . VENDOR . "/{$lib}/");
-                    break;
-                }
-            }
         }
     }
 
