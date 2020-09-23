@@ -1,5 +1,7 @@
 <?php
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost');
+header('Access-Control-Allow-Origin: http://localhost:8000');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET');
 header('Content-Type: application/json');
@@ -50,7 +52,7 @@ if (!empty($url)) {
 
         try {
             include_once $route;
-            if (isset($data['error'])) {
+            if (!empty($data['error'])) {
                 $data["response"] = 2;
                 $data["data"] = "";
             } elseif (!isset($data['data'])) {

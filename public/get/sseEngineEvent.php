@@ -1,5 +1,8 @@
 <?php
 
+header('Content-Type: text/event-stream');
+header('Cache-Control: no-cache');
+
 $messages = [];
 $messagesBase = [];
 if (!empty($_SESSION['userlogin'])) {
@@ -25,14 +28,13 @@ if (!empty($_SESSION['userlogin'])) {
      */
     function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory)
     {
-        $dados = [];
-        $dados['db'] = returnMessagesSSE("db", $resultDb, $resultDbHistory);
-        $dados['base'] = returnMessagesSSE("base", $messagesBase);
-
-        if(!empty($view))
-            $dados[$view] = returnMessagesSSE($view, $messages);
-
-        return $dados;
+        echo "id: " . time() . PHP_EOL;
+        echo "retry: 1000" . PHP_EOL;
+        returnMessagesSSE("db", $resultDb, $resultDbHistory);
+        returnMessagesSSE($view, $messages);
+        returnMessagesSSE("base", $messagesBase);
+        ob_flush();
+        flush();
     }
 
     /**
@@ -56,7 +58,8 @@ if (!empty($_SESSION['userlogin'])) {
             }
         }
 
-        return $content;
+        if (!empty($content))
+            echo "event: " . $view . PHP_EOL . "data: " . json_encode($content) . PHP_EOL . PHP_EOL;
     }
 
     /**
@@ -159,4 +162,4 @@ if (!empty($_SESSION['userlogin'])) {
     include_once 'sseEngineDb.php';
 }
 
-$data['data'] = returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);
+returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);

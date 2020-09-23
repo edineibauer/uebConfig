@@ -2552,7 +2552,7 @@ var URL, app = {
                         if (typeof sseSourceListeners[file] === "undefined") {
                             await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
-                            sseSource.addEventListener(file.split("/")[0], async function (e) {
+                            addSseEngineListener(file.split("/")[0], async function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
                                     let response = JSON.parse(e.data);
 
@@ -2581,7 +2581,7 @@ var URL, app = {
                                     if (file === app.file)
                                         _updateTemplateRealTime();
                                 }
-                            }, !1);
+                            });
                         } else {
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                         }
@@ -3099,78 +3099,101 @@ const sseEvents = {};
 const SSE = {};
 
 async function sseStart() {
-    if (navigator.onLine && typeof (EventSource) !== "undefined") {
-        sseSource = new EventSource(SERVER + "get/sseEngine/maestruToken/" + USER.token, {withCredentials: true});
-        sseSource.addEventListener('base', async function (e) {
-            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                let sseData = JSON.parse(e.data);
+    if (isUsingSSE()) {
+        sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+    } else {
+        setInterval(function () {
+            AJAX.get("sseEngine").then(receiveSseEngineAjax);
+        }, 2000);
+    }
 
-                /**
-                 * If have event function on receive this SSE to trigger
-                 */
-                for (let i in sseData) {
-                    if (sseData[i].response === 1) {
-                        /**
-                         * Store the value of the SSE event
-                         */
-                        SSE[i] = sseData[i].data;
+    addSseEngineListener('base', async function (e) {
+        if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+            let sseData = JSON.parse(e.data);
 
-                        /**
-                         * For each SSE received on view
-                         */
-                        if (typeof sseEvents[i] === "function")
-                            sseEvents[i](SSE[i]);
-                    }
-                }
-            }
-        }, !1);
-
-        /**
-         * Listen for database local updates
-         */
-        sseSource.addEventListener('db', async function (e) {
-            if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                let sseData = JSON.parse(e.data);
-                if (!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
-                    for (let entity in sseData) {
-                        await dbLocal.clear(entity);
-                        if (!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
-                            for (let registro of sseData[entity])
-                                await dbLocal.exeCreate(entity, registro);
-
-                            _checkRealtimeDbUpdate(entity)
-                        }
-                    }
-                }
-            }
-        }, !1);
-
-        sseAdd("updatePerfil", function (data) {
-            USER = data;
-            storeUser();
-            _updateTemplateRealTime();
-        });
-
-        /**
-         * Notificações pendentes show badge
-         */
-        sseAdd("notificationsBadge", async function (data) {
-            if (USER.setor !== 0) {
-                if (isNumberPositive(data)) {
+            /**
+             * If have event function on receive this SSE to trigger
+             */
+            for (let i in sseData) {
+                if (sseData[i].response === 1) {
                     /**
-                     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+                     * Store the value of the SSE event
                      */
-                    let $navbarNotify = $("#core-header-nav-bottom").find("a[href='notificacoes']");
-                    if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length)
-                        $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+                    SSE[i] = sseData[i].data;
 
-                } else {
-                    $("#badge-note").remove();
+                    /**
+                     * For each SSE received on view
+                     */
+                    if (typeof sseEvents[i] === "function")
+                        sseEvents[i](SSE[i]);
                 }
+            }
+        }
+    });
+
+    /**
+     * Listen for database local updates
+     */
+    addSseEngineListener('db', async function (e) {
+        if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
+            let sseData = JSON.parse(e.data);
+            if (!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
+                for (let entity in sseData) {
+                    await dbLocal.clear(entity);
+                    if (!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
+                        for (let registro of sseData[entity])
+                            await dbLocal.exeCreate(entity, registro);
+
+                        _checkRealtimeDbUpdate(entity)
+                    }
+                }
+            }
+        }
+    });
+
+    sseAdd("updatePerfil", function (data) {
+        USER = data;
+        storeUser();
+        _updateTemplateRealTime();
+    });
+
+    /**
+     * Notificações pendentes show badge
+     */
+    sseAdd("notificationsBadge", async function (data) {
+        if (USER.setor !== 0) {
+            if (isNumberPositive(data)) {
+                /**
+                 * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+                 */
+                let $navbarNotify = $("#core-header-nav-bottom").find("a[href='notificacoes']");
+                if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length)
+                    $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+
             } else {
                 $("#badge-note").remove();
             }
-        });
+        } else {
+            $("#badge-note").remove();
+        }
+    });
+}
+
+function isUsingSSE() {
+    return navigator.onLine && typeof (EventSource) !== "undefined" && HOME === SERVER && 1==2;
+}
+
+async function addSseEngineListener(name, funcao) {
+    if (isUsingSSE())
+        sseSource.addEventListener(name, funcao, !1);
+    else
+        sseSource[name] = funcao;
+}
+
+async function receiveSseEngineAjax(data) {
+    for(let n in data) {
+        if (typeof sseSource[n] === "function" && !isEmpty(data[n]))
+            await sseSource[n](data[n]);
     }
 }
 
