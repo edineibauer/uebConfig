@@ -3,48 +3,52 @@
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
-if(!file_exists("www"))
-    mkdir("www", 0777);
+$www = file_exists("cordova") ? "cordova/www" : "www";
+
+if(!file_exists($www))
+    mkdir($www, 0777);
 
 /**
  * Create config file with HOME empty
  */
 $config = file_get_contents("_config/config.php");
 $home = explode("'", explode("define('HOME', '", $config)[1])[0];
-$f = fopen("www/config.php", "w+");
+$f = fopen("{$www}/config.php", "w+");
 fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');"], ["define('HOME', '');", "define('DEV', '0');"], $config));
 fclose($f);
 
-$f = fopen("www/index.php", "w+");
+$f = fopen("{$www}/index.php", "w+");
 $index = file_get_contents("index.php");
 $service = explode(";", explode("const SERVICEWORKER = ", $index)[1])[0];
 fwrite($f, str_replace(["include_once '_config/config.php';", "const SERVICEWORKER = {$service};"], ["", "const SERVICEWORKER = !1;"], $index));
 fclose($f);
 
-require_once './www/config.php';
+require_once './{$www}/config.php';
 
 /**
  * Remove www to create new
  */
-if (file_exists(PATH_HOME . "www/view"))
-    \Helpers\Helper::recurseDelete(PATH_HOME . "www/view");
+if (file_exists(PATH_HOME . "{$www}/view"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "{$www}/view");
 
-if (file_exists(PATH_HOME . "www/assetsPublic"))
-    \Helpers\Helper::recurseDelete(PATH_HOME . "www/assetsPublic");
+if (file_exists(PATH_HOME . "{$www}/assetsPublic"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "{$www}/assetsPublic");
 
 /**
  * ------------- start Create views
  */
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/view");
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/assetsPublic");
-\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/get");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/view");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/assetsPublic");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/get");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/public");
+\Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/public/assets");
 
 /**
  * ------------ start Create index
  */
 
 ob_start();
-include_once PATH_HOME . 'www/index.php';
+include_once PATH_HOME . '{$www}/index.php';
 $index = ob_get_contents();
 ob_end_clean();
 
@@ -52,12 +56,12 @@ $manifest = explode('>', explode('<link rel="manifest" ', $index)[1])[0];
 $index = str_replace('<link rel="manifest" ' . $manifest . '>', "", $index);
 $index = str_replace('</head>', "    <script src=\"cordova.js\"></script>\n</head>", $index);
 
-$f = fopen(PATH_HOME . "www/index.html", "w+");
+$f = fopen(PATH_HOME . "{$www}/index.html", "w+");
 fwrite($f, $index);
 fclose($f);
 
 
-unlink( PATH_HOME . 'www/index.php');
+unlink( PATH_HOME . '{$www}/index.php');
 
 /**
  * ------------- finish Create index
@@ -69,8 +73,8 @@ unlink( PATH_HOME . 'www/index.php');
  */
 \Config\Config::setUser(0);
 foreach (\Config\Config::getSetores() as $setor) {
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/view/{$setor}");
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "www/get/{$setor}");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/view/{$setor}");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/get/{$setor}");
     $_SESSION['userlogin']['setor'] = $setor;
 
     $views = [];
@@ -143,7 +147,7 @@ foreach (\Config\Config::getSetores() as $setor) {
             $data["response"] = 4;
         }
 
-        $f = fopen(PATH_HOME . "www/view/{$setor}/{$view}.json", "w+");
+        $f = fopen(PATH_HOME . "{$www}/view/{$setor}/{$view}.json", "w+");
         fwrite($f, json_encode($data));
         fclose($f);
     }
@@ -154,7 +158,7 @@ foreach (\Config\Config::getSetores() as $setor) {
     foreach (["appFilesView", "appFilesViewUser", "currentFiles", "userCache"] as $get) {
         $data = ["data" => "", "response" => 1, "error" => ""];
         include PATH_HOME . VENDOR . "config/public/get/{$get}.php";
-        $f = fopen(PATH_HOME . "www/get/{$setor}/{$get}.json", "w+");
+        $f = fopen(PATH_HOME . "{$www}/get/{$setor}/{$get}.json", "w+");
         fwrite($f, json_encode($data));
         fclose($f);
     }
@@ -163,5 +167,6 @@ foreach (\Config\Config::getSetores() as $setor) {
 /**
  * Copy assetsPublic to www
  */
-\Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "www/assetsPublic");
-unlink(PATH_HOME . "www/config.php");
+\Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
+\Helpers\Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
+unlink(PATH_HOME . "{$www}/config.php");
