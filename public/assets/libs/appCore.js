@@ -422,6 +422,26 @@ $(function ($) {
             await sleep(10);
 
         updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
+        let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
+        let tpl = await getTemplates();
+
+        /**
+         * Check cache values to apply before
+         */
+        let cache = await dbLocal.exeRead('_cache_' + $this.data("db"));
+        if(!isEmpty(cache)) {
+
+            if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
+                cache = cache[0];
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+
+            if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+                $this.htmlTemplate($templateChild, cache);
+            else
+                _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+        }
 
         /**
          * get the data to use on template if need
@@ -435,12 +455,11 @@ $(function ($) {
         else if($this.hasAttr("data-realtime-db") && $this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
             dados = await window[$this.data("realtime-db")](dados);
 
-        let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
         let parametros = {};
 
         if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
             parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-            $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());;
+            $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
         } else {
             parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
         }
@@ -456,12 +475,26 @@ $(function ($) {
         }
 
         /**
+         * Cache the data
+         */
+        await dbLocal.clear('_cache_' + $this.data("db"));
+        if(!isEmpty(dados)) {
+            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                for(let d of dados)
+                    dbLocal.exeCreate('_cache_' + $this.data("db"), d);
+            } else {
+                dados.typeIsObject = !1;
+                dbLocal.exeCreate('_cache_' + $this.data("db"), dados);
+            }
+        }
+
+        /**
          * Check if use the realtime render or the default render
          */
         if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
             $this.htmlTemplate($templateChild, dados);
         else
-            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
+            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
     };
 
     /**
@@ -480,6 +513,26 @@ $(function ($) {
             await sleep(10);
 
         updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
+        let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
+        let tpl = await getTemplates();
+
+        /**
+         * Check cache values to apply before
+         */
+        let cache = await dbLocal.exeRead('_cache_get_' + $this.data("get"));
+        if(!isEmpty(cache)) {
+
+            if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
+                cache = cache[0];
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+
+            if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+                $this.htmlTemplate($templateChild, cache);
+            else
+                _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+        }
 
         /**
          * get the data to use on template if need
@@ -492,8 +545,6 @@ $(function ($) {
         else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
             dados = await window[$this.data("realtime-get")](dados);
 
-
-        let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
         let parametros = {};
 
         if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
@@ -514,12 +565,26 @@ $(function ($) {
         }
 
         /**
+         * Cache the data
+         */
+        await dbLocal.clear('_cache_get_' + $this.data("get"));
+        if(!isEmpty(dados)) {
+            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                for(let d of dados)
+                    dbLocal.exeCreate('_cache_get_' + $this.data("get"), d);
+            } else {
+                dados.typeIsObject = !1;
+                dbLocal.exeCreate('_cache_get_' + $this.data("get"), dados);
+            }
+        }
+
+        /**
          * Check if use the realtime render or the default render
          */
         if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
             $this.htmlTemplate($templateChild, dados);
         else
-            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? (await getTemplates())[$templateChild] : $templateChild), dados);
+            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
     };
 
     $.fn._functionsToExecuteAfterTemplate = async function() {
