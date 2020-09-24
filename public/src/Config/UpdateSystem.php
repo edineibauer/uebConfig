@@ -200,6 +200,9 @@ class UpdateSystem
         if(!isset($config['server']))
             $config['server'] = $config['home'];
 
+        if(!isset($config['serverproduction']))
+            $config['serverproduction'] = $config['home'];
+
         Config::createConfig($config);
     }
 

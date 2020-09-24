@@ -13,8 +13,10 @@ if(!file_exists($www))
  */
 $config = file_get_contents("_config/config.php");
 $home = explode("'", explode("define('HOME', '", $config)[1])[0];
+$server = explode("'", explode("define('SERVER', '", $config)[1])[0];
+$serverTarget = explode("'", explode("define('SERVERPRODUCTION', '", $config)[1])[0];
 $f = fopen("{$www}/config.php", "w+");
-fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');"], ["define('HOME', '');", "define('DEV', '0');"], $config));
+fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');", "define('SERVER', '{$server}');"], ["define('HOME', '');", "define('DEV', '0');", "define('SERVER', '{$serverTarget}');"], $config));
 fclose($f);
 
 $f = fopen("{$www}/index.php", "w+");
