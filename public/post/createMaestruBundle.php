@@ -119,8 +119,15 @@ foreach (\Config\Config::getSetores() as $setor) {
 
             try {
 
-                ob_start();
-                include_once $link->getRoute();
+                if(pathinfo($link->getRoute(), PATHINFO_EXTENSION) === "php") {
+                    ob_start();
+                    include_once $link->getRoute();
+                    $content = ob_get_contents();
+                    ob_end_clean();
+                } else {
+                    $content = file_get_contents($link->getRoute());
+                }
+
                 $data = ["response" => 1, "error" => "", "data" => [
                     "title" => $link->getParam()['title'],
                     "descricao" => $link->getParam()['descricao'],
@@ -135,9 +142,8 @@ foreach (\Config\Config::getSetores() as $setor) {
                     "!setor" => $link->getParam()['!setor'],
                     "redirect" => $link->getParam()['redirect'] ?? "403",
                     "cache" => $link->getParam()['cache'] ?? !1,
-                    "content" => ob_get_contents()
+                    "content" => $content
                 ]];
-                ob_end_clean();
 
             } catch (Exception $e) {
                 $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
