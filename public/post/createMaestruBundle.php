@@ -23,7 +23,7 @@ $service = explode(";", explode("const SERVICEWORKER = ", $index)[1])[0];
 fwrite($f, str_replace(["include_once '_config/config.php';", "const SERVICEWORKER = {$service};"], ["", "const SERVICEWORKER = !1;"], $index));
 fclose($f);
 
-require_once './{$www}/config.php';
+require_once "./{$www}/config.php";
 
 /**
  * Remove www to create new
@@ -48,7 +48,7 @@ if (file_exists(PATH_HOME . "{$www}/assetsPublic"))
  */
 
 ob_start();
-include_once PATH_HOME . '{$www}/index.php';
+include_once PATH_HOME . "{$www}/index.php";
 $index = ob_get_contents();
 ob_end_clean();
 
@@ -61,7 +61,7 @@ fwrite($f, $index);
 fclose($f);
 
 
-unlink( PATH_HOME . '{$www}/index.php');
+unlink( PATH_HOME . "{$www}/index.php");
 
 /**
  * ------------- finish Create index
