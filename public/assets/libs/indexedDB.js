@@ -542,7 +542,7 @@ class Read {
          * Read local and apply filters
          */
         let results = await dbLocal.exeRead(this.entity, this.id);
-        this.result = (!this.id ? this._privateArrayFilterData(results) : (!isEmpty(results) ? [results] : []));
+        this.result = (isNumberPositive(this.id) ? this._privateArrayFilterData(results) : (!isEmpty(results) ? [results] : []));
         this.total = this.result.length;
 
         /**
@@ -587,7 +587,7 @@ class Read {
          * então lê online e retorna todos os registros
          * senão retorna registros locais
          */
-        if (results.length >= LIMITOFFLINE)
+        if (results.length >= LIMITOFFLINE || results.length === 0)
             return this._privateExeReadOnline();
 
         this._clearRead();
