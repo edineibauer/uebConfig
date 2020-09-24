@@ -1038,7 +1038,7 @@ function pushNotification(title, body, url, image, background) {
 }
 
 async function checkUpdate() {
-    if (navigator.onLine && SERVICEWORKER) {
+    if (isOnline() && SERVICEWORKER) {
         if (!localStorage.update)
             localStorage.update = await AJAX.post("update");
         else if (parseFloat(VERSION) > parseFloat(localStorage.update))
@@ -1089,7 +1089,7 @@ function toggleSidebar(action = 'toggle') {
 }
 
 async function logoutDashboard() {
-    if (navigator.onLine) {
+    if (isOnline()) {
         toast("Saindo...", 42000);
         await AJAX.get("logout");
         await setCookieAnonimo();
@@ -1378,7 +1378,7 @@ function maskData($data) {
 }
 
 async function getFields(entity, haveId, type) {
-    if (navigator.onLine && typeof type === "string") {
+    if (isOnline() && typeof type === "string") {
         let rec = await AJAX.get("event/recoveryFieldsCustom/" + type + "/" + entity);
         if (!isEmpty(rec)) {
             for (let r of rec) {
@@ -1522,7 +1522,7 @@ async function clearCacheAll() {
 }
 
 function updateCache() {
-    if (navigator.onLine) {
+    if (isOnline()) {
         toast("Atualizando Aplicativo", 7000, "toast-success");
         clearCacheAll().then(() => {
             location.reload();
@@ -1575,7 +1575,7 @@ function setCookieAnonimo() {
 }
 
 function setCookieUser(user) {
-    if (navigator.onLine) {
+    if (isOnline()) {
 
         /**
          * Limpa dados de usuário
@@ -1627,7 +1627,7 @@ function updateAppUser() {
  * @returns {Promise<void>}
  */
 function updateCacheUser() {
-    if (navigator.onLine) {
+    if (isOnline()) {
         return clearCacheUser().then(() => {
             return loadCacheUser();
         });
@@ -1706,7 +1706,7 @@ function loadCacheUser() {
     /**
      * Load User Data content
      * */
-    if (navigator.onLine) {
+    if (isOnline()) {
 
         return getIndexedDbGets().catch(e => {
             errorLoadingApp("loadCacheUser", e);
@@ -1759,8 +1759,16 @@ function getNotche(side) {
     return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sa" + side.substring(0, 1)));
 }
 
+function isOnline() {
+    if(typeof navigator.connection.type !== "undefined") {
+        return navigator.connection.type !== Connection.NONE;
+    } else {
+        return navigator.onLine;
+    }
+}
+
 function errorLoadingApp(id, e) {
-    if(navigator.onLine) {
+    if(isOnline()) {
         console.log(e);
         toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
     } else {
@@ -1876,7 +1884,7 @@ async function getIndexedDbGets() {
  * Se estiver em Dev, atualiza dados
  */
 function updateAppOnDev() {
-    if (!navigator.onLine || !DEV)
+    if (!isOnline() || !DEV)
         return Promise.all([]);
 
     /**
@@ -2617,7 +2625,7 @@ var URL, app = {
                     /**
                      * Register SSE
                      */
-                    if (navigator.onLine && typeof (EventSource) !== "undefined") {
+                    if (isOnline() && typeof (EventSource) !== "undefined") {
                         if (typeof sseSourceListeners[file] === "undefined") {
                             await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
@@ -3145,7 +3153,7 @@ async function setUserData(field, value) {
     /**
      * Update user in server base
      */
-    if (navigator.onLine)
+    if (isOnline())
         return AJAX.post("setUserData", updates);
 }
 
@@ -3250,7 +3258,7 @@ async function sseStart() {
 }
 
 function isUsingSSE() {
-    return navigator.onLine && typeof (EventSource) !== "undefined" && HOME === SERVER && 1==2;
+    return isOnline() && typeof (EventSource) !== "undefined" && HOME === SERVER && 1==2;
 }
 
 async function addSseEngineListener(name, funcao) {
@@ -3419,7 +3427,7 @@ async function setServiceWorker(swReg) {
 
 $(function () {
     (async () => {
-        if (SERVICEWORKER && navigator.onLine) {
+        if (SERVICEWORKER && isOnline()) {
             if (navigator.serviceWorker.controller) {
                 await navigator.serviceWorker.ready.then(setServiceWorker);
             } else {
