@@ -3284,7 +3284,7 @@ async function onLoadDocument() {
 
     }).off("click", "a").on("click", "a", function (e) {
         let $this = $(this);
-        let url = $this.attr("href").replace(HOME, '');
+        let url = $this.attr("href").replace(HOME, '').replace(SERVER, '');
 
         if ($this.hasClass("notification-title"))
             setNotificationOpen($this.data("id"));
