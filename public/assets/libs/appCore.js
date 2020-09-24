@@ -1760,8 +1760,12 @@ function getNotche(side) {
 }
 
 function errorLoadingApp(id, e) {
-    console.log(e);
-    toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
+    if(navigator.onLine) {
+        console.log(e);
+        toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
+    } else {
+        toast("Conexão perdida", 1400, "toast-warning");
+    }
 }
 
 async function firstAccess() {
@@ -3011,6 +3015,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             }, 50)
         }
     }).catch(e => {
+        app.removeLoading();
         errorLoadingApp("pageTransition", e)
     });
 }
