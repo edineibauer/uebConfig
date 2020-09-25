@@ -428,7 +428,7 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let cache = await dbLocal.exeRead('_cache_' + $this.data("db"));
+        let cache = (await dbLocal.exeRead('_cache_' + $this.data("db"))).reverse();
         if(!isEmpty(cache)) {
 
             if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
