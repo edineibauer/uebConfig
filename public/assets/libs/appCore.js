@@ -438,9 +438,14 @@ $(function ($) {
                 $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
 
             if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                $this.htmlTemplate($templateChild, cache);
+                await $this.htmlTemplate($templateChild, cache);
             else
-                _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+                await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+                $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
+
+            await sleep(300);
         }
 
         /**
@@ -529,9 +534,14 @@ $(function ($) {
                 $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
 
             if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                $this.htmlTemplate($templateChild, cache);
+                await $this.htmlTemplate($templateChild, cache);
             else
-                _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+                await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+                $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
+
+            await sleep(300);
         }
 
         /**
