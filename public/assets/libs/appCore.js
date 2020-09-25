@@ -444,8 +444,6 @@ $(function ($) {
 
             if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
                 $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-
-            await sleep(300);
         }
 
         /**
@@ -540,8 +538,6 @@ $(function ($) {
 
             if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
                 $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-
-            await sleep(300);
         }
 
         /**
@@ -786,17 +782,17 @@ $(function ($) {
 
             /**
              * Await the content insert on DOM (load)
+             * REMOVED the settimeout to test
              */
-            setTimeout(function () {
-                /**
-                 * Remove the old content
-                 */
-                $content.removeClass("loadingImagesPreview").contents().unwrap();
-                $allOldChildren.remove();
-                $allContents.filter(function () {
-                    return (this.nodeType == 3);
-                }).remove();
-            }, 150);
+
+            /**
+             * Remove the old content
+             */
+            $content.removeClass("loadingImagesPreview").contents().unwrap();
+            $allOldChildren.remove();
+            $allContents.filter(function () {
+                return (this.nodeType == 3);
+            }).remove();
         }
     };
 }(jQuery));
