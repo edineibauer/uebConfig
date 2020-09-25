@@ -542,7 +542,7 @@ class Read {
          * Read local and apply filters
          */
         let results = await dbLocal.exeRead(this.entity, this.id);
-        this.result = (isNumberPositive(this.id) && !isEmpty(results) ? this._privateArrayFilterData(results) : (!isEmpty(results) ? [results] : []));
+        this.result = (!isNumberPositive(this.id) && !isEmpty(results) ? this._privateArrayFilterData(results) : (!isEmpty(results) ? [results] : []));
         this.total = this.result.length;
 
         /**
