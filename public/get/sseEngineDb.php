@@ -23,11 +23,13 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                 $json->save("historic", $hist);
             }
 
+            $historyUserDB = (file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json") ? file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json") : 0);
+
             /**
              * Check if have new data
              * if have, send it to front
              */
-            if (file_exists(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json") && $hist[$entity] !== file_get_contents(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json")) {
+            if ($hist[$entity] !== $historyUserDB) {
                 $resultDbHistory[$entity] = $hist[$entity];
                 $resultDb[$entity] = \Entity\Entity::exeRead($entity);
             }

@@ -2627,7 +2627,6 @@ var URL, app = {
                      */
                     if (isOnline() && typeof (EventSource) !== "undefined") {
                         if (typeof sseSourceListeners[file] === "undefined") {
-                            await AJAX.get("sseEngineClear");
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                             addSseEngineListener(file.split("/")[0], async function (e) {
                                 if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
@@ -3258,7 +3257,7 @@ async function sseStart() {
 }
 
 function isUsingSSE() {
-    return isOnline() && typeof (EventSource) !== "undefined" && HOME === SERVER && 1==2;
+    return isOnline() && typeof (EventSource) !== "undefined" && HOME === SERVER;
 }
 
 async function addSseEngineListener(name, funcao) {
