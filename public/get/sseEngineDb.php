@@ -29,7 +29,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
              * Check if have new data
              * if have, send it to front
              */
-            if ($hist[$entity] !== $historyUserDB) {
+            if ($hist[$entity] != $historyUserDB) {
                 $resultDbHistory[$entity] = $hist[$entity];
                 $resultDb[$entity] = \Entity\Entity::exeRead($entity);
             }
