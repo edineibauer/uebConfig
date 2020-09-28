@@ -1477,6 +1477,17 @@ async function clearCacheUser() {
 
     dbLocal.clear("_syncDB");
 
+    /**
+     * Clear history user on server
+     */
+    await AJAX.get("clearUserHistory");
+
+    /**
+     * Clear indexedDB
+     */
+    for (let entity of Object.keys(dicionarios))
+        dbLocal.clear(entity);
+
     return Promise.all(clear).then(() => {
         return clearIndexedDbGets().then(() => {
             if (SERVICEWORKER) {
@@ -1508,6 +1519,17 @@ async function clearCacheAll() {
         await AJAX.post("up/sync", syncData);
 
     dbLocal.clear("_syncDB");
+
+    /**
+     * Clear history user on server
+     */
+    await AJAX.get("clearUserHistory");
+
+    /**
+     * Clear indexedDB
+     */
+    for (let entity of Object.keys(dicionarios))
+        dbLocal.clear(entity);
 
     return clearIndexedDbGets().then(() => {
         if (!SERVICEWORKER)
