@@ -2348,6 +2348,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     if(typeof $template === "undefined")
         $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
 
+    let $elementIsolated = $("<div>" + $element.html() + "</div>");
+
     /**
      * First, find by the variables used
      */
@@ -2393,12 +2395,12 @@ async function _updateTemplateRealTime($element, $template, param) {
         }
     });
 
-    if(isSetParam) {
-
-        /**
-         * Render all tags
-         */
-        $element.find("[data-realtime]").each(async function (i, e) {
+    /**
+     * Render all tags
+     */
+    $element.find("[data-realtime]").each(async function (i, e) {
+        let $iso = $elementIsolated.find("[data-realtime]").eq(i);
+        if(!$iso.closest("[data-db]").length && !$iso.closest("[data-get]").length) {
             let $t = $template.find("[data-realtime]").eq(i);
             if ($t.length) {
 
@@ -2428,14 +2430,16 @@ async function _updateTemplateRealTime($element, $template, param) {
                     }
                 });
             }
-        });
+        }
+    });
 
-        /**
-         * Render html realtime only
-         */
-        $element.find("[data-realtime-html]").each(async function (i, e) {
+    /**
+     * Render html realtime only
+     */
+    $element.find("[data-realtime-html]").each(async function (i, e) {
+        let $iso = $elementIsolated.find("[data-realtime-html]").eq(i);
+        if(!$iso.closest("[data-db]").length && !$iso.closest("[data-get]").length) {
             let $t = $template.find("[data-realtime-html]").eq(i);
-            console.log($t.html(), param);
             if ($t.length) {
                 let html = Mustache.render($t.html(), param);
                 let funcao = $(e).data("realtime-html");
@@ -2444,12 +2448,15 @@ async function _updateTemplateRealTime($element, $template, param) {
 
                 $(e).html(html);
             }
-        });
+        }
+    });
 
-        /**
-         * Render all attributes realtime only
-         */
-        $element.find("[data-realtime-attr]").each(function (i, e) {
+    /**
+     * Render all attributes realtime only
+     */
+    $element.find("[data-realtime-attr]").each(function (i, e) {
+        let $iso = $elementIsolated.find("[data-realtime-attr]").eq(i);
+        if(!$iso.closest("[data-db]").length && !$iso.closest("[data-get]").length) {
             let $t = $template.find("[data-realtime-attr]").eq(i);
             if ($t.length) {
                 $.each($t[0].attributes, async function () {
@@ -2462,8 +2469,8 @@ async function _updateTemplateRealTime($element, $template, param) {
                     }
                 });
             }
-        });
-    }
+        }
+    });
 }
 
 /**
