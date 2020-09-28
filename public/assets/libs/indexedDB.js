@@ -47,12 +47,13 @@ async function reportRead(entity, search, filter, aggroup, soma, media, maior, m
             /**
              * Put data on localstorage
              */
-            for(let d of data.data)
-                db.exeCreate(entity, d);
+            for(let d of data)
+                dbLocal.exeCreate(entity, d);
 
-            resolve({data: data.data, length: data.total});
-        }).catch(() => {
-            resolve(readOffline(data, search, filter, order, reverse, limit, offset));
+            resolve(data);
+        }).catch(e => {
+            console.log(e);
+            toast("Houve um erro ao ler Relatório", 2000, "toast-error");
         });
     })
 }
@@ -717,17 +718,9 @@ class Read {
         let columnOrder = typeof this.columnOrder === "string" && this.columnOrder !== "" ? this.columnOrder : "id";
         let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
 
-        let results = await reportRead(entity, null, (await convertStringToFilter(entity, filter)), null, null, null, null, null, columnOrder, orderReverse, limit, offset);
-        this.result = [];
-        this.total = results.total;
-
-        if (!isEmpty(results.data)) {
-            for (let registro of results.data) {
-                let reg = _getDefaultValues(entity, registro);
-                reg.relationData = !isEmpty(registro.relationData) ? registro.relationData : [];
-                this.result.push(reg);
-            }
-        }
+        this.result = await reportRead(entity, null, (await convertStringToFilter(entity, filter)), null, null, null, null, null, columnOrder, orderReverse, limit, offset);
+        let total = await dbLocal.exeRead("__totalRegisters", 1);
+        this.total = isNumberPositive(total) ? parseInt(total) : 0;
 
         this._clearRead();
         return this.result;

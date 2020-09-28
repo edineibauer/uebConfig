@@ -16,6 +16,9 @@ $content = [
     "totalRegisters" => [],
 ];
 
+include 'userTotalRegisterDB.php';
+$content['totalRegisters'] = $data['data'];
+
 include 'templates.php';
 $content['template'] = $data['data'];
 
@@ -36,8 +39,5 @@ $content['general'] = $data['data'];
 
 include 'graficos.php';
 $content['graficos'] = $data['data'];
-
-foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userTotalRegisterDB/{$_SESSION['userlogin']['id']}") as $item)
-    $content['totalRegisters'][str_replace(".json", "", $item)] = file_get_contents(PATH_HOME . "_cdn/userTotalRegisterDB/{$_SESSION['userlogin']['id']}/{$item}");
 
 $data['data'] = $content;
