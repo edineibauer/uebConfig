@@ -2372,8 +2372,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render all tags
      */
-    $element.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").not("[data-db][data-realtime-db] [data-realtime]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime]").not("[data-get][data-realtime-get] [data-realtime]").not("[data-db][data-realtime-db] [data-realtime]").eq(i);
+    $element.find("[data-realtime]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime]").eq(i);
         if($t.length) {
 
             /**
@@ -2407,8 +2407,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render html realtime only
      */
-    $element.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").not("[data-db][data-realtime-db] [data-realtime-html]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime-html]").not("[data-get][data-realtime-get] [data-realtime-html]").not("[data-db][data-realtime-db] [data-realtime-html]").eq(i);
+    $element.find("[data-realtime-html]").each(async function (i, e) {
+        let $t = $template.find("[data-realtime-html]").eq(i);
         if($t.length) {
             let html = Mustache.render($t.html(), param);
             let funcao = $(e).data("realtime-html");
@@ -2422,10 +2422,9 @@ async function _updateTemplateRealTime($element, $template, param) {
     /**
      * Render all attributes realtime only
      */
-    $element.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").not("[data-db][data-realtime-db] [data-realtime-attr]").each(function (i, e) {
-        let $t = $template.find("[data-realtime-attr]").not("[data-get][data-realtime-get] [data-realtime-attr]").not("[data-db][data-realtime-db] [data-realtime-attr]").eq(i);
+    $element.find("[data-realtime-attr]").each(function (i, e) {
+        let $t = $template.find("[data-realtime-attr]").eq(i);
         if($t.length) {
-
             $.each($t[0].attributes, async function () {
                 if (this.specified) {
                     let valor = Mustache.render(this.value, param);
@@ -3222,13 +3221,15 @@ async function sseStart() {
             let sseData = JSON.parse(e.data);
             if (!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
                 for (let entity in sseData) {
-                    await dbLocal.clear(entity);
-                    if (!isEmpty(sseData[entity]) && typeof sseData[entity] === "object" && sseData[entity] !== null && sseData[entity].constructor === Array) {
-                        for (let registro of sseData[entity])
-                            await dbLocal.exeCreate(entity, registro);
-
-                        _checkRealtimeDbUpdate(entity)
+                    for(let content of sseData[entity]) {
+                        if(isNumberPositive(content)) {
+                            await dbLocal.exeDelete(entity, content);
+                        } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
+                            await dbLocal.exeCreate(entity, content);
+                        }
                     }
+
+                    _checkRealtimeDbUpdate(entity);
                 }
             }
         }
