@@ -2,10 +2,10 @@
 
 namespace Config;
 
-use Helpers\Helper;
 use Conn\Read;
 use Conn\SqlCommand;
 use Entity\Entity;
+use Helpers\Helper;
 use Tholu\Packer\Packer;
 
 class UpdateSystem
@@ -416,7 +416,6 @@ class UpdateSystem
         Config::createDir("_config");
         Config::createDir("_cdn");
         Config::createDir("_cdn/vendor");
-        Config::createDir("_cdn/userPerfil");
         Config::createDir("_cdn/userActivity");
         Config::createDir("_cdn/userSSE");
         Config::createDir("libs");
