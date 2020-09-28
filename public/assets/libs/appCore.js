@@ -2338,6 +2338,8 @@ async function _updateTemplateRealTime($element, $template, param) {
     if (typeof sseSourceListeners[app.file] !== "object")
         return;
 
+    let isSetParam = typeof param !== "undefined";
+
     param = _htmlTemplateDefaultParam(!1, param);
 
     if(typeof $element === "undefined")
@@ -2391,73 +2393,77 @@ async function _updateTemplateRealTime($element, $template, param) {
         }
     });
 
-    /**
-     * Render all tags
-     */
-    $element.find("[data-realtime]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime]").eq(i);
-        if($t.length) {
+    if(isSetParam) {
 
-            /**
-             * Update the html
-             */
-            let html = Mustache.render($t.html(), param);
-            let funcao = $(e).data("realtime");
-            if (funcao !== "" && typeof window[funcao] === "function")
-                html = await window[funcao](html);
+        /**
+         * Render all tags
+         */
+        $element.find("[data-realtime]").each(async function (i, e) {
+            let $t = $template.find("[data-realtime]").eq(i);
+            if ($t.length) {
 
-            $(e).html(html);
+                /**
+                 * Update the html
+                 */
+                let html = Mustache.render($t.html(), param);
+                let funcao = $(e).data("realtime");
+                if (funcao !== "" && typeof window[funcao] === "function")
+                    html = await window[funcao](html);
 
-            /**
-             * Update all attributes of element
-             */
-            $.each($t[0].attributes, async function () {
-                if (this.specified) {
-                    let txtc = document.createElement("textarea");
-                    txtc.innerHTML = Mustache.render(this.value, param);
-                    let valor = txtc.value
+                $(e).html(html);
 
-                    if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
-                        valor = await window[$(e).data("realtime-" + this.name)](valor);
+                /**
+                 * Update all attributes of element
+                 */
+                $.each($t[0].attributes, async function () {
+                    if (this.specified) {
+                        let txtc = document.createElement("textarea");
+                        txtc.innerHTML = Mustache.render(this.value, param);
+                        let valor = txtc.value
 
-                    $(e).removeAttr(this.name).attr(this.name, valor);
-                }
-            });
-        }
-    });
+                        if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                            valor = await window[$(e).data("realtime-" + this.name)](valor);
 
-    /**
-     * Render html realtime only
-     */
-    $element.find("[data-realtime-html]").each(async function (i, e) {
-        let $t = $template.find("[data-realtime-html]").eq(i);
-        if($t.length) {
-            let html = Mustache.render($t.html(), param);
-            let funcao = $(e).data("realtime-html");
-            if (funcao !== "" && typeof window[funcao] === "function")
-                html = await window[funcao](html);
+                        $(e).removeAttr(this.name).attr(this.name, valor);
+                    }
+                });
+            }
+        });
 
-            $(e).html(html);
-        }
-    });
+        /**
+         * Render html realtime only
+         */
+        $element.find("[data-realtime-html]").each(async function (i, e) {
+            let $t = $template.find("[data-realtime-html]").eq(i);
+            console.log($t.html(), param);
+            if ($t.length) {
+                let html = Mustache.render($t.html(), param);
+                let funcao = $(e).data("realtime-html");
+                if (funcao !== "" && typeof window[funcao] === "function")
+                    html = await window[funcao](html);
 
-    /**
-     * Render all attributes realtime only
-     */
-    $element.find("[data-realtime-attr]").each(function (i, e) {
-        let $t = $template.find("[data-realtime-attr]").eq(i);
-        if($t.length) {
-            $.each($t[0].attributes, async function () {
-                if (this.specified) {
-                    let valor = Mustache.render(this.value, param);
-                    if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
-                        valor = await window[$(e).data("realtime-" + this.name)](valor);
+                $(e).html(html);
+            }
+        });
 
-                    $(e).removeAttr(this.name).attr(this.name, valor);
-                }
-            });
-        }
-    });
+        /**
+         * Render all attributes realtime only
+         */
+        $element.find("[data-realtime-attr]").each(function (i, e) {
+            let $t = $template.find("[data-realtime-attr]").eq(i);
+            if ($t.length) {
+                $.each($t[0].attributes, async function () {
+                    if (this.specified) {
+                        let valor = Mustache.render(this.value, param);
+                        if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
+                            valor = await window[$(e).data("realtime-" + this.name)](valor);
+
+                        $(e).removeAttr(this.name).attr(this.name, valor);
+                    }
+                });
+            }
+        });
+    }
 }
 
 /**
