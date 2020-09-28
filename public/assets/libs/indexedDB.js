@@ -44,6 +44,12 @@ async function reportRead(entity, search, filter, aggroup, soma, media, maior, m
             maior: maior,
             menor: menor
         }).then(data => {
+            /**
+             * Put data on localstorage
+             */
+            for(let d of data.data)
+                db.exeCreate(entity, d);
+
             resolve({data: data.data, length: data.total});
         }).catch(() => {
             resolve(readOffline(data, search, filter, order, reverse, limit, offset));
@@ -541,6 +547,8 @@ class Read {
         /**
          * Read local and apply filters
          */
+        let totalDB = await dbLocal.exeRead("__totalRegisters", 1);
+        totalDB = parseInt(totalDB[entity]);
         let results = await dbLocal.exeRead(this.entity, this.id);
         this.result = (!isNumberPositive(this.id) && !isEmpty(results) ? this._privateArrayFilterData(results) : (!isEmpty(results) ? [results] : []));
         this.total = this.result.length;
@@ -575,7 +583,7 @@ class Read {
          * se o número de resultados forem menor que o limit e se tiver mais registros online, então lê online
          */
         if (this.limit) {
-            if (this.total < this.limit && results.length >= LIMITOFFLINE)
+            if (this.total < this.limit && totalDB > this.total)
                 return this._privateExeReadOnline();
 
             this._clearRead();
@@ -587,7 +595,7 @@ class Read {
          * então lê online e retorna todos os registros
          * senão retorna registros locais
          */
-        if (results.length >= LIMITOFFLINE || isEmpty(results))
+        if (this.total < totalDB)
             return this._privateExeReadOnline();
 
         this._clearRead();
