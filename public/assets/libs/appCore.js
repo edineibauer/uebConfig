@@ -2671,9 +2671,14 @@ var URL, app = {
                         if (typeof sseSourceListeners[file] === "undefined") {
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                             addSseEngineListener(file.split("/")[0], async function (e) {
-                                if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-                                    let response = JSON.parse(e.data);
+                                let response = null;
 
+                                if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+                                    response = e;
+                                else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                                    response = JSON.parse(e.data);
+
+                                if(response) {
                                     /**
                                      * For each SSE received on view
                                      */
