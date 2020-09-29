@@ -1099,7 +1099,7 @@ async function logoutDashboard() {
         toast("Saindo...", 42000);
         await AJAX.get("logout");
         await setCookieAnonimo();
-        location.href = HOME;
+        location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
     } else {
         toast("Sem Conexão", 1200)
     }
@@ -2707,7 +2707,7 @@ var URL, app = {
                 } else {
                     if (USER.setor === 0 && !localStorage.redirectOnLogin)
                         localStorage.redirectOnLogin = file;
-                    location.href = HOME + g.redirect
+                    location.href = HOME + (HOME !== SERVER ? "index.html?url=" : "") + g.redirect
                 }
             } else {
                 $div.html("");

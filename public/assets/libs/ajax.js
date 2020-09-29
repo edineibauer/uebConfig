@@ -83,7 +83,7 @@ async function getJSON(url) {
         url = url.replace(HOME, "");
         let isView = new RegExp("^view\/", "i");
         if (isView.test(url))
-            location.href = HOME + "network";
+            location.href = HOME + (HOME !== SERVER ? "index.html?url=" : "") + "network";
         throw err;
     })
 }
