@@ -1485,8 +1485,10 @@ async function clearCacheUser() {
     /**
      * Clear indexedDB
      */
-    for (let entity of Object.keys(dicionarios))
-        dbLocal.clear(entity);
+    if(!isEmpty(dicionarios)) {
+        for (let entity of Object.keys(dicionarios))
+            dbLocal.clear(entity);
+    }
 
     return Promise.all(clear).then(() => {
         return clearIndexedDbGets().then(() => {
