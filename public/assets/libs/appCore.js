@@ -3227,9 +3227,14 @@ async function sseStart() {
     }
 
     addSseEngineListener('base', async function (e) {
-        if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-            let sseData = JSON.parse(e.data);
+        let sseData = null;
 
+        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+            sseData = e;
+        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+            sseData = JSON.parse(e.data);
+
+        if(sseData) {
             /**
              * If have event function on receive this SSE to trigger
              */
@@ -3254,20 +3259,24 @@ async function sseStart() {
      * Listen for database local updates
      */
     addSseEngineListener('db', async function (e) {
-        if (typeof e.data === "string" && e.data !== "" && isJson(e.data)) {
-            let sseData = JSON.parse(e.data);
-            if (!isEmpty(sseData) && typeof sseData === "object" && sseData !== null && sseData.constructor === Object) {
-                for (let entity in sseData) {
-                    for(let content of sseData[entity]) {
-                        if(isNumberPositive(content)) {
-                            await dbLocal.exeDelete(entity, content);
-                        } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
-                            await dbLocal.exeCreate(entity, content);
-                        }
-                    }
+        let sseData = null;
 
-                    _checkRealtimeDbUpdate(entity);
+        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+            sseData = e;
+        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+            sseData = JSON.parse(e.data);
+
+        if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+            for (let entity in sseData) {
+                for(let content of sseData[entity]) {
+                    if(isNumberPositive(content)) {
+                        await dbLocal.exeDelete(entity, content);
+                    } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
+                        await dbLocal.exeCreate(entity, content);
+                    }
                 }
+
+                _checkRealtimeDbUpdate(entity);
             }
         }
     });
