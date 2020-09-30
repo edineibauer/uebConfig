@@ -1576,7 +1576,7 @@ function recoveryUser() {
     });
 }
 
-function setUserInNavigator(user, isUserToStore) {
+async function setUserInNavigator(user, isUserToStore) {
     user = typeof user === "object" ? user : {
         token: 0,
         id: 0,
@@ -1594,6 +1594,8 @@ function setUserInNavigator(user, isUserToStore) {
         return storeUser().then(loadCacheUser).catch(e => {
             errorLoadingApp("obter __login", e);
         });
+    } else {
+        dicionarios = await dbLocal.exeRead("__dicionario", 1);
     }
 }
 
