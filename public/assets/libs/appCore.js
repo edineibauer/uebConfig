@@ -1594,8 +1594,6 @@ function setUserInNavigator(user, isUserToStore) {
         return storeUser().then(loadCacheUser).catch(e => {
             errorLoadingApp("obter __login", e);
         });
-    } else {
-        return loadCacheUser();
     }
 }
 
@@ -1737,6 +1735,14 @@ function loadCacheUser() {
      * Load User Data content
      * */
     if (isOnline()) {
+
+        /**
+         * Stop SSE events
+         */
+        if (isUsingSSE() && typeof sseSource === "object")
+            sseSource.close();
+        else
+            clearInterval(sseEngineAjax);
 
         return getIndexedDbGets().catch(e => {
             errorLoadingApp("loadCacheUser", e);
@@ -1880,20 +1886,6 @@ async function getIndexedDbGets() {
                     relation: infoDic.system
                 });
             }
-        }
-    }
-
-    /**
-     * Add the base registers with LIMITOFFLINE
-     */
-    for (let entity in r['db']) {
-        /**
-         * Clear all entity
-         */
-        await dbLocal.clear(entity);
-        if (typeof r['db'][entity] === "object" && r['db'][entity] !== null && r['db'][entity].constructor === Array) {
-            for (let registro of r['db'][entity])
-                await dbLocal.exeCreate(entity, registro);
         }
     }
 
@@ -3218,6 +3210,7 @@ function storeUser() {
  * @returns {Promise<void>}
  */
 var sseSource = {};
+var sseEngineAjax = null;
 const sseSourceListeners = {};
 const sseEvents = {};
 const SSE = {};
@@ -3226,7 +3219,7 @@ async function sseStart() {
     if (isUsingSSE()) {
         sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
     } else {
-        setInterval(function () {
+        sseEngineAjax = setInterval(function () {
             AJAX.get("sseEngine").then(receiveSseEngineAjax);
         }, 2000);
     }
