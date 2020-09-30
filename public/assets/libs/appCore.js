@@ -1112,9 +1112,6 @@ async function logoutDashboard() {
 async function menuHeader() {
     let tpl = await getTemplates();
 
-    if (typeof tpl.header === "undefined")
-        return updateCache();
-
     $("#core-header").html(Mustache.render(tpl.header, {
         version: VERSION,
         sitename: SITENAME,
@@ -1595,7 +1592,11 @@ async function setUserInNavigator(user, isUserToStore) {
             errorLoadingApp("obter __login", e);
         });
     } else {
-        dicionarios = await dbLocal.exeRead("__dicionario", 1);
+        let tpl = await getTemplates();
+        if(typeof tpl.header === "undefined")
+            await loadCacheUser();
+        else
+            dicionarios = await dbLocal.exeRead("__dicionario", 1);
     }
 }
 
@@ -1741,7 +1742,7 @@ function loadCacheUser() {
         /**
          * Stop SSE events
          */
-        if (isUsingSSE() && typeof sseSource === "object")
+        if (isUsingSSE() && typeof sseSource === "object" && typeof sseSource.close === "function")
             sseSource.close();
         else
             clearInterval(sseEngineAjax);
