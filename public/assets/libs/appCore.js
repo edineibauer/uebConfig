@@ -1799,7 +1799,7 @@ function getNotche(side) {
 }
 
 function isOnline() {
-    if(typeof navigator.connection.type !== "undefined") {
+    if(typeof Connection !== "undefined" && typeof navigator.connection !== "undefined" && typeof navigator.connection.type !== "undefined") {
         return navigator.connection.type !== Connection.NONE;
     } else {
         return navigator.onLine;
