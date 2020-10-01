@@ -1566,6 +1566,9 @@ async function setUserInNavigator(user, isUserToStore) {
             await loadCacheUser();
         else
             dicionarios = await dbLocal.exeRead("__dicionario", 1);
+
+        if(isEmpty(dicionarios))
+            await loadCacheUser();
     }
 }
 
