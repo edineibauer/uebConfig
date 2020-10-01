@@ -3458,7 +3458,7 @@ $(function () {
         }
 
         if (isMobile() && screen.orientation && typeof screen.orientation.lock === "function")
-            screen.orientation.lock('portrait');
+            screen.orientation.lock('portrait').catch(e => {});
 
         await startApplication();
     })();
