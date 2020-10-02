@@ -2039,11 +2039,15 @@ function getPaddingTopContent() {
 function defaultPageTransitionPosition(direction, $element, route) {
     aniTransitionPage = $element;
     let left = $element[0].getBoundingClientRect().left;
+    let paddingLeft = parseInt($element.css("padding-left"));
+    let paddingRight = parseInt($element.css("padding-right"));
     let style = {
         "min-height": getPageContentHeight(),
         "position": "fixed",
         "top": $element[0].getBoundingClientRect().top + "px",
         "width": $element[0].clientWidth + "px",
+        "padding-left": paddingLeft + "px",
+        "padding-right": paddingRight + "px",
         "left": left + "px",
         "overflow": "hidden"
     };
@@ -2128,10 +2132,10 @@ function animateForward(id, file, scroll) {
                 });
                 $element.css("z-index", -1).animate({left: '-30%'}, 250)
             } else {
-                $aux.animate({left: left + "px", opacity: 1}, 150, () => {
+                $aux.animate({left: left + "px", opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, 0)
                 });
-                $element.animate({left: (left - 100) + "px", opacity: 0}, 100)
+                $element.animate({left: (left - 100) + "px", opacity: 0}, 150)
             }
         }
     }, 10);
@@ -2159,10 +2163,10 @@ function animateBack(id, file, scroll) {
                 });
                 $element.css("z-index", -1).animate({left: '30%'}, 250)
             } else {
-                $aux.animate({left: left + 'px', opacity: 1}, 150, () => {
+                $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
                 });
-                $element.animate({opacity: 0}, 100);
+                $element.animate({opacity: 0}, 150);
             }
         }
     }, 10);
