@@ -2,7 +2,7 @@
     background: #eeeeee;
 }
 
-#config {
+#dashboard {
     min-height: calc(100vh - 120px);
     max-width: 1300px;
     margin-left: auto;

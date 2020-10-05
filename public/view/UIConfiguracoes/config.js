@@ -56,13 +56,13 @@ $(function () {
                     let entity = $(this).data("entity");
                     let result = await db.exeRead(entity, null, 1);
                     let id = (!isEmpty(result) ? result[0].id : null);
-                    pageTransition(entity, 'form', 'forward', "#config", {id: id});
+                    pageTransition(entity, 'form', 'forward', "#dashboard", {id: id});
                 })();
 
             } else if (action === 'form') {
                 // let fields = (typeof $(this).attr("data-fields") !== "undefined" ? JSON.parse($(this).attr("data-fields")) : "undefined");
                 let id = !isNaN($(this).attr("data-atributo")) && $(this).attr("data-atributo") > 0 ? parseInt($(this).attr("data-atributo")) : null;
-                pageTransition($(this).data("entity"), 'form', 'forward', "#config", id);
+                pageTransition($(this).data("entity"), 'form', 'forward', "#dashboard", id);
 
             } else if (action === 'page') {
 

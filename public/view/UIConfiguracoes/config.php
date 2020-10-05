@@ -3,7 +3,7 @@
 </nav>
 
 <div class="main config-main animate-left">
-    <div id="config" class="config-tab container row">
+    <div id="dashboard" class="config-tab container row">
         <div class="col relative">
             <header class="container s-padding-small">
                 <h5 class="left padding-32 s-padding-12 s-padding-tiny">
