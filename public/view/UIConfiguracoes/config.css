@@ -30,6 +30,10 @@
     overflow-y: auto;
 }
 
+.menu-li {
+    min-width: max-content!important;
+}
+
 .config-main {
     margin-left: 200px
 }
