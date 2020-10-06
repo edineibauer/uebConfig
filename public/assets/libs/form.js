@@ -870,8 +870,11 @@ async function setInputFormatListValue(form, entity, column, data, $input) {
 
     $input.siblings(".list-remove-btn").remove();
     let dicionario = dicionarios[form.entity];
-    if (isNaN(form.id) || dicionario[column].update)
-        $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input)
+
+    if (isNaN(form.id) || dicionario[column].update) {
+        $("<div class='right pointer list-remove-btn color-text-gray-dark color-hover-text-red' style='padding: 7px 10px' onclick=\"deleteRegisterAssociation('" + column + "', this)\"><i class='material-icons'>close</i></div>").insertBefore($input);
+        form.modified = !0;
+    }
 }
 
 async function addRegisterAssociation(entity, column) {
