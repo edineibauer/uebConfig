@@ -3310,6 +3310,66 @@ function sseAdd(name, funcao) {
 }
 
 /**
+ * Controle de navegação maestru
+ * histórico do navegador
+ * @param event
+ */
+function maestruHistoryBack(event) {
+    if (event.state) {
+
+        if (historyPosition === -2) {
+            /**
+             * Busca última rota de view (type = route)
+             * */
+            readRouteState();
+
+        } else if (historyPosition === -1) {
+            /**
+             * Somente atualiza historyPosition
+             * */
+
+        } else if (checkFormNotSaved()) {
+            /**
+             * Carrega página da navegação solicitada
+             * */
+            clearPage();
+            let animation = (historyPosition > event.state.id ? (historyReqPosition || ($("#dashboard").length && history.state.route === "dashboard") ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
+            pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
+
+        } else {
+            /**
+             * navegação cancelada, volta state do history que já foi aplicado
+             * */
+            if (historyPosition < event.state.id)
+                history.back();
+            else
+                history.forward();
+
+            historyPosition = -1;
+            return;
+        }
+
+        historyPosition = event.state.id + 1;
+    }
+}
+
+/**
+ * Seta uma função para executar ao voltar a navegação
+ * após executar a função, volta ao padrão do maestru
+ *
+ * @param funcao
+ */
+function onHistoryBack(funcao) {
+    if(typeof funcao === "function") {
+        window.onpopstate = function(e) {
+            funcao(e);
+            history.forward();
+            window.onpopstate = maestruHistoryBack;
+        };
+    }
+}
+
+/**
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
@@ -3332,44 +3392,7 @@ async function onLoadDocument() {
         openInstallAppPrompt();
     });
 
-    window.onpopstate = function (event) {
-        if (event.state) {
-
-            if (historyPosition === -2) {
-                /**
-                 * Busca última rota de view (type = route)
-                 * */
-                readRouteState();
-
-            } else if (historyPosition === -1) {
-                /**
-                 * Somente atualiza historyPosition
-                 * */
-
-            } else if (checkFormNotSaved()) {
-                /**
-                 * Carrega página da navegação solicitada
-                 * */
-                clearPage();
-                let animation = (historyPosition > event.state.id ? (historyReqPosition || ($("#dashboard").length && history.state.route === "dashboard") ? "none" : "back") : (historyPosition === -9 ? "none" : "forward"));
-                pageTransition(event.state.route, event.state.type, animation, event.state.target, event.state.param, event.state.scroll, !1);
-
-            } else {
-                /**
-                 * navegação cancelada, volta state do history que já foi aplicado
-                 * */
-                if (historyPosition < event.state.id)
-                    history.back();
-                else
-                    history.forward();
-
-                historyPosition = -1;
-                return;
-            }
-
-            historyPosition = event.state.id + 1;
-        }
-    };
+    window.onpopstate = maestruHistoryBack;
 
     window.onscroll = function () {
         if (window.innerWidth < 994)
