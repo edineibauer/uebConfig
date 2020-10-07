@@ -3362,9 +3362,13 @@ function maestruHistoryBack(event) {
 function onHistoryBack(funcao) {
     if(typeof funcao === "function") {
         window.onpopstate = function(e) {
+            e.preventDefault();
             funcao(e);
-            history.forward();
-            window.onpopstate = maestruHistoryBack;
+            window.onpopstate = null;
+            window.history.forward();
+            setTimeout(function() {
+                window.onpopstate = maestruHistoryBack;
+            }, 300);
         };
     }
 }
