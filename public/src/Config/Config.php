@@ -389,7 +389,7 @@ class Config
         /**
          * Backup the actual vendor
          */
-        Helper::recurseCopy($libs, PATH_HOME . "_cdn/vendor");
+        Helper::ZipFiles(PATH_HOME . "_cdn/libs.zip", $libs);
 
         /**
          * Update libs
