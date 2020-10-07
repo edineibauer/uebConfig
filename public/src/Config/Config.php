@@ -389,7 +389,8 @@ class Config
         /**
          * Backup the actual vendor
          */
-        Helper::ZipFiles(PATH_HOME . "_cdn/libs.zip", $libs);
+        if(!DEV)
+            Helper::ZipFiles(PATH_HOME . "_cdn/libs.zip", $libs);
 
         /**
          * Update libs
