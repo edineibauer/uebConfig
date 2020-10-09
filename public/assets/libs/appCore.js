@@ -2314,6 +2314,9 @@ function openInstallAppPrompt(force) {
  * @returns {Promise<void>}
  */
 async function renderDataGet(get, dados) {
+    if (typeof sseSourceListeners[app.file] !== "object")
+        return;
+
     let $element = sseSourceListeners[app.file][0];
     let $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
 
