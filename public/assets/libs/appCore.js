@@ -1031,7 +1031,8 @@ function closeSidebar() {
         $("#core-sidebar").css("top", ($("#core-header")[0].clientHeight - 50) + "px");
 
     setTimeout(function () {
-        $("#core-sidebar").addClass("hide")
+        $("#core-sidebar").addClass("hide");
+        window.onpopstate = maestruHistoryBack;
     }, 150);
 }
 
@@ -1046,18 +1047,25 @@ function openSidebar() {
             $sidebar.addClass("active");
         }, 50);
     }
+
     $("#app").on("mouseup", function (e) {
         if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
             closeSidebar()
-    })
+    });
+
+    onHistoryBack(function() {
+        closeSidebar();
+    });
 }
 
 function toggleSidebar(action = 'toggle') {
     if (action === 'toggle') {
         if ($("#core-sidebar").hasClass("hide"))
             openSidebar();
+        else
+            closeSidebar();
     } else if (action) {
-        openSidebar()
+        openSidebar();
     } else {
         closeSidebar()
     }
