@@ -864,7 +864,7 @@ async function setInputFormatListValue(form, entity, column, data, $input) {
     $input.siblings(".btn").find(".list-btn-icon").html("edit");
     $input.siblings(".btn").find("div").html("editar");
     $input.prop("disabled", !1).addClass("border-bottom").removeClass("padding-small").css({
-        "padding": "10px 2px 4px",
+        "padding": "10px 2px 6px",
         "margin-bottom": "20px"
     }).html(title);
 
