@@ -2299,41 +2299,26 @@ function openInstallAppPrompt(force) {
     }
 }
 
-
 /**
- *
- * @param $element
- * @param $template
- * @param param
- * @private
+ * Update data-get with the dados
+ * @param get
+ * @param dados
+ * @returns {Promise<void>}
  */
-async function _updateTemplateRealTime($element, $template, param) {
-    if (typeof sseSourceListeners[app.file] !== "object")
-        return;
-
-    let isSetParam = typeof param !== "undefined";
-
-    param = _htmlTemplateDefaultParam(!1, param);
-
-    if(typeof $element === "undefined")
-        $element = sseSourceListeners[app.file][0];
-
-    if(typeof $template === "undefined")
-        $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
-
-    let $elementIsolated = $("<div>" + $element.html() + "</div>");
+async function renderDataGet(get, dados) {
+    let $element = sseSourceListeners[app.file][0];
+    let $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
 
     /**
      * First, find by the variables used
      */
-    $element.find("[data-get][data-realtime-get]").each(async function (i, e) {
-        let $t = $template.find("[data-get][data-realtime-get]").eq(i);
+    $element.find("[data-get='" + get + "'][data-realtime-get]").each(async function (i, e) {
+        let $t = $template.find("[data-get='" + get + "'][data-realtime-get]").eq(i);
         if($t.length) {
 
             /**
              * get the data to use on template if need
              */
-            let dados = await AJAX.get($(e).data("get"));
             if ($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
                 dados = await window[$(e).data("get-function")](dados);
             else if ($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
@@ -2367,6 +2352,28 @@ async function _updateTemplateRealTime($element, $template, param) {
                 await _updateTemplateRealTime($(e), $templateChild, dados);
         }
     });
+}
+
+/**
+ *
+ * @param $element
+ * @param $template
+ * @param param
+ * @private
+ */
+async function _updateTemplateRealTime($element, $template, param) {
+    if (typeof sseSourceListeners[app.file] !== "object")
+        return;
+
+    param = _htmlTemplateDefaultParam(!1, param);
+
+    if(typeof $element === "undefined")
+        $element = sseSourceListeners[app.file][0];
+
+    if(typeof $template === "undefined")
+        $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
+
+    let $elementIsolated = $("<div>" + $element.html() + "</div>");
 
     /**
      * Render all tags
@@ -3258,6 +3265,17 @@ async function sseStart() {
         }
     });
 
+    /**
+     * Update DOM data-get realtime
+     */
+    sseAdd("getRequests", function (data) {
+        for(let get in data)
+            renderDataGet(get, data[get]);
+    });
+
+    /**
+     * Update DOM perfil realtime
+     */
     sseAdd("updatePerfil", function (data) {
         USER = data;
         storeUser();
