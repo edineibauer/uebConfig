@@ -3439,6 +3439,11 @@ async function onLoadDocument() {
             updateHeaderPosition();
     };
 
+    window.onbeforeunload = function () {
+        sseSource.close();
+        AJAX.get("isOffline");
+    };
+
     /**
      * Intercepta clicks em links e traduz na função "pageTransition()"
      */
