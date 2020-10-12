@@ -2832,6 +2832,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             type: "route",
             target: "#core-content",
             param: param,
+            firstPage: !0,
             scroll: scroll
         }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
     else if (setHistory)
@@ -2841,6 +2842,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
             type: history.state.type,
             target: history.state.target,
             param: history.state.param,
+            firstPage: history.state.firstPage,
             scroll: scroll
         }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + history.state.route);
 
@@ -2852,6 +2854,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                 type: type,
                 target: target,
                 param: param,
+                firstPage: !1,
                 scroll: 0
             }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
         } else {
@@ -2861,6 +2864,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
                 type: type,
                 target: target,
                 param: param,
+                firstPage: !1,
                 scroll: 0
             }, null, HOME + (HOME === "" && HOME !== SERVER ? "index.html?url=" : "") + app.route);
         }
@@ -3376,6 +3380,12 @@ function maestruHistoryBack(event) {
 
             historyPosition = -1;
             return;
+        }
+
+        if(event.state.firstPage) {
+            onHistoryBack(function() {
+                toast("mais uma vez para sair", 1000);
+            });
         }
 
         historyPosition = event.state.id + 1;
