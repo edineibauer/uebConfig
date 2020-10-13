@@ -3306,7 +3306,7 @@ async function sseStart() {
                 /**
                  * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
                  */
-                let $navbarNotify = $("#core-header-nav-bottom").find("a[href='notificacoes']");
+                let $navbarNotify = $("a[href='notificacoes']");
                 if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length)
                     $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
 
