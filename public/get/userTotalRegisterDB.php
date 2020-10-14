@@ -9,6 +9,6 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
         $read = new \Conn\Read();
         $read->setSelect("COUNT(id) as total");
         $read->exeRead($entidade);
-        $data['data'][$entidade] = $read->getResult()[0]['total'];
+        $data['data'][$entidade] = $read->getResult() ? $read->getResult()[0]['total'] : 0;
     }
 }
