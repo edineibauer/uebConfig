@@ -650,6 +650,10 @@ $(function ($) {
                      */
                     if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
                         mergeObject(paramReceived, $this.data("param-empty"));
+                    else if(isEmpty(paramReceived) && $this.hasAttr("data-param"))
+                        paramReceived = $this.data("param");
+                    else if(!isEmpty(paramReceived) && $this.hasAttr("data-param"))
+                        mergeObject(paramReceived, $this.data("param"));
 
                     /**
                      * Allow to apply function on param to skeleton
