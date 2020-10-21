@@ -177,13 +177,13 @@ function replaceAll(target, search, replacement) {
 }
 
 function dynamicSort(property) {
-    var sortOrder = 1;
+    let sortOrder = 1;
     if (property[0] === "-") {
         sortOrder = -1;
         property = property.substr(1)
     }
     return function (a, b) {
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        let result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
         return result * sortOrder
     }
 }
@@ -240,17 +240,17 @@ function isNumberPositive(n) {
  * @returns {{}}
  */
 function createObjectWithStringDotNotation(key, value) {
-    var result = object = {};
-    var arr = key.split('.');
-    for (var i = 0; i < arr.length - 1; i++) {
+    let result = object = {};
+    let arr = key.split('.');
+    for (let i = 0; i < arr.length - 1; i++)
         object = object[arr[i]] = {};
-    }
+
     object[arr[arr.length - 1]] = value;
     return result;
 }
 
 function getObjectDotNotation(obj, dotnotation) {
-    var arr = dotnotation.split(".");
+    let arr = dotnotation.split(".");
     while (arr.length && (obj = obj[arr.shift()])) ;
     return obj;
 }
@@ -261,7 +261,7 @@ function getObjectDotNotation(obj, dotnotation) {
  * @returns {number}
  */
 Object.size = function (obj) {
-    var size = 0, key;
+    let size = 0, key;
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
     }
@@ -892,7 +892,7 @@ function fetchFromObject(obj, prop) {
         return false;
     }
 
-    var _index = prop.indexOf('.');
+    let _index = prop.indexOf('.');
     if (_index > -1) {
         return fetchFromObject(obj[prop.substring(0, _index)], prop.substr(_index + 1));
     }
@@ -908,7 +908,7 @@ function fetchCreateObject(obj, prop) {
     if (typeof obj === 'undefined')
         return false;
 
-    var _index = prop.indexOf('.')
+    let _index = prop.indexOf('.')
     if (_index > -1) {
         if (typeof obj[prop.substring(0, _index)] !== "object")
             obj[prop.substring(0, _index)] = {};
@@ -994,7 +994,7 @@ function checkUserOptions() {
 
 function slug(val, replaceBy) {
     replaceBy = replaceBy || '-';
-    var mapaAcentosHex = {
+    let mapaAcentosHex = {
         a: /[\xE0-\xE6]/g,
         A: /[\xC0-\xC6]/g,
         e: /[\xE8-\xEB]/g,
@@ -1010,8 +1010,8 @@ function slug(val, replaceBy) {
         n: /\xF1/g,
         N: /\xD1/g,
     };
-    for (var letra in mapaAcentosHex) {
-        var expressaoRegular = mapaAcentosHex[letra];
+    for (let letra in mapaAcentosHex) {
+        let expressaoRegular = mapaAcentosHex[letra];
         val = val.replace(expressaoRegular, letra)
     }
     val = val.toLowerCase();
@@ -1063,7 +1063,7 @@ function CSV(array, comma) {
 
     let regExp = new RegExp(comma, "g");
     let keyChange = "<:::>";
-    var result = keys.join(comma) + "\n";
+    let result = keys.join(comma) + "\n";
 
     // Add the rows
     array.forEach(function (obj) {
@@ -2374,7 +2374,8 @@ var dicionarios,
     historyReqPosition = 0,
     loadingEffect = null,
     deferredPrompt,
-    timeWaitClick = 0;
+    timeWaitClick = 0,
+    timerWriting;
 
 const isIos = () => {
     let userAgent = window.navigator.userAgent;
@@ -2584,8 +2585,6 @@ async function _updateTemplateRealTime($element, $template, param) {
 /**
  * Check for render DB data again
  */
-var timerWriting;
-
 async function _checkRealtimeDbUpdate(entity) {
     return new Promise(s => {
         if(typeof sseSourceListeners[app.file] === "object") {

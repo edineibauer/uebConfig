@@ -334,8 +334,8 @@ function gridCrud(entity, fields, actions) {
             this.readData()
         },
         getShow: function () {
-            var pT = dbLocal.keys(entity);
-            var pF = (isEmpty(grid.fields) ? getFields(entity, !0, 'grid') : new Promise());
+            let pT = dbLocal.keys(entity);
+            let pF = (isEmpty(grid.fields) ? getFields(entity, !0, 'grid') : new Promise());
             let perm = permissionToAction(this.entity, 'read');
             let sync = dbLocal.exeRead("sync_" + this.entity);
             return Promise.all([pT, perm, pF, sync]).then(r => {

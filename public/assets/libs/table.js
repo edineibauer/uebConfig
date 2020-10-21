@@ -314,7 +314,7 @@ $(function () {
 
     }).off("click", ".btn-grid-delete").on("click", ".btn-grid-delete", function () {
         let grid = grids[$(this).attr("data-id")];
-        var cont = grid.$content.find(".table-select:checked").length;
+        let cont = grid.$content.find(".table-select:checked").length;
         if (confirm(cont > 1 ? "Remover os " + cont + " Registros?" : "Remover este Registro? ")) {
             toast("Requisitando remoção...", 15000);
             let ids = [];

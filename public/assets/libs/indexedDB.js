@@ -847,7 +847,7 @@ const _dbRemote = {
             }
         } else if (typeof entity === "undefined") {
             let allReads = [];
-            for (var e in dicionarios)
+            for (let e in dicionarios)
                 allReads.push(dbRemote.sync(e));
             return Promise.all(allReads)
         } else if (typeof entity === "object" && entity.constructor === Array) {
