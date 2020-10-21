@@ -469,8 +469,31 @@ $(function ($) {
             if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
                 cache = cache[0];
 
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+            if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
+                cache = await window[$this.data("db-function")](cache);
+            else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+                cache = await window[$this.data("function")](cache);
+            else if($this.hasAttr("data-realtime-db") && $this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
+                cache = await window[$this.data("realtime-db")](cache);
+
+            let parametros = {};
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty")) {
+                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
                 $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+            } else {
+                parametros = (isEmpty(cache) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+            }
+
+            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                parametros = await window[$this.data("param-function")](parametros);
+
+            if(!isEmpty(parametros) && typeof parametros === "object") {
+                if(!isEmpty(cache))
+                    mergeObject(cache, parametros);
+                else
+                    cache = parametros;
+            }
 
             if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
                 await $this.htmlTemplate($templateChild, cache);
@@ -485,6 +508,20 @@ $(function ($) {
          * get the data to use on template if need
          */
         let dados = await $this.dbExeRead();
+
+        /**
+         * Cache the data result
+         */
+        await dbLocal.clear('_cache_' + $this.data("db"));
+        if(!isEmpty(dados)) {
+            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                for(let d of dados)
+                    dbLocal.exeCreate('_cache_' + $this.data("db"), d);
+            } else {
+                dados.typeIsObject = !1;
+                dbLocal.exeCreate('_cache_' + $this.data("db"), dados);
+            }
+        }
 
         if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
             dados = await window[$this.data("db-function")](dados);
@@ -510,20 +547,6 @@ $(function ($) {
                 mergeObject(dados, parametros);
             else
                 dados = parametros;
-        }
-
-        /**
-         * Cache the data
-         */
-        await dbLocal.clear('_cache_' + $this.data("db"));
-        if(!isEmpty(dados)) {
-            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                for(let d of dados)
-                    dbLocal.exeCreate('_cache_' + $this.data("db"), d);
-            } else {
-                dados.typeIsObject = !1;
-                dbLocal.exeCreate('_cache_' + $this.data("db"), dados);
-            }
         }
 
         /**
@@ -563,8 +586,31 @@ $(function ($) {
             if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
                 cache = cache[0];
 
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
+            if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                cache = await window[$this.data("get-function")](cache);
+            else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+                cache = await window[$this.data("function")](cache);
+            else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                cache = await window[$this.data("realtime-get")](cache);
+
+            let parametros = {};
+
+            if(isEmpty(cache) && $this.hasAttr("data-template-empty")) {
+                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
                 $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+            } else {
+                parametros = (isEmpty(cache) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+            }
+
+            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                parametros = await window[$this.data("param-function")](parametros);
+
+            if (!isEmpty(parametros) && typeof parametros === "object") {
+                if(!isEmpty(cache))
+                    mergeObject(cache, parametros);
+                else
+                    cache = parametros;
+            }
 
             if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
                 await $this.htmlTemplate($templateChild, cache);
@@ -579,6 +625,21 @@ $(function ($) {
          * get the data to use on template if need
          */
         let dados = await AJAX.get($this.data("get"));
+
+        /**
+         * Cache the data
+         */
+        await dbLocal.clear('_cache_get_' + $this.data("get"));
+        if(!isEmpty(dados)) {
+            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                for(let d of dados)
+                    dbLocal.exeCreate('_cache_get_' + $this.data("get"), d);
+            } else {
+                dados.typeIsObject = !1;
+                dbLocal.exeCreate('_cache_get_' + $this.data("get"), dados);
+            }
+        }
+
         if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
             dados = await window[$this.data("get-function")](dados);
         else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
@@ -603,20 +664,6 @@ $(function ($) {
                 mergeObject(dados, parametros);
             else
                 dados = parametros;
-        }
-
-        /**
-         * Cache the data
-         */
-        await dbLocal.clear('_cache_get_' + $this.data("get"));
-        if(!isEmpty(dados)) {
-            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                for(let d of dados)
-                    dbLocal.exeCreate('_cache_get_' + $this.data("get"), d);
-            } else {
-                dados.typeIsObject = !1;
-                dbLocal.exeCreate('_cache_get_' + $this.data("get"), dados);
-            }
         }
 
         /**
