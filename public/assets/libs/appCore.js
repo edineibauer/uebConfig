@@ -1,3 +1,5 @@
+"use strict";
+
 function isMobile() {
     return window.innerWidth < 900 && window.innerHeight > window.innerWidth;
 }
@@ -17,16 +19,16 @@ function isCPF(cpf) {
     cpf = cpf.replace(/[^\d]+/g, '');
     if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999")
         return !1;
-    add = 0;
-    for (i = 0; i < 9; i++)
+    let add = 0;
+    for (let i = 0; i < 9; i++)
         add += parseInt(cpf.charAt(i)) * (10 - i);
-    rev = 11 - (add % 11);
+    let rev = 11 - (add % 11);
     if (rev == 10 || rev == 11)
         rev = 0;
     if (rev != parseInt(cpf.charAt(9)))
         return !1;
     add = 0;
-    for (i = 0; i < 10; i++)
+    for (let i = 0; i < 10; i++)
         add += parseInt(cpf.charAt(i)) * (11 - i);
     rev = 11 - (add % 11);
     if (rev == 10 || rev == 11)
@@ -44,24 +46,24 @@ function isCNPJ(cnpj) {
         return !1;
     if (cnpj == "00000000000000" || cnpj == "11111111111111" || cnpj == "22222222222222" || cnpj == "33333333333333" || cnpj == "44444444444444" || cnpj == "55555555555555" || cnpj == "66666666666666" || cnpj == "77777777777777" || cnpj == "88888888888888" || cnpj == "99999999999999")
         return !1;
-    tamanho = cnpj.length - 2
-    numeros = cnpj.substring(0, tamanho);
-    digitos = cnpj.substring(tamanho);
-    soma = 0;
-    pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    let tamanho = cnpj.length - 2
+    let numeros = cnpj.substring(0, tamanho);
+    let digitos = cnpj.substring(tamanho);
+    let soma = 0;
+    let pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9
     }
-    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
     if (resultado != digitos.charAt(0))
         return !1;
     tamanho = tamanho + 1;
     numeros = cnpj.substring(0, tamanho);
     soma = 0;
     pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9
@@ -240,7 +242,8 @@ function isNumberPositive(n) {
  * @returns {{}}
  */
 function createObjectWithStringDotNotation(key, value) {
-    let result = object = {};
+    let result = {};
+    let object = {};
     let arr = key.split('.');
     for (let i = 0; i < arr.length - 1; i++)
         object = object[arr[i]] = {};
@@ -371,7 +374,7 @@ $(function ($) {
         /**
          * Find content to add class skeleton
          */
-        loo = templateTpl.split("{{");
+        let loo = templateTpl.split("{{");
         if (loo.length) {
             let novotemplateTpl = "";
             let awaitUntil = "";
@@ -1278,9 +1281,8 @@ function allowThisType(meta, fields) {
 
 function getFieldsData(entity, haveId, r) {
     let fields = ["", "", "", "", "", "", ""];
-    relevants = r[0];
-    relation = r[1][entity];
-    info = r[2][entity];
+    let relevants = r[0];
+    let relation = r[1][entity];
     let indices = [];
     if (haveId) {
         let data = {
@@ -1974,7 +1976,7 @@ async function getIndexedDbGets() {
     if (USER.setor === "admin") {
         let inputTypes = await get("inputTypes");
         for (let entity in dicionarios) {
-            infoDic = r['info'][entity];
+            let infoDic = r['info'][entity];
             if (infoDic.system !== "" && infoDic.user === 1) {
                 dicionarios[entity].system_id = Object.assign({}, inputTypes.list, {
                     id: infoDic.identifier,
@@ -2128,10 +2130,12 @@ function checkMenuActive() {
 }
 
 function checkFormNotSaved() {
-    if (typeof form === "object" && typeof checkformSaved !== "undefined" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Alterações não salvas. Sair mesmo assim?")) {
+    if (typeof form === "object" && typeof checkformSaved !== "undefined" && !checkformSaved && !isEmpty(form) && !form.saved && !confirm("Alterações não salvas. Sair mesmo assim?"))
         return !1
-    }
-    checkformSaved = !0;
+
+    if(typeof checkformSaved !== "undefined")
+        checkformSaved = !0;
+
     return !0
 }
 
@@ -2142,8 +2146,11 @@ function clearHeaderScrollPosition() {
 }
 
 function clearPage() {
-    forms = [];
-    grids = [];
+    if(typeof forms !== "undefined")
+        forms = [];
+    if(typeof grids !== "undefined")
+        grids = [];
+
     closeSidebar();
     clearHeaderScrollPosition();
 }
@@ -3001,37 +3008,46 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
         } else if (type === 'grid') {
 
             //if gridCrud not exist, await until its load
-            if (typeof gridCrud !== "function")
-                await new Promise(s => rrr = setInterval(() => {
-                    if (typeof gridCrud === "function") {
-                        clearInterval(rrr);
-                        s(1);
-                    }
-                }, 20));
+            if (typeof gridCrud !== "function") {
+                await new Promise(s => {
+                    let rrr = setInterval(() => {
+                        if (typeof gridCrud === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 20)
+                });
+            }
 
             $page.grid(history.state.route)
         } else if (type === 'report') {
 
             //if reportTable not exist, await until its load
-            if (typeof reportTable !== "function")
-                await new Promise(s => rrr = setInterval(() => {
-                    if (typeof reportTable === "function") {
-                        clearInterval(rrr);
-                        s(1);
-                    }
-                }, 20));
+            if (typeof reportTable !== "function") {
+                await new Promise(s => {
+                    let rrr = setInterval(() => {
+                        if (typeof reportTable === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 20)
+                });
+            }
 
             $page.reportTable(history.state.route)
         } else if (type === 'form') {
 
             //if formCrud not exist, await until its load
-            if (typeof formCrud !== "function")
-                await new Promise(s => rrr = setInterval(() => {
-                    if (typeof formCrud === "function") {
-                        clearInterval(rrr);
-                        s(1);
-                    }
-                }, 20));
+            if (typeof formCrud !== "function") {
+                await new Promise(s => {
+                    let rrr = setInterval(() => {
+                        if (typeof formCrud === "function") {
+                            clearInterval(rrr);
+                            s(1);
+                        }
+                    }, 20)
+                });
+            }
 
             let id = typeof param === "object" && isNumberPositive(param.id) ? parseInt(param.id) : "";
             let parent = typeof param === "object" && typeof param.parent === "string" ? param.parent : null;
@@ -3211,10 +3227,11 @@ function readRouteState() {
  * */
 function headerScrollFixed(sentidoScroll) {
     sentidoScrollDown = sentidoScroll;
+    let $header = $("#core-header");
     let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header")[0].clientHeight : 0;
+    let topHeader = $header.css("opacity") !== "0" ? $header[0].clientHeight : 0;
     let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
-    $("#core-header").css("top", t + "px")
+    $header.css("top", t + "px")
 }
 
 function updateHeaderPosition(revision) {
@@ -3652,7 +3669,7 @@ $(function () {
         }
 
         if (isMobile() && screen.orientation && typeof screen.orientation.lock === "function")
-            screen.orientation.lock('portrait').catch(e => {});
+            screen.orientation.lock('portrait').catch(() => {});
 
         await startApplication();
     })();
