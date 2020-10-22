@@ -208,6 +208,17 @@ class Config
     }
 
     /**
+     * Cria arquivo na home para debug
+     * @param string $name
+     * @param string $content
+     */
+    public static function debugFile(string $name, string $content) {
+        $f = fopen(PATH_HOME . "_debug_{$name}.json", "w");
+        fwrite($f, $content);
+        fclose($f);
+    }
+
+    /**
      * Cria Diretório
      * @param string $dir
      * @return string
