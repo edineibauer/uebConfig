@@ -1192,11 +1192,13 @@ function toggleSidebar(action = 'toggle') {
 }
 
 async function logoutDashboard() {
-    if (isOnline() && confirm("Sair da sua conta?")) {
-        toast("Saindo...", 42000);
-        await AJAX.get("logout");
-        await setCookieAnonimo();
-        location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
+    if (isOnline()) {
+        if(confirm("Sair da sua conta?")) {
+            toast("Saindo...", 42000);
+            await AJAX.get("logout");
+            await setCookieAnonimo();
+            location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
+        }
     } else {
         toast("Sem Conexão", 1200)
     }
