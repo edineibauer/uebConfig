@@ -776,9 +776,9 @@ class UpdateSystem
                 if ($i > 0) {
                     $url = explode(')', $u)[0];
                     $urlData = @file_get_contents($url);
-                    if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME))) {
+                    if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . explode("?", pathinfo($url, PATHINFO_BASENAME))[0])) {
                         if ($urlData) {
-                            $f = fopen(PATH_HOME . "assetsPublic/fonts/" . pathinfo($url, PATHINFO_BASENAME), "w+");
+                            $f = fopen(PATH_HOME . "assetsPublic/fonts/" . explode("?", pathinfo($url, PATHINFO_BASENAME))[0], "w+");
                             fwrite($f, $urlData);
                             fclose($f);
                             $data = str_replace($url, "fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
