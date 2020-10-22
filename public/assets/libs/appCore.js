@@ -1192,7 +1192,7 @@ function toggleSidebar(action = 'toggle') {
 }
 
 async function logoutDashboard() {
-    if (isOnline()) {
+    if (isOnline() && confirm("Sair da sua conta?")) {
         toast("Saindo...", 42000);
         await AJAX.get("logout");
         await setCookieAnonimo();
