@@ -3440,9 +3440,11 @@ async function sseStart() {
                  * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
                  */
                 let $navbarNotify = $("a[href='notificacoes']");
-                if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length)
+                if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length) {
                     $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
-
+                    if($navbarNotify.closest("#core-sidebar").length)
+                        $("#core-menu-custom-bottom > .menu-li > [onclick='toggleSidebar()']").append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+                }
             } else {
                 $("#badge-note").remove();
             }
