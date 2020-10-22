@@ -163,3 +163,4 @@ if (!empty($_SESSION['userlogin'])) {
 }
 
 returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);
+die;
