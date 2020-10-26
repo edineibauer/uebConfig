@@ -447,11 +447,10 @@ $(function ($) {
     /**
      * Render template with data-db
      * @param $tpl
-     * @param realtime
      * @returns {Promise<void>}
      * @private
      */
-    $.fn._renderDbTemplate = async function($tpl, updateInRealTime) {
+    $.fn._renderDbTemplate = async function($tpl) {
         let $this = $(this);
         if(!$this.hasAttr("data-db"))
             return;
@@ -459,72 +458,13 @@ $(function ($) {
         while(app.loading)
             await sleep(10);
 
-        updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
         let tpl = await getTemplates();
-
-        /**
-         * Check cache values to apply before
-         */
-        let cache = (await dbLocal.exeRead('_cache_' + $this.data("db"))).reverse();
-        if(!isEmpty(cache)) {
-
-            if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
-                cache = cache[0];
-
-            if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
-                cache = await window[$this.data("db-function")](cache);
-            else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
-                cache = await window[$this.data("function")](cache);
-            else if($this.hasAttr("data-realtime-db") && $this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
-                cache = await window[$this.data("realtime-db")](cache);
-
-            let parametros = {};
-
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty")) {
-                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
-            } else {
-                parametros = (isEmpty(cache) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-            }
-
-            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-                parametros = await window[$this.data("param-function")](parametros);
-
-            if(!isEmpty(parametros) && typeof parametros === "object") {
-                if(!isEmpty(cache))
-                    mergeObject(cache, parametros);
-                else
-                    cache = parametros;
-            }
-
-            if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                await $this.htmlTemplate($templateChild, cache);
-            else
-                await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
-
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
-                $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-        }
 
         /**
          * get the data to use on template if need
          */
         let dados = await $this.dbExeRead();
-
-        /**
-         * Cache the data result
-         */
-        await dbLocal.clear('_cache_' + $this.data("db"));
-        if(!isEmpty(dados)) {
-            if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                for(let d of dados)
-                    dbLocal.exeCreate('_cache_' + $this.data("db"), d);
-            } else {
-                dados.typeIsObject = !1;
-                dbLocal.exeCreate('_cache_' + $this.data("db"), dados);
-            }
-        }
 
         if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
             dados = await window[$this.data("db-function")](dados);
@@ -533,7 +473,7 @@ $(function ($) {
         else if($this.hasAttr("data-realtime-db") && $this.data("realtime-db") !== "" && typeof window[$this.data("realtime-db")] === "function")
             dados = await window[$this.data("realtime-db")](dados);
 
-        let parametros = {};
+        let parametros = null;
 
         if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
             parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
@@ -555,7 +495,7 @@ $(function ($) {
         /**
          * Check if use the realtime render or the default render
          */
-        if(!updateInRealTime || (!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+        if((!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $($templateChild).html().indexOf("{{#.}}") !== -1)
             $this.htmlTemplate($templateChild, dados);
         else
             _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
@@ -564,11 +504,10 @@ $(function ($) {
     /**
      * Render template with data-get
      * @param $tpl
-     * @param realtime
      * @returns {Promise<void>}
      * @private
      */
-    $.fn._renderGetTemplate = async function($tpl, updateInRealTime) {
+    $.fn._renderGetTemplate = async function($tpl) {
         let $this = $(this);
         if(!$this.hasAttr("data-get"))
             return;
@@ -576,7 +515,6 @@ $(function ($) {
         while(app.loading)
             await sleep(10);
 
-        updateInRealTime = typeof updateInRealTime !== "undefined" ? updateInRealTime : !1;
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
         let tpl = await getTemplates();
 
@@ -615,7 +553,7 @@ $(function ($) {
                     cache = parametros;
             }
 
-            if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+            if((!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
                 await $this.htmlTemplate($templateChild, cache);
             else
                 await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
@@ -672,7 +610,7 @@ $(function ($) {
         /**
          * Check if use the realtime render or the default render
          */
-        if(!updateInRealTime || (!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+        if((!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
             $this.htmlTemplate($templateChild, dados);
         else
             _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
