@@ -492,13 +492,7 @@ $(function ($) {
                 dados = parametros;
         }
 
-        /**
-         * Check if use the realtime render or the default render
-         */
-        if((!$this.hasAttr("data-realtime-db") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $($templateChild).html().indexOf("{{#.}}") !== -1)
-            $this.htmlTemplate($templateChild, dados);
-        else
-            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
+        $this.htmlTemplate($templateChild, dados);
     };
 
     /**
@@ -553,10 +547,7 @@ $(function ($) {
                     cache = parametros;
             }
 
-            if((!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                await $this.htmlTemplate($templateChild, cache);
-            else
-                await _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), cache);
+            await $this.htmlTemplate($templateChild, cache);
 
             if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
                 $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
@@ -607,13 +598,7 @@ $(function ($) {
                 dados = parametros;
         }
 
-        /**
-         * Check if use the realtime render or the default render
-         */
-        if((!$this.hasAttr("data-realtime-get") && !$this.hasAttr("data-realtime")) || $this.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-            $this.htmlTemplate($templateChild, dados);
-        else
-            _updateTemplateRealTime($this, ($tpl.hasAttr("data-template") ? tpl[$templateChild] : $templateChild), dados);
+        $this.htmlTemplate($templateChild, dados);
     };
 
     $.fn._functionsToExecuteAfterTemplate = async function() {
@@ -675,7 +660,7 @@ $(function ($) {
     /**
      * Renderiza template mustache no elemento
      * @param tpl
-     * @param param
+     * @param paramReceived
      * @returns {Promise<void>}
      */
     $.fn.htmlTemplate = async function (tpl, paramReceived) {
