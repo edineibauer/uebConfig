@@ -703,7 +703,7 @@ class Read {
 
     /**
      * Lê registros no back-end
-     * @returns {Promise<unknown>}
+     * @returns {Promise<[]>}
      * @private
      */
     async _privateExeReadOnline() {
@@ -713,16 +713,56 @@ class Read {
          */
         let entity = this.entity;
         let filter = isNumberPositive(this.id) ? {id: parseInt(this.id)} : (!isEmpty(this.filter) ? this.filter : null);
+        filter = (await convertStringToFilter(entity, filter));
         let limit = isNumberPositive(this.limit) ? parseInt(this.limit) : null;
         let offset = isNumberPositive(this.offset) ? parseInt(this.offset) : 0;
         let columnOrder = typeof this.columnOrder === "string" && this.columnOrder !== "" ? this.columnOrder : "id";
         let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
 
-        this.result = await reportRead(entity, null, (await convertStringToFilter(entity, filter)), null, null, null, null, null, columnOrder, orderReverse, limit, offset);
+        /**
+         * Check for cache for this request
+         */
+        let findCache = !1;
+        let cache = await dbLocal.exeRead('_cache_db_' + entity);
+        if(!isEmpty(cache)) {
+
+            /**
+             * Prepara variáveis para comparação
+             * @type {string}
+             */
+            let querySearch = JSON.stringify(filter) + "-" + columnOrder + "-" + orderReverse +  "-" + limit +  "-" + offset;
+
+            for(let c of cache) {
+                if(c.querySearch === querySearch) {
+                    findCache = !0;
+                    this.result = c.result;
+
+                    /**
+                     * Update cache
+                     */
+                    reportRead(entity, null, filter, null, null, null, null, null, columnOrder, orderReverse, limit, offset).then(result => {
+                        dbLocal.exeCreate("_cache_db_" + entity, {id: c.id, querySearch: querySearch, result: result});
+                    })
+
+                    break;
+                }
+            }
+        }
+
+        if(!findCache) {
+            this.result = await reportRead(entity, null, filter, null, null, null, null, null, columnOrder, orderReverse, limit, offset);
+
+            /**
+             * Create cache for this request
+             */
+            let querySearch = JSON.stringify(filter) + "-" + columnOrder + "-" + orderReverse +  "-" + limit +  "-" + offset;
+            dbLocal.exeCreate("_cache_db_" + entity, {querySearch: querySearch, result: this.result});
+        }
+
         let total = await dbLocal.exeRead("__totalRegisters", 1);
         this.total = isNumberPositive(total) ? parseInt(total) : 0;
-
         this._clearRead();
+
         return this.result;
     }
 

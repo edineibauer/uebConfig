@@ -3333,6 +3333,7 @@ async function sseStart() {
                     }
                 }
 
+                dbLocal.clear("_cache_db_" + entity);
                 _checkRealtimeDbUpdate(entity);
             }
         }
