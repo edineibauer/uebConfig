@@ -2651,14 +2651,19 @@ var URL, app = {
                      * add tags to the head of the page
                      * if allready exist, so not do anything
                      */
-                    $("html").removeClass();
+                    let $html = $("html");
+                    let isDark = $html.hasClass("darkmode");
+                    $html.removeClass();
+                    if(isDark)
+                        $html.addClass("darkmode");
+
                     if (!isEmpty(g.head)) {
                         /**
                          * Add link to head
                          */
                         for (let hid in g.head) {
                             if (/^core-/.test(hid))
-                                $("html").addClass(hid);
+                                $html.addClass(hid);
                             else
                                 $div.addClass(hid);
 
