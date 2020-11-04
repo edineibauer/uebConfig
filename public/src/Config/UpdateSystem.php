@@ -322,6 +322,24 @@ class UpdateSystem
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js");
 
+            /**
+             * Adiciona todos os js dentro da pasta assets/core
+             */
+            foreach (Config::getRoutesFilesTo("assets/core", "js") as $item => $dir)
+                $m .= ";" . file_get_contents($dir);
+
+            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
+                $file = json_decode(file_get_contents($dir), !0);
+                if (!empty($file['js'])) {
+                    if (is_array($file['js'])) {
+                        foreach ($file['js'] as $js)
+                            $m .= ";" . Config::getScriptContent($js);
+                    }
+                } elseif (is_string($file['js'])) {
+                    $m .= ";" . Config::getScriptContent($file['js']);
+                }
+            }
+
             $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w+");
             fwrite($f, $m);
             fclose($f);
@@ -369,6 +387,25 @@ class UpdateSystem
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/appCore.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/ajax.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery-migrate.1.4.1.min.js"));
+
+            /**
+             * Adiciona todos os js dentro da pasta assets/core
+             */
+            foreach (Config::getRoutesFilesTo("assets/core", "js") as $item => $dir)
+                $m .= ";" . file_get_contents($dir);
+
+            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
+                $file = json_decode(file_get_contents($dir), !0);
+                if (!empty($file['js'])) {
+                    if (is_array($file['js'])) {
+                        foreach ($file['js'] as $js)
+                            $m .= ";" . Config::getScriptContent($js);
+                    }
+                } elseif (is_string($file['js'])) {
+                    $m .= ";" . Config::getScriptContent($file['js']);
+                }
+            }
+
             $m->minify(PATH_HOME . "assetsPublic/appCore.min.js");
 
             /**
@@ -415,14 +452,52 @@ class UpdateSystem
             $m .= file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css");
             $m .= file_get_contents(PATH_HOME . "public/assets/theme.min.css");
 
+            /**
+             * Adiciona todos os css dentro da pasta assets/core
+             */
+            foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
+                $m .= ";" . file_get_contents($dir);
+
+            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
+                $file = json_decode(file_get_contents($dir), !0);
+                if (!empty($file['css'])) {
+                    if (is_array($file['css'])) {
+                        foreach ($file['css'] as $css)
+                            $m .= ";" . Config::getCssContent($css);
+                    }
+                } elseif (is_string($file['css'])) {
+                    $m .= ";" . Config::getCssContent($file['css']);
+                }
+            }
+
             $f = fopen(PATH_HOME . "assetsPublic/appCore.min.css", "w+");
             fwrite($f, $m);
             fclose($f);
+
         } else {
             $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/toast.css"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/app.css"));
             $m->add(file_get_contents(PATH_HOME . "public/assets/theme.min.css"));
+
+            /**
+             * Adiciona todos os css dentro da pasta assets/core
+             */
+            foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
+                $m .= ";" . file_get_contents($dir);
+
+            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
+                $file = json_decode(file_get_contents($dir), !0);
+                if (!empty($file['css'])) {
+                    if (is_array($file['css'])) {
+                        foreach ($file['css'] as $css)
+                            $m .= ";" . Config::getCssContent($css);
+                    }
+                } elseif (is_string($file['css'])) {
+                    $m .= ";" . Config::getCssContent($file['css']);
+                }
+            }
+
             $m->minify(PATH_HOME . "assetsPublic/appCore.min.css");
         }
     }

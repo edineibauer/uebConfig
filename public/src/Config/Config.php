@@ -867,6 +867,97 @@ Allow from env=let_me_in';
     }
 
     /**
+     * Return script content minifyed from a string name
+     * Search on url web, path directory, public/assets and node_modules
+     * @param string $script
+     * @return string
+     */
+    public static function getScriptContent(string $script)
+    {
+        if (!empty($script)) {
+            $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
+
+            if (preg_match("/^http/i", $script) || (preg_match("/^" . PATH_HOME . "/i", $script) && file_exists($script))) {
+                return self::getMinifyJsFile($script);
+
+            } else {
+
+                /**
+                 * Remove node_modules name in string js filename if have
+                 */
+                if(preg_match("/^node_modules/i", $script))
+                    $script = str_replace("node_modules/", "", $script);
+
+                if (file_exists(PATH_HOME . "node_modules/" . $script)) {
+                    return self::getMinifyJsFile(PATH_HOME . "node_modules/" . $script);
+
+                } else {
+                    foreach (Config::getRoutesFilesTo("assets", "js") as $file => $dir) {
+                        if ($file === $script)
+                            return self::getMinifyJsFile($dir);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Return css content minifyed from a string name
+     * Search on url web, path directory, public/assets and node_modules
+     * @param string $css
+     */
+    public static function getCssContent(string $css)
+    {
+        if (!empty($css)) {
+            $css .= (!preg_match("/\.css$/i", $css) ? ".css" : "");
+
+            if (preg_match("/^http/i", $css) || (preg_match("/^" . PATH_HOME . "/i", $css) && file_exists($css))) {
+                return self::getMinifyCssFile($css);
+
+            } else {
+
+                /**
+                 * Remove node_modules name in string css filename if have
+                 */
+                if(preg_match("/^node_modules/i", $css))
+                    $css = str_replace("node_modules/", "", $css);
+
+                if (file_exists(PATH_HOME . "node_modules/" . $css)) {
+                    return self::getMinifyCssFile(PATH_HOME . "node_modules/" . $css);
+
+                } else {
+                    foreach (Config::getRoutesFilesTo("assets", "css") as $file => $dir) {
+                        if ($file === $css)
+                            return self::getMinifyCssFile($dir);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Return minify content from a path js
+     * @param string $fileJs
+     * @return string
+     */
+    public static function getMinifyJsFile(string $fileJs)
+    {
+        $minify = new \MatthiasMullie\Minify\JS(file_get_contents($fileJs));
+        return $minify->minify();
+    }
+
+    /**
+     * Return minify content from a path css
+     * @param string $fileCss
+     * @return string
+     */
+    public static function getMinifyCssFile(string $fileCss)
+    {
+        $minify = new \MatthiasMullie\Minify\CSS(file_get_contents($fileCss));
+        return $minify->minify();
+    }
+
+    /**
      * @param array $metadados
      * @return array
      */
