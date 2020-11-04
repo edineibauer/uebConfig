@@ -334,9 +334,9 @@ class UpdateSystem
                     if (is_array($file['js'])) {
                         foreach ($file['js'] as $js)
                             $m .= ";" . Config::getScriptContent($js);
+                    } elseif (is_string($file['js'])) {
+                        $m .= ";" . Config::getScriptContent($file['js']);
                     }
-                } elseif (is_string($file['js'])) {
-                    $m .= ";" . Config::getScriptContent($file['js']);
                 }
             }
 
@@ -400,9 +400,9 @@ class UpdateSystem
                     if (is_array($file['js'])) {
                         foreach ($file['js'] as $js)
                             $m .= ";" . Config::getScriptContent($js);
+                    } elseif (is_string($file['js'])) {
+                        $m .= ";" . Config::getScriptContent($file['js']);
                     }
-                } elseif (is_string($file['js'])) {
-                    $m .= ";" . Config::getScriptContent($file['js']);
                 }
             }
 
@@ -464,9 +464,9 @@ class UpdateSystem
                     if (is_array($file['css'])) {
                         foreach ($file['css'] as $css)
                             $m .= Config::getCssContent($css);
+                    } elseif (is_string($file['css'])) {
+                        $m .= Config::getCssContent($file['css']);
                     }
-                } elseif (is_string($file['css'])) {
-                    $m .= Config::getCssContent($file['css']);
                 }
             }
 
@@ -492,9 +492,9 @@ class UpdateSystem
                     if (is_array($file['css'])) {
                         foreach ($file['css'] as $css)
                             $m->add(Config::getCssContent($css));
+                    } elseif (is_string($file['css'])) {
+                        $m->add(Config::getCssContent($file['css']));
                     }
-                } elseif (is_string($file['css'])) {
-                    $m->add(Config::getCssContent($file['css']));
                 }
             }
 
