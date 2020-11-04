@@ -456,17 +456,17 @@ class UpdateSystem
              * Adiciona todos os css dentro da pasta assets/core
              */
             foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
-                $m .= ";" . file_get_contents($dir);
+                $m .= file_get_contents($dir);
 
             foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
                 $file = json_decode(file_get_contents($dir), !0);
                 if (!empty($file['css'])) {
                     if (is_array($file['css'])) {
                         foreach ($file['css'] as $css)
-                            $m .= ";" . Config::getCssContent($css);
+                            $m .= Config::getCssContent($css);
                     }
                 } elseif (is_string($file['css'])) {
-                    $m .= ";" . Config::getCssContent($file['css']);
+                    $m .= Config::getCssContent($file['css']);
                 }
             }
 
@@ -484,17 +484,17 @@ class UpdateSystem
              * Adiciona todos os css dentro da pasta assets/core
              */
             foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
-                $m .= ";" . file_get_contents($dir);
+                $m->add(file_get_contents($dir));
 
             foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
                 $file = json_decode(file_get_contents($dir), !0);
                 if (!empty($file['css'])) {
                     if (is_array($file['css'])) {
                         foreach ($file['css'] as $css)
-                            $m .= ";" . Config::getCssContent($css);
+                            $m->add(Config::getCssContent($css));
                     }
                 } elseif (is_string($file['css'])) {
-                    $m .= ";" . Config::getCssContent($file['css']);
+                    $m->add(Config::getCssContent($file['css']));
                 }
             }
 
