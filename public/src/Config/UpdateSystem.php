@@ -325,17 +325,19 @@ class UpdateSystem
             /**
              * Adiciona todos os js dentro da pasta assets/core
              */
-            foreach (Config::getRoutesFilesTo("assets/core", "js") as $item => $dir)
-                $m .= ";" . file_get_contents($dir);
-
-            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
-                $file = json_decode(file_get_contents($dir), !0);
-                if (!empty($file['js'])) {
-                    if (is_array($file['js'])) {
-                        foreach ($file['js'] as $js)
-                            $m .= ";" . Config::getScriptContent($js);
-                    } elseif (is_string($file['js'])) {
-                        $m .= ";" . Config::getScriptContent($file['js']);
+            foreach (Helper::listFolder(PATH_HOME . "public/assets/core") as $item) {
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+                if($ext === "js") {
+                    $m .=  ";" . file_get_contents(PATH_HOME . "public/assets/core/" . $item);
+                } elseif($ext === "json") {
+                    $file = json_decode(file_get_contents(PATH_HOME . "public/assets/core/" . $item), !0);
+                    if (!empty($file['js'])) {
+                        if (is_array($file['js'])) {
+                            foreach ($file['js'] as $js)
+                                $m .=  ";" . Config::getScriptContent($js);
+                        } elseif (is_string($file['js'])) {
+                            $m .=  ";" . Config::getScriptContent($file['js']);
+                        }
                     }
                 }
             }
@@ -391,17 +393,19 @@ class UpdateSystem
             /**
              * Adiciona todos os js dentro da pasta assets/core
              */
-            foreach (Config::getRoutesFilesTo("assets/core", "js") as $item => $dir)
-                $m .= ";" . file_get_contents($dir);
-
-            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
-                $file = json_decode(file_get_contents($dir), !0);
-                if (!empty($file['js'])) {
-                    if (is_array($file['js'])) {
-                        foreach ($file['js'] as $js)
-                            $m .= ";" . Config::getScriptContent($js);
-                    } elseif (is_string($file['js'])) {
-                        $m .= ";" . Config::getScriptContent($file['js']);
+            foreach (Helper::listFolder(PATH_HOME . "public/assets/core") as $item) {
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+                if($ext === "js") {
+                    $m->add(";" . file_get_contents(PATH_HOME . "public/assets/core/" . $item));
+                } elseif($ext === "json") {
+                    $file = json_decode(file_get_contents(PATH_HOME . "public/assets/core/" . $item), !0);
+                    if (!empty($file['js'])) {
+                        if (is_array($file['js'])) {
+                            foreach ($file['js'] as $js)
+                                $m->add(";" . Config::getScriptContent($js));
+                        } elseif (is_string($file['js'])) {
+                            $m->add(";" . Config::getScriptContent($file['js']));
+                        }
                     }
                 }
             }
@@ -455,17 +459,19 @@ class UpdateSystem
             /**
              * Adiciona todos os css dentro da pasta assets/core
              */
-            foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
-                $m .= file_get_contents($dir);
-
-            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
-                $file = json_decode(file_get_contents($dir), !0);
-                if (!empty($file['css'])) {
-                    if (is_array($file['css'])) {
-                        foreach ($file['css'] as $css)
-                            $m .= Config::getCssContent($css);
-                    } elseif (is_string($file['css'])) {
-                        $m .= Config::getCssContent($file['css']);
+            foreach (Helper::listFolder(PATH_HOME . "public/assets/core") as $item) {
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+                if($ext === "css") {
+                    $m .= file_get_contents(PATH_HOME . "public/assets/core/" . $item);
+                } elseif($ext === "json") {
+                    $file = json_decode(file_get_contents(PATH_HOME . "public/assets/core/" . $item), !0);
+                    if (!empty($file['css'])) {
+                        if (is_array($file['css'])) {
+                            foreach ($file['css'] as $css)
+                                $m .= Config::getCssContent($css);
+                        } elseif (is_string($file['css'])) {
+                            $m .= Config::getCssContent($file['css']);
+                        }
                     }
                 }
             }
@@ -483,17 +489,19 @@ class UpdateSystem
             /**
              * Adiciona todos os css dentro da pasta assets/core
              */
-            foreach (Config::getRoutesFilesTo("assets/core", "css") as $item => $dir)
-                $m->add(file_get_contents($dir));
-
-            foreach (Config::getRoutesFilesTo("assets/core", "json") as $item => $dir) {
-                $file = json_decode(file_get_contents($dir), !0);
-                if (!empty($file['css'])) {
-                    if (is_array($file['css'])) {
-                        foreach ($file['css'] as $css)
-                            $m->add(Config::getCssContent($css));
-                    } elseif (is_string($file['css'])) {
-                        $m->add(Config::getCssContent($file['css']));
+            foreach (Helper::listFolder(PATH_HOME . "public/assets/core") as $item) {
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+                if($ext === "css") {
+                    $m->add(file_get_contents(PATH_HOME . "public/assets/core/" . $item));
+                } elseif($ext === "json") {
+                    $file = json_decode(file_get_contents(PATH_HOME . "public/assets/core/" . $item), !0);
+                    if (!empty($file['css'])) {
+                        if (is_array($file['css'])) {
+                            foreach ($file['css'] as $css)
+                                $m->add(Config::getCssContent($css));
+                        } elseif (is_string($file['css'])) {
+                            $m->add(Config::getCssContent($file['css']));
+                        }
                     }
                 }
             }
