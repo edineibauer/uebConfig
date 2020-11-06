@@ -2,6 +2,5 @@
   "title": "{{sitename}}",
   "header": false,
   "navbar": false,
-  "css": "core/backgroundThemeWave",
-  "templates": ["cardMovie", "wavesBottom"]
+  "templates": ["cardMovie"]
 }

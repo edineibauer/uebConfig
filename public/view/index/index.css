@@ -212,16 +212,6 @@ h2 {
 }
 
 
-/* Animation */
-.waves {
-    position: fixed;
-    bottom: 0;
-    z-index: 1;
-    width: 500%;
-    height: 600px;
-    margin-bottom: -7px; /*Fix for safari gap*/
-}
-
 .content {
     position: relative;
     height: 20vh;
@@ -264,10 +254,6 @@ h2 {
 
 /*Shrinking for mobile*/
 @media (max-width: 768px) {
-    .waves {
-        height: 40px;
-        min-height: 40px;
-    }
 
     .content {
         height: 30vh;

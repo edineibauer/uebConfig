@@ -2,17 +2,6 @@ body {
     background-color: #444444
 }
 
-/* Animation */
-.waves {
-    position: fixed;
-    bottom: 0;
-    z-index: -1;
-    width: 500%;
-    height: 600px;
-    margin-bottom: -200px; /*Fix for safari gap*/
-    display: block;
-}
-
 .content {
     position: relative;
     height: 20vh;
@@ -55,11 +44,6 @@ body {
 
 /*Shrinking for mobile*/
 @media (max-width: 768px) {
-    .waves {
-        height: 240px;
-        min-height: 240px;
-    }
-
     .content {
         height: 30vh;
     }
