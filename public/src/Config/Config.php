@@ -213,9 +213,7 @@ class Config
      * @param string $content
      */
     public static function debugFile(string $name, string $content) {
-        $f = fopen(PATH_HOME . "_debug_{$name}.json", "w");
-        fwrite($f, $content);
-        fclose($f);
+        self::createFile(PATH_HOME . "_debug_{$name}.json", $content);
     }
 
     /**
@@ -384,9 +382,7 @@ class Config
         $update += 1;
 
         Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
-        $f = fopen(PATH_HOME . "_config/updates/update.txt", "w+");
-        fwrite($f, $update);
-        fclose($f);
+        self::createFile(PATH_HOME . "_config/updates/update.txt", $update);
     }
 
     /**
@@ -726,9 +722,7 @@ Allow from env=let_me_in';
                 }
             }
 
-            $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js", "w+");
-            fwrite($f, $file);
-            fclose($f);
+            self::createFile(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.js", $file);
 
         } else {
             $minifier = new \MatthiasMullie\Minify\JS("");
@@ -955,6 +949,18 @@ Allow from env=let_me_in';
     {
         $minify = new \MatthiasMullie\Minify\CSS(file_get_contents($fileCss));
         return $minify->minify();
+    }
+
+    /**
+     * Cria arquivo no caminho informado
+     * @param string $path
+     * @param string $content
+     */
+    public static function createFile(string $path, string $content)
+    {
+        $f = fopen($path, "w");
+        fwrite($f, $content);
+        fclose($f);
     }
 
     /**

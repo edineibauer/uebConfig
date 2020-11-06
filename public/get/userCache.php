@@ -13,7 +13,7 @@ $content = [
     "relevant" => [],
     "general" => [],
     "graficos" => [],
-    "totalRegisters" => [],
+    "totalRegisters" => []
 ];
 
 include 'userTotalRegisterDB.php';
