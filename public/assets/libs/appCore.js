@@ -863,6 +863,11 @@ function lightBoxTouch($images) {
             $gallery.remove();
         });
 
+        onHistoryBack(function () {
+            $("#core-overlay").removeClass("active");
+            $gallery.remove();
+        });
+
         new TouchHorizontal($gallery, 0, 0, 20, function (touch, target, direction) {
             let next = direction === "right";
             let img = $gallery.attr("src");
