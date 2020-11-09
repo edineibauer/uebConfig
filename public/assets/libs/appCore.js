@@ -2189,10 +2189,10 @@ function animateForward(id, file, scroll) {
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 250, () => {
+                $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, 0)
                 });
-                $element.css("z-index", -1).animate({left: '-30%'}, 250)
+                $element.css("z-index", -1).animate({left: '-30%'}, 300)
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, 0)
@@ -2220,10 +2220,10 @@ function animateBack(id, file, scroll) {
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", (-(scroll - topHeader)) + "px");
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 250, () => {
+                $aux.animate({left: '0'}, 300, () => {
                     animateTimeout($element, $aux, scroll);
                 });
-                $element.css("z-index", -1).animate({left: '30%'}, 250)
+                $element.css("z-index", -1).animate({left: '30%'}, 300)
             } else {
                 $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
