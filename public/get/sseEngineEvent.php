@@ -37,7 +37,7 @@ if (!empty($_SESSION['userlogin'])) {
         returnMessagesSSE("base", $messagesBase);
 
         if (!empty($getSSE))
-            echo "event: " . $view . PHP_EOL . "data: " . json_encode($getSSE) . PHP_EOL . PHP_EOL;
+            echo "event: get" . PHP_EOL . "data: " . json_encode($getSSE) . PHP_EOL . PHP_EOL;
 
         ob_flush();
         flush();

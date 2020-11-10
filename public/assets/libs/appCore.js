@@ -3382,18 +3382,26 @@ async function sseStart() {
             sseData = JSON.parse(e.data);
 
         if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
-            console.log(sseData);
-            for (let getUrl in sseData) {
-                for(let content of sseData[getUrl]) {
-                    if(isNumberPositive(content)) {
-                        await dbLocal.exeDelete(entity, content);
-                    } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
-                        await dbLocal.exeCreate(entity, content);
+            for(let getUrl in sseData) {
+                let c = JSON.parse(sseData[getUrl]);
+                if(typeof c === "object" && typeof c.data !== "undefined") {
+                    let cacheName = '_cache_' + getUrl.replaceAll(/\[@\]/g, '/');
+                    let dados = c.data;
+
+                    /**
+                     * Cache the data
+                     */
+                    await dbLocal.clear(cacheName);
+                    if (!isEmpty(dados)) {
+                        if (typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                            for (let d of dados)
+                                dbLocal.exeCreate(cacheName, d);
+                        } else {
+                            dados.typeIsObject = !1;
+                            dbLocal.exeCreate(cacheName, dados);
+                        }
                     }
                 }
-
-                dbLocal.clear("_cache_db_" + entity);
-                _checkRealtimeDbUpdate(entity);
             }
         }
     });
