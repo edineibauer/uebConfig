@@ -497,10 +497,11 @@ $(function ($) {
     /**
      * Render template with data-get
      * @param $tpl
+     * @param paramSkeleton
      * @returns {Promise<void>}
      * @private
      */
-    $.fn._renderGetTemplate = async function($tpl) {
+    $.fn._renderGetTemplate = async function($tpl, paramSkeleton) {
         let $this = $(this);
         if(!$this.hasAttr("data-get"))
             return;
@@ -517,7 +518,7 @@ $(function ($) {
             /**
              * Apply Skeleton
              */
-            $this._skeletonDOMApply($(e), param);
+            $this._skeletonDOMApply($tpl, paramSkeleton);
 
             /**
              * Await load style and script page
@@ -776,15 +777,10 @@ $(function ($) {
                         param = await window[$this.data("param-function")](param);
 
                     /**
-                     * Apply Skeleton
-                     */
-                    $this._skeletonDOMApply($(e), param);
-
-                    /**
                      * Get data and render the template
                      * not await for this
                      */
-                    $this._renderGetTemplate($(e));
+                    $this._renderGetTemplate($(e), param);
                 }
             });
         }
