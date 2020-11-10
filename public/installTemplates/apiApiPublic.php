@@ -12,6 +12,33 @@ $_SESSION = [];
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
+    /**
+     * Recebe dados na variável dados
+     */
+    if (empty($_POST)) {
+        $putfp = fopen('php://input', 'r');
+        $putdata = '';
+        while ($dataRead = fread($putfp, 1024))
+            $putdata .= $dataRead;
+        fclose($putfp);
+
+        if (getallheaders()['Content-Type'] === "application/json") {
+            $dados = json_decode($putdata, !0);
+        } else {
+            if(is_array($putdata))
+                parse_str($putdata, $dados);
+            elseif(is_string($putdata) && Check::isJson($putdata))
+                $dados = json_decode($putdata, !0);
+        }
+    }
+
+    if (empty($dados) && !empty($_POST)) {
+        $dados = $_POST;
+
+        if (getallheaders()['Content-Type'] === "application/json")
+            $dados = json_decode($dados, !0);
+    }
+
     \Config\Config::setUser(0);
     $variaveis = array_filter(explode('/', $url));
     $route = "";
