@@ -3392,17 +3392,14 @@ async function sseStart() {
                             dbLocal.exeCreate(cacheName, dados);
                         }
                     }
+
+                    /**
+                     * Update DOM data-get realtime
+                     */
+                    renderDataGet(cacheName.replace("_cache_get_", ""), dados);
                 }
             }
         }
-    });
-
-    /**
-     * Update DOM data-get realtime
-     */
-    sseAdd("getRequests", function (data) {
-        for(let get in data)
-            renderDataGet(get, data[get]);
     });
 
     /**

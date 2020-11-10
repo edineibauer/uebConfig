@@ -1,6 +1,6 @@
 <?php
 
-$dataBefore = $data ?? [];
+/*$dataBefore = $data ?? [];
 
 foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']) as $item) {
     if(preg_match("/^get_/i", $item) && pathinfo($item, PATHINFO_EXTENSION) === "json") {
@@ -47,4 +47,4 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['us
         }
     }
 }
-$data = $dataBefore;
+$data = $dataBefore;*/
