@@ -41,5 +41,5 @@ if (!empty($url) && !file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlo
      * Register view request update realtime
      */
     if (!empty($route))
-        \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $rr . ".json", json_encode(["view" => $view, "route" => $rr, "path" => $route, "content" => "1-1-1-1-1"]));
+        \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $rr . ".json", json_encode(["route" => $rr, "path" => $route, "content" => "1-1-1-1-1"]));
 }
