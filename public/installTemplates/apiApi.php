@@ -3,6 +3,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Origin: http://localhost:8000');
 header('Access-Control-Allow-Methods: GET, POST, PUT');
+header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
 use \Conn\Read;
@@ -14,9 +15,37 @@ $_SESSION = [];
 $url = strip_tags(trim($_GET['data']));
 if (!empty($url)) {
 
-    $key = $_SERVER['HTTP_KEY'] ?? filter_input(INPUT_POST, 'key', FILTER_DEFAULT);
+    /**
+     * Recebe dados
+     */
+    if (empty($_POST)) {
+        $putfp = fopen('php://input', 'r');
+        $putdata = '';
+        while ($dataRead = fread($putfp, 1024))
+            $putdata .= $dataRead;
+        fclose($putfp);
+
+        if (getallheaders()['Content-Type'] === "application/json") {
+            $dados = json_decode($putdata, !0);
+        } else {
+            if(is_array($putdata))
+                parse_str($putdata, $dados);
+            elseif(is_string($putdata) && Check::isJson($putdata))
+                $dados = json_decode($putdata, !0);
+        }
+    }
+
+    if (empty($dados) && !empty($_POST)) {
+        $dados = $_POST;
+
+        if (getallheaders()['Content-Type'] === "application/json")
+            $dados = json_decode($dados, !0);
+    }
+
+    $key = $_SERVER['HTTP_KEY'] ?? $dados['key'] ?? null;
+
     if (empty($key)) {
-        $data = ["response" => 2, "error" => "'Key' não Informado", "data" => ""];
+        $data = ["response" => 2, "error" => "'key' não Informado", "data" => ""];
     } else {
 
         $read = new Read();
