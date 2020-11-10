@@ -1,41 +1,50 @@
 <?php
 
+$dataBefore = $data ?? [];
+
 foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']) as $item) {
-    if(preg_match("/^get_/i", $item)) {
-        $file = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $item), !0);
+    if(preg_match("/^get_/i", $item) && pathinfo($item, PATHINFO_EXTENSION) === "json") {
+        $fileJsonGetSSE = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $item), !0);
+        if(preg_match("/^get_/", $fileJsonGetSSE['route'])) {
 
-        ob_start();
+            unset($data);
 
-        try {
+            ob_start();
 
-            include_once $file['route'];
+            try {
 
-            if (!empty($data['error'])) {
-                $data["response"] = 2;
-                $data["data"] = "";
-            } elseif (!isset($data['data'])) {
-                $conteudo = ob_get_contents();
-                if(\Helpers\Check::isJson($conteudo))
-                    $conteudo = json_decode($conteudo);
+                include $fileJsonGetSSE['path'];
 
-                $data = ["response" => 1, "error" => "", "data" => $conteudo];
-            } elseif (!isset($data['response'])) {
-                $data['response'] = 1;
-                $data['error'] = "";
+                if (!empty($data['error'])) {
+                    $data["response"] = 2;
+                    $data["data"] = "";
+                } elseif (!isset($data['data'])) {
+                    $conteudo = ob_get_contents();
+                    if (\Helpers\Check::isJson($conteudo))
+                        $conteudo = json_decode($conteudo);
+
+                    $data = ["response" => 1, "error" => "", "data" => $conteudo];
+                } elseif (!isset($data['response'])) {
+                    $data['response'] = 1;
+                    $data['error'] = "";
+                }
+
+                if (is_string($data['data']) && preg_match('/^http/i', $data['data']))
+                    $data = ["response" => 3, "error" => "", "data" => $data['data']];
+
+            } catch (Exception $e) {
+                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
             }
 
-            if (is_string($data['data']) && preg_match('/^http/i', $data['data']))
-                $data = ["response" => 3, "error" => "", "data" => $data['data']];
+            ob_end_clean();
 
-        } catch (Exception $e) {
-            $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
-        }
-
-        ob_end_clean();
-
-        if(json_encode($data) !== json_encode($file['content'])) {
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $item, json_encode(["route" => $file['route'], "content" => $data]));
-            $getSSE[$file['route']] = json_encode($data);
+            $nce = json_encode($data);
+            $nc = base64_encode($nce);
+            if ($nc !== $fileJsonGetSSE['content']) {
+                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $fileJsonGetSSE['route'] . ".json", json_encode(["route" => $fileJsonGetSSE['route'], "path" => $fileJsonGetSSE['path'], "content" => $nc]));
+                $getSSE[$fileJsonGetSSE['route']] = $nce;
+            }
         }
     }
 }
+$data = $dataBefore;

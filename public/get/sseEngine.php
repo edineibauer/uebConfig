@@ -29,7 +29,7 @@ if (!empty($_SESSION['userlogin'])) {
         $dados = [];
         $dados['db'] = returnMessagesSSE("db", $resultDb, $resultDbHistory);
         $dados['base'] = returnMessagesSSE("base", $messagesBase);
-        $dados['get'] = returnMessagesSSE("get", $getSSE);
+        $dados['get'] = $getSSE;
 
         if(!empty($view))
             $dados[$view] = returnMessagesSSE($view, $messages);

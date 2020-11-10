@@ -31,10 +31,14 @@ if (!empty($_SESSION['userlogin'])) {
     {
         echo "id: " . time() . PHP_EOL;
         echo "retry: 1000" . PHP_EOL;
+
         returnMessagesSSE("db", $resultDb, $resultDbHistory);
         returnMessagesSSE($view, $messages);
         returnMessagesSSE("base", $messagesBase);
-        returnMessagesSSE("get", $getSSE);
+
+        if (!empty($getSSE))
+            echo "event: " . $view . PHP_EOL . "data: " . json_encode($getSSE) . PHP_EOL . PHP_EOL;
+
         ob_flush();
         flush();
     }
