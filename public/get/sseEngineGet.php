@@ -1,11 +1,11 @@
 <?php
 
-/*$dataBefore = $data ?? [];
+$dataBefore = $data ?? [];
 
 foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']) as $item) {
     if(preg_match("/^get_/i", $item) && pathinfo($item, PATHINFO_EXTENSION) === "json") {
         $fileJsonGetSSE = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $item), !0);
-        if(preg_match("/^get_/", $fileJsonGetSSE['route'])) {
+        if($fileJsonGetSSE['view'] === $_SESSION['userlogin']['lastview']) {
 
             unset($data);
 
@@ -41,10 +41,20 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['us
             $nce = json_encode($data);
             $nc = base64_encode($nce);
             if ($nc !== $fileJsonGetSSE['content']) {
-                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $fileJsonGetSSE['route'] . ".json", json_encode(["route" => $fileJsonGetSSE['route'], "path" => $fileJsonGetSSE['path'], "content" => $nc]));
-                $getSSE[$fileJsonGetSSE['route']] = $nce;
+
+                /**
+                 * Update the content file with the new content
+                 */
+                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $fileJsonGetSSE['route'] . ".json", json_encode(["view" => $fileJsonGetSSE['view'], "route" => $fileJsonGetSSE['route'], "path" => $fileJsonGetSSE['path'], "content" => $nc]));
+
+                /**
+                 * If the content is not the first empty sequence, so return new updates
+                 */
+                if($fileJsonGetSSE['content'] !== "1-1-1-1-1")
+                    $getSSE[$fileJsonGetSSE['route']] = $nce;
             }
         }
     }
 }
-$data = $dataBefore;*/
+
+$data = $dataBefore;

@@ -17,11 +17,8 @@ if (!empty($url)) {
      */
     $urlSplit = explode("/maestruToken/", $url);
     \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
-    $urlSearch = $urlSplit[0];
-
-    $variaveis = array_filter(explode('/', $urlSearch));
+    $variaveis = array_filter(explode('/', $urlSplit[0]));
     $route = "";
-
 
     /**
      * Find the route to the GET request
@@ -74,11 +71,6 @@ if (!empty($url)) {
         }
 
         ob_end_clean();
-
-        if(!in_array(strtolower($urlSearch), ['sseengine', 'load/sync', 'appfilesview', 'clearuserhistory', 'appfilesviewuser', 'currentfiles', 'isoffline', 'usercache'])) {
-            $rr = "get_" . str_replace('/', '[@]', $urlSearch);
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $rr . ".json", json_encode(["route" => $rr, "path" => $route, "content" => base64_encode(json_encode($data))]));
-        }
     } else {
         $data['response'] = 4;
     }
