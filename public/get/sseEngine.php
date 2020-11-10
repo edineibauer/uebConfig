@@ -1,6 +1,5 @@
 <?php
 
-$messages = [];
 $messagesBase = [];
 if (!empty($_SESSION['userlogin'])) {
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
@@ -17,22 +16,17 @@ if (!empty($_SESSION['userlogin'])) {
     }
 
     /**
-     * @param string $view
-     * @param array $messages
      * @param array $messagesBase
      * @param array $resultDb
      * @param array $resultDbHistory
      * @param array $getSSE
      */
-    function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory, array $getSSE)
+    function returnSSE(array $messagesBase, array $resultDb, array $resultDbHistory, array $getSSE)
     {
         $dados = [];
         $dados['db'] = returnMessagesSSE("db", $resultDb, $resultDbHistory);
         $dados['base'] = returnMessagesSSE("base", $messagesBase);
         $dados['get'] = $getSSE;
-
-        if(!empty($view))
-            $dados[$view] = returnMessagesSSE($view, $messages);
 
         return $dados;
     }
@@ -59,72 +53,6 @@ if (!empty($_SESSION['userlogin'])) {
         }
 
         return $content;
-    }
-
-    /**
-     * For each SSE on each view
-     */
-    foreach (\Config\Config::getRoutesTo("view") as $folderView) {
-        foreach (\Helpers\Helper::listFolder($folderView) as $view) {
-
-            /**
-             * For each SSE on a view
-             */
-            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/{$_SESSION['userlogin']['setor']}/sse", "php") as $route) {
-                if (!isset($messages[pathinfo($route, PATHINFO_FILENAME)])) {
-                    $data = null;
-
-                    ob_start();
-
-                    try {
-                        include_once $route;
-                        if (!empty($data['error'])) {
-                            $data["response"] = 2;
-                            $data["data"] = "";
-                        } elseif (!isset($data['data'])) {
-                            $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                        } elseif (!isset($data['response'])) {
-                            $data['response'] = 1;
-                            $data['error'] = "";
-                        }
-
-                    } catch (Exception $e) {
-                        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
-                    }
-
-                    ob_end_clean();
-
-                    $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
-                }
-            }
-            foreach (\Config\Config::getRoutesFilesTo("view/{$view}/sse", "php") as $route) {
-                if (!isset($messages[pathinfo($route, PATHINFO_FILENAME)])) {
-                    $data = null;
-
-                    ob_start();
-
-                    try {
-                        include_once $route;
-                        if (!empty($data['error'])) {
-                            $data["response"] = 2;
-                            $data["data"] = "";
-                        } elseif (!isset($data['data'])) {
-                            $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                        } elseif (!isset($data['response'])) {
-                            $data['response'] = 1;
-                            $data['error'] = "";
-                        }
-
-                    } catch (Exception $e) {
-                        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
-                    }
-
-                    ob_end_clean();
-
-                    $messages[pathinfo($route, PATHINFO_FILENAME)] = $data;
-                }
-            }
-        }
     }
 
     /**
@@ -164,4 +92,4 @@ if (!empty($_SESSION['userlogin'])) {
     include_once 'sseEngineGet.php';
 }
 
-$data['data'] = returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory, $getSSE);
+$data['data'] = returnSSE($messagesBase, $resultDb, $resultDbHistory, $getSSE);
