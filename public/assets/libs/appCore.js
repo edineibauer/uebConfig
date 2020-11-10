@@ -2948,6 +2948,9 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
         if (historyReqPosition)
             animation = "none";
 
+        if($("lottie-player").length)
+            document.querySelector("lottie-player").pause();
+
         let $page = window["animate" + ucFirst(animation)](target, app.file, scroll);
 
         if (type === 'route') {
