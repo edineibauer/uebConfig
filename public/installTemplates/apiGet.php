@@ -75,7 +75,7 @@ if (!empty($url)) {
 
         ob_end_clean();
 
-        if(!in_array(strtolower($urlSearch), ['appfilesview', 'clearuserhistory', 'appfilesviewuser', 'currentfiles', 'isoffline', 'usercache'])) {
+        if(!in_array(strtolower($urlSearch), ['sseengine', 'load/sync', 'appfilesview', 'clearuserhistory', 'appfilesviewuser', 'currentfiles', 'isoffline', 'usercache'])) {
             $rr = "get_" . str_replace('/', '[@]', $urlSearch);
             \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $rr . ".json", json_encode(["route" => $rr, "path" => $route, "content" => base64_encode(json_encode($data))]));
         }
