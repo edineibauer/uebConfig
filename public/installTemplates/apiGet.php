@@ -18,8 +18,9 @@ if (!empty($url)) {
      */
     $urlSplit = explode("/maestruToken/", $url);
     \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
+    $urlSearch = $urlSplit[0];
 
-    $variaveis = array_filter(explode('/', $urlSplit[0]));
+    $variaveis = array_filter(explode('/', $urlSearch));
     $route = "";
 
 
@@ -74,6 +75,10 @@ if (!empty($url)) {
         }
 
         ob_end_clean();
+
+        $rr = "get_" . \Helpers\Check::name($urlSearch);
+        \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $rr . ".json", json_encode(["route" => $rr, "path" => $route, "content" => $data]));
+
     } else {
         $data['response'] = 4;
     }

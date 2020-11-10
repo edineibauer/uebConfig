@@ -25,14 +25,16 @@ if (!empty($_SESSION['userlogin'])) {
      * @param array $messagesBase
      * @param array $resultDb
      * @param array $resultDbHistory
+     * @param array $getSSE
      */
-    function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory)
+    function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory, array $getSSE)
     {
         echo "id: " . time() . PHP_EOL;
         echo "retry: 1000" . PHP_EOL;
         returnMessagesSSE("db", $resultDb, $resultDbHistory);
         returnMessagesSSE($view, $messages);
         returnMessagesSSE("base", $messagesBase);
+        returnMessagesSSE("get", $getSSE);
         ob_flush();
         flush();
     }
@@ -160,7 +162,10 @@ if (!empty($_SESSION['userlogin'])) {
     $resultDbHistory = [];
     $resultDb = [];
     include_once 'sseEngineDb.php';
+
+    $getSSE = [];
+    include_once 'sseEngineGet.php';
 }
 
-returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);
+returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory, $getSSE);
 die;

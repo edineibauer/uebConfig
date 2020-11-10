@@ -22,12 +22,14 @@ if (!empty($_SESSION['userlogin'])) {
      * @param array $messagesBase
      * @param array $resultDb
      * @param array $resultDbHistory
+     * @param array $getSSE
      */
-    function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory)
+    function returnSSE(string $view, array $messages, array $messagesBase, array $resultDb, array $resultDbHistory, array $getSSE)
     {
         $dados = [];
         $dados['db'] = returnMessagesSSE("db", $resultDb, $resultDbHistory);
         $dados['base'] = returnMessagesSSE("base", $messagesBase);
+        $dados['get'] = returnMessagesSSE("get", $getSSE);
 
         if(!empty($view))
             $dados[$view] = returnMessagesSSE($view, $messages);
@@ -157,6 +159,9 @@ if (!empty($_SESSION['userlogin'])) {
     $resultDbHistory = [];
     $resultDb = [];
     include_once 'sseEngineDb.php';
+
+    $getSSE = [];
+    include_once 'sseEngineGet.php';
 }
 
-$data['data'] = returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory);
+$data['data'] = returnSSE($_SESSION['userlogin']['lastView'] ?? "", $messages, $messagesBase, $resultDb, $resultDbHistory, $getSSE);

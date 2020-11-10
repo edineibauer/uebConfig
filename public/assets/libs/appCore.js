@@ -459,7 +459,6 @@ $(function ($) {
             await sleep(10);
 
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-        let tpl = await getTemplates();
 
         /**
          * get the data to use on template if need
@@ -506,17 +505,33 @@ $(function ($) {
         if(!$this.hasAttr("data-get"))
             return;
 
-        while(app.loading)
-            await sleep(10);
-
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-        let tpl = await getTemplates();
 
         /**
          * Check cache values to apply before
          */
         let cache = await dbLocal.exeRead('_cache_get_' + $this.data("get"));
-        if(!isEmpty(cache)) {
+
+        if(isEmpty(cache)) {
+
+            /**
+             * Apply Skeleton
+             */
+            $this._skeletonDOMApply($(e), param);
+
+            /**
+             * Await load style and script page
+             */
+            while(app.loading)
+                await sleep(10);
+
+        } else {
+
+            /**
+             * Await load style and script page
+             */
+            while(app.loading)
+                await sleep(10);
 
             if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
                 cache = cache[0];
@@ -548,9 +563,6 @@ $(function ($) {
             }
 
             await $this.htmlTemplate($templateChild, cache);
-
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty"))
-                $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
         }
 
         /**
@@ -572,33 +584,38 @@ $(function ($) {
             }
         }
 
-        if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
-            dados = await window[$this.data("get-function")](dados);
-        else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
-            dados = await window[$this.data("function")](dados);
-        else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
-            dados = await window[$this.data("realtime-get")](dados);
+        /**
+         * If not have cache, so render the data
+         */
+        if(isEmpty(cache)) {
+            if ($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+                dados = await window[$this.data("get-function")](dados);
+            else if ($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+                dados = await window[$this.data("function")](dados);
+            else if ($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+                dados = await window[$this.data("realtime-get")](dados);
 
-        let parametros = {};
+            let parametros = {};
 
-        if(isEmpty(dados) && $this.hasAttr("data-template-empty")) {
-            parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-            $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
-        } else {
-            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+            if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+            } else {
+                parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+            }
+
+            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                parametros = await window[$this.data("param-function")](parametros);
+
+            if (!isEmpty(parametros) && typeof parametros === "object") {
+                if (!isEmpty(dados))
+                    mergeObject(dados, parametros);
+                else
+                    dados = parametros;
+            }
+
+            $this.htmlTemplate($templateChild, dados);
         }
-
-        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-            parametros = await window[$this.data("param-function")](parametros);
-
-        if (!isEmpty(parametros) && typeof parametros === "object") {
-            if(!isEmpty(dados))
-                mergeObject(dados, parametros);
-            else
-                dados = parametros;
-        }
-
-        $this.htmlTemplate($templateChild, dados);
     };
 
     $.fn._functionsToExecuteAfterTemplate = async function() {
@@ -2707,8 +2724,12 @@ var URL, app = {
                      * add script to page
                      */
                     if (!isEmpty(g.js)) {
-                        for (let js of g.js)
+                        for (let js of g.js) {
+                            if(typeof device !== "undefined")
+                                js = js.replace(HOME, "").replace("?v=" + VERSION, "");
+
                             await $.cachedScript(js);
+                        }
                     }
 
                     /**
@@ -3336,6 +3357,34 @@ async function sseStart() {
         if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
             for (let entity in sseData) {
                 for(let content of sseData[entity]) {
+                    if(isNumberPositive(content)) {
+                        await dbLocal.exeDelete(entity, content);
+                    } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
+                        await dbLocal.exeCreate(entity, content);
+                    }
+                }
+
+                dbLocal.clear("_cache_db_" + entity);
+                _checkRealtimeDbUpdate(entity);
+            }
+        }
+    });
+
+    /**
+     * Listen for get requests updates
+     */
+    addSseEngineListener('get', async function (e) {
+        let sseData = null;
+
+        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+            sseData = e;
+        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+            sseData = JSON.parse(e.data);
+
+        if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+            console.log(sseData);
+            for (let getUrl in sseData) {
+                for(let content of sseData[getUrl]) {
                     if(isNumberPositive(content)) {
                         await dbLocal.exeDelete(entity, content);
                     } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
