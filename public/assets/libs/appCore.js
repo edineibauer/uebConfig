@@ -2716,7 +2716,7 @@ var URL, app = {
                      */
                     if (!isEmpty(g.js)) {
                         for (let js of g.js) {
-                            if(typeof device !== "undefined")
+                            if(window.hasOwnProperty("cordova"))
                                 js = js.replace(HOME, "").replace("?v=" + VERSION, "");
 
                             await $.cachedScript(js);
