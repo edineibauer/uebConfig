@@ -3302,6 +3302,14 @@ const SSE = {};
 async function sseStart() {
     if (isUsingSSE()) {
         sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+
+        sseSource.addEventListener('error', () => {
+            toast('reconectando...', 1500, "toast-warning");
+            setTimeout(function (){
+                window.location.reload();
+            }, 1000);
+        }, !1);
+
     } else {
         sseEngineAjax = setInterval(function () {
             AJAX.get("sseEngine").then(receiveSseEngineAjax);
