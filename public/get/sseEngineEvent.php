@@ -67,6 +67,11 @@ function startReadSSE() {
     if (!empty($_SESSION['userlogin'])) {
 
         /**
+         * Refresh login info in session
+         */
+        \Config\Config::setUser($_SESSION['userlogin']['token']);
+
+        /**
          * For each SSE on project
          */
         foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $route) {

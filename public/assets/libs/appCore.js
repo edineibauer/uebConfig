@@ -3305,9 +3305,12 @@ async function sseStart() {
     if (isUsingSSE()) {
         sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
-        sseSource.onerror = function() {
-            console.log("EventSource failed.");
-        };
+        setInterval(function () {
+            if(!isOnline())
+                sseSource.close();
+            else if(isOnline() && sseSource.readyState !== 1)
+                sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+        }, 5000);
 
     } else {
         sseEngineAjax = setInterval(function () {
