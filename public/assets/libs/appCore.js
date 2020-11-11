@@ -2119,7 +2119,8 @@ function defaultPageTransitionPosition(direction, $element, route) {
         "padding-left": paddingLeft + "px",
         "padding-right": paddingRight + "px",
         "left": left + "px",
-        "overflow": "hidden"
+        "overflow": "hidden",
+        "transition": "transform ease .3s"
     };
     $element.css(style);
 
@@ -2137,16 +2138,22 @@ function defaultPageTransitionPosition(direction, $element, route) {
     $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
-            $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 100) + 'px', opacity: 0}, 0);
-        $element.animate({opacity: 1}, 0)
+            $aux.css({"transform": "translateX(100%)", opacity: 1});
+        else
+            $aux.animate({transform: (left + 100) + 'px', opacity: 0}, 0);
+
     } else if (direction === 'back') {
         if (window.innerWidth < 900)
-            $aux.animate({left: '-100%', opacity: 1}, 0); else $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
-        $element.animate({opacity: 1}, 0)
+            $aux.css({"transform": "translateX(-100%)", opacity: 1});
+        else
+            $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
+
     } else if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
-        $element.animate({opacity: 1}, 0)
     }
+
+    $element.animate({opacity: 1}, 0)
+
     return $aux
 }
 
@@ -2155,7 +2162,8 @@ function animateTimeout($element, $aux, scroll) {
         "position": "relative",
         "top": "initial",
         "left": "initial",
-        "width": "100%"
+        "width": "100%",
+        "transition": "transform ease 0s"
     });
 
     if ($element.hasClass("cache-content")) {
@@ -2197,10 +2205,11 @@ function animateForward(id, file, scroll) {
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", topHeader + "px");
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
+                $aux.css({transform: 'translateX(0)'});
+                $element.css("z-index", -1).css({transform: 'translateX(-30%)'});
+                setTimeout(function() {
                     animateTimeout($element, $aux, 0)
-                });
-                $element.css("z-index", -1).animate({left: '-30%'}, 300)
+                }, 300);
             } else {
                 $aux.animate({left: left + "px", opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, 0)
@@ -2228,10 +2237,11 @@ function animateBack(id, file, scroll) {
             let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
             $aux.css("top", (-(scroll - topHeader)) + "px");
             if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll);
-                });
-                $element.css("z-index", -1).animate({left: '30%'}, 300)
+                $aux.css({transform: 'translateX(0)'});
+                $element.css("z-index", -1).css({transform: 'translateX(30%)'});
+                setTimeout(function() {
+                    animateTimeout($element, $aux, scroll)
+                }, 300);
             } else {
                 $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
                     animateTimeout($element, $aux, scroll)
