@@ -18,13 +18,6 @@ if (!empty($url)) {
     if ($link->getRoute()) {
 
         try {
-
-            /**
-             * Store last user view request
-             */
-            $sql = new \Conn\SqlCommand();
-            $sql->exeCommand("UPDATE `" . PRE . "usuarios` SET `lastView`='" . $link->getFile() . "' WHERE id = " . $_SESSION['userlogin']['id']);
-
             if(!DEV && file_exists(PATH_HOME . "www/view/" . $_SESSION['userlogin']['setor'] . "/" . $link->getFile() . ".json")) {
                 $data = ["response" => 1, "error" => "", "data" => file_get_contents(PATH_HOME . "www/view/" . $_SESSION['userlogin']['setor'] . "/" . $link->getFile() . ".json")];
             } else {

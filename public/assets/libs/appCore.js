@@ -2654,6 +2654,8 @@ var URL, app = {
 
         } else {
             app.setLoading();
+            AJAX.post('setUserLastView', {"v": app.file});
+
             let g = await AJAX.view(file);
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
