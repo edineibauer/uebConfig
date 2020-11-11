@@ -2635,6 +2635,7 @@ var URL, app = {
                         $(headerAssets[hid]).appendTo("head");
                 }
             } else {
+
                 /**
                  * Remove all link from head
                  */

@@ -47,11 +47,7 @@ if (date('s') % 2 === 0) {
                  */
                 \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/" . $fileJsonGetSSE['route'] . ".json", json_encode(["route" => $fileJsonGetSSE['route'], "path" => $fileJsonGetSSE['path'], "content" => $nc]));
 
-                /**
-                 * If the content is not the first empty sequence, so return new updates
-                 */
-                if ($fileJsonGetSSE['content'] !== "1-1-1-1-1")
-                    $getSSE[$fileJsonGetSSE['route']] = $nce;
+                $getSSE[$fileJsonGetSSE['route']] = $nce;
             }
         }
     }
