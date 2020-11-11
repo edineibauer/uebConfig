@@ -511,7 +511,9 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let cache = await dbLocal.exeRead('_cache_get_' + $this.data("get"));
+        let cache = await dbLocal.exeRead('_cache_get_' + app.file + "_" + $this.data("get"));
+
+        AJAX.post('listenForViewGet', {view: app.file, route: $this.data("get")});
 
         if(isEmpty(cache)) {
 
@@ -3303,6 +3305,10 @@ async function sseStart() {
     if (isUsingSSE()) {
         sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
+        sseSource.onerror = function() {
+            console.log("EventSource failed.");
+        };
+
     } else {
         sseEngineAjax = setInterval(function () {
             AJAX.get("sseEngine").then(receiveSseEngineAjax);
@@ -3400,7 +3406,7 @@ async function sseStart() {
                     /**
                      * Update DOM data-get realtime
                      */
-                    renderDataGet(cacheName.replace("_cache_get_", ""), dados);
+                    renderDataGet(cacheName.replace("_cache_get_" + app.file + "_", ""), dados);
                 }
             }
         }
@@ -3410,9 +3416,11 @@ async function sseStart() {
      * Update DOM perfil realtime
      */
     sseAdd("updatePerfil", function (data) {
-        USER = data;
-        storeUser();
-        _updateTemplateRealTime();
+        if(typeof data === "object") {
+            USER = data;
+            storeUser();
+            _updateTemplateRealTime();
+        }
     });
 
     /**
