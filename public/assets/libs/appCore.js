@@ -3309,11 +3309,15 @@ async function sseStart() {
         sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
         setInterval(function () {
-            if(!isOnline())
+            if(!isOnline()) {
                 sseSource.close();
-            else if(isOnline() && sseSource.readyState !== 1)
-                sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-        }, 5000);
+            } else if(isOnline()) {
+                if(sseSource.readyState !== 1) {
+                    sseSource.close();
+                    sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+                }
+            }
+        }, 3000);
 
     } else {
         sseEngineAjax = setInterval(function () {
