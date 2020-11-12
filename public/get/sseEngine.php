@@ -1,6 +1,10 @@
 <?php
 
 $messagesBase = [];
+$resultDbHistory = [];
+$resultDb = [];
+$getSSE = [];
+
 if (!empty($_SESSION['userlogin'])) {
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
@@ -56,6 +60,11 @@ if (!empty($_SESSION['userlogin'])) {
     }
 
     /**
+     * Refresh login info in session
+     */
+    \Config\Config::setUser($_SESSION['userlogin']['token']);
+
+    /**
      * For each SSE on project
      */
     foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $route) {
@@ -84,11 +93,7 @@ if (!empty($_SESSION['userlogin'])) {
         $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
     }
 
-    $resultDbHistory = [];
-    $resultDb = [];
     include_once 'sseEngineDb.php';
-
-    $getSSE = [];
     include_once 'sseEngineGet.php';
 }
 
