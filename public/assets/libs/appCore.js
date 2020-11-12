@@ -2184,120 +2184,77 @@ function animateTimeout($element, $aux, scroll) {
         $("#core-content").removeClass("mb-50");
 }
 
-function animateForward(id, file, scroll) {
-    if (aniTransitionPage)
-        return aniTransitionPage;
+async function animateForward($element, $aux, scroll) {
 
-    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('forward', $element, file);
-    let left = $element[0].getBoundingClientRect().left;
+    while($aux.html() === "")
+        await sleep(10);
 
-    let t = setInterval(function () {
-        if ($aux.html() !== "") {
-            clearInterval(t);
+    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0) + "px");
+    if (window.innerWidth < 900) {
+        $aux.animate({left: '0'}, 300, () => {
+            animateTimeout($element, $aux, 0)
+        });
+        $element.css("z-index", -1).animate({left: '-30%'}, 300)
+    } else {
 
-            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", topHeader + "px");
-            if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, 0)
-                });
-                $element.css("z-index", -1).animate({left: '-30%'}, 300)
-            } else {
-                $aux.animate({left: left + "px", opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, 0)
-                });
-                $element.animate({left: (left - 100) + "px", opacity: 0}, 150)
-            }
-        }
-    }, 10);
-
-    return $aux
+        let left = $element[0].getBoundingClientRect().left;
+        $aux.animate({left: left + "px", opacity: 1}, 200, () => {
+            animateTimeout($element, $aux, 0)
+        });
+        $element.animate({left: (left - 100) + "px", opacity: 0}, 150)
+    }
 }
 
-function animateBack(id, file, scroll) {
-    if (aniTransitionPage)
-        return aniTransitionPage;
+async function animateBack($element, $aux, scroll) {
 
-    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('back', $element, file);
-    let left = $element[0].getBoundingClientRect().left;
+    while($aux.html() === "")
+        await sleep(10);
 
-    let t = setInterval(function () {
-        if ($aux.html() !== "") {
-            clearInterval(t);
-
-            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", (-(scroll - topHeader)) + "px");
-            if (window.innerWidth < 900) {
-                $aux.animate({left: '0'}, 300, () => {
-                    animateTimeout($element, $aux, scroll);
-                });
-                $element.css("z-index", -1).animate({left: '30%'}, 300)
-            } else {
-                $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll)
-                });
-                $element.animate({opacity: 0}, 150);
-            }
-        }
-    }, 10);
-
-    return $aux
+    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    if (window.innerWidth < 900) {
+        $aux.animate({left: '0'}, 300, () => {
+            animateTimeout($element, $aux, scroll);
+        });
+        $element.css("z-index", -1).animate({left: '30%'}, 300)
+    } else {
+        let left = $element[0].getBoundingClientRect().left;
+        $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
+            animateTimeout($element, $aux, scroll)
+        });
+        $element.animate({opacity: 0}, 150);
+    }
 }
 
-function animateFade(id, file, scroll) {
-    if (aniTransitionPage)
-        return aniTransitionPage;
+async function animateFade($element, $aux, scroll) {
 
-    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('fade', $element, file);
+    while($aux.html() === "")
+        await sleep(10);
 
-    let t = setInterval(function () {
-        if ($aux.html() !== "") {
-            clearInterval(t);
+    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0) + "px");
+    scroll = typeof scroll !== "undefined" ? scroll : 0;
+    if (window.innerWidth < 900) {
+        $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
+            animateTimeout($element, $aux, scroll)
+        })
+    } else {
+        $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
+            animateTimeout($element, $aux, scroll)
+        })
+    }
 
-            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.css("top", topHeader + "px");
-            scroll = typeof scroll !== "undefined" ? scroll : 0;
-            if (window.innerWidth < 900) {
-                $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll)
-                })
-            } else {
-                $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
-                    animateTimeout($element, $aux, scroll)
-                })
-            }
-
-            $element.animate({opacity: 0, left: '100%'}, 0);
-        }
-    }, 10);
-
-    return $aux
+    $element.animate({opacity: 0, left: '100%'}, 0);
 }
 
-function animateNone(id, file, scroll) {
-    if (aniTransitionPage)
-        return aniTransitionPage;
+async function animateNone($element, $aux, scroll) {
 
-    let $element = (typeof id === "undefined" ? $("#core-content") : (typeof id === "string" ? $(id) : id));
-    let $aux = defaultPageTransitionPosition('fade', $element, file);
+    while($aux.html() === "")
+        await sleep(10);
 
-    let t = setInterval(function () {
-        if ($aux.html() !== "") {
-            clearInterval(t);
-
-            scroll = typeof scroll !== "undefined" ? scroll : 0;
-            let topHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-            $aux.animate({top: -(scroll - topHeader) + "px", left: 0, opacity: 1}, 0, () => {
-                animateTimeout($element, $aux, scroll)
-            });
-            $element.animate({opacity: 0, left: '100%'}, 0);
-        }
-    }, 10);
-
-    return $aux
+    scroll = typeof scroll !== "undefined" ? scroll : 0;
+    $aux.animate({top: -(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + "px", left: 0, opacity: 1}, 0, () => {
+        animateTimeout($element, $aux, scroll)
+    });
+    $element.animate({opacity: 0, left: '100%'}, 0);
 }
 
 function headerShow(show) {
@@ -2701,6 +2658,18 @@ var URL, app = {
                         dbLocal.exeCreate("__template", templates);
                     }
 
+                    /**
+                     * Pre scripts
+                     */
+                    if (!isEmpty(g.jsPre)) {
+                        for (let js of g.jsPre) {
+                            if(window.hasOwnProperty("cordova"))
+                                js = js.replace(HOME, "").replace("?v=" + VERSION, "");
+
+                            await $.cachedScript(js);
+                        }
+                    }
+
                     let htmlTemplate = "<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content;
                     await $div.htmlTemplate(htmlTemplate);
 
@@ -2956,7 +2925,10 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
         if($("lottie-player").length)
             document.querySelector("lottie-player").pause();
 
-        let $page = window["animate" + ucFirst(animation)](target, app.file, scroll);
+        let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
+        let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file));
+
+        window["animate" + ucFirst(animation)]($element, $page, scroll);
 
         if (type === 'route') {
             return app.applyView(app.file, $page)

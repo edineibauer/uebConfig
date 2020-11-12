@@ -29,6 +29,7 @@ if (!empty($url)) {
                     "descricao" => $link->getParam()['descricao'],
                     "css" => $link->getParam()['css'],
                     "js" => $link->getParam()['js'],
+                    "jsPre" => $link->getParam()['jsPre'],
                     "head" => $link->getParam()['head'] ?? [],
                     "header" => $link->getParam()['header'],
                     "navbar" => $link->getParam()['navbar'],
