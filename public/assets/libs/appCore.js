@@ -3451,10 +3451,9 @@ async function sseStart() {
             if(!isOnline()) {
                 sseSource.close();
             } else if(isOnline()) {
-                if(sseSource.readyState !== 1) {
-                    sseSource.close();
+                if(sseSource.readyState === 2) {
                     sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-                    sseStartFunctions()
+                    sseStartFunctions();
                 }
             }
         }, 3000);
