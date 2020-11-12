@@ -100,8 +100,11 @@ function startReadSSE() {
             $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
 
-        include 'sseEngineDb.php';
-        include 'sseEngineGet.php';
+
+        if (date('s') % 2 === 0) {
+            include 'sseEngineDb.php';
+            include 'sseEngineGet.php';
+        }
     }
 
     returnSSE($messagesBase, $resultDb, $resultDbHistory, $getSSE);
