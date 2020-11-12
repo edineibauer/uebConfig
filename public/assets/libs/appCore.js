@@ -3304,27 +3304,7 @@ const sseSourceListeners = {};
 const sseEvents = {};
 const SSE = {};
 
-async function sseStart() {
-    if (isUsingSSE()) {
-        sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-
-        setInterval(function () {
-            if(!isOnline()) {
-                sseSource.close();
-            } else if(isOnline()) {
-                if(sseSource.readyState !== 1) {
-                    sseSource.close();
-                    sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-                }
-            }
-        }, 3000);
-
-    } else {
-        sseEngineAjax = setInterval(function () {
-            AJAX.get("sseEngine").then(receiveSseEngineAjax);
-        }, 2000);
-    }
-
+async function sseStartFunctions() {
     addSseEngineListener('base', async function (e) {
         let sseData = null;
 
@@ -3393,6 +3373,7 @@ async function sseStart() {
             sseData = JSON.parse(e.data);
 
         if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+
             for(let getUrl in sseData) {
                 let c = JSON.parse(sseData[getUrl]);
                 if(typeof c === "object" && typeof c.data !== "undefined") {
@@ -3460,6 +3441,31 @@ async function sseStart() {
             $("#badge-note").remove();
         }
     });
+}
+
+async function sseStart() {
+    if (isUsingSSE()) {
+        sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+
+        setInterval(function () {
+            if(!isOnline()) {
+                sseSource.close();
+            } else if(isOnline()) {
+                if(sseSource.readyState !== 1) {
+                    sseSource.close();
+                    sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+                    sseStartFunctions()
+                }
+            }
+        }, 3000);
+
+    } else {
+        sseEngineAjax = setInterval(function () {
+            AJAX.get("sseEngine").then(receiveSseEngineAjax);
+        }, 2000);
+    }
+
+    sseStartFunctions()
 }
 
 function isUsingSSE() {
