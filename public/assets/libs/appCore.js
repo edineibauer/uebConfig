@@ -3416,7 +3416,12 @@ async function sseStart() {
                     /**
                      * Update DOM data-get realtime
                      */
-                    renderDataGet(cacheName.replace("_cache_get_" + app.file + "_", ""), dados);
+                    while(app.loading)
+                        await sleep(10);
+
+                    setTimeout(function() {
+                        renderDataGet(cacheName.replace("_cache_get_" + app.file + "_", ""), dados);
+                    }, 50);
                 }
             }
         }
