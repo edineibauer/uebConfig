@@ -342,18 +342,8 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
         themetext: THEMETEXT,
         sitename: SITENAME,
         USER: USER,
-        URL: history.state.param.url,
-        PAGE: history.state.param,
-        jsonParse: function () {
-            return function (txt, render) {
-                return _htmlTemplateJsonDecode(txt, render);
-            }
-        },
-        jsonDecode: function () {
-            return function (txt, render) {
-                return _htmlTemplateJsonDecode(txt, render);
-            }
-        }
+        PARAM: history.state.param.url,
+        PAGE: history.state.param
     });
 
     mergeObject(p, SSE);
@@ -389,7 +379,7 @@ $(function ($) {
         if(!$this.hasAttr("data-db"))
             return [];
 
-        let param = {USER: USER, URL: URL};
+        let param = {USER: USER, PARAM: PARAM};
         mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
         let id = ($this.hasAttr("data-id") ? $this.attr("data-id") : {});
@@ -2579,7 +2569,7 @@ async function _checkRealtimeDbUpdate(entity) {
 /**
  * app global de navegação do app
  * */
-var URL, app = {
+var PARAM, app = {
     file: "",
     route: "",
     loading: !1,
@@ -2686,7 +2676,7 @@ var URL, app = {
                     }
 
                     let templates = await getTemplates();
-                    URL = history.state.param.url;
+                    PARAM = history.state.param.url;
 
                     /**
                      * Include templates used in this view
