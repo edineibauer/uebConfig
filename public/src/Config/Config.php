@@ -874,6 +874,9 @@ Allow from env=let_me_in';
             if (preg_match("/^http/i", $script) || (preg_match("/^" . preg_quote(PATH_HOME, '/') . "/i", $script) && file_exists($script))) {
                 return self::getMinifyJsFile($script);
 
+            } elseif (file_exists(PATH_HOME . $script)){
+                return self::getMinifyJsFile(PATH_HOME . $script);
+
             } else {
 
                 /**

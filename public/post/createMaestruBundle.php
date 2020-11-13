@@ -123,7 +123,7 @@ foreach (\Config\Config::getSetores() as $setor) {
 
                 if(pathinfo($link->getRoute(), PATHINFO_EXTENSION) === "php") {
                     ob_start();
-                    include_once $link->getRoute();
+                    include $link->getRoute();
                     $content = ob_get_contents();
                     ob_end_clean();
                 } else {
