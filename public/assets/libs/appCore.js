@@ -1,5 +1,12 @@
 "use strict";
 
+async function getFileInMemory(name, url) {
+    if(typeof window[name] === "undefined")
+        window[name] = await $.get(url);
+
+    return window[name];
+}
+
 function isMobile() {
     return window.innerWidth < 900 && window.innerHeight > window.innerWidth;
 }
@@ -2689,12 +2696,21 @@ var URL, app = {
                      * add script to page
                      */
                     if (!isEmpty(g.js)) {
-                        for (let js of g.js) {
-                            if(window.hasOwnProperty("cordova"))
-                                js = js.replace(HOME, "").replace("?v=" + VERSION, "");
+                        setTimeout(async function () {
 
-                            await $.cachedScript(js);
-                        }
+                            /**
+                             * Await for transition ends to load scripts
+                             */
+                            while(aniTransitionPage)
+                                await sleep(10);
+
+                            for (let js of g.js) {
+                                if(window.hasOwnProperty("cordova"))
+                                    js = js.replace(HOME, "").replace("?v=" + VERSION, "");
+
+                                await $.cachedScript(js);
+                            }
+                        },1);
                     }
 
                     /**
