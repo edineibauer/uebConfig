@@ -7,6 +7,10 @@ async function getFileInMemory(name, url) {
     return window[name];
 }
 
+async function loadLottiePlayer(url, querySelector) {
+    document.querySelector(typeof querySelector === "string" ? querySelector : "lottie-player").load(await getFileInMemory(slug(url, "_"), url));
+}
+
 function isMobile() {
     return window.innerWidth < 900 && window.innerHeight > window.innerWidth;
 }
