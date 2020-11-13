@@ -8,8 +8,12 @@
  * @returns {Promise<Window>}
  */
 async function getFileInMemory(name, url) {
-    if(typeof window[name] === "undefined")
+    if(typeof window[name] === "undefined") {
+        if(window.hasOwnProperty("cordova"))
+            url = url.replace(HOME, "").replace("?v=" + VERSION, "");
+
         window[name] = await $.get(url);
+    }
 
     return window[name];
 }
