@@ -2952,12 +2952,6 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
         if (historyReqPosition)
             animation = "none";
 
-        if($("lottie-player").length) {
-            $("lottie-player").replaceWith(function(){
-                return $("<div />", {html: $(this)[0].snapshot(!1), style: "width:" + $(this).css("width") + ";height:" + $(this).css("height") + ";margin: " + $(this).css("margin") + ";display:" + $(this).css("display") + ";float:" + $(this).css("float") + ""});
-            });
-        }
-
         let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
         let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file));
 
