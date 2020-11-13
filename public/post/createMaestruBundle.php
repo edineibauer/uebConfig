@@ -136,6 +136,7 @@ foreach (\Config\Config::getSetores() as $setor) {
                     "front" => array_merge($link->getParam()['front'], ["variaveis" => $link->getParam()['variaveis'] ?? []]),
                     "css" => $link->getParam()['css'],
                     "js" => $link->getParam()['js'],
+                    "jsPre" => $link->getParam()['jsPre'],
                     "head" => $link->getParam()['head'] ?? [],
                     "header" => $link->getParam()['header'],
                     "navbar" => $link->getParam()['navbar'],
