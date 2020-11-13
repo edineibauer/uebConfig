@@ -483,9 +483,6 @@ $(function ($) {
         if(!$this.hasAttr("data-db"))
             return;
 
-        while(app.loading)
-            await sleep(10);
-
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
 
         /**
@@ -519,7 +516,7 @@ $(function ($) {
                 dados = parametros;
         }
 
-        $this.htmlTemplate($templateChild, dados);
+        return $this.htmlTemplate($templateChild, dados);
     };
 
     /**
@@ -549,12 +546,6 @@ $(function ($) {
              * Apply Skeleton
              */
             $this._skeletonDOMApply($tpl, paramSkeleton);
-
-            /**
-             * Await load style and script page
-             */
-            while(app.loading)
-                await sleep(10);
 
             /**
              * get the data to use on template if need
@@ -601,15 +592,9 @@ $(function ($) {
                     dados = parametros;
             }
 
-            $this.htmlTemplate($templateChild, dados);
+            return $this.htmlTemplate($templateChild, dados);
 
         } else {
-
-            /**
-             * Await load style and script page
-             */
-            while(app.loading)
-                await sleep(10);
 
             if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
                 cache = cache[0];
@@ -640,7 +625,7 @@ $(function ($) {
                     cache = parametros;
             }
 
-            await $this.htmlTemplate($templateChild, cache);
+            return  $this.htmlTemplate($templateChild, cache);
         }
     };
 
@@ -753,60 +738,64 @@ $(function ($) {
          */
         let $contentDb = $("<div>" + templateTpl + "</div>").find("[data-db]");
         if ($contentDb.length) {
-            $contentDb.each(async function (i, e) {
-                let $this = $content.find("[data-db]").eq(i);
-                if($this.length) {
+            await new Promise(async s => {
+                $contentDb.each(async function (i, e) {
+                    let $this = $content.find("[data-db]").eq(i);
+                    if($this.length) {
 
-                    /**
-                     * Allow to send data-param-empty to skeleton
-                     */
-                    if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
-                        mergeObject(param, $this.data("param-empty"));
+                        /**
+                         * Allow to send data-param-empty to skeleton
+                         */
+                        if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
+                            mergeObject(param, $this.data("param-empty"));
 
-                    /**
-                     * Allow to apply function on param to skeleton
-                     */
-                    if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-                        param = await window[$this.data("param-function")](param);
+                        /**
+                         * Allow to apply function on param to skeleton
+                         */
+                        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                            param = await window[$this.data("param-function")](param);
 
-                    /**
-                     * Apply Skeleton
-                     */
-                    $this._skeletonDOMApply($(e), param);
+                        /**
+                         * Apply Skeleton
+                         */
+                        $this._skeletonDOMApply($(e), param);
 
-                    /**
-                     * Get data and render the template
-                     * not await for this
-                     */
-                    $this._renderDbTemplate($(e));
-                }
+                        /**
+                         * Get data and render the template
+                         * not await for this
+                         */
+                        s($this._renderDbTemplate($(e)));
+                    }
+                });
             });
         }
 
         let $contentGet = $("<div>" + templateTpl + "</div>").find("[data-get]");
         if ($contentGet.length) {
-            $contentGet.each(async function (i, e) {
-                let $this = $content.find("[data-get]").eq(i);
-                if($this.length) {
+            await new Promise(async s => {
+                $contentGet.each(async function (i, e) {
+                    let $this = $content.find("[data-get]").eq(i);
+                    if($this.length) {
 
-                    /**
-                     * Allow to send data-param-empty to skeleton
-                     */
-                    if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
-                        mergeObject(param, $this.data("param-empty"));
+                        /**
+                         * Allow to send data-param-empty to skeleton
+                         */
+                        if(isEmpty(paramReceived) && $this.hasAttr("data-param-empty"))
+                            mergeObject(param, $this.data("param-empty"));
 
-                    /**
-                     * Allow to apply function on param to skeleton
-                     */
-                    if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-                        param = await window[$this.data("param-function")](param);
+                        /**
+                         * Allow to apply function on param to skeleton
+                         */
+                        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+                            param = await window[$this.data("param-function")](param);
 
-                    /**
-                     * Get data and render the template
-                     * not await for this
-                     */
-                    $this._renderGetTemplate($(e), param);
-                }
+                        /**
+                         * Get data and render the template
+                         * not await for this
+                         */
+                        s($this._renderGetTemplate($(e), param));
+                    }
+                });
             });
         }
 
