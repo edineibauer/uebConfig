@@ -540,7 +540,8 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let cache = await dbLocal.exeRead('_cache_get_' + app.file + "_" + $this.data("get"));
+        let cacheName = '_cache_get_' + app.file + "_" + $this.data("get");
+        let cache = await dbLocal.exeRead(cacheName, 1);
 
         AJAX.post('listenForViewGet', {view: app.file, route: $this.data("get")});
 
@@ -559,14 +560,14 @@ $(function ($) {
             /**
              * Cache the data
              */
-            await dbLocal.clear('_cache_get_' + $this.data("get"));
+            await dbLocal.clear(cacheName);
             if(!isEmpty(dados)) {
                 if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
                     for(let d of dados)
-                        dbLocal.exeCreate('_cache_get_' + $this.data("get"), d);
+                        dbLocal.exeCreate(cacheName, d);
                 } else {
                     dados.typeIsObject = !1;
-                    dbLocal.exeCreate('_cache_get_' + $this.data("get"), dados);
+                    dbLocal.exeCreate(cacheName, dados);
                 }
             }
 
