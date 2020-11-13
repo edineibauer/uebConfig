@@ -1,5 +1,12 @@
 "use strict";
 
+/**
+ * Load a url content into a javascript variable
+ * return the content and a second time return the variable
+ * @param name
+ * @param url
+ * @returns {Promise<Window>}
+ */
 async function getFileInMemory(name, url) {
     if(typeof window[name] === "undefined")
         window[name] = await $.get(url);
@@ -7,6 +14,26 @@ async function getFileInMemory(name, url) {
     return window[name];
 }
 
+/**
+ * Execute a function when the app is not loading or transition to a Page
+ * @param funcao
+ * @returns {Promise<void>}
+ */
+async function exeFunction(funcao) {
+    setTimeout(async function () {
+        while(app.loading || aniTransitionPage)
+            await sleep(10);
+
+        funcao();
+    }, 1);
+}
+
+/**
+ * Load a lottie player using memory to keep lottie
+ * @param url
+ * @param querySelector
+ * @returns {Promise<void>}
+ */
 async function loadLottiePlayer(url, querySelector) {
     document.querySelector(typeof querySelector === "string" ? querySelector : "lottie-player").load(await getFileInMemory(slug(url, "_"), url));
 }
