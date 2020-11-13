@@ -1096,15 +1096,11 @@ const _dbRemote = {
     }
 };
 
-const conn = {};
 const dbLocal = {
     conn(entity) {
-        if (typeof conn[entity] === "undefined") {
-            conn[entity] = idb.open(entity, 1, upgradeDB => {
+        return idb.open(entity, 1, upgradeDB => {
                 upgradeDB.createObjectStore(entity)
-            })
-        }
-        return conn[entity]
+            });
     }, async exeRead(entity, key) {
         return dbLocal.conn(entity).then(dbLocalTmp => {
             if (isNumberPositive(key)) {

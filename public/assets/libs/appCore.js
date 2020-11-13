@@ -1530,20 +1530,15 @@ async function clearCacheUser() {
     if (!isEmpty(syncData))
         await AJAX.post("up/sync", syncData);
 
-    dbLocal.clear("_syncDB");
-
     /**
      * Clear history user on server
      */
     await AJAX.get("clearUserHistory");
 
     /**
-     * Clear indexedDB
+     * Clear all indexedDB
      */
-    if(!isEmpty(dicionarios)) {
-        for (let entity of Object.keys(dicionarios))
-            dbLocal.clear(entity);
-    }
+    (await window.indexedDB.databases()).forEach(db => { window.indexedDB.deleteDatabase(db.name) });
 
     return Promise.all(clear).then(() => {
         return clearIndexedDbGets().then(() => {
@@ -1575,8 +1570,6 @@ async function clearCacheAll() {
     if (!isEmpty(syncData))
         await AJAX.post("up/sync", syncData);
 
-    dbLocal.clear("_syncDB");
-
     /**
      * Clear history user on server
      */
@@ -1585,8 +1578,7 @@ async function clearCacheAll() {
     /**
      * Clear indexedDB
      */
-    for (let entity of Object.keys(dicionarios))
-        dbLocal.clear(entity);
+    (await window.indexedDB.databases()).forEach(db => { window.indexedDB.deleteDatabase(db.name) });
 
     return clearIndexedDbGets().then(() => {
         if (!SERVICEWORKER)
