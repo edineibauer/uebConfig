@@ -871,7 +871,7 @@ Allow from env=let_me_in';
         if (!empty($script)) {
             $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
 
-            if (preg_match("/^http/i", $script) || (preg_match("/^" . PATH_HOME . "/i", $script) && file_exists($script))) {
+            if (preg_match("/^http/i", $script) || (preg_match("/^" . preg_quote(PATH_HOME, '/') . "/i", $script) && file_exists($script))) {
                 return self::getMinifyJsFile($script);
 
             } else {
@@ -905,7 +905,7 @@ Allow from env=let_me_in';
         if (!empty($css)) {
             $css .= (!preg_match("/\.css$/i", $css) ? ".css" : "");
 
-            if (preg_match("/^http/i", $css) || (preg_match("/^" . PATH_HOME . "/i", $css) && file_exists($css))) {
+            if (preg_match("/^http/i", $css) || (preg_match("/^" . preg_quote(PATH_HOME, '/') . "/i", $css) && file_exists($css))) {
                 return self::getMinifyCssFile($css);
 
             } else {
