@@ -3467,7 +3467,7 @@ async function sseStart() {
 }
 
 function isUsingSSE() {
-    return isOnline() && typeof (EventSource) !== "undefined" && HOME === SERVER;
+    return isOnline() && typeof (EventSource) !== "undefined";
 }
 
 async function addSseEngineListener(name, funcao) {
