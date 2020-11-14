@@ -108,7 +108,7 @@ function startReadSSE() {
 }
 
 
-if (!empty($_SESSION['userlogin']['setorData']))
+if (!empty($_SESSION['userlogin']))
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
 while (1) {

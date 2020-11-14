@@ -1532,13 +1532,10 @@ async function clearCacheUser() {
 
     /**
      * Clear history user on server
-     */
-    await AJAX.get("clearUserHistory");
-
-    /**
      * Clear all indexedDB
      */
-    (await window.indexedDB.databases()).forEach(db => { window.indexedDB.deleteDatabase(db.name) });
+    await AJAX.get("clearUserHistory");
+    (await window.indexedDB.databases()).forEach(db => { if(db.name !== "__login") window.indexedDB.deleteDatabase(db.name) });
 
     return Promise.all(clear).then(() => {
         return clearIndexedDbGets().then(() => {
@@ -1572,13 +1569,10 @@ async function clearCacheAll() {
 
     /**
      * Clear history user on server
-     */
-    await AJAX.get("clearUserHistory");
-
-    /**
      * Clear indexedDB
      */
-    (await window.indexedDB.databases()).forEach(db => { window.indexedDB.deleteDatabase(db.name) });
+    await AJAX.get("clearUserHistory");
+    (await window.indexedDB.databases()).forEach(db => { if(db.name !== "__login") window.indexedDB.deleteDatabase(db.name) });
 
     return clearIndexedDbGets().then(() => {
         if (!SERVICEWORKER)
