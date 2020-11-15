@@ -16,16 +16,28 @@ if (!empty($url) && !file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlo
     /**
      * Find the route to the GET request
      * @param array $variaveis
+     * @param string $view
      * @return string
      */
-    function findRouteGet(array &$variaveis): string
+    function findRouteGet(array &$variaveis, string $view): string
     {
         $url = "";
         $path = "";
+        $setor = \Config\Config::getSetor();
         $count = count($variaveis);
+
         for ($i = 0; $i < $count; $i++) {
             $path .= ($i > 0 ? "/{$url}" : "");
             $url = array_shift($variaveis);
+
+            if(!empty($view)) {
+                if(file_exists(PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php")) {
+                    return PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php";
+                } elseif(file_exists(PATH_HOME . "public/view/{$view}/get{$path}/{$url}.php")) {
+                    return PATH_HOME . "public/view/{$view}/get{$path}/{$url}.php";
+                }
+            }
+
             foreach (\Config\Config::getRoutesTo("get" . $path) as $item) {
                 if (file_exists($item . $url . ".php"))
                     return $item . $url . ".php";
@@ -35,7 +47,7 @@ if (!empty($url) && !file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlo
         return "";
     }
 
-    $route = findRouteGet($variaveis);
+    $route = findRouteGet($variaveis, $view);
 
     /**
      * Register view request update realtime
