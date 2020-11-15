@@ -555,7 +555,7 @@ $(function ($) {
             /**
              * get the data to use on template if need
              */
-            let dados = await AJAX.get($this.data("get"));
+            let dados = await AJAX.get($this.data("get") + "/maestruView/" + app.file);
 
             /**
              * Cache the data
