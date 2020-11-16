@@ -2144,19 +2144,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
         $aux = $("<section />").css(style).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
     }
 
-    if (direction === 'forward') {
-        if (window.innerWidth < 900)
-            $aux.css({transform: 'translateX(100vw)', transition: 'transform linear 0s'});
-        else
-            $aux.css({transform: 'translateX(' + (left + 100) + 'px)', transition: 'transform linear 0s', opacity: 0});
-
-    } else if (direction === 'back') {
-        if (window.innerWidth < 900)
-            $aux.css({transform: 'translateX(-100vw)', transition: 'transform linear 0s'});
-        else
-            $aux.css({transform: 'translateX(' + (left - 100) + 'px)', transition: 'transform linear 0s', opacity: 0});
-
-    } else if (direction === 'fade') {
+    if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
         $element.animate({opacity: 1}, 0)
     }
@@ -2165,12 +2153,11 @@ function defaultPageTransitionPosition(direction, $element, route) {
 }
 
 function animateTimeout($element, $aux, scroll) {
-    $aux.attr("id", $element.attr('id')).css({
+    $aux.removeClass("pageAnimateFoward pageAnimateBack").attr("id", $element.attr('id')).css({
         "position": "relative",
         "top": "initial",
         "left": "initial",
-        "width": "100%",
-        "transition": 'transform linear 0s'
+        "width": "100%"
     });
 
     if ($element.hasClass("cache-content")) {
@@ -2202,22 +2189,11 @@ async function animateForward($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
-
-    if (window.innerWidth < 900) {
-        $aux.css({transform: 'translateX(0px)', transition: 'transform linear .25s'});
-        setTimeout(function() {
-            animateTimeout($element, $aux, scroll)
-        }, 250);
-        $element.css("z-index", -1).css({transform: 'translateX(-30vw)', transition: 'transform linear .25s'});
-    } else {
-        let left = $element[0].getBoundingClientRect().left;
-        $aux.css({transform: 'translateX(' + left + 'px)', transition: 'transform linear .2s'});
-        setTimeout(function() {
-            animateTimeout($element, $aux, scroll)
-        }, 200);
-        $element.css({transform: 'translateX(' + (left - 100) + 'px)', opacity: 0, transition: 'transform linear .15s'});
-    }
+    $aux.addClass("pageAnimateFoward").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    $element.addClass("pageAnimateFowardMinus");
+    setTimeout(function() {
+        animateTimeout($element, $aux, scroll)
+    }, 250);
 }
 
 async function animateBack($element, $aux, scroll) {
@@ -2225,21 +2201,11 @@ async function animateBack($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
-    if (window.innerWidth < 900) {
-        $aux.css({transform: 'translateX(0px)', transition: 'transform linear .25s'});
-        setTimeout(function() {
-            animateTimeout($element, $aux, scroll)
-        }, 250);
-        $element.css("z-index", -1).css({transform: 'translateX(30vw)', transition: 'transform linear .25s'});
-    } else {
-        let left = $element[0].getBoundingClientRect().left;
-        $aux.css({transform: 'translateX(' + left + 'px)', opacity: 1, transition: 'transform linear .2s'});
-        setTimeout(function() {
-            animateTimeout($element, $aux, scroll)
-        }, 200);
-        $element.animate({opacity: 0}, 150);
-    }
+    $aux.addClass("pageAnimateBack").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    $element.addClass("pageAnimateBackMinus");
+    setTimeout(function() {
+        animateTimeout($element, $aux, scroll)
+    }, 250);
 }
 
 async function animateFade($element, $aux, scroll) {
@@ -2274,16 +2240,18 @@ async function animateNone($element, $aux, scroll) {
     $element.animate({opacity: 0, left: '100%'}, 0);
 }
 
-function headerShow(show) {
+async function headerShow(show) {
     $("#core-header").addClass("core-transition");
-    setTimeout(function () {
-        $("#core-header").removeClass("core-transition");
-    }, 300);
-    if (show) {
+
+    if (show)
         $("#core-header").addClass("core-show-header-navbar");
-    } else {
+    else
         $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
-    }
+
+    while(app.loading)
+        await sleep(10);
+
+    $("#core-header").removeClass("core-transition");
 }
 
 var dicionarios,
