@@ -2131,7 +2131,7 @@ function defaultPageTransitionPosition(direction, $element, route) {
         "left": left + "px",
         "overflow": "hidden"
     };
-    $element.css(style);
+    $element.css(style).css("margin-top", 0);
 
     let file = app.file.split("/");
     file = file[0];
@@ -2144,19 +2144,23 @@ function defaultPageTransitionPosition(direction, $element, route) {
         $aux = $("<section />").css(style).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
     }
 
-    $element.css("margin-top", 0);
     if (direction === 'forward') {
         if (window.innerWidth < 900)
-            $aux.animate({left: '100%', opacity: 1}, 0); else $aux.animate({left: (left + 100) + 'px', opacity: 0}, 0);
-        $element.animate({opacity: 1}, 0)
+            $aux.css({transform: 'translateX(100vw)', transition: 'transform linear 0s'});
+        else
+            $aux.css({transform: 'translateX(' + (left + 100) + 'px)', transition: 'transform linear 0s', opacity: 0});
+
     } else if (direction === 'back') {
         if (window.innerWidth < 900)
-            $aux.animate({left: '-100%', opacity: 1}, 0); else $aux.animate({left: (left - 100) + 'px', opacity: 0}, 0);
-        $element.animate({opacity: 1}, 0)
+            $aux.css({transform: 'translateX(-100vw)', transition: 'transform linear 0s'});
+        else
+            $aux.css({transform: 'translateX(' + (left - 100) + 'px)', transition: 'transform linear 0s', opacity: 0});
+
     } else if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
         $element.animate({opacity: 1}, 0)
     }
+
     return $aux
 }
 
@@ -2165,7 +2169,8 @@ function animateTimeout($element, $aux, scroll) {
         "position": "relative",
         "top": "initial",
         "left": "initial",
-        "width": "100%"
+        "width": "100%",
+        "transition": 'transform linear 0s'
     });
 
     if ($element.hasClass("cache-content")) {
@@ -2194,51 +2199,55 @@ function animateTimeout($element, $aux, scroll) {
 
 async function animateForward($element, $aux, scroll) {
 
-    while($aux.html() === "")
+    while(app.loading)
         await sleep(10);
 
     $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
-    if (window.innerWidth < 900) {
-        $aux.animate({left: '0'}, 300, () => {
-            animateTimeout($element, $aux, scroll)
-        });
-        $element.css("z-index", -1).animate({left: '-30%'}, 300)
-    } else {
 
-        let left = $element[0].getBoundingClientRect().left;
-        $aux.animate({left: left + "px", opacity: 1}, 200, () => {
+    if (window.innerWidth < 900) {
+        $aux.css({transform: 'translateX(0px)', transition: 'transform linear .25s'});
+        setTimeout(function() {
             animateTimeout($element, $aux, scroll)
-        });
-        $element.animate({left: (left - 100) + "px", opacity: 0}, 150)
+        }, 250);
+        $element.css("z-index", -1).css({transform: 'translateX(-30vw)', transition: 'transform linear .25s'});
+    } else {
+        let left = $element[0].getBoundingClientRect().left;
+        $aux.css({transform: 'translateX(' + left + 'px)', transition: 'transform linear .2s'});
+        setTimeout(function() {
+            animateTimeout($element, $aux, scroll)
+        }, 200);
+        $element.css({transform: 'translateX(' + (left - 100) + 'px)', opacity: 0, transition: 'transform linear .15s'});
     }
 }
 
 async function animateBack($element, $aux, scroll) {
 
-    while($aux.html() === "")
+    while(app.loading)
         await sleep(10);
 
     $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
     if (window.innerWidth < 900) {
-        $aux.animate({left: '0'}, 300, () => {
-            animateTimeout($element, $aux, scroll);
-        });
-        $element.css("z-index", -1).animate({left: '30%'}, 300)
+        $aux.css({transform: 'translateX(0px)', transition: 'transform linear .25s'});
+        setTimeout(function() {
+            animateTimeout($element, $aux, scroll)
+        }, 250);
+        $element.css("z-index", -1).css({transform: 'translateX(30vw)', transition: 'transform linear .25s'});
     } else {
         let left = $element[0].getBoundingClientRect().left;
-        $aux.animate({left: left + 'px', opacity: 1}, 200, () => {
+        $aux.css({transform: 'translateX(' + left + 'px)', opacity: 1, transition: 'transform linear .2s'});
+        setTimeout(function() {
             animateTimeout($element, $aux, scroll)
-        });
+        }, 200);
         $element.animate({opacity: 0}, 150);
     }
 }
 
 async function animateFade($element, $aux, scroll) {
 
-    while($aux.html() === "")
+    while(app.loading)
         await sleep(10);
 
-    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0) + "px");
     scroll = typeof scroll !== "undefined" ? scroll : 0;
     if (window.innerWidth < 900) {
         $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
@@ -2255,7 +2264,7 @@ async function animateFade($element, $aux, scroll) {
 
 async function animateNone($element, $aux, scroll) {
 
-    while($aux.html() === "")
+    while(app.loading)
         await sleep(10);
 
     scroll = typeof scroll !== "undefined" ? scroll : 0;
@@ -2619,7 +2628,6 @@ var PARAM, app = {
             return Promise.all([]);
 
         } else {
-            app.setLoading();
             AJAX.post('setUserLastView', {"v": app.file});
 
             let g = await AJAX.view(file);
@@ -2759,16 +2767,17 @@ var PARAM, app = {
                             sseSourceListeners[file] = [$div, htmlTemplate, g.js];
                         }
                     }
+                    return Promise.all([]);
 
-                    app.removeLoading();
                 } else {
                     if (USER.setor === 0 && !localStorage.redirectOnLogin)
                         localStorage.redirectOnLogin = file;
+
                     location.href = HOME + (HOME !== SERVER ? "index.html?url=" : "") + g.redirect
                 }
             } else {
                 $div.html("");
-                app.removeLoading()
+                return Promise.all([]);
             }
         }
     }, haveAccessPermission: function (setor, notSetor) {
@@ -2880,6 +2889,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
  */
 async function _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload) {
     clearPage();
+    app.setLoading();
 
     if (!$(target).length) {
         historyReqPosition++;
@@ -2962,7 +2972,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
                 });
             }
 
-            $page.grid(history.state.route)
+            return $page.grid(history.state.route);
         } else if (type === 'report') {
 
             //if reportTable not exist, await until its load
@@ -2977,7 +2987,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
                 });
             }
 
-            $page.reportTable(history.state.route)
+            return $page.reportTable(history.state.route)
         } else if (type === 'form') {
 
             //if formCrud not exist, await until its load
@@ -3088,7 +3098,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
                 }
             }
 
-            Promise.all(promisses).then(() => {
+            return Promise.all(promisses).then(() => {
                 if (haveFormRelation) {
                     if (!isUpdateFormRelation)
                         data[history.state.param.openForm.column].push(form.data);
@@ -3124,6 +3134,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
             });
         } else {
             $page.html(history.state.route);
+            return Promise.all([]);
         }
     }).then(() => {
         if (historyReqPosition) {
@@ -3136,6 +3147,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
                 }
             }, 50)
         }
+        app.removeLoading();
     }).catch(e => {
         app.removeLoading();
         errorLoadingApp("pageTransition", e)
