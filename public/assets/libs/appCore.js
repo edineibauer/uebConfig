@@ -540,10 +540,11 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let cacheName = '_cache_get_' + app.file + "_" + $this.data("get");
+        let appFile = app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "");
+        let cacheName = '_cache_get_' + appFile + "_" + $this.data("get");
         let cache = await dbLocal.exeRead(cacheName, 1);
 
-        AJAX.post('listenForViewGet', {view: app.file, route: $this.data("get")});
+        AJAX.post('listenForViewGet', {view: appFile, route: $this.data("get")});
 
         if(isEmpty(cache)) {
 
@@ -555,7 +556,7 @@ $(function ($) {
             /**
              * get the data to use on template if need
              */
-            let dados = await AJAX.get($this.data("get") + "/maestruView/" + app.file);
+            let dados = await AJAX.get($this.data("get") + "/maestruView/" + appFile);
 
             /**
              * Cache the data
@@ -3369,7 +3370,7 @@ async function sseStartFunctions() {
                         await sleep(10);
 
                     setTimeout(function() {
-                        renderDataGet(cacheName.replace("_cache_get_" + app.file + "_", ""), dados);
+                        renderDataGet(cacheName.replace("_cache_get_" + app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "") + "_", ""), dados);
                     }, 50);
                 }
             }
