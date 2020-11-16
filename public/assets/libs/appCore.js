@@ -2181,15 +2181,15 @@ function animateTimeout($element, $aux, scroll) {
         $element.remove();
     }
 
-    aniTransitionPage = null;
-    window.scrollTo(0, scroll);
-    clearHeaderScrollPosition();
-
     //add or not space on end content (navbar space)
     if (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar"))
         $("#core-content").addClass("mb-50");
     else
         $("#core-content").removeClass("mb-50");
+
+    aniTransitionPage = null;
+    window.scrollTo(0, scroll);
+    clearHeaderScrollPosition();
 }
 
 async function animateForward($element, $aux, scroll) {
@@ -2197,17 +2197,17 @@ async function animateForward($element, $aux, scroll) {
     while($aux.html() === "")
         await sleep(10);
 
-    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0) + "px");
+    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
     if (window.innerWidth < 900) {
         $aux.animate({left: '0'}, 300, () => {
-            animateTimeout($element, $aux, 0)
+            animateTimeout($element, $aux, scroll)
         });
         $element.css("z-index", -1).animate({left: '-30%'}, 300)
     } else {
 
         let left = $element[0].getBoundingClientRect().left;
         $aux.animate({left: left + "px", opacity: 1}, 200, () => {
-            animateTimeout($element, $aux, 0)
+            animateTimeout($element, $aux, scroll)
         });
         $element.animate({left: (left - 100) + "px", opacity: 0}, 150)
     }
@@ -2238,7 +2238,7 @@ async function animateFade($element, $aux, scroll) {
     while($aux.html() === "")
         await sleep(10);
 
-    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0) + "px");
+    $aux.css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
     scroll = typeof scroll !== "undefined" ? scroll : 0;
     if (window.innerWidth < 900) {
         $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
@@ -2840,7 +2840,8 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     type = typeof type === "string" ? type : "route";
     animation = typeof animation === "string" ? animation : "forward";
     target = typeof target === "string" ? target : "#core-content";
-    scroll = isNumberPositive(scroll) ? parseInt(scroll) : document.documentElement.scrollTop;
+    let scrollNext = isNumberPositive(scroll) ? parseInt(scroll) : 0;
+    scroll = document.documentElement.scrollTop;
     setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
@@ -2849,12 +2850,12 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     app.file = file;
 
     if (!app.loading && !aniTransitionPage) {
-        return _pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload);
+        return _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload);
     } else {
         return new Promise(s => {
             let a = setInterval(function () {
                 if (!app.loading && !aniTransitionPage) {
-                    s(_pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload));
+                    s(_pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload));
                     clearInterval(a);
                 }
             }, 10);
@@ -2868,6 +2869,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
  * @param target
  * @param param
  * @param scroll
+ * @param scrollNext
  * @param setHistory
  * @param replaceHistory
  * @param novaRota
@@ -2876,7 +2878,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
  * @returns {Promise<unknown[]>}
  * @private
  */
-async function _pageTransition(type, animation, target, param, scroll, setHistory, replaceHistory, novaRota, isGridView, reload) {
+async function _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload) {
     clearPage();
 
     if (!$(target).length) {
@@ -2942,7 +2944,7 @@ async function _pageTransition(type, animation, target, param, scroll, setHistor
         let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
         let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file));
 
-        window["animate" + ucFirst(animation)]($element, $page, scroll);
+        window["animate" + ucFirst(animation)]($element, $page, scrollNext);
 
         if (type === 'route') {
             return app.applyView(app.file, $page)
