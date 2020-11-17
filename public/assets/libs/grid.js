@@ -259,9 +259,9 @@ function gridCrud(entity, fields, actions) {
                 result = await reportRead(entity, !isEmpty($this.search) ? $this.search : null, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
                 result = await db.exeRead(entity, !isEmpty($this.search) ? {"*": $this.search} : null, $this.limit, offset, $this.order, $this.orderPosition);
-                result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             }
 
+            result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             let info = await dbLocal.exeRead("__info", 1);
             let templates = await getTemplates();
 
