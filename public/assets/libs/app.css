@@ -159,24 +159,24 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 }
 
 @keyframes framePageFowardDesktop {
-    0% {transform: translateX(15vw); opacity: 0}
+    0% {transform: translateX(10vw); opacity: 0}
     90% {transform: translateX(0px); opacity: 1}
 }
 
 @keyframes pageAnimateFowardMinusDesktop {
     0% {transform: translateX(0px); opacity: 1}
-    90% {transform: translateX(-10vw); opacity: 0}
+    90% {transform: translateX(-7vw); opacity: 0}
     100% {display: none}
 }
 
 @keyframes framePageBackDesktop {
-    0% {transform: translateX(-15vw); opacity: 0}
+    0% {transform: translateX(-10vw); opacity: 0}
     90% {transform: translateX(0px); opacity: 1}
 }
 
 @keyframes framePageBackMinusDesktop {
     0% {transform: translateX(0px); opacity: 1}
-    90% {transform: translateX(10vw); opacity: 0}
+    90% {transform: translateX(7vw); opacity: 0}
     100% {display: none}
 }
 

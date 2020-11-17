@@ -4,9 +4,13 @@
 
 #dashboard {
     min-height: calc(100vh - 120px);
-    max-width: 1300px;
+    max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+    padding: 0!important;
+    display: block;
+    position: relative;
+    float: initial;
 }
 
 .config-nav {
@@ -28,10 +32,6 @@
     overflow-x: hidden;
     max-height: calc(100vh - 150px);
     overflow-y: auto;
-}
-
-.menu-li {
-    min-width: max-content!important;
 }
 
 .config-main {
