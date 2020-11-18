@@ -563,7 +563,7 @@ $(function ($) {
          */
         let appFile = app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "");
         let cacheName = '_cache_get_' + appFile + "_" + $this.data("get");
-        let cache = await dbLocal.exeRead(cacheName, 1);
+        let cache = await dbLocal.exeRead(cacheName);
 
         AJAX.post('listenForViewGet', {view: appFile, route: $this.data("get")});
 
