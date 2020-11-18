@@ -96,6 +96,8 @@ async function gridTdFilterValue(value, relationData, meta) {
             value = "<div class='activeBoolean" + (value == 1 ? " active" : "") + "'></div>";
         } else if (meta.key === "valor") {
             value = "R$ " + formatMoney(value, 2, ',', '.');
+        } else if (meta.type === "float" || meta.type === "decimal") {
+            value = !isEmpty(value) ? formatMoney(value, 2, ',', '.') : 0;
         } else if (['folder', 'extend'].indexOf(meta.format) > -1) {
             return getRelevantTitle(meta.relation, value, 1, !1)
         } else if (['list', 'selecao', 'checkbox_rel', 'checkbox_mult'].indexOf(meta.format) > -1) {
