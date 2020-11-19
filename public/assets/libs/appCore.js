@@ -54,6 +54,14 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
 }
 
 /**
+ * Check if is in Android
+ * @returns {boolean}
+ */
+function isAndroid() {
+    return navigator.userAgent.toLowerCase().indexOf("android") > -1;
+}
+
+/**
  * Load a lottie player using memory to keep lottie
  * @param url
  * @param querySelector
