@@ -43,6 +43,14 @@ if (!empty($url)) {
 
     $key = $_SERVER['HTTP_KEY'] ?? $dados['key'] ?? null;
 
+    if(empty($key)) {
+        $urlSplit = explode("/maestruKey/", $url);
+        if(!empty($urlSplit[1])) {
+            $key = $urlSplit[1];
+            $url = str_replace("/maestruKey/{$key}", "", $url);
+        }
+    }
+
     if (empty($key)) {
         $data = ["response" => 2, "error" => "'key' não Informado", "data" => ""];
     } else {
