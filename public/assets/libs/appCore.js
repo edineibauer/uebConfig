@@ -2230,7 +2230,7 @@ async function animateForward($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.addClass("pageAnimateFoward").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    $aux.addClass("pageAnimateFoward").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + $element.css("margin-top")) + "px");
     $element.addClass("pageAnimateFowardMinus");
     setTimeout(function() {
         animateTimeout($element, $aux, scroll)
@@ -2242,7 +2242,7 @@ async function animateBack($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.addClass("pageAnimateBack").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0))) + "px");
+    $aux.addClass("pageAnimateBack").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + $element.css("margin-top")) + "px");
     $element.addClass("pageAnimateBackMinus");
     setTimeout(function() {
         animateTimeout($element, $aux, scroll)
