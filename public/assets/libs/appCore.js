@@ -375,9 +375,13 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
         themetext: THEMETEXT,
         sitename: SITENAME,
         USER: USER,
+        LOCALSTORAGE: {},
         PARAM: history.state.param.url,
         PAGE: history.state.param
     });
+
+    for(let c in localStorage)
+        p.LOCALSTORAGE[c] = (isNumberPositive(localStorage[c]) ? parseFloat(localStorage[c]) : (localStorage[c] === "false" ? !1 : (localStorage[c] === "true" ? !0 : (isJson(localStorage[c]) ? JSON.parse(localStorage[c]) : localStorage[c]))));
 
     mergeObject(p, SSE);
 
