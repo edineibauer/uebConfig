@@ -25,7 +25,7 @@ async function getFileInMemory(name, url) {
  */
 async function exeFunction(funcao) {
     setTimeout(async function () {
-        while(app.loading || aniTransitionPage)
+        while(app.loading || app.loadingScripts)
             await sleep(10);
 
         funcao();
@@ -2571,6 +2571,7 @@ var PARAM, app = {
     file: "",
     route: "",
     loading: !1,
+    loadingScripts: !1,
     removeLoading: function () {
         app.loading = !1;
         $("#core-loader").css("display", "none");
@@ -2584,6 +2585,7 @@ var PARAM, app = {
         }, 1900);
     }, applyView: async function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
+        AJAX.post('setUserLastView', {"v": app.file});
 
         if ($div.html() !== "") {
             let pageHeader = $div.data('header');
@@ -2637,7 +2639,6 @@ var PARAM, app = {
             return Promise.all([]);
 
         } else {
-            AJAX.post('setUserLastView', {"v": app.file});
 
             let g = await AJAX.view(file);
             if (g) {
@@ -2714,20 +2715,16 @@ var PARAM, app = {
                      * add script to page
                      */
                     if (!isEmpty(g.js)) {
+                        app.loadingScripts = !0;
                         setTimeout(async function () {
-
-                            /**
-                             * Await for transition ends to load scripts
-                             */
-                            while(aniTransitionPage)
-                                await sleep(10);
-
                             for (let js of g.js) {
                                 if(window.hasOwnProperty("cordova"))
                                     js = js.replace(HOME, "").replace("?v=" + VERSION, "");
 
                                 await $.cachedScript(js);
                             }
+
+                            app.loadingScripts = !1;
                         },1);
                     }
 
