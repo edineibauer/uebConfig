@@ -117,16 +117,15 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 }
 
 /* PAGE ANIMATION TRANSITION */
-
-
 .pageAnimateFoward {
     animation-name: framePageFoward;
     animation-duration: .3s;
     animation-fill-mode: forwards;
+    z-index: 2;
 }
 
 .pageAnimateFowardMinus {
-    z-index: -1;
+    z-index: 1;
     animation-name: pageAnimateFowardMinus;
     animation-duration: .3s;
     animation-fill-mode: forwards;
@@ -136,10 +135,11 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     animation-name: framePageBack;
     animation-duration: .3s;
     animation-fill-mode: forwards;
+    z-index: 2;
 }
 
 .pageAnimateBackMinus {
-    z-index: -1;
+    z-index: 1;
     animation-name: framePageBackMinus;
     animation-duration: .3s;
     animation-fill-mode: forwards;
@@ -152,19 +152,17 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 
 @keyframes pageAnimateFowardMinus {
     0% {transform: translateX(0px)}
-    99% {transform: translateX(-30vw)}
-    100% {display: none}
+    99% {transform: translateX(-30vw);display: none}
 }
 
 @keyframes framePageBack {
     0% {transform: translateX(-100vw)}
-    99% {transform: translateX(0px)}
+    90% {transform: translateX(0px)}
 }
 
 @keyframes framePageBackMinus {
     0% {transform: translateX(0px)}
-    99% {transform: translateX(30vw)}
-    100% {display: none}
+    99% {transform: translateX(30vw);display: none}
 }
 
 @keyframes framePageFowardDesktop {
@@ -174,8 +172,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 
 @keyframes pageAnimateFowardMinusDesktop {
     0% {transform: translateX(0px); opacity: 1}
-    99% {transform: translateX(-7vw); opacity: 0}
-    100% {display: none}
+    99% {transform: translateX(-7vw); opacity: 0;display: none}
 }
 
 @keyframes framePageBackDesktop {
@@ -185,8 +182,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 
 @keyframes framePageBackMinusDesktop {
     0% {transform: translateX(0px); opacity: 1}
-    99% {transform: translateX(7vw); opacity: 0}
-    100% {display: none}
+    99% {transform: translateX(7vw); opacity: 0;display: none}
 }
 
 @media (min-width: 994px) {
