@@ -68,7 +68,9 @@ function isAndroid() {
  * @returns {Promise<void>}
  */
 async function loadLottiePlayer(url, querySelector) {
-    document.querySelector(typeof querySelector === "string" ? querySelector : "lottie-player").load(await getFileInMemory(slug(url, "_"), url));
+    let selector = document.querySelector(typeof querySelector === "string" ? querySelector : "lottie-player");
+    if(selector)
+        selector.load(await getFileInMemory(slug(url, "_"), url));
 }
 
 function isMobile() {
@@ -1200,37 +1202,26 @@ async function logoutDashboard() {
 }
 
 /**
- * Ajusta os dados do Header, navbar, menu, sidebar, btn login, btn push
- * verifica visibilidade destes itens
+ * Constrói menu de navegação
  */
-async function menuHeader() {
-    let tpl = await getTemplates();
+async function menuConstructor() {
 
-    $("#core-header").html(Mustache.render(tpl.header, {
-        version: VERSION,
-        sitename: SITENAME,
-        home: HOME,
-        homepage: (HOMEPAGE === "1" ? "dashboard" : "")
-    }));
+    /**
+     * Sidebar
+     */
+    $("#core-sidebar").htmlTemplate('aside');
 
-    let $menuCustom = null;
-    if (($menuCustom = $("#core-menu-custom")).length) {
-        $menuCustom.html("");
-        let menu = await dbLocal.exeRead("__menu", 1);
-        if (!isEmpty(menu)) {
-            for (let m of menu) {
-                if (typeof m.html === "string" && m.html !== "undefined" && !isEmpty(m.html))
-                    $menuCustom.append(Mustache.render(tpl.menuHeader, m));
-            }
-        }
-    }
-
+    /**
+     * Navbar
+     * @type {null}
+     */
     let $menuNav = null;
     if (($menuNav = $("#core-header-nav-bottom")).length) {
         let $menu = $("#core-menu-custom-bottom").html("");
 
         let navbar = await dbLocal.exeRead("__navbar", 1);
         if (!isEmpty(navbar)) {
+            let tpl = await getTemplates();
             for (let nav of navbar) {
                 if (typeof nav.html === "string" && nav.html !== "undefined" && !isEmpty(nav.html))
                     $menu.append(Mustache.render(tpl.menuHeader, nav));
@@ -1243,32 +1234,6 @@ async function menuHeader() {
             $menuNav.addClass('s-show');
             $menu.find("li").css("width", (100 / $menu.find("li").length) + "%")
         }
-    }
-
-    $("#core-sidebar").htmlTemplate('aside');
-
-    /**
-     * Edit perfil action
-     */
-    $("#app").off("click", ".btn-edit-perfil").on("click", ".btn-edit-perfil", function () {
-        let entity = (USER.setor === "admin" ? "usuarios" : USER.setor);
-        let id = {id: parseInt(USER.setor === "admin" ? USER.id : USER.setorData.id)};
-        let target = $(".main > .container").length ? ".main > .container" : ".main > .core-class-container";
-        if (history.state.route !== entity || history.state.type !== "form")
-            pageTransition(entity, 'form', 'forward', target, id);
-    }).off("click", ".btn-login").on("click", ".btn-login", function () {
-        if (USER.setor != 0)
-            logoutDashboard();
-        else
-            pageTransition("login", "route", "forward", "#core-content", null, null, !1);
-    });
-
-    /**
-     * Edição do perfil somente usuários logados
-     */
-    if ($("#core-sidebar-edit").length) {
-        if (USER.setor.toString() !== "0")
-            $("#core-sidebar-edit").css("display", "block");
     }
 }
 
@@ -2128,12 +2093,6 @@ function checkFormNotSaved() {
     return !0
 }
 
-function clearHeaderScrollPosition() {
-    lastPositionScroll = 0;
-    sentidoScrollDown = !1;
-    $("#core-header").css({"position": "fixed", "top": 0});
-}
-
 function clearPage() {
     if(typeof forms !== "undefined")
         forms = [];
@@ -2141,13 +2100,14 @@ function clearPage() {
         grids = [];
 
     closeSidebar();
-    clearHeaderScrollPosition();
 }
 
 function getPageContentHeight() {
-    let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0;
-    let heightNavbar = (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar") ? 50 : 0);
-    return "calc(100vh - " + (heightHeader + heightNavbar) + "px)"
+    let heightHeader = $("#core-header").hasClass("core-show-header-navbar") ? $("#core-header").children().first()[0].clientHeight : 0;
+    if(heightHeader > 0)
+        return "calc(100vh - " + (heightHeader) + "px)"
+
+    return "100vh";
 }
 
 function getPaddingTopContent() {
@@ -2215,14 +2175,13 @@ function animateTimeout($element, $aux, scroll) {
     }
 
     //add or not space on end content (navbar space)
-    if (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-header-navbar"))
-        $("#core-content").addClass("mb-50");
+    if (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-navbar"))
+        $("#core-content").addClass("pb-navbar");
     else
-        $("#core-content").removeClass("mb-50");
+        $("#core-content").removeClass("pb-navbar");
 
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
-    clearHeaderScrollPosition();
 }
 
 async function animateForward($element, $aux, scroll) {
@@ -2230,7 +2189,7 @@ async function animateForward($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.addClass("pageAnimateFoward").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + $element.css("margin-top")) + "px");
+    $aux.addClass("pageAnimateFoward").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + parseInt($element.css("margin-top"))) + "px");
     $element.addClass("pageAnimateFowardMinus");
     setTimeout(function() {
         animateTimeout($element, $aux, scroll)
@@ -2242,7 +2201,7 @@ async function animateBack($element, $aux, scroll) {
     while(app.loading)
         await sleep(10);
 
-    $aux.addClass("pageAnimateBack").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + $element.css("margin-top")) + "px");
+    $aux.addClass("pageAnimateBack").css("top", (-(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header")[0].clientHeight : 0)) + parseInt($element.css("margin-top"))) + "px");
     $element.addClass("pageAnimateBackMinus");
     setTimeout(function() {
         animateTimeout($element, $aux, scroll)
@@ -2282,24 +2241,15 @@ async function animateNone($element, $aux, scroll) {
 }
 
 async function headerShow(show) {
-    $("#core-header").addClass("core-transition");
-
     if (show)
         $("#core-header").addClass("core-show-header-navbar");
     else
-        $("#core-header").removeClass("core-show-header-navbar").css({"transform": "translateY(-" + $("#core-header")[0].clientHeight + "px)"});
-
-    while(app.loading)
-        await sleep(10);
-
-    $("#core-header").removeClass("core-transition");
+        $("#core-header").removeClass("core-show-header-navbar");
 }
 
 var dicionarios,
     swRegistration = null,
     aniTransitionPage = null,
-    lastPositionScroll = 0,
-    sentidoScrollDown = !1,
     historyPosition = 1,
     historyReqPosition = 0,
     loadingEffect = null,
@@ -2628,9 +2578,9 @@ var PARAM, app = {
             }
 
             if (pageNavbar)
-                $("#core-header-nav-bottom").addClass("core-show-header-navbar");
+                $("#core-header-nav-bottom").addClass("core-show-navbar");
             else
-                $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                $("#core-header-nav-bottom").removeClass("core-show-navbar");
 
             $div.css("min-height", getPageContentHeight());
             if ($div.attr("id") === "core-content")
@@ -2696,16 +2646,16 @@ var PARAM, app = {
                         }
                     }
 
-                    let htmlTemplate = "<style class='core-style'>" + g.css + (g.header ? "#core-content { margin-top: " + $("#core-header-container")[0].clientHeight + "px; padding-top: " + getPaddingTopContent() + "px!important; }" : "#core-content { margin-top: 0; padding-top: " + getPaddingTopContent() + "px!important}") + "</style>" + g.content;
+                    let htmlTemplate = "<style class='core-style'>" + g.css + "#core-content {margin-top:" + (g.header ? $("#core-header").children().first()[0].clientHeight : 0) + "px;padding-top:" + getPaddingTopContent() + "px!important}" + "</style>" + g.content;
                     await $div.htmlTemplate(htmlTemplate);
 
                     if (g.cache)
                         $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
                     if (g.navbar)
-                        $("#core-header-nav-bottom").addClass("core-show-header-navbar");
+                        $("#core-header-nav-bottom").addClass("core-show-navbar");
                     else
-                        $("#core-header-nav-bottom").removeClass("core-show-header-navbar");
+                        $("#core-header-nav-bottom").removeClass("core-show-navbar");
 
                     $div.css("min-height", getPageContentHeight());
                     if ($div.attr("id") === "core-content")
@@ -2731,48 +2681,9 @@ var PARAM, app = {
                     /**
                      * Register SSE
                      */
-                    if (isOnline() && typeof (EventSource) !== "undefined") {
-                        if (typeof sseSourceListeners[file] === "undefined") {
-                            sseSourceListeners[file] = [$div, htmlTemplate, g.js];
-                            addSseEngineListener(file.split("/")[0], async function (e) {
-                                let response = null;
+                    if (isOnline() && typeof (EventSource) !== "undefined")
+                        sseSourceListeners[file] = [$div, htmlTemplate, g.js];
 
-                                if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
-                                    response = e;
-                                else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-                                    response = JSON.parse(e.data);
-
-                                if(response) {
-                                    /**
-                                     * For each SSE received on view
-                                     */
-                                    for (let v in response) {
-                                        if (response[v].response === 1) {
-
-                                            /**
-                                             * Store the value of the SSE event
-                                             */
-                                            SSE[v] = response[v].data;
-
-                                            /**
-                                             * If have event function on receive this SSE to trigger
-                                             */
-                                            if (typeof sseEvents[v] === "function")
-                                                sseEvents[v](SSE[v]);
-                                        }
-                                    }
-
-                                    /**
-                                     * Update Registered Template
-                                     */
-                                    if (file === app.file)
-                                        _updateTemplateRealTime();
-                                }
-                            });
-                        } else {
-                            sseSourceListeners[file] = [$div, htmlTemplate, g.js];
-                        }
-                    }
                     return Promise.all([]);
 
                 } else {
@@ -3183,40 +3094,6 @@ function readRouteState() {
     }
 }
 
-/**
- * Header menu hide on scroll down and show when scroll up
- * */
-function headerScrollFixed(sentidoScroll) {
-    sentidoScrollDown = sentidoScroll;
-    let $header = $("#core-header");
-    let elTop = document.getElementById("core-header").getBoundingClientRect().top;
-    let topHeader = $header.css("opacity") !== "0" ? $header[0].clientHeight : 0;
-    let t = $(window).scrollTop() + (elTop < -topHeader ? -topHeader : elTop);
-    $header.css("top", t + "px")
-}
-
-function updateHeaderPosition(revision) {
-    if (lastPositionScroll < $(window).scrollTop()) {
-        if (!sentidoScrollDown) {
-            headerScrollFixed(!0);
-            $("#core-header").css("position", "absolute");
-        }
-    } else {
-        if (sentidoScrollDown) {
-            headerScrollFixed(!1);
-        } else if (document.getElementById("core-header").getBoundingClientRect().top >= 0) {
-            $("#core-header").css({"position": "fixed", "top": 0})
-        } else {
-            if (typeof revision === "undefined") {
-                setTimeout(function () {
-                    updateHeaderPosition(true);
-                }, 50);
-            }
-        }
-    }
-    lastPositionScroll = $(window).scrollTop();
-}
-
 function goLinkPageTransition(url, $this, e) {
     if (url === "#back") {
         e.preventDefault();
@@ -3591,18 +3468,6 @@ async function onLoadDocument() {
 
     window.onpopstate = maestruHistoryBack;
 
-    window.onscroll = function () {
-        if (window.innerWidth < 994)
-            updateHeaderPosition();
-    };
-
-    window.onresize = function () {
-        clearHeaderScrollPosition();
-
-        if (window.innerWidth < 994)
-            updateHeaderPosition();
-    };
-
     window.onbeforeunload = function () {
         sseSource.close();
         AJAX.get("isOffline");
@@ -3647,6 +3512,8 @@ async function startApplication() {
     await checkSessao();
     sseStart();
     await updateAppOnDev();
+    await $("#core-header").htmlTemplate('header');
+    await menuConstructor();
     await menuHeader();
     await readRouteState();
     await onLoadDocument();

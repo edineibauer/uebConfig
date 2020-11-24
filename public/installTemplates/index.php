@@ -128,9 +128,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
 <div id="app">
 
     <!--header-->
-    <div id="core-header" class="theme">
-        <div id="core-header-container"></div>
-    </div>
+    <div id="core-header"></div>
 
     <!--sidebar-->
     <aside id="core-sidebar" class="core-class-container hide"></aside>
@@ -163,7 +161,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     </div>
 
     <!--navbar-->
-    <div class="hide" id="core-header-nav-bottom">
+    <div class="hide s-show" id="core-header-nav-bottom">
         <nav role="navigation">
             <ul class="core-class-container" style="padding:0">
                 <div id="core-menu-custom-bottom" style="float: left"></div>

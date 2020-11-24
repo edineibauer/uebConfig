@@ -823,9 +823,8 @@ Allow from env=let_me_in';
                     continue;
                 }
 
-                if ($keyframeStarted) {
+                if ($keyframeStarted)
                     continue;
-                }
 
                 if (substr_count($part, "{") == 2) {
                     $mediaQuery = $partDetails[0] . "{";
@@ -835,8 +834,10 @@ Allow from env=let_me_in';
 
                 $subParts = explode(',', $partDetails[0]);
                 foreach ($subParts as &$subPart) {
-                    if (trim($subPart) === "@font-face") continue;
-                    else $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . trim($subPart));
+                    if (trim($subPart) === "@font-face")
+                        continue;
+                    else
+                        $subPart = (preg_match("/^@/i", trim($subPart)) ? substr(trim($subPart), 1) : $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . trim($subPart)));
                 }
 
                 if (substr_count($part, "{") == 2) {

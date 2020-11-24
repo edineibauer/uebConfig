@@ -252,7 +252,6 @@ function gridCrud(entity, fields, actions) {
             clearInterval(this.loadingTimer);
         },
         readData: async function () {
-            clearHeaderScrollPosition();
             let $this = this;
             $this.$content = $this.$element.find("tbody");
             let selecteds = [];

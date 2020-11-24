@@ -412,7 +412,6 @@ class AJAX {
             req.open('GET', url);
             req.onload = function () {
                 if (req.status === 200) {
-                    clearHeaderScrollPosition();
                     let data = JSON.parse(req.response);
                     if(data.response === 1)
                         s(data.data)
