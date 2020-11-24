@@ -47,7 +47,6 @@ $(function () {
     $("body").off("click", ".menu-li:not(.not-menu-li)").on("click", ".menu-li:not(.not-menu-li)", function () {
         if ($(this).hasAttr("data-action")) {
             let action = $(this).attr("data-action");
-            clearHeaderScrollPosition();
             checkUpdate();
             mainLoading();
 
