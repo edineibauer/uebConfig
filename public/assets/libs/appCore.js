@@ -2191,10 +2191,6 @@ function animateTimeout($element, $aux, scroll, backup) {
 }
 
 async function animateForward($element, $aux, style, backup, scroll) {
-
-    while(app.loading)
-        await sleep(10);
-
     if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
         style["margin-top"] = 0;
 
@@ -2206,10 +2202,6 @@ async function animateForward($element, $aux, style, backup, scroll) {
 }
 
 async function animateBack($element, $aux, style, backup, scroll) {
-
-    while(app.loading)
-        await sleep(10);
-
     if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
         style["margin-top"] = 0;
 
@@ -2221,27 +2213,13 @@ async function animateBack($element, $aux, style, backup, scroll) {
 }
 
 async function animateFade($element, $aux, style, backup, scroll) {
-
-    while(app.loading)
-        await sleep(10);
-
-    if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
-        style["margin-top"] = 0;
-
     $element.animate({opacity: 0}, 150);
     $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
         animateTimeout($element, $aux, scroll, backup)
     });
 }
 
-async function animateNone($element, $aux, top, marginTop, scroll) {
-
-    while(app.loading)
-        await sleep(10);
-
-    if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
-        style["margin-top"] = 0;
-
+async function animateNone($element, $aux, style, backup, scroll) {
     $element.animate({opacity: 0}, 0);
     $aux.animate({left: 0, opacity: 1}, 0);
     animateTimeout($element, $aux, scroll, backup);
@@ -2878,13 +2856,15 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
         let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
         let topDistanceAux = (scrollNext > 0 ? -scrollNext : $element[0].getBoundingClientRect().top + scroll);
         let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file, scroll));
-        let backup = [$page.css("margin-top"), $page.css("padding-top")];
 
-        let style = {"padding-top": topDistanceAux + "px"};
-        if(topDistanceAux < 0)
-            style['top'] = topDistanceAux + "px";
+        exeFunction(() => {
+            let backup = [$page.css("margin-top"), $page.css("padding-top")];
+            let style = {"padding-top": topDistanceAux + "px"};
+            if(topDistanceAux < 0)
+                style['top'] = topDistanceAux + "px";
 
-        window["animate" + ucFirst(animation)]($element, $page, style, backup, scrollNext);
+            window["animate" + ucFirst(animation)]($element, $page, style, backup, scrollNext);
+        });
 
         if (type === 'route') {
             return app.applyView(app.file, $page)
@@ -3527,7 +3507,6 @@ async function startApplication() {
     await updateAppOnDev();
     await $("#core-header").htmlTemplate('header');
     await menuConstructor();
-    await menuHeader();
     await readRouteState();
     await onLoadDocument();
 
