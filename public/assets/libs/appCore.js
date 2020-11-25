@@ -2228,19 +2228,10 @@ async function animateFade($element, $aux, style, backup, scroll) {
     if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
         style["margin-top"] = 0;
 
-    $aux.css("top", ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header").children().first()[0].clientHeight : 0) + "px");
-    scroll = typeof scroll !== "undefined" ? scroll : 0;
-    if (window.innerWidth < 900) {
-        $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
-            animateTimeout($element, $aux, scroll, backup)
-        })
-    } else {
-        $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
-            animateTimeout($element, $aux, scroll, backup)
-        })
-    }
-
-    $element.animate({opacity: 0, left: '100%'}, 0);
+    $element.animate({opacity: 0}, 150);
+    $aux.animate({left: 0}, 0).animate({opacity: 1}, 200, () => {
+        animateTimeout($element, $aux, scroll, backup)
+    });
 }
 
 async function animateNone($element, $aux, top, marginTop, scroll) {
@@ -2248,11 +2239,12 @@ async function animateNone($element, $aux, top, marginTop, scroll) {
     while(app.loading)
         await sleep(10);
 
-    scroll = typeof scroll !== "undefined" ? scroll : 0;
-    $aux.animate({top: -(scroll - ($("#core-header").hasClass("core-show-header-navbar") ? $("#core-header").children().first()[0].clientHeight : 0)) + "px", left: 0, opacity: 1}, 0, () => {
-        animateTimeout($element, $aux, scroll, marginTop)
-    });
-    $element.animate({opacity: 0, left: '100%'}, 0);
+    if(typeof backup[0] !== "undefined" && backup[0] !== "0px")
+        style["margin-top"] = 0;
+
+    $element.animate({opacity: 0}, 0);
+    $aux.animate({left: 0, opacity: 1}, 0);
+    animateTimeout($element, $aux, scroll, backup);
 }
 
 async function headerShow(show) {
