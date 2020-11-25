@@ -368,6 +368,7 @@ function _htmlTemplateJsonDecode(txt, render) {
  */
 function _htmlTemplateDefaultParam(isSkeleton, param) {
     let p = [];
+    let parametros = !isEmpty(history.state) && !isEmpty(history.state.param) ? history.state.param : {};
     mergeObject(p, {
         home: HOME,
         vendor: VENDOR,
@@ -378,8 +379,8 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
         sitename: SITENAME,
         USER: USER,
         LOCALSTORAGE: {},
-        PARAM: history.state.param.url,
-        PAGE: history.state.param
+        PARAM: parametros.url,
+        PAGE: parametros
     });
 
     for(let c in localStorage)
