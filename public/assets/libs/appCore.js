@@ -2855,7 +2855,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
             animation = "none";
 
         let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
-        let topDistanceAux = (scrollNext > 0 ? -scrollNext : $element[0].getBoundingClientRect().top + scroll);
+        let topDistanceAux = (scrollNext > 0 ? -scrollNext : 0) + $element[0].getBoundingClientRect().top + scroll;
         let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file, scroll));
 
         exeFunction(() => {
