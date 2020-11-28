@@ -2183,9 +2183,9 @@ function animateTimeout($element, $aux, scroll, backup) {
 
     //add or not space on end content (navbar space)
     if (window.innerWidth < 900 && $("#core-header-nav-bottom").hasClass("core-show-navbar"))
-        $("#core-content").addClass("mb-50");
+        $("#core-content").addClass("pb-navbar");
     else
-        $("#core-content").removeClass("mb-50");
+        $("#core-content").removeClass("pb-navbar");
 
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
@@ -3253,7 +3253,7 @@ async function sseStartFunctions() {
 
             for(let getUrl in sseData) {
                 let c = JSON.parse(sseData[getUrl]);
-                if(typeof c === "object" && typeof c.data !== "undefined") {
+                if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
                     let cacheName = '_cache_' + getUrl.replaceAll(/\[@\]/g, '/');
                     let dados = c.data;
 
