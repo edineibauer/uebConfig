@@ -386,8 +386,6 @@ function _htmlTemplateDefaultParam(isSkeleton, param) {
     for(let c in localStorage)
         p.LOCALSTORAGE[c] = (isNumberPositive(localStorage[c]) ? parseFloat(localStorage[c]) : (localStorage[c] === "false" ? !1 : (localStorage[c] === "true" ? !0 : (isJson(localStorage[c]) ? JSON.parse(localStorage[c]) : localStorage[c]))));
 
-    mergeObject(p, SSE);
-
     if (!isSkeleton)
         mergeObject(p, param);
 
@@ -420,7 +418,6 @@ $(function ($) {
             return [];
 
         let param = {USER: USER, PARAM: PARAM};
-        mergeObject(param, SSE);
         let entity = Mustache.render($this.data("db"), param);
         let id = ($this.hasAttr("data-id") ? $this.attr("data-id") : {});
         id = isNumberPositive(id) ? parseInt(id) : (isJson(id) ? JSON.parse(id) : (typeof id === "string" ? {"*": "%" + id + "%"} : {}));
@@ -1796,10 +1793,7 @@ function loadCacheUser() {
         /**
          * Stop SSE events
          */
-        if (isUsingSSE() && typeof sseSource === "object" && typeof sseSource.close === "function")
-            sseSource.close();
-        else
-            clearInterval(sseEngineAjax);
+        sse.close();
 
         return getIndexedDbGets().catch(e => {
             errorLoadingApp("loadCacheUser", e);
@@ -2298,17 +2292,14 @@ function openInstallAppPrompt(force) {
  * @returns {Promise<void>}
  */
 async function renderDataGet(get, dados) {
-    if (typeof sseSourceListeners[app.file] !== "object")
+    if (typeof sse.baseViewData[app.file] !== "object")
         return;
-
-    let $element = sseSourceListeners[app.file][0];
-    let $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
 
     /**
      * First, find by the variables used
      */
-    $element.find("[data-get='" + get + "'][data-realtime-get]").each(async function (i, e) {
-        let $t = $template.find("[data-get='" + get + "'][data-realtime-get]").eq(i);
+    sse.baseViewData[app.file].dom.find("[data-get='" + get + "'][data-realtime-get]").each(async function (i, e) {
+        let $t = $("<div>" + sse.baseViewData[app.file].template + "</div>").find("[data-get='" + get + "'][data-realtime-get]").eq(i);
         if($t.length) {
 
             /**
@@ -2357,16 +2348,16 @@ async function renderDataGet(get, dados) {
  * @private
  */
 async function _updateTemplateRealTime($element, $template, param) {
-    if (typeof sseSourceListeners[app.file] !== "object")
+    if (typeof sse.baseViewData[app.file] !== "object")
         return;
 
     param = _htmlTemplateDefaultParam(!1, param);
 
     if(typeof $element === "undefined")
-        $element = sseSourceListeners[app.file][0];
+        $element = sse.baseViewData[app.file].dom;
 
     if(typeof $template === "undefined")
-        $template = $("<div>" + sseSourceListeners[app.file][1] + "</div>");
+        $template = $("<div>" + sse.baseViewData[app.file].template + "</div>");
 
     let $elementIsolated = $("<div>" + $element.html() + "</div>");
 
@@ -2453,10 +2444,10 @@ async function _updateTemplateRealTime($element, $template, param) {
  */
 async function _checkRealtimeDbUpdate(entity) {
     return new Promise(s => {
-        if(typeof sseSourceListeners[app.file] === "object") {
+        if(typeof sse.baseViewData[app.file] === "object") {
             let dbFind = "[data-db='" + entity + "'][data-realtime-db]";
-            $("<div>" + sseSourceListeners[app.file][1] + "</div>").find(dbFind).each(async function (i, e) {
-                let $tag = sseSourceListeners[app.file][0].find(dbFind).eq(i);
+            $("<div>" + sse.baseViewData[app.file].template + "</div>").find(dbFind).each(async function (i, e) {
+                let $tag = sse.baseViewData[app.file].dom.find(dbFind).eq(i);
 
                 /**
                  * get the data to use on template if need
@@ -2668,7 +2659,7 @@ var PARAM, app = {
                      * Register SSE
                      */
                     if (isOnline() && typeof (EventSource) !== "undefined")
-                        sseSourceListeners[file] = [$div, htmlTemplate, g.js];
+                        sse.baseViewData[file] = {"dom": $div, "template": htmlTemplate};
 
                     return Promise.all([]);
 
@@ -3175,197 +3166,198 @@ function storeUser() {
  * Get user profile in server to update local
  * @returns {Promise<void>}
  */
-var sseSource = {};
-var sseEngineAjax = null;
-const sseSourceListeners = {};
-const sseEvents = {};
-const SSE = {};
+const sse = {
+    base: null,
+    baseAjaxInterval: null,
+    baseViewData: {},
+    funcoes: {},
+    remove: (name) => {
+        this.funcoes[name] = [];
+    },
+    add: (name, funcao) => {
+        if (typeof funcao === "function")
+            this.funcoes[name].push(funcao);
+    },
+    start: () => {
+        if (this.isSSESupported()) {
+            this.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
-async function sseStartFunctions() {
-    addSseEngineListener('base', async function (e) {
-        let sseData = null;
-
-        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
-            sseData = e;
-        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-            sseData = JSON.parse(e.data);
-
-        if(sseData) {
-            /**
-             * If have event function on receive this SSE to trigger
-             */
-            for (let i in sseData) {
-                if (sseData[i].response === 1) {
-                    /**
-                     * Store the value of the SSE event
-                     */
-                    SSE[i] = sseData[i].data;
-
-                    /**
-                     * For each SSE received on view
-                     */
-                    if (typeof sseEvents[i] === "function")
-                        sseEvents[i](SSE[i]);
-                }
-            }
-        }
-    });
-
-    /**
-     * Listen for database local updates
-     */
-    addSseEngineListener('db', async function (e) {
-        let sseData = null;
-
-        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
-            sseData = e;
-        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-            sseData = JSON.parse(e.data);
-
-        if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
-            for (let entity in sseData) {
-                for(let content of sseData[entity]) {
-                    if(isNumberPositive(content)) {
-                        await dbLocal.exeDelete(entity, content);
-                    } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
-                        await dbLocal.exeCreate(entity, content);
+            setInterval(function () {
+                if(!isOnline()) {
+                    sse.base.close();
+                } else if(isOnline()) {
+                    if(sse.base.readyState === 2) {
+                        sse.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+                        sse.baseFunctions();
                     }
                 }
+            }, 3000);
 
-                dbLocal.clear("_cache_db_" + entity);
-                _checkRealtimeDbUpdate(entity);
-            }
+        } else {
+            this.baseAjaxInterval = setInterval(function () {
+                AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
+            }, 2000);
         }
-    });
 
-    /**
-     * Listen for get requests updates
-     */
-    addSseEngineListener('get', async function (e) {
-        let sseData = null;
+        this.baseFunctions();
+    },
+    baseFunctions: async () => {
+        this.baseAddListener('base', async function (e) {
+            let sseData = null;
 
-        if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
-            sseData = e;
-        else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
-            sseData = JSON.parse(e.data);
+            if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+                sseData = e;
+            else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                sseData = JSON.parse(e.data);
 
-        if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+            /**
+             * For each SSE received on view
+             * If have event function on receive this SSE to trigger
+             */
+            if(sseData) {
+                for (let i in sseData) {
+                    if (sseData[i].response === 1) {
+                        if(!isEmpty(sse.funcoes[i])) {
+                            for(let f of sse.funcoes[i]) {
+                                if(typeof f === "function")
+                                    f(sseData[i].data);
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-            for(let getUrl in sseData) {
-                let c = JSON.parse(sseData[getUrl]);
-                if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
-                    let cacheName = '_cache_' + getUrl.replaceAll(/\[@\]/g, '/');
-                    let dados = c.data;
+        /**
+         * Listen for database local updates
+         */
+        this.baseAddListener('db', async function (e) {
+            let sseData = null;
 
-                    /**
-                     * Cache the data
-                     */
-                    await dbLocal.clear(cacheName);
-                    if (!isEmpty(dados)) {
-                        if (typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                            for (let d of dados)
-                                dbLocal.exeCreate(cacheName, d);
-                        } else {
-                            dados.typeIsObject = !1;
-                            dbLocal.exeCreate(cacheName, dados);
+            if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+                sseData = e;
+            else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                sseData = JSON.parse(e.data);
+
+            if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+                for (let entity in sseData) {
+                    for(let content of sseData[entity]) {
+                        if(isNumberPositive(content)) {
+                            await dbLocal.exeDelete(entity, content);
+                        } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
+                            await dbLocal.exeCreate(entity, content);
                         }
                     }
 
-                    /**
-                     * Update DOM data-get realtime
-                     */
-                    while(app.loading)
-                        await sleep(10);
-
-                    setTimeout(function() {
-                        renderDataGet(cacheName.replace("_cache_get_" + app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "") + "_", ""), dados);
-                    }, 50);
+                    dbLocal.clear("_cache_db_" + entity);
+                    _checkRealtimeDbUpdate(entity);
                 }
             }
-        }
-    });
+        });
 
-    /**
-     * Update DOM perfil realtime
-     */
-    sseAdd("updatePerfil", function (data) {
-        if(typeof data === "object") {
-            USER = data;
-            storeUser();
-            _updateTemplateRealTime();
-        }
-    });
+        /**
+         * Listen for get requests updates
+         */
+        this.baseAddListener('get', async function (e) {
+            let sseData = null;
 
-    /**
-     * Notificações pendentes show badge
-     */
-    sseAdd("notificationsBadge", async function (data) {
-        if (USER.setor !== 0) {
-            if (isNumberPositive(data)) {
-                /**
-                 * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
-                 */
-                let $navbarNotify = $("a[href='notificacoes']");
-                if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length) {
-                    $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
-                    if($navbarNotify.closest("#core-sidebar").length)
-                        $("#core-menu-custom-bottom > .menu-li > [onclick='toggleSidebar()']").append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+            if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
+                sseData = e;
+            else if (typeof e.data === "string" && e.data !== "" && isJson(e.data))
+                sseData = JSON.parse(e.data);
+
+            if(sseData && !isEmpty(sseData) && sseData.constructor === Object) {
+
+                for(let getUrl in sseData) {
+                    let c = JSON.parse(sseData[getUrl]);
+                    if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
+                        let cacheName = '_cache_' + getUrl.replaceAll(/\[@\]/g, '/');
+                        let dados = c.data;
+
+                        /**
+                         * Cache the data
+                         */
+                        await dbLocal.clear(cacheName);
+                        if (!isEmpty(dados)) {
+                            if (typeof dados === "object" && dados !== null && dados.constructor === Array) {
+                                for (let d of dados)
+                                    dbLocal.exeCreate(cacheName, d);
+                            } else {
+                                dados.typeIsObject = !1;
+                                dbLocal.exeCreate(cacheName, dados);
+                            }
+                        }
+
+                        /**
+                         * Update DOM data-get realtime
+                         */
+                        while(app.loading)
+                            await sleep(10);
+
+                        setTimeout(function() {
+                            renderDataGet(cacheName.replace("_cache_get_" + app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "") + "_", ""), dados);
+                        }, 50);
+                    }
+                }
+            }
+        });
+
+        /**
+         * Update DOM perfil realtime
+         */
+        this.add("updatePerfil", function (data) {
+            if(typeof data === "object") {
+                USER = data;
+                storeUser();
+                _updateTemplateRealTime();
+            }
+        });
+
+        /**
+         * Notificações pendentes show badge
+         */
+        this.add("notificationsBadge", async function (data) {
+            if (USER.setor !== 0) {
+                if (isNumberPositive(data)) {
+                    /**
+                     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
+                     */
+                    let $navbarNotify = $("a[href='notificacoes']");
+                    if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length) {
+                        $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+                        if($navbarNotify.closest("#core-sidebar").length)
+                            $("#core-menu-custom-bottom > .menu-li > [onclick='toggleSidebar()']").append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
+                    }
+                } else {
+                    $("#badge-note").remove();
                 }
             } else {
                 $("#badge-note").remove();
             }
-        } else {
-            $("#badge-note").remove();
+        });
+    },
+    close: () => {
+        if(this.isSSESupported())
+            this.base.close();
+        else
+            clearInterval(this.baseAjaxInterval);
+    },
+    baseAddListener: async (name, funcao) => {
+        if (this.isSSESupported())
+            this.base.addEventListener(name, funcao, !1);
+        else
+            this.base[name] = funcao;
+    },
+    baseReceiveListenerAjax: async (data) => {
+        for(let n in data) {
+            if (typeof this.base[n] === "function" && !isEmpty(data[n]))
+                await this.base[n](data[n]);
         }
-    });
-}
-
-async function sseStart() {
-    if (isUsingSSE()) {
-        sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-
-        setInterval(function () {
-            if(!isOnline()) {
-                sseSource.close();
-            } else if(isOnline()) {
-                if(sseSource.readyState === 2) {
-                    sseSource = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
-                    sseStartFunctions();
-                }
-            }
-        }, 3000);
-
-    } else {
-        sseEngineAjax = setInterval(function () {
-            AJAX.get("sseEngine").then(receiveSseEngineAjax);
-        }, 2000);
+    },
+    isSSESupported: () => {
+        return isOnline() && typeof (EventSource) !== "undefined";
     }
-
-    sseStartFunctions()
-}
-
-function isUsingSSE() {
-    return isOnline() && typeof (EventSource) !== "undefined";
-}
-
-async function addSseEngineListener(name, funcao) {
-    if (isUsingSSE())
-        sseSource.addEventListener(name, funcao, !1);
-    else
-        sseSource[name] = funcao;
-}
-
-async function receiveSseEngineAjax(data) {
-    for(let n in data) {
-        if (typeof sseSource[n] === "function" && !isEmpty(data[n]))
-            await sseSource[n](data[n]);
-    }
-}
-
-function sseAdd(name, funcao) {
-    if (typeof funcao === "function")
-        sseEvents[name] = funcao;
-}
+};
 
 /**
  * Controle de navegação maestru
@@ -3463,7 +3455,8 @@ async function onLoadDocument() {
     window.onpopstate = maestruHistoryBack;
 
     window.onbeforeunload = function () {
-        sseSource.close();
+        sse.close();
+
         AJAX.get("isOffline");
     };
 
@@ -3504,7 +3497,7 @@ async function onLoadDocument() {
 
 async function startApplication() {
     await checkSessao();
-    sseStart();
+    sse.start();
     await updateAppOnDev();
     await $("#core-header").htmlTemplate('header');
     await menuConstructor();
