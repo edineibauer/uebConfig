@@ -3167,20 +3167,23 @@ function storeUser() {
  * @returns {Promise<void>}
  */
 const sse = {
-    base: null,
+    base: {},
     baseAjaxInterval: null,
     baseViewData: {},
     funcoes: {},
     remove: (name) => {
-        this.funcoes[name] = [];
+        sse.funcoes[name] = [];
     },
     add: (name, funcao) => {
+        if(typeof sse.funcoes[name] === "undefined")
+            sse.funcoes[name] = [];
+
         if (typeof funcao === "function")
-            this.funcoes[name].push(funcao);
+            sse.funcoes[name].unshift(funcao);
     },
     start: () => {
-        if (this.isSSESupported()) {
-            this.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+        if (sse.isSSESupported()) {
+            sse.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
             setInterval(function () {
                 if(!isOnline()) {
@@ -3194,15 +3197,15 @@ const sse = {
             }, 3000);
 
         } else {
-            this.baseAjaxInterval = setInterval(function () {
+            sse.baseAjaxInterval = setInterval(function () {
                 AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
             }, 2000);
         }
 
-        this.baseFunctions();
+        sse.baseFunctions();
     },
     baseFunctions: async () => {
-        this.baseAddListener('base', async function (e) {
+        sse.baseAddListener('base', async function (e) {
             let sseData = null;
 
             if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
@@ -3231,7 +3234,7 @@ const sse = {
         /**
          * Listen for database local updates
          */
-        this.baseAddListener('db', async function (e) {
+        sse.baseAddListener('db', async function (e) {
             let sseData = null;
 
             if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
@@ -3258,7 +3261,7 @@ const sse = {
         /**
          * Listen for get requests updates
          */
-        this.baseAddListener('get', async function (e) {
+        sse.baseAddListener('get', async function (e) {
             let sseData = null;
 
             if(typeof e === "object" && !isEmpty(e) && e.constructor === Object)
@@ -3305,7 +3308,7 @@ const sse = {
         /**
          * Update DOM perfil realtime
          */
-        this.add("updatePerfil", function (data) {
+        sse.add("updatePerfil", function (data) {
             if(typeof data === "object") {
                 USER = data;
                 storeUser();
@@ -3316,7 +3319,7 @@ const sse = {
         /**
          * Notificações pendentes show badge
          */
-        this.add("notificationsBadge", async function (data) {
+        sse.add("notificationsBadge", async function (data) {
             if (USER.setor !== 0) {
                 if (isNumberPositive(data)) {
                     /**
@@ -3337,21 +3340,21 @@ const sse = {
         });
     },
     close: () => {
-        if(this.isSSESupported())
-            this.base.close();
+        if(sse.isSSESupported())
+            sse.base.close();
         else
-            clearInterval(this.baseAjaxInterval);
+            clearInterval(sse.baseAjaxInterval);
     },
     baseAddListener: async (name, funcao) => {
-        if (this.isSSESupported())
-            this.base.addEventListener(name, funcao, !1);
+        if (sse.isSSESupported())
+            sse.base.addEventListener(name, funcao, !1);
         else
-            this.base[name] = funcao;
+            sse.base[name] = funcao;
     },
     baseReceiveListenerAjax: async (data) => {
         for(let n in data) {
-            if (typeof this.base[n] === "function" && !isEmpty(data[n]))
-                await this.base[n](data[n]);
+            if (typeof sse.base[n] === "function" && !isEmpty(data[n]))
+                await sse.base[n](data[n]);
         }
     },
     isSSESupported: () => {
