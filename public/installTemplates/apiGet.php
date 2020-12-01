@@ -68,11 +68,10 @@ if (!empty($url)) {
              * Search on all view get folders
              */
             if(!empty($path)) {
-                foreach ($views as $vvv) {
-                    if(file_exists(PATH_HOME . "public/view/{$vvv}/{$setor}/get{$path}.php")) {
-                        return PATH_HOME . "public/view/{$vvv}/{$setor}/get{$path}.php";
-                    } elseif(file_exists(PATH_HOME . "public/view/{$vvv}/get{$path}.php")) {
-                        return PATH_HOME . "public/view/{$vvv}/get{$path}.php";
+                foreach ($views as $vv) {
+                    foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
+                        if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
+                            return $vvv;
                     }
                 }
             }
