@@ -38,12 +38,16 @@ if (!empty($url)) {
         $url = "";
         $path = "";
         $setor = \Config\Config::getSetor();
-        $count = count($variaveis);
+        $count = count($variaveis) + 1;
+        $views = \Helpers\Helper::listFolder(PATH_HOME . "public/view");
 
         for ($i = 0; $i < $count; $i++) {
             $path .= ($i > 0 ? "/{$url}" : "");
             $url = array_shift($variaveis);
 
+            /**
+             * Search for view on view (if have maestruView)
+             */
             if(!empty($view)) {
                 if(file_exists(PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php")) {
                     return PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php";
@@ -52,9 +56,25 @@ if (!empty($url)) {
                 }
             }
 
+            /**
+             * Search on get folder
+             */
             foreach (\Config\Config::getRoutesTo("get" . $path) as $item) {
                 if (file_exists($item . $url . ".php"))
                     return $item . $url . ".php";
+            }
+
+            /**
+             * Search on all view get folders
+             */
+            if(!empty($path)) {
+                foreach ($views as $vvv) {
+                    if(file_exists(PATH_HOME . "public/view/{$vvv}/{$setor}/get{$path}.php")) {
+                        return PATH_HOME . "public/view/{$vvv}/{$setor}/get{$path}.php";
+                    } elseif(file_exists(PATH_HOME . "public/view/{$vvv}/get{$path}.php")) {
+                        return PATH_HOME . "public/view/{$vvv}/get{$path}.php";
+                    }
+                }
             }
         }
 
