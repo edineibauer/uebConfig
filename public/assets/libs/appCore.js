@@ -2427,7 +2427,10 @@ async function _updateTemplateRealTime($element, $template, param) {
             if ($t.length) {
                 $.each($t[0].attributes, async function () {
                     if (this.specified) {
-                        let valor = Mustache.render(this.value, param);
+                        let txtc = document.createElement("textarea");
+                        txtc.innerHTML = Mustache.render(this.value, param);
+                        let valor = txtc.value;
+
                         if ($(e).hasAttr("data-realtime-" + this.name) && typeof window[$(e).data("realtime-" + this.name)] === "function")
                             valor = await window[$(e).data("realtime-" + this.name)](valor);
 
