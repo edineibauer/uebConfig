@@ -3189,7 +3189,7 @@ const sse = {
             sse.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
             setInterval(function () {
-                if(!isOnline()) {
+                if(!isOnline() && typeof sse.base.close === "function") {
                     sse.base.close();
                 } else if(isOnline()) {
                     if(sse.base.readyState === 2) {
