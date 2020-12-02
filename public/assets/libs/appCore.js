@@ -2114,7 +2114,7 @@ function getPaddingTopContent() {
 
 function defaultPageTransitionPosition(direction, $element, route, scroll) {
     aniTransitionPage = $element;
-    let topHeader = $("#core-header").css("opacity") !== "0" ? $("#core-header").children().first()[0].clientHeight : 0;
+    let topHeader = $("#core-header").css("opacity") !== "0" && typeof $("#core-header").children().first()[0] !== "undefined" ? $("#core-header").children().first()[0].clientHeight : 0;
     let left = $element[0].getBoundingClientRect().left;
     let paddingLeft = parseInt($element.css("padding-left"));
     let paddingRight = parseInt($element.css("padding-right"));
