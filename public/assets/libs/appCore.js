@@ -3343,7 +3343,7 @@ const sse = {
         });
     },
     close: () => {
-        if(sse.isSSESupported())
+        if(sse.isSSESupported() && sse.base.close === "function")
             sse.base.close();
         else
             clearInterval(sse.baseAjaxInterval);
