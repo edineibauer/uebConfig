@@ -1518,8 +1518,12 @@ function loadSyncNotSaved() {
 }
 
 async function clearCacheUser() {
-    let clear = [];
     localStorage.removeItem("accesscount");
+
+    /**
+     * Stop SSE events
+     */
+    sse.close();
 
     /**
      * Sobe pendências para o servidor e limpa base local
@@ -1538,22 +1542,20 @@ async function clearCacheUser() {
             dbLocal.clear(entity);
     }
 
-    return Promise.all(clear).then(() => {
-        return clearIndexedDbGets().then(() => {
-            if (SERVICEWORKER) {
+    return clearIndexedDbGets().then(() => {
+        if (SERVICEWORKER) {
 
-                /**
-                 * Clear cache pages
-                 */
-                return caches.keys().then(cacheNames => {
-                    return Promise.all(cacheNames.map(cacheName => {
-                        let corte = cacheName.split("-v");
-                        if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
-                            caches.delete(cacheName);
-                    }))
-                })
-            }
-        })
+            /**
+             * Clear cache pages
+             */
+            return caches.keys().then(cacheNames => {
+                return Promise.all(cacheNames.map(cacheName => {
+                    let corte = cacheName.split("-v");
+                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
+                        caches.delete(cacheName);
+                }))
+            })
+        }
     })
 }
 
@@ -1789,12 +1791,6 @@ function loadCacheUser() {
      * Load User Data content
      * */
     if (isOnline()) {
-
-        /**
-         * Stop SSE events
-         */
-        sse.close();
-
         return getIndexedDbGets().catch(e => {
             errorLoadingApp("loadCacheUser", e);
         });
@@ -3343,7 +3339,7 @@ const sse = {
         });
     },
     close: () => {
-        if(sse.isSSESupported() && sse.base.close === "function")
+        if(sse.isSSESupported() && typeof sse.base.close === "function")
             sse.base.close();
         else
             clearInterval(sse.baseAjaxInterval);
