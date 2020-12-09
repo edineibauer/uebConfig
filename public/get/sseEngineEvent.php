@@ -91,7 +91,7 @@ function startReadSSE() {
                     $data['error'] = "";
                 }
 
-            } catch (Exception $e) {
+            } catch (Error $e) {
                 $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
             }
 
@@ -100,8 +100,11 @@ function startReadSSE() {
             $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
 
-        include 'sseEngineDb.php';
-        include 'sseEngineGet.php';
+        try {
+            include_once 'sseEngineDb.php';
+            include_once 'sseEngineGet.php';
+        } catch (Error $e) {
+        }
     }
 
     returnSSE($messagesBase, $resultDb, $resultDbHistory, $getSSE);

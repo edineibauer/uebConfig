@@ -84,7 +84,7 @@ if (!empty($_SESSION['userlogin'])) {
                 $data['error'] = "";
             }
 
-        } catch (Exception $e) {
+        } catch (Error $e) {
             $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
         }
 
@@ -93,8 +93,12 @@ if (!empty($_SESSION['userlogin'])) {
         $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
     }
 
-    include_once 'sseEngineDb.php';
-    include_once 'sseEngineGet.php';
+    try {
+        include_once 'sseEngineDb.php';
+        include_once 'sseEngineGet.php';
+    } catch (Error $e) {
+        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+    }
 }
 
 $data['data'] = returnSSE($messagesBase, $resultDb, $resultDbHistory, $getSSE);

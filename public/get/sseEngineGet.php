@@ -31,7 +31,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['us
             if (is_string($data['data']) && preg_match('/^http/i', $data['data']))
                 $data = ["response" => 3, "error" => "", "data" => $data['data']];
 
-        } catch (Exception $e) {
+        } catch (Error $e) {
             $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
         }
 
