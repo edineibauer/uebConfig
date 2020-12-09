@@ -566,7 +566,7 @@ class UpdateSystem
 
         //CONSTANTES EM CONFIG
         $contantes = [];
-        require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
+        require_once PATH_HOME . VENDOR . "config/public/installTemplates/constantes.php";
         if (!empty($contantes) && is_array($contantes)) {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
             foreach ($contantes as $contante => $value) {
@@ -579,7 +579,7 @@ class UpdateSystem
 
         //CONSTANTES REMOVE
         $contantes = [];
-        require_once PATH_HOME . VENDOR . "config/public/include/constantes.php";
+        require_once PATH_HOME . VENDOR . "config/public/installTemplates/constantes.php";
         if (!empty($contantes) && is_array($contantes)) {
             $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), !0);
             foreach ($contantes as $contante => $value) {
