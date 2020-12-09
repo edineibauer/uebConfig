@@ -173,7 +173,7 @@ async function _createObjectFile(mock) {
         isImage: /^image\//.test(mock.fileType),
         isVideo: /^video\//.test(mock.fileType),
         isAudio: /^audio\//.test(mock.fileType),
-        isDoc: ["txt", "doc", "docx", "dot", "dotx", "dotm", "ppt", "pptx", "pps", "potm", "potx", "pdf", "xls", "xlsx", "xltx", "rtf", "html", "css", "scss", "js", "tpl", "json", "xml", "md", "sql", "dll"].indexOf(mock.type) > -1
+        isDoc: ["txt", "doc", "docx", "dot", "dotx", "dotm", "ppt", "pptx", "pps", "potm", "potx", "pdf", "xls", "xlsx", "xltx", "rtf", "html", "css", "scss", "js", "tpl", "mustache", "json", "xml", "md", "sql", "dll"].indexOf(mock.type) > -1
     };
     mock.format.type = mock.format.isImage ? 1 : (mock.format.isVideo ? 2 : (mock.format.isDoc ? 3 : (mock.format.isAudio ? 4 : 5)));
     mock.format.isDownload = mock.format.type === 5;
