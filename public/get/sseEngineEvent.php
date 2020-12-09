@@ -74,35 +74,43 @@ function startReadSSE() {
         /**
          * For each SSE on project
          */
-        foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $route) {
-            $data = null;
+        foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $file => $route) {
+            $file = str_replace(".php", "", $file);
+            $data = ["response" => 1, "error" => "", "data" => ""];
 
-            ob_start();
+            if(!file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $file . ".json")) {
+                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
+                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
+                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse");
+                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $file . ".json", "");
 
-            try {
-                include $route;
-                if (!empty($data['error'])) {
-                    $data["response"] = 2;
-                    $data["data"] = "";
-                } elseif (!isset($data['data'])) {
-                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                } elseif (!isset($data['response'])) {
-                    $data['response'] = 1;
-                    $data['error'] = "";
+                ob_start();
+
+                try {
+                    include $route;
+                    if (!empty($data['error'])) {
+                        $data["response"] = 2;
+                        $data["data"] = "";
+                    } elseif (!isset($data['data'])) {
+                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                    } elseif (!isset($data['response'])) {
+                        $data['response'] = 1;
+                        $data['error'] = "";
+                    }
+
+                } catch (Error $e) {
+                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
                 }
 
-            } catch (Error $e) {
-                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                ob_end_clean();
             }
-
-            ob_end_clean();
 
             $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
 
         try {
-            include_once 'sseEngineDb.php';
-            include_once 'sseEngineGet.php';
+            include 'sseEngineDb.php';
+            include 'sseEngineGet.php';
         } catch (Error $e) {
         }
     }
