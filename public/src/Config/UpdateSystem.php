@@ -212,7 +212,6 @@ class UpdateSystem
     {
         unlink(PATH_HOME . VENDOR . "config/public/startup.php");
         Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/include");
-        Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/installTemplates");
     }
 
     /**
