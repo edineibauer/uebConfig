@@ -393,19 +393,23 @@ class Config
     {
         $libs = PATH_HOME . explode("/", VENDOR)[0];
 
-        /**
-         * Backup the actual vendor
-         */
-        if(!DEV)
-            Helper::ZipFiles(PATH_HOME . "_cdn/libs.zip", $libs);
+        if($libs !== "vendor") {
 
-        /**
-         * Update libs
-         */
-        Helper::recurseDelete($libs);
-        Helper::createFolderIfNoExist($libs);
-        Helper::recurseCopy(PATH_HOME . "vendor", $libs);
-        self::writeFile("libs/.htaccess", self::getHtaccessAssetsRule());
+            /**
+             * Backup the actual vendor
+             */
+            if(!DEV)
+                Helper::ZipFiles(PATH_HOME . "_cdn/vendor.zip", $libs);
+
+            /**
+             * Update libs
+             */
+            Helper::recurseDelete($libs);
+            Helper::createFolderIfNoExist($libs);
+            Helper::recurseCopy(PATH_HOME . "vendor", $libs);
+        }
+
+        self::writeFile("{$libs}/.htaccess", self::getHtaccessAssetsRule());
     }
 
     public static function getHtaccessAssetsRule()

@@ -20,7 +20,7 @@ function getServerConstants(array $dados)
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];
-    $dados['vendor'] = "libs/ueb/";
+    $dados['vendor'] = "vendor/ueb/";
     $dados['version'] = "1.00";
     $dados['dev'] = preg_match("/localhost\//i", $dados['home']);
     $dados['homepage'] = 0;
@@ -169,7 +169,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
         Config\Config::createDir("_config");
         Config\Config::createDir("_cdn");
         Config\Config::createDir("_cdn/vendor");
-        Config\Config::createDir("libs");
         Config\Config::createDir("public");
         Config\Config::createDir("public/view");
         Config\Config::createDir("public/post");
