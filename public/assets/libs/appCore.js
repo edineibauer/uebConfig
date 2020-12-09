@@ -3558,7 +3558,7 @@ async function onLoadDocument() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        openInstallAppPrompt();
+        //openInstallAppPrompt();
     });
 
     window.onpopstate = maestruHistoryBack;

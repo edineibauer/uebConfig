@@ -2,41 +2,20 @@
 
 $data['data'] = [];
 $setor = \Config\Config::getSetor();
-$templatesSystem = ["header", "aside", "menuHeader", "installAppCard"];
 
-foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/assets/core/tpl") as $item) {
-    if(pathinfo($item, PATHINFO_EXTENSION) === "mustache")
-        $templatesSystem[] = pathinfo($item, PATHINFO_FILENAME);
-}
+/**
+ * Templates base
+ */
+$templatesSystem = ["header", "aside", "menuHeader"];
 
-foreach (\Helpers\Helper::listFolder(PATH_HOME . "public/assets/core") as $item) {
-    $ext = pathinfo($item, PATHINFO_EXTENSION);
-    if($ext === "json") {
-        $j = json_decode(file_get_contents(PATH_HOME . "public/assets/core/" . $item), !0);
-        if(!empty($j['template'])) {
-            if(is_string($j['template'])) {
-                $templatesSystem[] = $j['template'];
-            } elseif(is_array($j['template'])) {
-                foreach ($j['template'] as $tt) {
-                    if(is_string($tt))
-                        $templatesSystem[] = $tt;
-                }
-            }
-        } elseif(!empty($j['templates'])) {
-            if(is_string($j['templates'])) {
-                $templatesSystem[] = $j['templates'];
-            } elseif(is_array($j['templates'])) {
-                foreach ($j['templates'] as $tt) {
-                    if(is_string($tt))
-                        $templatesSystem[] = $tt;
-                }
-            }
-        }
+/**
+ * Templates dentro de appCore
+ */
+foreach (\Config\Config::getRoutesFilesTo("tpl/{$setor}/appCore", "mustache") as $name => $dir)
+    $data['data'][str_replace(".mustache", "", $name)] = file_get_contents($dir);
 
-    } elseif($ext === "mustache") {
-        $templatesSystem[] = pathinfo($item, PATHINFO_FILENAME);
-    }
-}
+foreach (\Config\Config::getRoutesFilesTo("tpl/appCore", "mustache") as $name => $dir)
+    $data['data'][str_replace(".mustache", "", $name)] = file_get_contents($dir);
 
 foreach (\Config\Config::getRoutesFilesTo("tpl", "mustache") as $tpl => $tplDir) {
     $tplName = str_replace('.mustache', '', $tpl);
