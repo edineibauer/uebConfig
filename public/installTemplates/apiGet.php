@@ -39,7 +39,10 @@ if (!empty($url)) {
         $path = "";
         $setor = \Config\Config::getSetor();
         $count = count($variaveis) + 1;
-        $views = \Helpers\Helper::listFolder(PATH_HOME . "public/view");
+
+        $views = [];
+        foreach (\Config\Config::getRoutesTo("view") as $v)
+            $views = array_merge($views, \Helpers\Helper::listFolder($v));
 
         for ($i = 0; $i < $count; $i++) {
             $path .= ($i > 0 ? "/{$url}" : "");

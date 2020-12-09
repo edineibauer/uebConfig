@@ -8,12 +8,11 @@ header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
 require_once './_config/config.php';
+
 $_SESSION = [];
-
-\Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
-
 $data = ['error' => "", "data" => "", "response" => 1];
 
+\Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
 $fileInSetFolder = filter_input(INPUT_POST, 'fileInSetFolder', FILTER_DEFAULT) . ".php";
 
 if(isset($_POST['fileInSetFolder']))
@@ -21,30 +20,47 @@ if(isset($_POST['fileInSetFolder']))
 if(isset($_POST['maestruToken']))
     unset($_POST['maestruToken']);
 
-$find = !1;
+$urlInclude = null;
 foreach (\Config\Config::getRoutesFilesTo("post") as $file => $dir) {
     $fileInFindSetor = explode("/public/post/", $dir)[1];
     if($fileInFindSetor === $fileInSetFolder) {
-        $find = !0;
-        ob_start();
-        include_once $dir;
-        $result = ob_get_contents();
-        ob_end_clean();
-
-        if (!empty($result)) {
-            if(!empty($result['response']) && $data['response'] === 2 && empty($data['error']))
-                $data['error'] = $data;
-            elseif(!empty($result['error']))
-                $data['response'] = 2;
-            else
-                $data['data'] = (!empty($result['data']) ? $result['data'] : $result);
-        }
-
+        $urlInclude = $dir;
         break;
     }
 }
 
-if(!$find)
+/**
+ * Search on all view get folders
+ */
+if(!$urlInclude) {
+    foreach (\Config\Config::getRoutesTo("view") as $v) {
+        foreach (\Helpers\Helper::listFolder($v) as $vv) {
+            foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/post", "php") as $vvv) {
+                if(explode("view/{$vv}/post/", $vvv)[1] === $fileInSetFolder) {
+                    $urlInclude = $vvv;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+if(!empty($urlInclude)) {
+    ob_start();
+    include_once $urlInclude;
+    $result = ob_get_contents();
+    ob_end_clean();
+
+    if (!empty($result)) {
+        if(!empty($result['response']) && $data['response'] === 2 && empty($data['error']))
+            $data['error'] = $data;
+        elseif(!empty($result['error']))
+            $data['response'] = 2;
+        else
+            $data['data'] = (!empty($result['data']) ? $result['data'] : $result);
+    }
+} else {
     $data = ['error' => "Arquivo {$fileInSetFolder} não encontrado nas pastas `public/post/`", "data" => "", "response" => 2];
+}
 
 echo json_encode($data);
