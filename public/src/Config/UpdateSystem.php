@@ -551,7 +551,7 @@ class UpdateSystem
         Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.php"));
         Config::writeFile("apiView.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiView.php"));
         Config::writeFile("apiGet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiGet.php"));
-        Config::writeFile("apiSet.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiSet.php"));
+        Config::writeFile("apiPost.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiPost.php"));
         Config::writeFile("apiApi.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApi.php"));
         Config::writeFile("apiApiPublic.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiApiPublic.php"));
 
