@@ -33,8 +33,15 @@ foreach (\Config\Config::getRoutesFilesTo("post") as $file => $dir) {
  * Search on all view get folders
  */
 if(!$urlInclude) {
+    $setor = \Config\Config::getSetor();
     foreach (\Config\Config::getRoutesTo("view") as $v) {
         foreach (\Helpers\Helper::listFolder($v) as $vv) {
+            foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/{$setor}/post", "php") as $vvv) {
+                if(explode("view/{$vv}/{$setor}/post/", $vvv)[1] === $fileInSetFolder) {
+                    $urlInclude = $vvv;
+                    break;
+                }
+            }
             foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/post", "php") as $vvv) {
                 if(explode("view/{$vv}/post/", $vvv)[1] === $fileInSetFolder) {
                     $urlInclude = $vvv;

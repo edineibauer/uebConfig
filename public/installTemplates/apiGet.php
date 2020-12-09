@@ -72,6 +72,10 @@ if (!empty($url)) {
              */
             if(!empty($path)) {
                 foreach ($views as $vv) {
+                    foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/{$setor}/get", "php") as $vvv) {
+                        if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
+                            return $vvv;
+                    }
                     foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
                         if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
                             return $vvv;
