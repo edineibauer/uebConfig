@@ -393,7 +393,7 @@ class Config
     {
         $libs = PATH_HOME . explode("/", VENDOR)[0];
 
-        if($libs !== "vendor") {
+        if(VENDOR !== "vendor/ueb/") {
 
             /**
              * Backup the actual vendor
