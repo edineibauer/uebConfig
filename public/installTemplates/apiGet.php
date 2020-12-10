@@ -10,19 +10,22 @@ header('Content-Type: application/json');
 require_once './_config/config.php';
 
 $url = strip_tags(trim($_GET['data']));
+$viewGetReceived = "";
+$token = 0;
+
 if (!empty($url)) {
 
     /**
      * Split the url into `/`
      * get the first as url and the rest as variables
      */
-    $urlSplit = explode("/maestruToken/", $url);
-    $token  = !empty($urlSplit[1]) ? $urlSplit[1] : 0;
+    if(preg_match("/\/maestruToken\//i", $url))
+        list($url, $token) = explode("/maestruToken/", $url);
 
-    $urlSplit = explode("/maestruView/", $urlSplit[0]);
-    $view  = !empty($urlSplit[1]) ? $urlSplit[1] : "";
+    if(preg_match("/\/maestruView\//i", $url))
+        list($url, $viewGetReceived) = explode("/maestruView/", $url);
 
-    $variaveis = array_filter(explode('/', $urlSplit[0]));
+    $variaveis = array_filter(explode('/', $url));
     $route = "";
 
     \Config\Config::setUser($token);
@@ -72,10 +75,6 @@ if (!empty($url)) {
              */
             if(!empty($path)) {
                 foreach ($views as $vv) {
-                    foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/{$setor}/get", "php") as $vvv) {
-                        if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
-                            return $vvv;
-                    }
                     foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
                         if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
                             return $vvv;
@@ -87,9 +86,11 @@ if (!empty($url)) {
         return "";
     }
 
-    $route = findRouteGet($variaveis, $view);
+    $route = findRouteGet($variaveis, $viewGetReceived);
 
     if (!empty($route)) {
+
+        $_SESSION['db'] = [];
         ob_start();
 
         try {
@@ -116,6 +117,19 @@ if (!empty($url)) {
         }
 
         ob_end_clean();
+
+        /**
+         * Register get request update on sse control to update in realtime
+         */
+        if (!empty($viewGetReceived) && !empty($route)) {
+            $name = $viewGetReceived . "_" . str_replace('/', '[@]', pathinfo($route, PATHINFO_FILENAME));
+
+            \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
+            \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
+            \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get");
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $name . ".json", json_encode(["route" => $name, "path" => $route, "haveUpdate" => "0", "db" => $_SESSION['db']]));
+        }
+
     } else {
         $data['response'] = 4;
     }

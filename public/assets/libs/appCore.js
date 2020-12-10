@@ -577,8 +577,6 @@ $(function ($) {
         let cacheName = '_cache_get_' + appFile + "_" + $this.data("get");
         let cache = await dbLocal.exeRead(cacheName);
 
-        AJAX.post('listenForViewGet', {view: appFile, route: $this.data("get")});
-
         if(isEmpty(cache)) {
 
             /**
@@ -3273,7 +3271,7 @@ const sse = {
                 for(let getUrl in sseData) {
                     let c = JSON.parse(sseData[getUrl]);
                     if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
-                        let cacheName = '_cache_' + getUrl.replaceAll(/\[@\]/g, '/');
+                        let cacheName = '_cache_get_' + getUrl.replaceAll(/\[@\]/g, '/');
                         let dados = c.data;
 
                         /**

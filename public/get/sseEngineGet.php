@@ -7,8 +7,15 @@ if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/ge
         $fileJsonGetSSE = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $item), !0);
         if($fileJsonGetSSE['haveUpdate'] === "1") {
 
+            /**
+             * Update the content file with the new content
+             */
+            $fileJsonGetSSE['haveUpdate'] = "0";
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode($fileJsonGetSSE));
+
             unset($data);
 
+            $_SESSION['db'] = [];
             ob_start();
             try {
                 include $fileJsonGetSSE['path'];
@@ -38,8 +45,9 @@ if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/ge
             /**
              * Update the content file with the new content
              */
-            $fileJsonGetSSE['haveUpdate'] = "0";
+            $fileJsonGetSSE['db'] = $_SESSION['db'];
             \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode($fileJsonGetSSE));
+
             $getSSE[$fileJsonGetSSE['route']] = json_encode($data);
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+use Helpers\Helper;
+
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
 
@@ -72,40 +74,54 @@ function startReadSSE() {
         \Config\Config::setUser($_SESSION['userlogin']['token']);
 
         /**
+         * Find all SSE on projet to add on listenner
+         */
+        include_once 'sseMoveToListenner.php';
+
+        /**
          * For each SSE on project
          */
-        foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $file => $route) {
-            $file = str_replace(".php", "", $file);
-            $data = ["response" => 1, "error" => "", "data" => ""];
+        if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse")) {
+            foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
+                $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
+                if($c['haveUpdate'] === "1") {
 
-            if(!file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $file . ".json")) {
-                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
-                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
-                \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse");
-                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $file . ".json", "");
+                    /**
+                     * Update the sse with no update pendent
+                     */
+                    $c['haveUpdate'] = "0";
+                    \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
 
-                ob_start();
+                    $data = ["response" => 1, "error" => "", "data" => ""];
 
-                try {
-                    include $route;
-                    if (!empty($data['error'])) {
-                        $data["response"] = 2;
-                        $data["data"] = "";
-                    } elseif (!isset($data['data'])) {
-                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                    } elseif (!isset($data['response'])) {
-                        $data['response'] = 1;
-                        $data['error'] = "";
+                    ob_start();
+                    try {
+                        $_SESSION['db'] = [];
+                        include $c['path'];
+                        if (!empty($data['error'])) {
+                            $data["response"] = 2;
+                            $data["data"] = "";
+                        } elseif (!isset($data['data'])) {
+                            $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                        } elseif (!isset($data['response'])) {
+                            $data['response'] = 1;
+                            $data['error'] = "";
+                        }
+
+                    } catch (Error $e) {
+                        $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
                     }
+                    ob_end_clean();
 
-                } catch (Error $e) {
-                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                    /**
+                     * Update the sse with no update pendent
+                     */
+                    $c['db'] = $_SESSION['db'];
+                    \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
+
+                    $messagesBase[$c['route']] = $data;
                 }
-
-                ob_end_clean();
             }
-
-            $messagesBase[pathinfo($route, PATHINFO_FILENAME)] = $data;
         }
 
         try {
