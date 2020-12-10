@@ -12,8 +12,5 @@ if(!$data['data']) {
 /**
  * Update the class UpdateSystem, then execute
  */
-if($data['data']) {
-    unlink(PATH_HOME . VENDOR . "config/public/src/Config/UpdateSystem.php");
-    copy(PATH_HOME . "vendor/ueb/config/public/src/Config/UpdateSystem.php", PATH_HOME . VENDOR . "config/public/src/Config/UpdateSystem.php");
+if($data['data'])
     new \Config\UpdateSystem();
-}
