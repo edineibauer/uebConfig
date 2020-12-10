@@ -1635,6 +1635,11 @@ async function setUserInNavigator(user, isUserToStore) {
     USER = user;
     localStorage.token = user.token;
 
+    /**
+     * Clear all cache for this user
+     */
+    (await window.indexedDB.databases()).forEach(db => { if(/^_cache_get_/.test(db.name)) window.indexedDB.deleteDatabase(db.name); });
+
     if (typeof isUserToStore === "undefined") {
         return storeUser().then(loadCacheUser).catch(e => {
             errorLoadingApp("obter __login", e);
