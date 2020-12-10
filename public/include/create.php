@@ -201,10 +201,6 @@ if (isset($configuracoes) || (!empty($dados['sitename']) && !empty($_FILES['favi
             if(!empty($configuracoes['geocode']) && empty($dados['geocode']))
                 $dados['geocode'] = $configuracoes['geocode'];
 
-            if(!empty($configuracoes['push_public_key']) && empty($dados['push_public_key']) && !empty($configuracoes['push_private_key']) && empty($dados['push_private_key'])) {
-                $dados['push_public_key'] = $configuracoes['push_public_key'];
-                $dados['push_private_key'] = $configuracoes['push_private_key'];
-            }
 
             if(!empty($configuracoes['emailkey']) && empty($dados['emailkey']) && !empty($configuracoes['email']) && empty($dados['email'])) {
                 $dados['emailkey'] = $configuracoes['emailkey'];

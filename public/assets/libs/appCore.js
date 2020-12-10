@@ -1114,16 +1114,6 @@ function isEmpty(valor) {
     return false;
 }
 
-function pushNotification(title, body, url, image, background) {
-    swRegistration.showNotification(title, {
-        body: body || "",
-        data: url || "",
-        icon: image || "",
-        image: background || "",
-        badge: HOME + FAVICON
-    });
-}
-
 async function checkUpdate() {
     if (isOnline() && SERVICEWORKER) {
         let latestVersion = await AJAX.post("update");
@@ -1820,27 +1810,6 @@ async function getTemplates() {
     return dbLocal.exeRead("__template", 1);
 }
 
-async function setNotificationOpen(id) {
-    db.exeCreate("notifications_report", {id: id, abriu: 1});
-}
-
-async function closeNote(id) {
-
-    /**
-     * Deleta card de notificação
-     */
-    let $note = $(".notification-item[rel='" + id + "']");
-    $note.addClass("activeRemove");
-    setTimeout(function () {
-        $note.remove();
-    }, 150);
-
-    /**
-     * Deleta notification report
-     */
-    db.exeDelete("notifications_report", id);
-}
-
 function getNotche(side) {
     return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sa" + side.substring(0, 1)));
 }
@@ -1991,83 +1960,11 @@ function updateAppOnDev() {
     });
 }
 
-function sendPushTokenToServer(token) {
-    $(".site-btn-push").remove();
-    AJAX.post('push', {
-        "push": token,
-        'p1': navigator.appName,
-        'p2': navigator.appCodeName,
-        'p3': navigator.platform
-    });
-}
-
-function subscribeUser() {
-    if (USER.setor !== 0 && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager) {
-
-        const messaging = firebase.messaging();
-        messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
-
-        if(Notification.permission === "granted") {
-
-            /**
-             * Check for token update
-             */
-            messaging.onTokenRefresh(() => {
-                messaging.getToken().then(sendPushTokenToServer);
-            });
-
-        } else if(Notification.permission === "default") {
-
-            /**
-             * Ask for permission
-             */
-            messaging.requestPermission().then(() => {
-                messaging.getToken().then(sendPushTokenToServer);
-            }).catch(err => {
-                console.log("Permissão para notificação negada. ", err);
-            });
-
-        } else {
-
-            /**
-             * Permissions denied
-             */
-            toast("Notificações já foram negadas! Para permitir novamente, limpe o cache do navegador para o site " + HOME.replace("https://", ""), 5000, "toast-infor");
-
-        }
-    }
-}
-
 async function thenAccess() {
     /**
      * Conta acesso
      */
     localStorage.accesscount = parseInt(localStorage.accesscount) + 1;
-
-    /**
-     * Check for refresh token if allready have push permission
-     * */
-    if (USER.setor !== 0 && PUSH_PUBLIC_KEY !== "" && typeof firebaseConfig !== "undefined" && swRegistration && swRegistration.pushManager && Notification && Notification.permission === "granted") {
-
-        $(".site-btn-push").remove();
-
-        const messaging = firebase.messaging();
-        messaging.usePublicVapidKey(PUSH_PUBLIC_KEY);
-        messaging.onTokenRefresh(() => {
-            messaging.getToken().then(sendPushTokenToServer);
-        });
-
-        /**
-         * receive notifications here when app open
-         */
-        messaging.onMessage((payload) => {
-            toast("<div id='push-icon'>" + payload.notification.icon + "</div><div id='push-title'>" + payload.notification.title + "</div><div id='push-body'>" + payload.notification.body + "</div>", payload.notification.time || 4000, "toast-push");
-            console.log('Message received. ', payload);
-        });
-
-    } else if (USER.setor === 0 || PUSH_PUBLIC_KEY === "" || typeof firebaseConfig === "undefined" || !swRegistration || !swRegistration.pushManager || !Notification || Notification.permission !== "default") {
-        $(".site-btn-push").remove();
-    }
 }
 
 function checkMenuActive() {
@@ -2227,7 +2124,6 @@ async function headerShow(show) {
 }
 
 var dicionarios,
-    swRegistration = null,
     aniTransitionPage = null,
     historyPosition = 1,
     historyReqPosition = 0,
@@ -3324,29 +3220,6 @@ const sse = {
                 _updateTemplateRealTime();
             }
         });
-
-        /**
-         * Notificações pendentes show badge
-         */
-        sse.add("notificationsBadge", async function (data) {
-            if (USER.setor !== 0) {
-                if (isNumberPositive(data)) {
-                    /**
-                     * Adiciona badge notification apenas no navbar mobile e se tiver a aba de notificações
-                     */
-                    let $navbarNotify = $("a[href='notificacoes']");
-                    if ($navbarNotify.length && !$navbarNotify.find("#badge-note").length) {
-                        $navbarNotify.append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
-                        if($navbarNotify.closest("#core-sidebar").length)
-                            $("#core-menu-custom-bottom > .menu-li > [onclick='toggleSidebar()']").append("<span class='badge-notification' id='badge-note'>" + data + "</span>");
-                    }
-                } else {
-                    $("#badge-note").remove();
-                }
-            } else {
-                $("#badge-note").remove();
-            }
-        });
     },
     close: () => {
         if(sse.isSSESupported() && typeof sse.base.close === "function")
@@ -3442,113 +3315,6 @@ function onHistoryBack(funcao) {
 }
 
 /**
- * Push Notification Functions
- * @param asyncFunc
- * @param onSuccess
- * @param onFailure
- * @param customTries
- */
-function trySomeTimes(asyncFunc, onSuccess, onFailure, customTries) {
-    var tries = typeof customTries === "undefined" ? 100 : customTries;
-    var interval = setTimeout(function () {
-        if (typeof asyncFunc !== "function") {
-            onSuccess("Unavailable");
-            return;
-        }
-        asyncFunc()
-            .then(function (result) {
-                if ((result !== null && result !== "") || tries < 0) {
-                    onSuccess(result);
-                } else {
-                    trySomeTimes(asyncFunc, onSuccess, onFailure, tries - 1);
-                }
-            })
-            .catch(function (e) {
-                clearInterval(interval);
-                onFailure(e);
-            });
-    }, 100);
-}
-
-function setupOnTokenRefresh() {
-    FCM.eventTarget.addEventListener(
-        "tokenRefresh",
-        function (data) {
-            AJAX.post("pushNotificationRegister", {tokenPush: data.detail, code: "FCM"});
-        },
-        false
-    );
-}
-
-function setupOnNotification() {
-    FCM.eventTarget.addEventListener(
-        "notification",
-        function (data) {
-            console.log(data.detail);
-        },
-        false
-    );
-    FCM.getInitialPushPayload()
-        .then((payload) => {
-            console.log("Initial Payload ", payload);
-        })
-        .catch((error) => {
-            console.log("Initial Payload Error ", error);
-        });
-}
-
-function registerFCMToken() {
-    console.log('FCM');
-    trySomeTimes(
-        FCM.getToken,
-        function (token) {
-            console.log(token);
-            AJAX.post("pushNotificationRegister", {tokenPush: token, code: "FCM"});
-        },
-        function (error) {
-            console.log("Error on listening for FCM token: " + error);
-        }
-    );
-}
-
-function registerAPNSToken() {
-    if (cordova.platformId !== "ios")
-        return;
-
-    FCM.getAPNSToken(
-        function (token) {
-            AJAX.post("pushNotificationRegister", {tokenPush: token, code: "APNS"});
-        },
-        function (error) {
-            console.log("Error on listening for APNS token: " + error);
-        }
-    );
-}
-
-function waitForPermission(callback) {
-    FCM.requestPushPermission()
-        .then(function (didIt) {
-            if (didIt) {
-                callback();
-            } else {
-                console.log("Push permission was not given to this application");
-            }
-        })
-        .catch(function (error) {
-            console.log("Error on checking permission: " + error);
-        });
-}
-
-function setupListeners() {
-    waitForPermission(function () {
-        registerFCMToken();
-        registerAPNSToken();
-        setupOnTokenRefresh();
-        setupOnNotification();
-    });
-}
-
-/**
  * Ao carregar todo o documento executa esta função
  */
 async function onLoadDocument() {
@@ -3581,8 +3347,6 @@ async function onLoadDocument() {
         AJAX.get("isOffline");
     };
 
-    document.addEventListener("deviceready", setupListeners, false);
-
     /**
      * Intercepta clicks em links e traduz na função "pageTransition()"
      */
@@ -3592,9 +3356,6 @@ async function onLoadDocument() {
     }).off("click", "a").on("click", "a", function (e) {
         let $this = $(this);
         let url = $this.attr("href").replace(HOME, '').replace(SERVER, '');
-
-        if ($this.hasClass("notification-title"))
-            setNotificationOpen($this.data("id"));
 
         if (timeWaitClick > 0) {
             if ($this.attr("target") !== "_blank" && !$this.hasAttr("data-preventDefault")) {
@@ -3648,22 +3409,10 @@ async function startApplication() {
     }
 }
 
-async function setServiceWorker(swReg) {
-    swRegistration = swReg;
-
-    if (USER.setor !== "0" && swRegistration.active)
-        return swRegistration.active.postMessage(JSON.stringify({token: USER.token, version: VERSION}));
-}
-
 $(function () {
     (async () => {
-        if (SERVICEWORKER && isOnline()) {
-            if (navigator.serviceWorker.controller) {
-                await navigator.serviceWorker.ready.then(setServiceWorker);
-            } else {
-                await navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION).then(setServiceWorker);
-            }
-        }
+        if (SERVICEWORKER && isOnline() && !navigator.serviceWorker.controller)
+            await navigator.serviceWorker.register(HOME + 'service-worker.js?v=' + VERSION);
 
         if (isMobile() && screen.orientation && typeof screen.orientation.lock === "function")
             screen.orientation.lock('portrait').catch(() => {});

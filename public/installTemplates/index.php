@@ -115,7 +115,6 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         const FAVICON = '<?=FAVICON?>';
         const LIMITOFFLINE = <?=LIMITOFFLINE?>;
         const APIGOOGLE = '<?=(defined('APIGOOGLE') ? APIGOOGLE : "")?>';
-        const PUSH_PUBLIC_KEY = '<?=(defined('PUSH_PUBLIC_KEY') ? PUSH_PUBLIC_KEY : "")?>';
         var USER = {};
         var FRONT = {};
         var TITLE = '<?=SITENAME?>';
@@ -169,21 +168,5 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         </nav>
     </div>
 </div>
-
-<?php if(defined('FIREBASECONFIG') && !empty(FIREBASECONFIG) && defined('PUSH_PUBLIC_KEY') && !empty(PUSH_PUBLIC_KEY)) { ?>
-<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-messaging.js"></script>
-
-<script>
-    // Your web app's Firebase configuration
-    <?=FIREBASECONFIG?>
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-</script>
-<?php } ?>
-
 </body>
 </html>

@@ -31,10 +31,6 @@
         <i class="material-icons">refresh</i>
     </div>
 
-    <div onclick="subscribeUser();" class="theme theme-border-l update-site-btn site-btn-push" style="padding:2px 5px; margin-left: 5px;cursor:pointer">
-        <i class="material-icons">notifications_active</i>
-    </div>
-
     <div id="login-aside" onclick="logoutDashboard()">
         <div>sair</div>
         <i class="material-icons">exit_to_app</i>
@@ -47,7 +43,7 @@
         btnLoginAside.children[0].innerHTML = "sair";
         btnLoginAside.children[1].innerHTML = "exit_to_app";
     } else {
-        $("#core-sidebar-edit, .site-btn-push").remove();
+        $("#core-sidebar-edit").remove();
         btnLoginAside.children[0].innerHTML = "entrar";
         btnLoginAside.children[1].innerHTML = "lock_open";
     }
