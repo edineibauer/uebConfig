@@ -84,7 +84,7 @@ function startReadSSE() {
         if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse")) {
             foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
                 $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
-                if($c['haveUpdate'] === "1") {
+                if($c['haveUpdate'] == "1") {
 
                     /**
                      * Update the sse with no update pendent

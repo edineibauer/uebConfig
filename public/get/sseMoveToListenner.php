@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Create user database on _cdn
+ */
+\Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . '/my_data.json', json_encode($_SESSION['userlogin']));
+
+/**
+ * copy all sse to listenner on _cdn
+ */
 foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $sse => $path) {
     $name = str_replace(".php", "", $sse);
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
@@ -8,6 +16,9 @@ foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $sse => $path) {
     \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" .$name . ".json", json_encode(["route" => $name, "path" => $path, "haveUpdate" => "1"]));
 }
 
+/**
+ * Set all get on _cdn to haveUpdate = 1
+ */
 $getPath = PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/get";
 if (file_exists($getPath)) {
     foreach (\Helpers\Helper::listFolder($getPath) as $getItem) {

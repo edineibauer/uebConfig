@@ -5,7 +5,7 @@ $dataBefore = $data ?? [];
 if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get")) {
     foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get") as $item) {
         $fileJsonGetSSE = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $item), !0);
-        if($fileJsonGetSSE['haveUpdate'] === "1") {
+        if($fileJsonGetSSE['haveUpdate'] == "1") {
 
             /**
              * Update the content file with the new content
