@@ -128,23 +128,23 @@ class TouchTrack {
             if ($this.isTouchCapable) {
                 el.addEventListener("touchstart", evt => {
                     $this.eventTouchStart(evt);
-                }, !1);
+                }, (supportsPassive ? {passive: true} : !1));
 
                 el.addEventListener("touchmove", evt => {
                     $this.eventTouchMove(evt);
-                }, !1);
+                }, (supportsPassive ? {passive: true} : !1));
 
                 el.addEventListener("touchend", evt => {
                     $this.eventTouchEnd(evt, index);
-                }, !1);
+                }, (supportsPassive ? {passive: true} : !1));
 
                 el.addEventListener("touchcancel", () => {
                     $this.stopMove(index);
-                }, !1);
+                }, (supportsPassive ? {passive: true} : !1));
 
                 el.addEventListener("touchleave", () => {
                     $this.stopMove(index);
-                }, !1);
+                }, (supportsPassive ? {passive: true} : !1));
 
             } else {
                 el.addEventListener("mousedown", evt => {
@@ -219,7 +219,7 @@ class TouchTrack {
         if ($this.tracking) {
 
             //just prevent if is vertical
-            if ($this.directionTrackVertical)
+            if (!supportsPassive && $this.directionTrackVertical)
                 evt.preventDefault();
 
             let touches = $this.isTouchCapable ? evt.changedTouches[0] : evt;

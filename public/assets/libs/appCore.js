@@ -1,6 +1,21 @@
 "use strict";
 
 /**
+ * Test via a getter in the options object to see if the passive property is accessed
+ * @type {boolean}
+ */
+let supportsPassive = false;
+try {
+    var opts = Object.defineProperty({}, 'passive', {
+        get: function() {
+            supportsPassive = true;
+        }
+    });
+    window.addEventListener("testPassive", null, opts);
+    window.removeEventListener("testPassive", null, opts);
+} catch (e) {}
+
+/**
  * Load a url content into a javascript variable
  * return the content and a second time return the variable
  * @param name
@@ -3325,7 +3340,7 @@ async function onLoadDocument() {
         }, 250);
     }, 100);
 
-    document.body.addEventListener('touchstart',function(){},false);
+    document.body.addEventListener("touchstart", function() {}, (supportsPassive ? {passive: true} : !1));
 
     window.oncontextmenu = function(event) {
         event.preventDefault();
