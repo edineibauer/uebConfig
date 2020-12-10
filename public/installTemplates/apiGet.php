@@ -73,12 +73,10 @@ if (!empty($url)) {
             /**
              * Search on all view get folders
              */
-            if(!empty($path)) {
-                foreach ($views as $vv) {
-                    foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
-                        if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path)
-                            return $vvv;
-                    }
+            foreach ($views as $vv) {
+                foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
+                    if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path . "/{$url}")
+                        return $vvv;
                 }
             }
         }
@@ -122,12 +120,12 @@ if (!empty($url)) {
          * Register get request update on sse control to update in realtime
          */
         if (!empty($viewGetReceived) && !empty($route)) {
-            $name = $viewGetReceived . "_" . str_replace('/', '[@]', pathinfo($route, PATHINFO_FILENAME));
+            $name = $viewGetReceived . "_" . str_replace('/', '[@]', $url);
 
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get");
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $name . ".json", json_encode(["route" => $name, "path" => $route, "haveUpdate" => "0", "db" => $_SESSION['db']]));
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $name . ".json", json_encode(["route" => $name, "path" => $route, "variaveis" => $variaveis, "haveUpdate" => "0", "db" => $_SESSION['db']]));
         }
 
     } else {

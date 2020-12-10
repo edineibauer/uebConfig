@@ -15,6 +15,7 @@ if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/ge
 
             unset($data);
 
+            $variaveis = $fileJsonGetSSE['variaveis'];
             $_SESSION['db'] = [];
             ob_start();
             try {

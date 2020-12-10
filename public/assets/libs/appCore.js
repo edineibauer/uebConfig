@@ -573,8 +573,8 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let appFile = app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "");
-        let cacheName = '_cache_get_' + appFile + "_" + $this.data("get");
+        let appFile = app.file.split("/")[0];
+        let cacheName = '_cache_get_' + appFile + "_" + replaceAll($this.data("get"), "/", "[@]");
         let cache = await dbLocal.exeRead(cacheName);
 
         if(isEmpty(cache)) {
@@ -3276,7 +3276,11 @@ const sse = {
                 for(let getUrl in sseData) {
                     let c = JSON.parse(sseData[getUrl]);
                     if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
-                        let cacheName = '_cache_get_' + getUrl.replaceAll(/\[@\]/g, '/');
+
+                        let viewName = getUrl.split("_");
+                        viewName.splice(-1,1);
+                        viewName = viewName.join("_");
+                        let cacheName = '_cache_get_' + getUrl;
                         let dados = c.data;
 
                         /**
@@ -3296,6 +3300,9 @@ const sse = {
                         /**
                          * Update DOM data-get realtime
                          */
+                        if(app.file.split("/")[0] !== viewName)
+                            continue;
+
                         while(app.loading)
                             await sleep(10);
 
