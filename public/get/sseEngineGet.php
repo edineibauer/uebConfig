@@ -33,13 +33,13 @@ if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/ge
             } catch (Error $e) {
                 $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
             }
-
             ob_end_clean();
 
             /**
              * Update the content file with the new content
              */
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode(["route" => $fileJsonGetSSE['route'], "path" => $fileJsonGetSSE['path'], "haveUpdate" => "0"]));
+            $fileJsonGetSSE['haveUpdate'] = "0";
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode($fileJsonGetSSE));
             $getSSE[$fileJsonGetSSE['route']] = json_encode($data);
         }
     }
