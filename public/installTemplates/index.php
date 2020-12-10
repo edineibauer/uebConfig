@@ -124,7 +124,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <script src='<?= HOME ?>assetsPublic/appCore.min.js?v=<?= VERSION ?>' defer></script>
 </head>
 
-<body ontouchstart="">
+<body>
 <div id="app">
 
     <!--header-->

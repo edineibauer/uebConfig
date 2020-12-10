@@ -3559,6 +3559,8 @@ async function onLoadDocument() {
         }, 250);
     }, 100);
 
+    document.body.addEventListener('touchstart',function(){},false);
+
     window.oncontextmenu = function(event) {
         event.preventDefault();
         event.stopPropagation();
