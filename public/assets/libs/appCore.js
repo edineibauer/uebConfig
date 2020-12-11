@@ -3356,8 +3356,13 @@ async function onLoadDocument() {
 
     window.onpopstate = maestruHistoryBack;
 
-    window.onbeforeunload = function () {
+    window.onbeforeunload = async function () {
         sse.close();
+
+        /**
+         * Clear all cache for this user
+         */
+        (await window.indexedDB.databases()).forEach(db => { if(/^_cache_get_/.test(db.name)) window.indexedDB.deleteDatabase(db.name); });
 
         AJAX.get("isOffline");
     };
