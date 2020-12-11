@@ -3362,7 +3362,7 @@ async function onLoadDocument() {
         /**
          * Clear all cache for this user
          */
-        (await window.indexedDB.databases()).forEach(db => { if(/^_cache_get_/.test(db.name)) window.indexedDB.deleteDatabase(db.name); });
+        window.indexedDB.databases().then(cc => {cc.forEach(db => { if(/^_cache_get_/.test(db.name)) window.indexedDB.deleteDatabase(db.name); }); });
 
         AJAX.get("isOffline");
     };
