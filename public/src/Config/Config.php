@@ -408,6 +408,15 @@ class Config
             Helper::createFolderIfNoExist($libs);
             Helper::recurseCopy(PATH_HOME . "vendor", $libs);
         }
+        /**
+         * Overload
+         */
+        foreach (array_reverse(Config::getRoutesTo("overload")) as $over) {
+            foreach (\Helpers\Helper::listFolder($over) as $overload) {
+                if(file_exists(PATH_HOME . VENDOR . $overload . "/public"))
+                    \Helpers\Helper::recurseCopy($over . $overload . (file_exists($over . $overload . "/public") ? "/public" : ""), PATH_HOME . VENDOR . $overload . "/public");
+            }
+        }
 
         self::writeFile("{$libs}/.htaccess", self::getHtaccessAssetsRule());
     }
