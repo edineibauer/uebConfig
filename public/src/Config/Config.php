@@ -407,6 +407,7 @@ class Config
             Helper::recurseDelete($libs);
             Helper::createFolderIfNoExist($libs);
             Helper::recurseCopy(PATH_HOME . "vendor", $libs);
+            Config::writeFile("vendor/.htaccess", "Deny from all");
         }
         /**
          * Overload
