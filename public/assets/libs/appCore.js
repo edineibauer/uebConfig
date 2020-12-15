@@ -610,8 +610,15 @@ $(function ($) {
             await dbLocal.clear(cacheName);
             if(!isEmpty(dados)) {
                 if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                    for(let d of dados)
+                    let count = 1;
+                    let useIdCount = typeof dados[0].id === "undefined" || !isNumberPositive(dados[0].id);
+                    for(let d of dados) {
+                        if(useIdCount)
+                            d.id = count;
+
                         dbLocal.exeCreate(cacheName, d);
+                        count++;
+                    }
                 } else {
                     dados.typeIsObject = !1;
                     dbLocal.exeCreate(cacheName, dados);
@@ -3200,8 +3207,15 @@ const sse = {
                         await dbLocal.clear(cacheName);
                         if (!isEmpty(dados)) {
                             if (typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                                for (let d of dados)
+                                let count = 1;
+                                let useIdCount = typeof dados[0].id === "undefined" || !isNumberPositive(dados[0].id);
+                                for(let d of dados) {
+                                    if(useIdCount)
+                                        d.id = count;
+
                                     dbLocal.exeCreate(cacheName, d);
+                                    count++;
+                                }
                             } else {
                                 dados.typeIsObject = !1;
                                 dbLocal.exeCreate(cacheName, dados);
