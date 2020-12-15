@@ -720,30 +720,20 @@ class Read {
         let orderReverse = typeof this.orderReverse !== "undefined" && ["desc", "DESC", "1", !0, 1].indexOf(this.orderReverse) > -1;
 
         /**
+         * Create cache for this request
+         */
+        let querySearch = JSON.stringify(filter) + "-" + columnOrder + "-" + orderReverse +  "-" + limit +  "-" + offset;
+
+        /**
          * Check for cache for this request
          */
         let findCache = !1;
         let cache = await dbLocal.exeRead('_cache_db_' + entity);
         if(!isEmpty(cache)) {
-
-            /**
-             * Prepara variáveis para comparação
-             * @type {string}
-             */
-            let querySearch = JSON.stringify(filter) + "-" + columnOrder + "-" + orderReverse +  "-" + limit +  "-" + offset;
-
             for(let c of cache) {
                 if(c.querySearch === querySearch) {
                     findCache = !0;
                     this.result = c.result;
-
-                    /**
-                     * Update cache
-                     */
-                    reportRead(entity, null, filter, null, null, null, null, null, columnOrder, orderReverse, limit, offset).then(result => {
-                        dbLocal.exeCreate("_cache_db_" + entity, {id: c.id, querySearch: querySearch, result: result});
-                    })
-
                     break;
                 }
             }
@@ -751,11 +741,6 @@ class Read {
 
         if(!findCache) {
             this.result = await reportRead(entity, null, filter, null, null, null, null, null, columnOrder, orderReverse, limit, offset);
-
-            /**
-             * Create cache for this request
-             */
-            let querySearch = JSON.stringify(filter) + "-" + columnOrder + "-" + orderReverse +  "-" + limit +  "-" + offset;
             dbLocal.exeCreate("_cache_db_" + entity, {querySearch: querySearch, result: this.result});
         }
 

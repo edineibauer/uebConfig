@@ -609,7 +609,7 @@ $(function ($) {
              * Cache the data on indexedDB
              */
             await dbLocal.clear(cacheName);
-            dbLocal.exeCreate(cacheName, {id: 1, content: JSON.stringify(dados)});
+            dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
 
         } else {
 
@@ -617,7 +617,7 @@ $(function ($) {
              * Retrieve the cache from indexedDB
              * @type {any}
              */
-            dados = JSON.parse(cache[0].content);
+            dados = JSON.parse(cache[0].result);
         }
 
         /**
@@ -673,50 +673,6 @@ $(function ($) {
         $this.find("select").each(function () {
             if ($(this).hasAttr("data-value"))
                 $(this).val($(this).data("value")).trigger("change");
-        });
-
-        /**
-         * Listen for changes on data-filter fields
-         */
-        $this.find("[data-db][data-realtime-db]").each(function(i, e) {
-            $.each(e.attributes, function () {
-                if (this.specified) {
-                    if (/^data-filter-/.test(this.name) || this.name === "data-filter") {
-                        if (this.name === "data-filter") {
-
-                        } else {
-                            let field = this.name.replace("data-filter-", "");
-                            let $filterField = $(this.value);
-                            if ($filterField.length === 1) {
-                                if ($filterField.hasAttr("type") && $filterField.attr("type") === "text") {
-                                    $filterField.off("keyup change click").on("keyup", function () {
-                                        let value = $(this).val();
-                                        clearTimeout(timerWriting);
-                                        timerWriting = setTimeout(async function () {
-                                            let data = ($(e).hasAttr("data-id") ? $(e).attr("data-id") : {});
-                                            data = isNumberPositive(data) ? {"id": data} : (isJson(data) ? JSON.parse(data) : (typeof data === "string" ? {"*": "%" + data + "%"} : {}));
-                                            if(value !== "")
-                                                data[field] = "%" + value + "%";
-                                            else if(typeof data[field] !== "undefined")
-                                                delete data[field];
-
-                                            $(e).attr("data-id", JSON.stringify(data)).loading();
-
-                                            let intL = setInterval(function() {
-                                                $(e).loading();
-                                            }, 2000);
-
-                                            await _checkRealtimeDbUpdate($(e).data("db"));
-
-                                            clearInterval(intL);
-                                        }, 300);
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            });
         });
     };
 
@@ -2349,8 +2305,11 @@ async function _checkRealtimeDbUpdate(entity) {
                  * get the data to use on template if need
                  */
                 let dados = await $tag.dbExeRead();
+
                 if ($(e).hasAttr("data-db-function") && $(e).data("db-function") !== "" && typeof window[$(e).data("db-function")] === "function")
                     dados = await window[$(e).data("db-function")](dados);
+                else if($(e).hasAttr("data-function") && $(e).data("function") !== "" && typeof window[$(e).data("function")] === "function")
+                    dados = await window[$(e).data("function")](dados);
                 else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
                     dados = await window[$tag.data("realtime-db")](dados);
 
@@ -3181,7 +3140,7 @@ const sse = {
                          * Cache the data
                          */
                         await dbLocal.clear(cacheName);
-                        dbLocal.exeCreate(cacheName, {id: 1, content: JSON.stringify(dados)});
+                        dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
 
                         /**
                          * Update DOM data-get realtime
