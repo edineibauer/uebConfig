@@ -591,6 +591,7 @@ $(function ($) {
         let appFile = app.file.split("/")[0];
         let cacheName = '_cache_get_' + appFile + "_" + replaceAll($this.data("get"), "/", "[@]");
         let cache = await dbLocal.exeRead(cacheName);
+        let dados = null;
 
         if(isEmpty(cache)) {
 
@@ -600,92 +601,67 @@ $(function ($) {
             $this._skeletonDOMApply($tpl, paramSkeleton);
 
             /**
-             * get the data to use on template if need
+             * get the data from the server
              */
-            let dados = await AJAX.get($this.data("get") + "/maestruView/" + appFile);
+            dados = await AJAX.get($this.data("get") + "/maestruView/" + appFile);
 
             /**
-             * Cache the data
+             * Cache the data on indexedDB
              */
             await dbLocal.clear(cacheName);
-            if(!isEmpty(dados)) {
-                if(typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                    let count = 1;
-                    let useIdCount = typeof dados[0].id === "undefined" || !isNumberPositive(dados[0].id);
-                    for(let d of dados) {
-                        if(useIdCount)
-                            d.id = count;
-
-                        dbLocal.exeCreate(cacheName, d);
-                        count++;
-                    }
-                } else {
-                    dados.typeIsObject = !1;
-                    dbLocal.exeCreate(cacheName, dados);
-                }
-            }
-
-            if ($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
-                dados = await window[$this.data("get-function")](dados);
-            else if ($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
-                dados = await window[$this.data("function")](dados);
-            else if ($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
-                dados = await window[$this.data("realtime-get")](dados);
-
-            let parametros = {};
-
-            if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
-                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
-            } else {
-                parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-            }
-
-            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-                parametros = await window[$this.data("param-function")](parametros);
-
-            if (!isEmpty(parametros) && typeof parametros === "object") {
-                if (!isEmpty(dados))
-                    mergeObject(dados, parametros);
-                else
-                    dados = parametros;
-            }
-
-            return $this.htmlTemplate($templateChild, dados);
+            dbLocal.exeCreate(cacheName, {id: 1, content: JSON.stringify(dados)});
 
         } else {
 
-            if(cache.length === 1 && typeof cache[0].typeIsObject !== "undefined" && !cache[0].typeIsObject)
-                cache = cache[0];
-
-            if($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
-                cache = await window[$this.data("get-function")](cache);
-            else if($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
-                cache = await window[$this.data("function")](cache);
-            else if($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
-                cache = await window[$this.data("realtime-get")](cache);
-
-            let parametros = {};
-
-            if(isEmpty(cache) && $this.hasAttr("data-template-empty")) {
-                parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-                $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
-            } else {
-                parametros = (isEmpty(cache) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
-            }
-
-            if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
-                parametros = await window[$this.data("param-function")](parametros);
-
-            if (!isEmpty(parametros) && typeof parametros === "object") {
-                if(!isEmpty(cache))
-                    mergeObject(cache, parametros);
-                else
-                    cache = parametros;
-            }
-
-            return  $this.htmlTemplate($templateChild, cache);
+            /**
+             * Retrieve the cache from indexedDB
+             * @type {any}
+             */
+            dados = JSON.parse(cache[0].content);
         }
+
+        /**
+         * Function on result if have declared
+         */
+        if ($this.hasAttr("data-get-function") && $this.data("get-function") !== "" && typeof window[$this.data("get-function")] === "function")
+            dados = await window[$this.data("get-function")](dados);
+        else if ($this.hasAttr("data-function") && $this.data("function") !== "" && typeof window[$this.data("function")] === "function")
+            dados = await window[$this.data("function")](dados);
+        else if ($this.data("realtime-get") !== "" && typeof window[$this.data("realtime-get")] === "function")
+            dados = await window[$this.data("realtime-get")](dados);
+
+        /**
+         * Empty param check, and empty template use
+         * @type {{}}
+         */
+        let parametros = {};
+        if (isEmpty(dados) && $this.hasAttr("data-template-empty")) {
+            parametros = ($this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+            $templateChild = Mustache.render($tpl.data("template-empty"), _htmlTemplateDefaultParam());
+        } else {
+            parametros = (isEmpty(dados) && $this.hasAttr("data-param-empty") ? $this.data("param-empty") : ($this.hasAttr("data-param") ? $this.data("param") : {}));
+        }
+
+        /**
+         * Empty function if declared
+         */
+        if ($this.hasAttr("data-param-function") && $this.data("param-function") !== "" && typeof window[$this.data("param-function")] === "function")
+            parametros = await window[$this.data("param-function")](parametros);
+
+        /**
+         * Merge empty param with param
+         */
+        if (!isEmpty(parametros) && typeof parametros === "object") {
+            if (!isEmpty(dados))
+                mergeObject(dados, parametros);
+            else
+                dados = parametros;
+        }
+
+        /**
+         * Render template with the results
+         */
+        return $this.htmlTemplate($templateChild, dados);
     };
 
     $.fn._functionsToExecuteAfterTemplate = async function() {
@@ -3205,22 +3181,7 @@ const sse = {
                          * Cache the data
                          */
                         await dbLocal.clear(cacheName);
-                        if (!isEmpty(dados)) {
-                            if (typeof dados === "object" && dados !== null && dados.constructor === Array) {
-                                let count = 1;
-                                let useIdCount = typeof dados[0].id === "undefined" || !isNumberPositive(dados[0].id);
-                                for(let d of dados) {
-                                    if(useIdCount)
-                                        d.id = count;
-
-                                    dbLocal.exeCreate(cacheName, d);
-                                    count++;
-                                }
-                            } else {
-                                dados.typeIsObject = !1;
-                                dbLocal.exeCreate(cacheName, dados);
-                            }
-                        }
+                        dbLocal.exeCreate(cacheName, {id: 1, content: JSON.stringify(dados)});
 
                         /**
                          * Update DOM data-get realtime
