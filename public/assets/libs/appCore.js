@@ -593,6 +593,14 @@ $(function ($) {
         let cache = await dbLocal.exeRead(cacheName);
         let dados = null;
 
+        /**
+         * Store the name of _cache_get to clear after on safari
+         * @type {any|*[]}
+         */
+        let cachedGet = localStorage.cachedGet ? JSON.parse(localStorage.cachedGet) : [];
+        cachedGet.push(cacheName);
+        localStorage.cachedGet = JSON.stringify(cachedGet);
+
         if(isEmpty(cache)) {
 
             /**
@@ -1582,7 +1590,10 @@ async function setUserInNavigator(user, isUserToStore) {
     /**
      * Clear all cache for this user
      */
-    (await window.indexedDB.databases()).forEach(db => { if(/^_cache_get_/.test(db.name)) window.indexedDB.deleteDatabase(db.name); });
+    if(localStorage.cachedGet) {
+        for(let n of JSON.parse(localStorage.cachedGet))
+            await dbLocal.clear(n);
+    }
 
     if (typeof isUserToStore === "undefined") {
         return storeUser().then(loadCacheUser).catch(e => {
