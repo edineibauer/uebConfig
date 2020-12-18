@@ -2158,8 +2158,12 @@ async function renderDataGet(get, dados) {
     /**
      * First, find by the variables used
      */
-    sse.baseViewData[app.file].dom.find("[data-get='" + get + "'][data-realtime-get]").each(async function (i, e) {
-        let $t = $("<div>" + sse.baseViewData[app.file].template + "</div>").find("[data-get='" + get + "'][data-realtime-get]").eq(i);
+    sse.baseViewData[app.file].dom.find("[data-realtime-get]").each(async function (i, e) {
+        let tGet = $(e).attr("data-get");
+        if(isEmpty(tGet) || tGet !== get)
+            return;
+
+        let $t = $("<div>" + sse.baseViewData[app.file].template + "</div>").find("[data-realtime-get]").eq(i);
         if($t.length) {
 
             /**
@@ -2167,6 +2171,8 @@ async function renderDataGet(get, dados) {
              */
             if ($(e).hasAttr("data-get-function") && $(e).data("get-function") !== "" && typeof window[$(e).data("get-function")] === "function")
                 dados = await window[$(e).data("get-function")](dados);
+            else if ($(e).hasAttr("data-function") && $(e).data("function") !== "" && typeof window[$(e).data("function")] === "function")
+                dados = await window[$(e).data("function")](dados);
             else if ($(e).data("realtime-get") !== "" && typeof window[$(e).data("realtime-get")] === "function")
                 dados = await window[$(e).data("realtime-get")](dados);
 
@@ -3163,7 +3169,7 @@ const sse = {
                             await sleep(10);
 
                         setTimeout(function() {
-                            renderDataGet(cacheName.replace("_cache_get_" + app.file.split("/")[0] + (!isEmpty(PARAM) ? "/" + PARAM.join("/") : "") + "_", ""), dados);
+                            renderDataGet(replaceAll(getUrl, "[@]", "/").replace(app.file.split("/")[0] + "_", ""), dados);
                         }, 50);
                     }
                 }
@@ -3346,6 +3352,7 @@ async function startApplication() {
     await menuConstructor();
     await readRouteState();
     await onLoadDocument();
+    localStorage.navigationCount = 0;
 
     await (!localStorage.accesscount ? firstAccess() : thenAccess());
 
