@@ -2590,6 +2590,7 @@ var PARAM, app = {
  * @returns {Promise<unknown[]>}
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
+    localStorage.navigationCount ++;
     let reload = typeof route === "undefined";
     let isGridView = typeof history.state !== "undefined" && history.state !== null && typeof history.state.type === "string" && history.state.type === "grid";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
@@ -2954,7 +2955,11 @@ function readRouteState() {
 function goLinkPageTransition(url, $this, e) {
     if (url === "#back") {
         e.preventDefault();
-        history.back();
+
+        if(localStorage.navigationCount === "0")
+            location.href = HOME;
+        else
+            history.back();
     } else {
         let animation = $this.data("animation") || "forward";
         let target = $this.data("target") || "#core-content";
