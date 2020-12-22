@@ -588,8 +588,7 @@ $(function ($) {
         /**
          * Check cache values to apply before
          */
-        let appFile = app.file.split("/")[0];
-        let cacheName = '_cache_get_' + appFile + "_" + replaceAll($this.data("get"), "/", "[@]");
+        let cacheName = '_cache_get_' + replaceAll(app.file, "/", "[@]") + "___" + replaceAll($this.data("get"), "/", "[@]");
         let cache = await dbLocal.exeRead(cacheName);
         let dados = null;
 
@@ -2384,7 +2383,15 @@ var PARAM, app = {
         }, 1900);
     }, applyView: async function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
-        AJAX.post('setUserLastView', {"v": app.file});
+        let resultSSEget = await AJAX.post('setUserLastView', {"v": app.file});
+
+        /**
+         * Update the cache get if have before load view
+         */
+        if(!isEmpty(resultSSEget)) {
+            for(let cacheName in resultSSEget)
+                dbLocal.exeCreate("_cache_get_" + cacheName, {id: 1, result: JSON.stringify(resultSSEget[cacheName].data)});
+        }
 
         if ($div.html() !== "") {
             let pageHeader = $div.data('header');
