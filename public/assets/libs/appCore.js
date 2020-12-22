@@ -611,7 +611,7 @@ $(function ($) {
             /**
              * get the data from the server
              */
-            dados = await AJAX.get($this.data("get") + "/maestruView/" + appFile);
+            dados = await AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]"));
 
             /**
              * Cache the data on indexedDB
@@ -3152,10 +3152,10 @@ const sse = {
                     let c = JSON.parse(sseData[getUrl]);
                     if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
 
-                        let viewName = getUrl.split("_");
-                        viewName.splice(-1,1);
-                        viewName = viewName.join("_");
                         let cacheName = '_cache_get_' + getUrl;
+                        let splited = getUrl.split("___");
+                        let viewName = replaceAll(splited[0], "[@]", "/");
+                        let request = replaceAll(splited[1], "[@]", "/");
                         let dados = c.data;
 
                         /**
@@ -3167,14 +3167,14 @@ const sse = {
                         /**
                          * Update DOM data-get realtime
                          */
-                        if(app.file.split("/")[0] !== viewName)
+                        if(app.file !== viewName)
                             continue;
 
                         while(app.loading)
                             await sleep(10);
 
                         setTimeout(function() {
-                            renderDataGet(replaceAll(getUrl, "[@]", "/").replace(app.file.split("/")[0] + "_", ""), dados);
+                            renderDataGet(request, dados);
                         }, 50);
                     }
                 }
