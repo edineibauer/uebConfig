@@ -11,7 +11,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="darkmode">
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="index, follow"/>
@@ -118,6 +118,9 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         var USER = {};
         var FRONT = {};
         var TITLE = '<?=SITENAME?>';
+        if(localStorage.darkmode && localStorage.darkmode === "0")
+            $("html").removeClass("darkmode");
+
     </script>
 
     <script src='<?= HOME ?>assetsPublic/appCore.min.js?v=<?= VERSION ?>' defer></script>
