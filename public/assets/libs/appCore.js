@@ -1091,8 +1091,6 @@ async function checkUpdate() {
 function closeSidebar() {
     $("#app").off("mouseup");
     $("#core-sidebar, #core-overlay").removeClass("active");
-    if (window.innerWidth > 899)
-        $("#core-sidebar").css("top", ($("#core-header")[0].clientHeight - 50) + "px");
 
     setTimeout(function () {
         $("#core-sidebar").addClass("hide");

@@ -655,28 +655,32 @@ Allow from env=let_me_in';
         return $list;
     }
 
+
+
     /**
      * @param string $dir
-     * @param string|array $extensao
+     * @param string $extensao
+     * @param bool $allowSubFolders
      * @return array
      */
-    public static function getRoutesFilesTo(string $dir, $extensao = ""): array
+    public static function getRoutesFilesTo(string $dir, $extensao = "", bool $allowSubFolders = true): array
     {
         $list = [];
         foreach (self::getRoutesTo($dir) as $path)
-            $list = self::getFilesRoute($path, $extensao, $list, "");
+            $list = self::getFilesRoute($path, $extensao, $list, "", $allowSubFolders);
 
         return $list;
     }
 
     /**
      * @param string $path
-     * @param string|array $extensao
+     * @param $extensao
      * @param array $list
      * @param string $fileDir
+     * @param bool $allowSubFolders
      * @return array
      */
-    private static function getFilesRoute(string $path, $extensao, array $list, string $fileDir): array
+    private static function getFilesRoute(string $path, $extensao, array $list, string $fileDir, bool $allowSubFolders = true): array
     {
         if (file_exists($path)) {
             $setor = self::getSetor();
@@ -684,12 +688,47 @@ Allow from env=let_me_in';
             foreach (Helper::listFolder($path) as $item) {
                 if ($item !== ".htaccess" && !is_dir($path . $item) && ((is_string($extensao) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao)) || (is_array($extensao) && (empty($extensao) || in_array(pathinfo($item, PATHINFO_EXTENSION), $extensao)))) && !in_array($item, array_keys($list)))
                     $list[$fileDir . (!empty($fileDir) ? "/" : "") . $item] = $path . $item;
-                elseif(is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
-                    $list = self::getFilesRoute($path . $item . "/", $extensao, $list, $fileDir . (!empty($fileDir) ? "/" : "") . $item);
+                elseif($allowSubFolders && is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
+                    $list = self::getFilesRoute($path . $item . "/", $extensao, $list, $fileDir . (!empty($fileDir) ? "/" : "") . $item, $allowSubFolders);
             }
         }
 
         return $list;
+    }
+
+    /**
+     * Return all user view allow
+     * Allow to filter by views to show on Menu
+     * @param bool $filterMenuShow
+     * @return array
+     */
+    public static function getViewsUser(bool $filterMenuShow = false):array
+    {
+        $views = [];
+        $setores = \Config\Config::getSetores();
+        foreach (\Config\Config::getRoutesTo("view") as $dir) {
+            foreach (\Helpers\Helper::listFolder($dir) as $view) {
+                if(!is_dir($dir . $view) || in_array($view, $setores) || in_array($view, $views))
+                    continue;
+
+                $jsons = \Config\Config::getRoutesFilesTo("view/" . $view, "json", !1);
+                if(empty($jsons))
+                    continue;
+
+                foreach ($jsons as $json) {
+                    $c = json_decode(file_get_contents($json), !0);
+                    if($filterMenuShow && isset($c['menu']) && !$c['menu'])
+                        continue;
+
+                    if (!empty($c['setor']) && ((is_string($c['setor']) && $c['setor'] !== $_SESSION['userlogin']['setor']) || (is_array($c['setor']) && !in_array($_SESSION['userlogin']['setor'], $c['setor']))))
+                        continue;
+
+                    if (empty($c['!setor']) || (is_string($c['!setor']) && $c['!setor'] !== $_SESSION['userlogin']['setor']) || (is_array($c['!setor']) && !in_array($_SESSION['userlogin']['setor'], $c['!setor'])))
+                        $views[] = $view;
+                }
+            }
+        }
+        return $views;
     }
 
     /**

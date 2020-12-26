@@ -119,7 +119,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
         var FRONT = {};
         var TITLE = '<?=SITENAME?>';
         if(localStorage.darkmode && localStorage.darkmode === "0")
-            $("html").removeClass("darkmode");
+            document.getElementsByTagName("html")[0].classList.remove("darkmode");
 
     </script>
 
@@ -133,7 +133,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <div id="core-header"></div>
 
     <!--sidebar-->
-    <aside id="core-sidebar" class="core-class-container hide"></aside>
+    <aside id="core-sidebar" class="core-class-container hide mode-background-colorBox mode-text-colorText"></aside>
 
     <!--overlay default-->
     <div id="core-overlay"></div>

@@ -1,4 +1,3 @@
 <?php
 
-$menu = new \Config\Menu();
-$data['data'] = $menu->getMenu();
+$data['data'] = \Config\Config::getViewsUser(!0);

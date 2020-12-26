@@ -217,12 +217,6 @@ $(function () {
             toast("Sem Conexão", 3000, 'toast-warning')
         }
 
-    }).off("click", ".btn-table-novo").on("click", ".btn-table-novo", function () {
-        pageTransition(grids[$(this).attr("rel")].entity, 'form', 'forward', "#dashboard");
-
-    }).off("click", ".btn-table-edit").on("click", ".btn-table-edit", function () {
-        pageTransition(grids[$(this).attr("rel")].entity, 'form', 'forward', "#dashboard", {id: $(this).attr("data-id")})
-
     }).off("change", ".switch-status-table").on("change", ".switch-status-table", function () {
         let $this = $(this);
         let grid = grids[$this.attr("rel")];

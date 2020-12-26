@@ -408,23 +408,33 @@ select select:focus {
 }
 
 .table-all {
-    border: 1px solid #ccc;
+    border: 1px solid var(--colorLine);
 }
 
 .bordered tr, .table-all tr {
-    border-bottom: 1px solid #ddd
+    border-bottom: 1px solid var(--colorLine)
 }
 
 .striped tbody tr:nth-child(even) {
-    background-color: #f1f1f1
+    background-color: var(--colorLine);
 }
 
 .table-all tr:nth-child(odd) {
-    background-color: #fff
+    background-color: var(--colorBox);
 }
 
 .table-all tr:nth-child(even) {
-    background-color: #f1f1f1
+    background-color: var(--colorLine);
+}
+
+.table-all tr:nth-child(odd) button, .table-all tr:nth-child(odd) a {
+    background-color: var(--colorLine);
+    color: var(--colorText);
+}
+
+.table-all tr:nth-child(even) button, .table-all tr:nth-child(even) a {
+    background-color: var(--colorBox);
+    color: var(--colorText);
 }
 
 .hoverable tbody tr:hover, .ul.hoverable li:hover {
@@ -1609,7 +1619,7 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
 }
 
 .border {
-    border: 1px solid #ccc !important
+    border: 1px solid #ccc
 }
 
 .border-top {
@@ -1944,15 +1954,15 @@ input[type=checkbox].check:disabled + .validate, input[type=radio].radio:disable
 }
 
 .card, .example, .z-depth-2 {
-	box-shadow: 1px 1px 4px 0 rgba(0,0,0,.12)!important;
+    box-shadow: 1px 1px 4px 0 rgba(0,0,0,.12)!important;
 }
 
 .card-4, .z-depth-4, .hover-shadow:hover {
-	box-shadow: 2px 2px 4px 0 rgba(0,0,0,.1)!important;
+    box-shadow: 2px 2px 4px 0 rgba(0,0,0,.1)!important;
 }
 
 .card-6, .z-depth-6 {
-	box-shadow: 3px 3px 5px 0 rgba(0,0,0,.15)!important;
+    box-shadow: 3px 3px 5px 0 rgba(0,0,0,.15)!important;
 }
 
 .btn:hover {

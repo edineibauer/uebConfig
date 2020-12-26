@@ -1,0 +1,103 @@
+:root {
+    --colorBackground: #EEEEEE;
+    --colorShadow: #bbbbbb45;
+    --colorLine: #BBBBBB33;
+    --colorBox: #FFFFFF;
+    --colorText: #2a2a2a;
+}
+
+html.darkmode:root {
+    --colorBackground: #2a2a2a;
+    --colorShadow: #00000030;
+    --colorLine: #00000033;
+    --colorBox: #353535;
+    --colorText: #FFFFFF;
+}
+
+html {
+    background-color: var(--colorBackground)!important;
+    color: var(--colorText)!important;
+    border-color: var(--colorLine)!important;
+    transition: background-color ease 0s!important;
+}
+
+body, #app, #core-content {
+    background-color: transparent!important;
+    color: transparent!important;
+    border-color: transparent!important;
+}
+
+.card {
+    background-color: var(--colorBox)!important;
+    color: var(--colorText)!important;
+    border-color: var(--colorLine)!important;
+}
+
+.bootstrap-css {
+    background-color: var(--colorBox)!important;
+    color: var(--colorText)!important;
+}
+
+.bootstrap-css a {
+    color: var(--colorText)!important;
+}
+
+.mode-background-colorBackground {
+    background-color: var(--colorBackground) !important;
+}
+
+.mode-text-colorBackground {
+    color: var(--colorBackground) !important;
+}
+
+.mode-border-colorBackground {
+    border-color: var(--colorBackground) !important;
+}
+
+.mode-background-colorShadow {
+    background-color: var(--colorShadow) !important;
+}
+
+.mode-text-colorShadow {
+    color: var(--colorShadow) !important;
+}
+
+.mode-border-colorShadow {
+    border-color: var(--colorShadow) !important;
+}
+
+.mode-background-colorLine {
+    background-color: var(--colorLine) !important;
+}
+
+.mode-text-colorLine {
+    color: var(--colorLine) !important;
+}
+
+.mode-border-colorLine {
+    border-color: var(--colorLine) !important;
+}
+
+.mode-background-colorBox {
+    background-color: var(--colorBox) !important;
+}
+
+.mode-text-colorBox {
+    color: var(--colorBox) !important;
+}
+
+.mode-border-colorBox {
+    border-color: var(--colorBox) !important;
+}
+
+.mode-background-colorText {
+    background-color: var(--colorText) !important;
+}
+
+.mode-text-colorText {
+    color: var(--colorText) !important;
+}
+
+.mode-border-colorText {
+    border-color: var(--colorText) !important;
+}
