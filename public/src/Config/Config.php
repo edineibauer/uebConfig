@@ -310,7 +310,7 @@ class Config
     public static function haveEntityPermission(string $entity, array $options = []): bool
     {
         $setor = self::getSetor();
-        if ($setor === "admin")
+        if ($setor === "admin" && $options !== ["menu"])
             return !0;
 
         $permissoes = self::getPermission($setor);

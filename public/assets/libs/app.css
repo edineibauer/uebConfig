@@ -539,7 +539,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 #core-sidebar-menu li {
     float: left;
     width: 100%;
-    padding: 10px 5px 10px 20px;
+    padding: 10px 5px 10px 10px;
 }
 
 #core-sidebar-menu > a:hover {
