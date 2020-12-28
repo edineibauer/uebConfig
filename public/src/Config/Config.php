@@ -320,6 +320,9 @@ class Config
         if (empty($permissoes[$entity]))
             return !1;
 
+        if (in_array("menu", $options) && (!isset($permissoes[$entity]['menu']) || !$permissoes[$entity]['menu']))
+            return !1;
+
         if (in_array("read", $options) && (!isset($permissoes[$entity]['read']) || !$permissoes[$entity]['read']))
             return !1;
 
