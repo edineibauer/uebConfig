@@ -684,7 +684,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, .1);
+    background-color: rgb(0 0 0 / 40%);
     z-index: 10000;
     -webkit-transition: opacity 0.2s ease;
     -moz-transition: opacity 0.2s ease;

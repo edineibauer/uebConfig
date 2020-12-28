@@ -1100,19 +1100,16 @@ function closeSidebar() {
 
 function openSidebar() {
     let $sidebar = $("#core-sidebar").removeClass("hide");
-    if (window.innerWidth > 899) {
-        $sidebar.css("top", $("#core-header").children(":not(.loading)").first()[0].clientHeight + "px").addClass("active");
-    } else {
-        $("#core-overlay").addClass("active");
-        $sidebar.css("top", 0);
-        setTimeout(function () {
-            $sidebar.addClass("active");
-        }, 50);
-    }
+    $("#core-overlay").addClass("active");
+
+    setTimeout(function () {
+        $sidebar.addClass("active");
+    }, 50);
 
     $("#app").on("mouseup", function (e) {
-        if (!$sidebar.is(e.target) && $sidebar.has(e.target).length === 0)
-            closeSidebar()
+        setTimeout(function () {
+            closeSidebar();
+        }, 50);
     });
 
     onHistoryBack(function() {

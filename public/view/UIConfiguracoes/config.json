@@ -4,6 +4,7 @@
   "js": ["coreGrid", "coreForm", "coreReport"],
   "css": ["w3"],
   "!setor": "0",
+  "icon": "settings",
   "templates": [
     "menuLi",
     "menuCard"

@@ -2,5 +2,6 @@
   "title": "{{sitename}}",
   "header": false,
   "navbar": false,
+  "menu": false,
   "templates": ["cardMovie"]
 }
