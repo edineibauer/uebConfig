@@ -1,4 +1,4 @@
-<div class="theme core-class-container" id="core-sidebar-header">
+<div class="core-class-container mode-background-colorLine mode-text-colorText" id="core-sidebar-header">
     <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
         <div class="left" id="core-sidebar-imagem">
             {{#USER.imagem}}
@@ -22,12 +22,20 @@
 </div>
 
 <div id="core-sidebar-main" class="core-class-container">
-    <ul id="core-applications" class="core-class-container"></ul>
-    <ul id="core-sidebar-menu" class="core-class-container"></ul>
+    <ul id="core-sidebar-menu" class="core-class-container mode-text-colorText" data-get="menu">
+        {{#.}}
+            <a data-preventDefault="true" href="#" onclick="pageTransitionOnIframe('{{view}}', '{{title}}')">
+                <li>
+                    {{#icon}}<i class="material-icons pr-2" style="width: 25px">{{icon}}</i>{{/icon}}
+                    <div class="float-left" style="width: calc(100% - 25px)">{{title}}</div>
+                </li>
+            </a>
+        {{/.}}
+    </ul>
 </div>
 
 <div class="core-sidebar-bottom">
-    <div onclick="updateAppUser();" class="theme theme-border-l update-site-btn">
+    <div onclick="updateAppUser();" class="mode-background-colorBox update-site-btn">
         <i class="material-icons">refresh</i>
     </div>
 
