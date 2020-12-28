@@ -724,7 +724,7 @@ Allow from env=let_me_in';
                         continue;
 
                     if (empty($c['!setor']) || (is_string($c['!setor']) && $c['!setor'] !== $_SESSION['userlogin']['setor']) || (is_array($c['!setor']) && !in_array($_SESSION['userlogin']['setor'], $c['!setor'])))
-                        $views[] = ["view" => $view, "title" => ucwords(str_replace(["_", "-"]. " ", (!empty($c['title']) ? ($c['title'] === "{{sitename}}" ? $view : $c['title']) : $view))), "icon" => $c['icon'] ?? ""];
+                        $views[] = ["view" => $view, "title" => ucwords(str_replace(["_", "-"], " ", (!empty($c['title']) ? ($c['title'] === "{{sitename}}" ? $view : $c['title']) : $view))), "icon" => $c['icon'] ?? ""];
                 }
             }
         }
