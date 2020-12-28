@@ -3330,9 +3330,9 @@ async function onLoadDocument() {
 
     }).off("click", "a").on("click", "a", function (e) {
         let $this = $(this);
-        let url = $this.attr("href").replace(HOME, '').replace(SERVER, '');
 
         if (timeWaitClick > 0) {
+            let url = $this.attr("href").replace(HOME, '').replace(SERVER, '');
             if ($this.attr("target") !== "_blank" && !$this.hasAttr("data-preventDefault")) {
                 e.preventDefault();
                 setTimeout(function () {
@@ -3340,7 +3340,10 @@ async function onLoadDocument() {
                 }, timeWaitClick);
             }
         } else if (!$this.hasAttr("data-preventDefault")) {
+            let url = $this.attr("href").replace(HOME, '').replace(SERVER, '');
             goLinkPageTransition(url, $this, e);
+        } else {
+            e.preventDefault();
         }
     }).off("submit", "form").on("submit", "form", function (e) {
         e.preventDefault()
