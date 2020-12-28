@@ -148,7 +148,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     </div>
 
     <!--Splashscreen-->
-    <div class="core-class-container theme" id="core-loader-container">
+    <div class="core-class-container mode-background-colorBackground mode-text-colorText" id="core-loader-container">
         <div class="core-class-container" id="core-loader-logo">
             <img src="<?= !empty(LOGO) ? HOME . "assetsPublic/img/logo." . pathinfo(LOGO, PATHINFO_EXTENSION) : HOME . "assetsPublic/img/favicon.png" ?>" height="50" style="max-height: 50px;" />
         </div>
