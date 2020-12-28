@@ -1998,6 +1998,8 @@ function defaultPageTransitionPosition(direction, $element, route, scroll) {
     if (direction === 'fade') {
         $aux.animate({opacity: 0}, 0);
         $element.animate({opacity: 1}, 0)
+    } else {
+        $aux.css("display", "none");
     }
 
     return $aux
@@ -2730,6 +2732,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
             if(topDistanceAux < 0)
                 style['top'] = topDistanceAux + "px";
 
+            $page.css("display", "block");
             window["animate" + ucFirst(animation)]($element, $page, style, backup, scrollNext);
         });
 
