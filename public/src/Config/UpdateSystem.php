@@ -197,8 +197,11 @@ class UpdateSystem
 
     private function deleteInstall()
     {
-        unlink(PATH_HOME . VENDOR . "config/public/startup.php");
-        Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/include");
+        if(file_exists(PATH_HOME . VENDOR . "config/public/startup.php"))
+            unlink(PATH_HOME . VENDOR . "config/public/startup.php");
+
+        if(file_exists(PATH_HOME . VENDOR . "config/public/include"))
+            Helper::recurseDelete(PATH_HOME . VENDOR . "config/public/include");
     }
 
     /**
@@ -226,8 +229,11 @@ class UpdateSystem
         /**
          * Delete all caches
          */
-        Helper::recurseDelete(PATH_HOME . "assetsPublic");
-        Helper::recurseDelete(PATH_HOME . "templates_c");
+        if(file_exists(PATH_HOME . "assetsPublic"))
+            Helper::recurseDelete(PATH_HOME . "assetsPublic");
+
+        if(file_exists(PATH_HOME . "templates_c"))
+            Helper::recurseDelete(PATH_HOME . "templates_c");
 
         Config::createDir("assetsPublic");
         Config::createDir("assetsPublic/img");
