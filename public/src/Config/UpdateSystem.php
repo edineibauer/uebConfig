@@ -541,7 +541,9 @@ class UpdateSystem
         Config::writeFile("assetsPublic/.htaccess", "Options -Indexes");
         Config::writeFile("entity/.htaccess", "Deny from all");
         Config::writeFile("public/.htaccess", Config::getHtaccessAssetsRule());
-        Config::writeFile("templates_c/.htaccess", Config::getHtaccessAssetsRule());
+
+        if(file_exists(PATH_HOME . "templates_c"))
+            Config::writeFile("templates_c/.htaccess", Config::getHtaccessAssetsRule());
 
         if (!file_exists(PATH_HOME . "entity/general/general_info.json"))
             Config::writeFile("entity/general/general_info.json", "[]");
