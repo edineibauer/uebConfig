@@ -376,7 +376,7 @@ class Config
         $sql->exeCommand(
             "DROP TABLE IF EXISTS " . PRE . "wcache_" . $entity . ";"
             . "CREATE TABLE IF NOT EXISTS `" . PRE . "wcache_" . $entity . "` (`id` INT(11) NOT NULL, `system_id` INT(11) DEFAULT NULL, `ownerpub` INT(11) DEFAULT NULL, `data` longtext DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
-            . "ALTER TABLE `" . PRE . "wcache_" . $entity . "` ADD PRIMARY KEY (`id`), ADD PRIMARY KEY (`system_id`), ADD PRIMARY KEY (`ownerpub`), MODIFY `id` int(11) NOT NULL AUTO_INCREMENT", !0);
+            . "ALTER TABLE `" . PRE . "wcache_" . $entity . "` ADD PRIMARY KEY (`id`), ADD KEY `system_id` (`system_id`), ADD KEY `ownerpub` (`ownerpub`), ADD CONSTRAINT `" . PRE . "wcache_" . $entity . "_ibfk_1` FOREIGN KEY (`ownerpub`) REFERENCES `" . PRE . "usuarios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION", !0);
     }
 
     /**
