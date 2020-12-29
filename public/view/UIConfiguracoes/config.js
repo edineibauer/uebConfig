@@ -21,7 +21,7 @@ async function menuDashboard() {
     $menu.html("");
     for(let m of menu) {
         let result = await db.exeRead(m.entity);
-        $menu.append("<a href='form-maestru/" + m.entity + (!isEmpty(result) ? "/" + result[0].id : "") + "' data-target='#config-panel'><i class='material-icons left'>" + m.icon + "</i><span class='left padding-tiny padding-left'>" + m.title + "</span></a>");
+        $menu.append("<a href='form-maestru/" + m.entity + (!isEmpty(result) ? "/" + result[0].id : "") + "' data-target='#config-panel'><i class='material-icons left'>" + m.icon + "</i><span class='left padding-tiny'>" + m.title + "</span></a>");
         if(isEmpty(result)) {
             /**
              * track change on menu ID
