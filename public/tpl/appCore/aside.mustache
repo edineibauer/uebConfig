@@ -13,7 +13,7 @@
             <div class="core-class-container" id="core-header-name">
                 <strong id="core-sidebar-nome">{{USER.nome}}</strong>
 
-                <span id="core-sidebar-edit" class="btn-edit-perfil">
+                <span id="core-sidebar-edit" class="btn-edit-perfil" onclick="pageTransitionOnIframe('form-maestru/{{USER.setor}}/{{USER.setorData.id}}', 'Perfil')">
                     <i class="material-icons">edit</i>
                 </span>
             </div>
@@ -36,12 +36,12 @@
 
 <div class="core-sidebar-bottom">
     <div onclick="updateAppUser();" class="mode-background-colorBox update-site-btn">
-        <i class="material-icons">refresh</i>
+        <i class="material-icons mode-text-colorText">refresh</i>
     </div>
 
     <div id="login-aside" onclick="logoutDashboard()">
-        <div>sair</div>
-        <i class="material-icons">exit_to_app</i>
+        <div class="mode-text-colorText">sair</div>
+        <i class="material-icons mode-text-colorText">exit_to_app</i>
     </div>
 </div>
 

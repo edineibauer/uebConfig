@@ -30,63 +30,55 @@ class Config
                 $user['setorData'] = [];
                 $user['systemData'] = [];
 
-                if ($user['status'] === "1") {
+                if ($user['status'] === "1" && !empty($user['setor'])) {
 
                     /**
-                     * Search for setor Data
+                     * Check to get setor data
                      */
-                    if (!empty($user['setor'])) {
-
-                        /**
-                         * Check to get setor data
-                         */
-                        $read = new Read();
-                        $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0);
-                        if($read->getResult()) {
-                            $setorInfo = Metadados::getInfo($user['setor']);
-                            $setorDic = Metadados::getDicionario($user['setor']);
-                            foreach ($read->getResult()[0] as $coluna => $valor) {
-                                if(in_array($coluna, $setorInfo['columns_readable'])) {
-                                    foreach ($setorDic as $meta) {
-                                        if($meta['column'] === $coluna) {
-                                            $m = new Meta($meta);
-                                            $m->setValue($valor);
-                                            $user['setorData'][$coluna] = $m->getValue();
-                                            break;
-                                        }
+                    $read = new Read();
+                    $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0);
+                    if ($read->getResult()) {
+                        $setorInfo = Metadados::getInfo($user['setor']);
+                        $setorDic = Metadados::getDicionario($user['setor']);
+                        foreach ($read->getResult()[0] as $coluna => $valor) {
+                            if (in_array($coluna, $setorInfo['columns_readable'])) {
+                                foreach ($setorDic as $meta) {
+                                    if ($meta['column'] === $coluna) {
+                                        $m = new Meta($meta);
+                                        $m->setValue($valor);
+                                        $user['setorData'][$coluna] = $m->getValue();
+                                        break;
                                     }
-                                }
-                            }
-                            $user['setorData']['id'] = (int) $read->getResult()[0]['id'];
-                            $user['setorData']['system_id'] = !empty($read->getResult()[0]['system_id']) ? (int) $read->getResult()[0]['system_id'] : null;
-
-                            /**
-                             * Check to get System data
-                             */
-                            if (!empty($user['setorData']) && !empty($user['setorData']['system_id']) && !empty($setorInfo['system'])) {
-                                $user['system_id'] = $user['setorData']['system_id'];
-                                $read->exeRead($setorInfo['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
-                                if($read->getResult()) {
-                                    $systemInfo = Metadados::getInfo($setorInfo['system']);
-                                    $systemDic = Metadados::getDicionario($setorInfo['system']);
-                                    foreach ($read->getResult()[0] as $coluna => $valor) {
-                                        if(in_array($coluna, $systemInfo['columns_readable'])) {
-                                            foreach ($systemDic as $meta) {
-                                                if($meta['column'] === $coluna) {
-                                                    $m = new Meta($meta);
-                                                    $m->setValue($valor);
-                                                    $user['systemData'][$coluna] = $m->getValue();
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    $user['systemData']['id'] = (int) $read->getResult()[0]['id'];
                                 }
                             }
                         }
-                    } else {
-                        $user['setor'] = "admin";
+                        $user['setorData']['id'] = (int)$read->getResult()[0]['id'];
+                        $user['setorData']['system_id'] = !empty($read->getResult()[0]['system_id']) ? (int)$read->getResult()[0]['system_id'] : null;
+
+                        /**
+                         * Check to get System data
+                         */
+                        if (!empty($user['setorData']) && !empty($user['setorData']['system_id']) && !empty($setorInfo['system'])) {
+                            $user['system_id'] = $user['setorData']['system_id'];
+                            $read->exeRead($setorInfo['system'], "WHERE id = :si", "si={$user['setorData']['system_id']}");
+                            if ($read->getResult()) {
+                                $systemInfo = Metadados::getInfo($setorInfo['system']);
+                                $systemDic = Metadados::getDicionario($setorInfo['system']);
+                                foreach ($read->getResult()[0] as $coluna => $valor) {
+                                    if (in_array($coluna, $systemInfo['columns_readable'])) {
+                                        foreach ($systemDic as $meta) {
+                                            if ($meta['column'] === $coluna) {
+                                                $m = new Meta($meta);
+                                                $m->setValue($valor);
+                                                $user['systemData'][$coluna] = $m->getValue();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                $user['systemData']['id'] = (int)$read->getResult()[0]['id'];
+                            }
+                        }
                     }
 
                     $_SESSION['userlogin'] = $user;
@@ -212,7 +204,8 @@ class Config
      * @param string $name
      * @param string $content
      */
-    public static function debugFile(string $name, string $content) {
+    public static function debugFile(string $name, string $content)
+    {
         self::createFile(PATH_HOME . "_debug_{$name}.json", $content);
     }
 
@@ -396,12 +389,12 @@ class Config
     {
         $libs = PATH_HOME . explode("/", VENDOR)[0];
 
-        if(VENDOR !== "vendor/ueb/") {
+        if (VENDOR !== "vendor/ueb/") {
 
             /**
              * Backup the actual vendor
              */
-            if(!DEV)
+            if (!DEV)
                 Helper::ZipFiles(PATH_HOME . "_cdn/vendor.zip", $libs);
 
             /**
@@ -417,7 +410,7 @@ class Config
          */
         foreach (array_reverse(Config::getRoutesTo("overload")) as $over) {
             foreach (\Helpers\Helper::listFolder($over) as $overload) {
-                if(file_exists(PATH_HOME . VENDOR . $overload . "/public"))
+                if (file_exists(PATH_HOME . VENDOR . $overload . "/public"))
                     \Helpers\Helper::recurseCopy($over . $overload . (file_exists($over . $overload . "/public") ? "/public" : ""), PATH_HOME . VENDOR . $overload . "/public");
             }
         }
@@ -659,7 +652,6 @@ Allow from env=let_me_in';
     }
 
 
-
     /**
      * @param string $dir
      * @param string $extensao
@@ -691,7 +683,7 @@ Allow from env=let_me_in';
             foreach (Helper::listFolder($path) as $item) {
                 if ($item !== ".htaccess" && !is_dir($path . $item) && ((is_string($extensao) && ($extensao === "" || pathinfo($item, PATHINFO_EXTENSION) === $extensao)) || (is_array($extensao) && (empty($extensao) || in_array(pathinfo($item, PATHINFO_EXTENSION), $extensao)))) && !in_array($item, array_keys($list)))
                     $list[$fileDir . (!empty($fileDir) ? "/" : "") . $item] = $path . $item;
-                elseif($allowSubFolders && is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
+                elseif ($allowSubFolders && is_dir($path . $item) && (!in_array($item, $setores) || $item === $setor))
                     $list = self::getFilesRoute($path . $item . "/", $extensao, $list, $fileDir . (!empty($fileDir) ? "/" : "") . $item, $allowSubFolders);
             }
         }
@@ -705,22 +697,22 @@ Allow from env=let_me_in';
      * @param bool $filterMenuShow
      * @return array
      */
-    public static function getViewsUser(bool $filterMenuShow = false):array
+    public static function getViewsUser(bool $filterMenuShow = false): array
     {
         $views = [];
         $setores = \Config\Config::getSetores();
         foreach (\Config\Config::getRoutesTo("view") as $dir) {
             foreach (\Helpers\Helper::listFolder($dir) as $view) {
-                if(!is_dir($dir . $view) || in_array($view, $setores) || in_array($view, $views))
+                if (!is_dir($dir . $view) || in_array($view, $setores) || in_array($view, $views))
                     continue;
 
                 $jsons = \Config\Config::getRoutesFilesTo("view/" . $view, "json", !1);
-                if(empty($jsons))
+                if (empty($jsons))
                     continue;
 
                 foreach ($jsons as $json) {
                     $c = json_decode(file_get_contents($json), !0);
-                    if($filterMenuShow && isset($c['menu']) && !$c['menu'])
+                    if ($filterMenuShow && isset($c['menu']) && !$c['menu'])
                         continue;
 
                     if (!empty($c['setor']) && ((is_string($c['setor']) && $c['setor'] !== $_SESSION['userlogin']['setor']) || (is_array($c['setor']) && !in_array($_SESSION['userlogin']['setor'], $c['setor']))))
@@ -765,7 +757,7 @@ Allow from env=let_me_in';
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
 
-        if(DEV) {
+        if (DEV) {
             $file = "";
 
             /**
@@ -774,7 +766,7 @@ Allow from env=let_me_in';
             if (!empty($viewJS)) {
                 foreach ($viewJS as $viewJ) {
                     if (file_exists($viewJ))
-                        $file .= (!empty($file) ? (!preg_match("/;$/i", $file) ? "\n;\n" : "\n\n" ) : "") . file_get_contents($viewJ);
+                        $file .= (!empty($file) ? (!preg_match("/;$/i", $file) ? "\n;\n" : "\n\n") : "") . file_get_contents($viewJ);
                 }
             }
 
@@ -813,7 +805,7 @@ Allow from env=let_me_in';
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
         $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css", "w");
 
-        if(DEV) {
+        if (DEV) {
 
             $file = "";
 
@@ -931,7 +923,7 @@ Allow from env=let_me_in';
             if (preg_match("/^http/i", $script) || (preg_match("/^" . preg_quote(PATH_HOME, '/') . "/i", $script) && file_exists($script))) {
                 return self::getMinifyJsFile($script);
 
-            } elseif (file_exists(PATH_HOME . $script)){
+            } elseif (file_exists(PATH_HOME . $script)) {
                 return self::getMinifyJsFile(PATH_HOME . $script);
 
             } else {
@@ -939,7 +931,7 @@ Allow from env=let_me_in';
                 /**
                  * Remove node_modules name in string js filename if have
                  */
-                if(preg_match("/^node_modules/i", $script))
+                if (preg_match("/^node_modules/i", $script))
                     $script = str_replace("node_modules/", "", $script);
 
                 if (file_exists(PATH_HOME . "node_modules/" . $script)) {
@@ -973,7 +965,7 @@ Allow from env=let_me_in';
                 /**
                  * Remove node_modules name in string css filename if have
                  */
-                if(preg_match("/^node_modules/i", $css))
+                if (preg_match("/^node_modules/i", $css))
                     $css = str_replace("node_modules/", "", $css);
 
                 if (file_exists(PATH_HOME . "node_modules/" . $css)) {

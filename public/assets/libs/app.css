@@ -562,8 +562,8 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     cursor: pointer;
 }
 
-#core-sidebar-menu li *:hover {
-    background: #eee;
+#core-sidebar-menu li:hover {
+    background: var(--colorLine);
 }
 
 #core-applications {
