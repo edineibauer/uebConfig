@@ -368,6 +368,18 @@ class Config
     }
 
     /**
+     * @param string $entity
+     */
+    public static function createCacheDB(string $entity)
+    {
+        $sql = new SqlCommand(!0);
+        $sql->exeCommand(
+            "DROP TABLE IF EXISTS " . PRE . "wcache_" . $entity . ";"
+            . "CREATE TABLE IF NOT EXISTS `" . PRE . "wcache_" . $entity . "` (`id` INT(11) NOT NULL, `system_id` INT(11) DEFAULT NULL, `ownerpub` INT(11) DEFAULT NULL, `data` longtext DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+            . "ALTER TABLE `" . PRE . "wcache_" . $entity . "` ADD PRIMARY KEY (`id`), ADD PRIMARY KEY (`system_id`), ADD PRIMARY KEY (`ownerpub`), MODIFY `id` int(11) NOT NULL AUTO_INCREMENT", !0);
+    }
+
+    /**
      * Cria arquivo de atualização do site
      */
     public static function updateSite()
