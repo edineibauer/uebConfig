@@ -1,24 +1,16 @@
-{
-    background: #eeeeee;
-}
-
-#dashboard {
-    min-height: calc(100vh - 120px);
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0!important;
-    display: block;
-    position: relative;
-    float: initial;
-}
-
-.config-nav {
+#mySidebar {
     z-index: 21;
     top: inherit;
-    padding-bottom:45px;
-    border-top: solid 1px #dddddd;
     overflow: hidden;
+    border-top: 0;
+    width: 100%;
+    height: 50px;
+}
+
+#mySidebar > a {
+    float: left;
+    padding: 12px 10px;
+    display: block;
 }
 
 .menu-config-lista {
@@ -27,51 +19,8 @@
     height: 34px
 }
 
-#config-menu {
-    width: 200px;
-    overflow-x: hidden;
-    max-height: calc(100vh - 150px);
-    overflow-y: auto;
-}
-
-.config-main {
-    margin-left: 200px
-}
-
-.config-nav::-webkit-scrollbar, #config-menu::-webkit-scrollbar {
-    width: 5px;
-}
-
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track, #config-menu::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb, #config-menu::-webkit-scrollbar-thumb {
-    background: #bbb;
-}
-
-::-webkit-scrollbar-thumb:hover, #config-menu::-webkit-scrollbar-thumb:hover {
-    background: #999;
-}
-
-::-webkit-scrollbar-button, #config-menu::-webkit-scrollbar-button {
-    background: #aaa;
-}
-
 .relatorios_card_value {
     line-break: anywhere;
-}
-
-.dash-version {
-    position: fixed;
-    top: 52px;
-    right: 3px;
-    color: #999;
-    font-size: .8em
 }
 
 @media only screen and (min-width: 700px) {
