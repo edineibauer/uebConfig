@@ -2365,6 +2365,7 @@ async function _checkRealtimeDbUpdate(entity) {
 var PARAM, app = {
     file: "",
     route: "",
+    title: "",
     loading: !1,
     loadingScripts: !1,
     removeLoading: function () {
@@ -2446,7 +2447,7 @@ var PARAM, app = {
             let g = await AJAX.view(file);
             if (g) {
                 if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                    TITLE = g.title;
+                    TITLE = app.title = g.title;
                     headerShow(g.header);
                     checkMenuActive();
                     $("#core-title").text(g.title);
