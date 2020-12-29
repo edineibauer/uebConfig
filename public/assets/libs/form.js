@@ -205,6 +205,9 @@ function removeFileForm($btn, tempo) {
                 data[column].splice(id, 1);
                 $input.val("");
                 $input.parent().siblings(".info-container").find(".input-info").html(data[column].length);
+                form.modified = !0;
+                form.saved = !1;
+
                 if (typeof tempo === "number") {
                     setTimeout(function () {
                         $input.siblings(".file_gallery").find("#mock-" + name).remove()
