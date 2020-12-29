@@ -1,6 +1,6 @@
 <div class="core-class-container mode-background-colorLine mode-text-colorText" id="core-sidebar-header">
     <div id="core-sidebar-perfil" class="core-class-container theme-border-l">
-        <div class="left" id="core-sidebar-imagem">
+        <div class="left" id="core-sidebar-imagem" data-realtime-html>
             {{#USER.imagem}}
                 <div id='core-sidebar-perfil-img' class="col radius-circle" style="background-image: url('{{urls.thumb}}');"></div>
             {{/USER.imagem}}
@@ -11,7 +11,7 @@
 
         <div id="core-sidebar-perfil-name">
             <div class="core-class-container" id="core-header-name">
-                <strong id="core-sidebar-nome">{{USER.nome}}</strong>
+                <strong id="core-sidebar-nome" data-realtime-html>{{USER.nome}}</strong>
 
                 <span id="core-sidebar-edit" onclick="pageTransitionOnIframe('form-maestru/{{USER.setor}}/{{USER.setorData.id}}', 'Perfil')">
                     <i class="material-icons">edit</i>
@@ -21,8 +21,8 @@
     </div>
 </div>
 
-<div id="core-sidebar-main" class="core-class-container">
-    <ul id="core-sidebar-menu" class="core-class-container mode-text-colorText" data-get="menu">
+<div id="core-sidebar-main" class="core-class-container" data-get="menu" data-realtime-get>
+    <ul id="core-sidebar-menu" class="core-class-container mode-text-colorText" data-realtime-html>
         {{#.}}
             <a data-preventDefault="true" href="#" onclick="pageTransitionOnIframe('{{view}}', '{{title}}')">
                 <li>
