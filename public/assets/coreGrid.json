@@ -4,6 +4,8 @@
     "grid",
     "grid_content_card_edit",
     "grid_content_card_header",
-    "no_registers"
+    "no_registers",
+    "filter_badge",
+    "filter_group"
   ]
 }
