@@ -3174,7 +3174,7 @@ const sse = {
     },
     close: () => {
         if(sse.isSSESupported())
-            sse.base.terminate();
+            sse.base.port.close();
         else
             clearInterval(sse.baseAjaxInterval);
     },

@@ -260,12 +260,13 @@ function gridCrud(entity, fields, actions) {
             /**
              * Update total database
              */
-            let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity];
+            let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity].toString();
             let totalFormated = "";
             let le = total.length;
             for (let i = 0; i < le; i++)
                 totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
-            $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
+
+            $this.$element.find(".total").html(totalFormated + " registro" + (total > 1 ? "s" : ""));
 
             /**
              * Get data results
