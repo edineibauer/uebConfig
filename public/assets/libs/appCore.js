@@ -3160,17 +3160,6 @@ const sse = {
                 AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
             }, 2000);
         }
-
-        /**
-         * Update DOM perfil realtime
-         */
-        sse.add("updatePerfil", function (data) {
-            if(typeof data === "object") {
-                USER = data;
-                storeUser();
-                _updateTemplateRealTime();
-            }
-        });
     },
     close: () => {
         if(sse.isSSESupported())

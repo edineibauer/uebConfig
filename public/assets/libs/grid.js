@@ -251,15 +251,12 @@ function gridCrud(entity, fields, actions) {
             this.$element.find(".table-all").css("opacity", 1);
             clearInterval(this.loadingTimer);
         },
-        readData: async function () {
-            let $this = this;
-            $this.$content = $this.$element.find("tbody");
-            let selecteds = [];
-            let offset = ($this.page * $this.limit) - $this.limit;
 
-            /**
-             * Update total database
-             */
+        /**
+         * Update total database
+         */
+        updateTotalTable: async () => {
+            let $this = this;
             let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity].toString();
             let totalFormated = "";
             let le = total.length;
@@ -267,6 +264,12 @@ function gridCrud(entity, fields, actions) {
                 totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
 
             $this.$element.find(".total").html(totalFormated + " registro" + (total > 1 ? "s" : ""));
+        },
+        readData: async function () {
+            let $this = this;
+            $this.$content = $this.$element.find("tbody");
+            let selecteds = [];
+            let offset = ($this.page * $this.limit) - $this.limit;
 
             /**
              * Get data results
@@ -417,10 +420,15 @@ function gridCrud(entity, fields, actions) {
                 })
             }
         },
-        posData: function () {
+        posData: async () => {
             let $this = this;
             loadMaskTable($this.$content);
             clearForm();
+            await $this.updateTotalTable();
+
+            setTimeout(function () {
+                $this.updateTotalTable();
+            }, 1000);
 
             $this.$element.find(".pagination").remove();
             let total = parseInt($this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
