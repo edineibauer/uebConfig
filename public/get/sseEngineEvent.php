@@ -84,7 +84,7 @@ function startReadSSE() {
         if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse")) {
             foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
                 $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
-                if($c['haveUpdate'] == "1") {
+                if($c['haveUpdate'] == "1" || (!empty($c['rule']) && $c['rule'] === "*")) {
 
                     /**
                      * Update the sse with no update pendent
@@ -96,7 +96,10 @@ function startReadSSE() {
 
                     ob_start();
                     try {
+                        $_SESSION['sseRule'] = 'db';
+                        $_SESSION['sseAction'] = ['create', 'update', 'delete'];
                         $_SESSION['db'] = [];
+
                         include $c['path'];
                         if (!empty($data['error'])) {
                             $data["response"] = 2;
@@ -116,7 +119,11 @@ function startReadSSE() {
                     /**
                      * Update the sse with no update pendent
                      */
+                    $c['action'] = $_SESSION['sseAction'] ?? "";
+                    $c['rule'] = $_SESSION['sseRule'] ?? '*';
                     $c['db'] = $_SESSION['db'];
+                    unset($_SESSION['sseRule'], $_SESSION['sseAction']);
+
                     \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
 
                     $messagesBase[$c['route']] = $data;
