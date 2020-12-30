@@ -440,7 +440,7 @@ function gridCrud(entity, fields, actions) {
                     let $aggroup = $this.$element.find(".aggroup").html("<option value='' selected='selected'>agrupar por...</option>");
 
                     for (let col in dicionarios[$this.entity]) {
-                        $aggroup.append("<option value='" + col + "'>" + dicionarios[$this.entity][col].nome + "</option>");
+                        $aggroup.append("<option value='" + col + "'>" + (col === "system_id" ? "Sistema" : dicionarios[$this.entity][col].nome) + "</option>");
 
                         if (["identifier", "information", "publisher"].indexOf(dicionarios[$this.entity][col].key) === -1)
                             $sum.append("<div class='left relative padding-right' style='margin-top: -5px'><select class='theme-text-aux aggreted-field-type' data-rel='" + identificador + "' rel='" + col + "'><option value='' class='theme-text'>" + dicionarios[$this.entity][col].nome + "</option><option value='soma' class='theme-text'>soma</option><option value='media' class='theme-text'>média</option><option value='maior' class='theme-text'>maior</option><option value='menor' class='theme-text'>menor</option></select></div>");
@@ -520,7 +520,7 @@ $(function () {
         }
         $filter.find(".table-filter-columns").html("<option disabled='disabled' class='color-text-gray' selected='selected' value=''>coluna...</option>");
         $.each(dicionarios[grid.entity], function (col, meta) {
-            $filter.find(".table-filter-columns").append("<option value='" + col + "' >" + meta.nome + "</option>")
+            $filter.find(".table-filter-columns").append("<option value='" + col + "' >" + (col === "system_id" ? "Sistema" : meta.nome) + "</option>")
         })
     }).off("change", ".table-filter-operator").on("change", ".table-filter-operator", function () {
         if ($(this).val() !== "")
