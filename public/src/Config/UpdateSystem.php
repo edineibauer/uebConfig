@@ -762,12 +762,20 @@ class UpdateSystem
     private function updateServiceWorker(array $dados)
     {
         //copia service worker
-        $service = file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js");
-        $service = str_replace(["var VERSION = '';", "const HOME = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';"], $service);
+        if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js")) {
+            $service = str_replace(["var VERSION = '';", "const HOME = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';"], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js"));
+            $f = fopen(PATH_HOME . "service-worker.js", "w");
+            fwrite($f, $service);
+            fclose($f);
+        }
 
-        $f = fopen(PATH_HOME . "service-worker.js", "w");
-        fwrite($f, $service);
-        fclose($f);
+        //copia sse worker
+        if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWorker.js")) {
+            $service = str_replace("var SERVER = ''", "var SERVER = '" . SERVER . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWorker.js"));
+            $f = fopen(PATH_HOME . "sseWorker.js", "w");
+            fwrite($f, $service);
+            fclose($f);
+        }
     }
 
     /**

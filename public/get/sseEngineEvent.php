@@ -143,7 +143,7 @@ function startReadSSE() {
 
 
 if (!empty($_SESSION['userlogin']))
-    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
+    Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
 
 while (1) {
     startReadSSE();

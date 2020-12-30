@@ -256,20 +256,31 @@ function gridCrud(entity, fields, actions) {
             $this.$content = $this.$element.find("tbody");
             let selecteds = [];
             let offset = ($this.page * $this.limit) - $this.limit;
-            let result = "";
 
+            /**
+             * Update total database
+             */
+            let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity];
+            let totalFormated = "";
+            let le = total.length;
+            for (let i = 0; i < le; i++)
+                totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
+            $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
+
+            /**
+             * Get data results
+             */
+            let result = [];
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
                 result = await reportRead(entity, !isEmpty($this.search) ? $this.search : null, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
             } else {
                 result = await db.exeRead(entity, !isEmpty($this.search) ? {"*": $this.search} : null, $this.limit, offset, $this.order, $this.orderPosition);
             }
 
-            result = {data: result, length: (await dbLocal.exeRead("__totalRegisters", 1))[entity]};
             let info = await dbLocal.exeRead("__info", 1);
             let templates = await getTemplates();
 
             $this.loading();
-
             if ($this.$content.find(".table-select:checked").length > 0) {
                 $.each($this.$content.find(".table-select:checked"), function (i, e) {
                     selecteds.push(parseInt($(this).attr("rel")))
@@ -280,21 +291,15 @@ function gridCrud(entity, fields, actions) {
             $this.$content.parent().find("thead").removeClass("hide");
 
             if (typeof info !== "undefined") {
-                let totalFormated = "";
-                let total = result.length.toString();
-                let le = total.length;
-                for (let i = 0; i < le; i++)
-                    totalFormated += (i > 0 && (le - i) % 3 === 0 ? "." : "") + total[i];
-                $this.$element.find(".total").html(totalFormated + " registro" + (totalFormated > 1 ? "s" : ""));
                 $this.filterTotal = -1;
                 let pp = [];
                 let registerPosition = 0;
                 let registersWaitingPosition = [];
                 $this.$content.html("");
 
-                for (let k in result.data) {
-                    if (typeof result.data[k] === "object" && !isEmpty(result.data[k])) {
-                        pp.push(gridTr($this.identificador, entity, result.data[k], $this.fields, info[entity], grid.actions, selecteds).then(tr => {
+                for (let k in result) {
+                    if (typeof result[k] === "object" && !isEmpty(result[k])) {
+                        pp.push(gridTr($this.identificador, entity, result[k], $this.fields, info[entity], grid.actions, selecteds).then(tr => {
                             if (parseInt(k) === registerPosition) {
                                 $this.$content.append(Mustache.render(templates.grid_content, tr))
                                 registerPosition++;
