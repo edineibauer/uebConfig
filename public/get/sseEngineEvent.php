@@ -137,16 +137,10 @@ function startReadSSE() {
     returnSSE($messagesBase, $resultDb, $resultDbHistory, $getSSE);
 }
 
-
-if (!empty($_SESSION['userlogin']))
+if (!empty($_SESSION['userlogin'])) {
     Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
-
-
-/**
- * Find all SSE on projet to add on listenner
- */
-if(!empty($_SESSION['userlogin']))
     include_once 'sseMoveToListenner.php';
+}
 
 while (1) {
     startReadSSE();
