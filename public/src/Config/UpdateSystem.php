@@ -770,9 +770,9 @@ class UpdateSystem
         }
 
         //copia sse worker
-        if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWorker.js")) {
-            $service = str_replace("var SERVER = ''", "var SERVER = '" . SERVER . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWorker.js"));
-            $f = fopen(PATH_HOME . "sseWorker.js", "w");
+        if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js")) {
+            $service = str_replace("var SERVER = ''", "var SERVER = '" . SERVER . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js"));
+            $f = fopen(PATH_HOME . "sseWork.js", "w");
             fwrite($f, $service);
             fclose($f);
         }

@@ -69,11 +69,6 @@ function startReadSSE() {
     if (!empty($_SESSION['userlogin'])) {
 
         /**
-         * Refresh login info in session
-         */
-        \Config\Config::setUser($_SESSION['userlogin']['token']);
-
-        /**
          * Find all SSE on projet to add on listenner
          */
         include_once 'sseMoveToListenner.php';
@@ -82,6 +77,12 @@ function startReadSSE() {
          * For each SSE on project
          */
         if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse")) {
+
+            /**
+             * Refresh login info in session
+             */
+            \Config\Config::setUser($_SESSION['userlogin']['token']);
+
             foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
                 $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
                 if($c['haveUpdate'] == "1" || (!empty($c['rule']) && $c['rule'] === "*")) {
