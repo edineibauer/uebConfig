@@ -3162,10 +3162,12 @@ const sse = {
         }
     },
     close: () => {
-        if(sse.isSSESupported())
-            sse.base.port.close();
-        else
+        if(sse.isSSESupported()) {
+            if(typeof sse.base !== "undefined" && typeof sse.base.port !== "undefined")
+                sse.base.port.close();
+        } else {
             clearInterval(sse.baseAjaxInterval);
+        }
     },
     baseReceiveListenerAjax: async (data) => {
         for(let n in data) {
