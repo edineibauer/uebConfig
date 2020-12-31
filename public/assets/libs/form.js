@@ -521,7 +521,8 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                          * Show errors on form
                          */
                         if(!dbCreate.response) {
-                            privateFormSetError(form, dbCreate.data, showMessages, destroy);
+                            form.error = dbCreate.data[form.entity];
+                            privateFormSetError(form, form.error, showMessages, destroy);
 
                         } else {
 
