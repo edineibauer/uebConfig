@@ -251,11 +251,7 @@ function gridCrud(entity, fields, actions) {
             this.$element.find(".table-all").css("opacity", 1);
             clearInterval(this.loadingTimer);
         },
-
-        /**
-         * Update total database
-         */
-        updateTotalTable: async () => {
+        updateTotalTable: async function() {
             let $this = this;
             let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity].toString();
             let totalFormated = "";
@@ -268,12 +264,11 @@ function gridCrud(entity, fields, actions) {
         readData: async function () {
             let $this = this;
             $this.$content = $this.$element.find("tbody");
-            let selecteds = [];
-            let offset = ($this.page * $this.limit) - $this.limit;
 
             /**
              * Get data results
              */
+            let offset = ($this.page * $this.limit) - $this.limit;
             let result = [];
             if ((!isEmpty($this.filter) || !isEmpty($this.filterAggroup)) && typeof reportRead !== "undefined" && USER.setor === "admin") {
                 result = await reportRead(entity, !isEmpty($this.search) ? $this.search : null, $this.filter, $this.filterAggroup, $this.filterAggroupSum, $this.filterAggroupMedia, $this.filterAggroupMaior, $this.filterAggroupMenor, $this.order, $this.orderPosition, $this.limit, offset);
@@ -285,6 +280,8 @@ function gridCrud(entity, fields, actions) {
             let templates = await getTemplates();
 
             $this.loading();
+
+            let selecteds = [];
             if ($this.$content.find(".table-select:checked").length > 0) {
                 $.each($this.$content.find(".table-select:checked"), function (i, e) {
                     selecteds.push(parseInt($(this).attr("rel")))
@@ -420,15 +417,15 @@ function gridCrud(entity, fields, actions) {
                 })
             }
         },
-        posData: async () => {
+        posData: async function () {
             let $this = this;
             loadMaskTable($this.$content);
             clearForm();
-            await $this.updateTotalTable();
 
+            await $this.updateTotalTable();
             setTimeout(function () {
                 $this.updateTotalTable();
-            }, 1000);
+            }, 1300);
 
             $this.$element.find(".pagination").remove();
             let total = parseInt($this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
