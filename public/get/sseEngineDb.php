@@ -30,15 +30,9 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
              * if have, send it to front
              */
             if ($hist[$entity] != $historyUserDB) {
-                $startListUpdate = !1;
-
-                foreach (\Helpers\Helper::listFolder(PATH_HOME . "_cdn/update/{$entity}") as $upId) {
-                    if ($upId === $historyUserDB . ".json") {
-                        $startListUpdate = !0;
-                        continue;
-                    } else if (!$startListUpdate) {
-                        continue;
-                    }
+                foreach (array_reverse(\Helpers\Helper::listFolder(PATH_HOME . "_cdn/update/{$entity}")) as $upId) {
+                    if ($upId === $historyUserDB . ".json")
+                        break;
 
                     $content = json_decode(file_get_contents(PATH_HOME . "_cdn/update/{$entity}/{$upId}"), !0);
                     if (!empty($content['id'])) {
@@ -49,9 +43,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                     }
                 }
 
-                if (!$startListUpdate)
-                    $resultDb[$entity] = \Entity\Entity::exeRead($entity);
-                elseif (!empty($resultDb[$entity]))
+                if (!empty($resultDb[$entity]))
                     $resultDb[$entity] = array_values($resultDb[$entity]);
 
                 $resultDbHistory[$entity] = $hist[$entity];
