@@ -40,4 +40,10 @@ $content['general'] = $data['data'];
 include 'graficos.php';
 $content['graficos'] = $data['data'];
 
+if (!empty($_SESSION['userlogin'])) {
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
+    \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}");
+    include_once 'sseMoveToListenner.php';
+}
+
 $data['data'] = $content;

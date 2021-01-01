@@ -114,7 +114,7 @@ if (!empty($url)) {
             $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
         }
 
-        ob_end_clean();
+        @ob_end_clean();
 
         /**
          * Register get request update on sse control to update in realtime
