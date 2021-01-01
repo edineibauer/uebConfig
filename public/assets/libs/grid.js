@@ -423,9 +423,6 @@ function gridCrud(entity, fields, actions) {
             clearForm();
 
             await $this.updateTotalTable();
-            setTimeout(function () {
-                $this.updateTotalTable();
-            }, 1300);
 
             $this.$element.find(".pagination").remove();
             let total = parseInt($this.$element.find(".total").html().replace(".", "").replace(".", "").replace(".", ""));
