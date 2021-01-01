@@ -28,4 +28,6 @@ if (!empty($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
         \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id']);
         \Config\Config::createFile(PATH_HOME . "_cdn/userActivity/" . $_SESSION['userlogin']['id'] . "/{$dia}.json", json_encode([date("H:i:s")]));
     }
+
+    $_SESSION['sseRule'] = "*";
 }
