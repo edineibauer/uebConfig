@@ -52,6 +52,17 @@ function returnMessagesSSE(string $view, array $messages, array $messagesData = 
             if ($f !== $messageString) {
                 writeUserSSE($view . "_" . $event, $messageString);
                 $content[$event] = $message;
+
+                /**
+                 * If update perfil, update all get on views too
+                 */
+                if($view === "base" && $event === "updatePerfil" && file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get")) {
+                    foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get") as $item) {
+                        $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/{$item}"), !0);
+                        $c['haveUpdate'] = 1;
+                        \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/{$item}", json_encode($c));
+                    }
+                }
             }
         }
     }
