@@ -29,7 +29,11 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
              * Check if have new data
              * if have, send it to front
              */
-            if ($hist[$entity] != $historyUserDB) {
+            if($historyUserDB === -1) {
+                $resultDb[$entity] = [];
+                $resultDbHistory[$entity] = $hist[$entity];
+
+            } elseif ($hist[$entity] != $historyUserDB) {
                 foreach (array_reverse(\Helpers\Helper::listFolder(PATH_HOME . "_cdn/update/{$entity}")) as $upId) {
                     if ($upId === $historyUserDB . ".json")
                         break;
