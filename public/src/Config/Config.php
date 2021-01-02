@@ -715,7 +715,7 @@ Allow from env=let_me_in';
         $setores = \Config\Config::getSetores();
         foreach (\Config\Config::getRoutesTo("view") as $dir) {
             foreach (\Helpers\Helper::listFolder($dir) as $view) {
-                if (!is_dir($dir . $view) || in_array($view, $setores) || in_array($view, $views))
+                if (!is_dir($dir . $view) || in_array($view, $setores) || in_array($view, array_keys($views)))
                     continue;
 
                 $jsons = \Config\Config::getRoutesFilesTo("view/" . $view, "json", !1);
@@ -731,11 +731,12 @@ Allow from env=let_me_in';
                         continue;
 
                     if (empty($c['!setor']) || (is_string($c['!setor']) && $c['!setor'] !== $_SESSION['userlogin']['setor']) || (is_array($c['!setor']) && !in_array($_SESSION['userlogin']['setor'], $c['!setor'])))
-                        $views[] = ["view" => $view, "title" => ucwords(str_replace(["_", "-", "{{sitename}}", '{$sitename}'], [" ", " ", SITENAME, SITENAME], ($c['title'] ?? $view))), "icon" => $c['icon'] ?? ""];
+                        $views[$view] = ["view" => $view, "title" => ucwords(str_replace(["_", "-", "{{sitename}}", '{$sitename}'], [" ", " ", SITENAME, SITENAME], ($c['title'] ?? $view))), "icon" => $c['icon'] ?? ""];
                 }
             }
         }
-        return $views;
+
+        return array_values($views);
     }
 
     /**
