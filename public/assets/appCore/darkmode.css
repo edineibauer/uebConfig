@@ -33,11 +33,6 @@ body, #app, #core-content {
     border-color: var(--colorLine)!important;
 }
 
-.bootstrap-css {
-    background-color: var(--colorBox)!important;
-    color: var(--colorText)!important;
-}
-
 .bootstrap-css a {
     color: var(--colorText)!important;
 }
