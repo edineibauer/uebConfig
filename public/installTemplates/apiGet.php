@@ -19,10 +19,10 @@ if (!empty($url)) {
      * Split the url into `/`
      * get the first as url and the rest as variables
      */
-    if(preg_match("/\/maestruToken\//i", $url))
+    if (preg_match("/\/maestruToken\//i", $url))
         list($url, $token) = explode("/maestruToken/", $url);
 
-    if(preg_match("/\/maestruView\//i", $url))
+    if (preg_match("/\/maestruView\//i", $url))
         list($url, $viewGetReceived) = explode("/maestruView/", $url);
 
     $variaveis = array_filter(explode('/', $url));
@@ -54,10 +54,10 @@ if (!empty($url)) {
             /**
              * Search for view on view (if have maestruView)
              */
-            if(!empty($view)) {
-                if(file_exists(PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php")) {
+            if (!empty($view)) {
+                if (file_exists(PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php")) {
                     return PATH_HOME . "public/view/{$view}/{$setor}/get{$path}/{$url}.php";
-                } elseif(file_exists(PATH_HOME . "public/view/{$view}/get{$path}/{$url}.php")) {
+                } elseif (file_exists(PATH_HOME . "public/view/{$view}/get{$path}/{$url}.php")) {
                     return PATH_HOME . "public/view/{$view}/get{$path}/{$url}.php";
                 }
             }
@@ -75,7 +75,7 @@ if (!empty($url)) {
              */
             foreach ($views as $vv) {
                 foreach (\Config\Config::getRoutesFilesTo("view/{$vv}/get", "php") as $vvv) {
-                    if("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path . "/{$url}")
+                    if ("/" . pathinfo($vvv, PATHINFO_FILENAME) === $path . "/{$url}")
                         return $vvv;
                 }
             }
@@ -88,6 +88,8 @@ if (!empty($url)) {
 
     if (!empty($route)) {
 
+        $_SESSION['sseRule'] = 'db';
+        $_SESSION['sseAction'] = ['create', 'update', 'delete'];
         $_SESSION['db'] = [];
         ob_start();
 
@@ -98,7 +100,7 @@ if (!empty($url)) {
                 $data["data"] = "";
             } elseif (!isset($data['data'])) {
                 $conteudo = ob_get_contents();
-                if(\Helpers\Check::isJson($conteudo))
+                if (\Helpers\Check::isJson($conteudo))
                     $conteudo = json_decode($conteudo);
 
                 $data = ["response" => 1, "error" => "", "data" => $conteudo];
@@ -125,7 +127,18 @@ if (!empty($url)) {
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE");
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
             \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get");
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $name . ".json", json_encode(["view" => str_replace("[@]", "/", $viewGetReceived), "request" => $url, "route" => $name, "path" => $route, "variaveis" => $variaveis, "haveUpdate" => "0", "db" => $_SESSION['db']]));
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $name . ".json", json_encode(
+                [
+                    "view" => str_replace("[@]", "/", $viewGetReceived),
+                    "request" => $url,
+                    "route" => $name,
+                    "path" => $route,
+                    "variaveis" => $variaveis,
+                    "haveUpdate" => "0",
+                    "db" => $_SESSION['db'],
+                    "action" => $_SESSION['sseAction'] ?? "",
+                    "rule" => $_SESSION['sseRule'] ?? '*'
+                ]));
         }
 
     } else {
