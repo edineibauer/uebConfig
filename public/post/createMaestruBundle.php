@@ -178,6 +178,7 @@ foreach (\Config\Config::getSetores() as $setor) {
  */
 \Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
 \Helpers\Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
+copy(PATH_HOME . "sseWork.js", PATH_HOME . "{$www}/sseWork.js");
 
 if(file_exists(PATH_HOME . "{$www}/config.php"))
     unlink(PATH_HOME . "{$www}/config.php");

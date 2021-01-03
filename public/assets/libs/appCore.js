@@ -3074,9 +3074,17 @@ const sse = {
     },
     start: () => {
         if (sse.isSSESupported()) {
-            sse.base = new SharedWorker("sseWork.js");
+            let base = null;
 
-            sse.base.port.addEventListener("message", async function(e) {
+            if(typeof SharedWorker !== "undefined") {
+                sse.base = new SharedWorker("sseWork.js");
+                base = sse.base.port;
+            } else {
+                sse.base = new Worker("sseWork.js");
+                base = sse.base;
+            }
+
+            base.addEventListener("message", async function(e) {
                 let data = JSON.parse(e.data);
 
                 switch (data.type) {
@@ -3153,8 +3161,10 @@ const sse = {
                 }
             }, false);
 
-            sse.base.port.start();
-            sse.base.port.postMessage(USER.token);
+            if(typeof SharedWorker !== "undefined")
+                base.start();
+
+            base.postMessage(USER.token);
         } else {
             sse.baseAjaxInterval = setInterval(function () {
                 AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
@@ -3163,8 +3173,12 @@ const sse = {
     },
     close: () => {
         if(sse.isSSESupported()) {
-            if(typeof sse.base !== "undefined" && typeof sse.base.port !== "undefined")
-                sse.base.port.close();
+            if(typeof sse.base !== "undefined") {
+                if (typeof SharedWorker !== "undefined" && typeof sse.base.port !== "undefined")
+                    sse.base.port.close();
+                else if (typeof sse.base !== "undefined")
+                    sse.base.terminate();
+            }
         } else {
             clearInterval(sse.baseAjaxInterval);
         }
