@@ -1,4 +1,4 @@
-var SERVER = 'http://localhost/ecash/', sseEvent = null, ports = [];
+var SERVER = '', sseEvent = null, ports = [];
 
 self.addEventListener("connect", function (e) {
     let port = e.ports[0];
