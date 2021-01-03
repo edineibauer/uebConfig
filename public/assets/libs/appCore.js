@@ -3176,8 +3176,8 @@ const sse = {
             if(typeof sse.base !== "undefined") {
                 if (typeof SharedWorker !== "undefined" && typeof sse.base.port !== "undefined")
                     sse.base.port.close();
-                else if (typeof sse.base !== "undefined")
-                    sse.base.close();
+                else if (typeof sse.base !== "undefined" && typeof sse.base.terminate === "function")
+                    sse.base.terminate();
             }
         } else {
             clearInterval(sse.baseAjaxInterval);

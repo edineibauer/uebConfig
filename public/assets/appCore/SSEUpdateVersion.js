@@ -1,7 +1,6 @@
 $(function () {
     sse.add("updateVersion", async function (data) {
         if (!isEmpty(data) && isOnline() && SERVICEWORKER) {
-            console.log(data);
             if (!localStorage.update)
                 localStorage.update = data;
             else if (parseFloat(data) > parseFloat(localStorage.update))
