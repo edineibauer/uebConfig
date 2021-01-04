@@ -3094,99 +3094,108 @@ const sse = {
         if (typeof funcao === "function")
             sse.funcoes[name].unshift(funcao);
     },
+    receiveData: async (data, type) => {
+        switch (type) {
+            case 'base':
+                /**
+                 * For each SSE received on view
+                 * If have event function on receive this SSE to trigger
+                 */
+                if(data) {
+                    for (let i in data) {
+                        if (data[i].response === 1) {
+                            if(!isEmpty(sse.funcoes[i])) {
+                                for(let f of sse.funcoes[i]) {
+                                    if(typeof f === "function")
+                                        f(data[i].data);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'db':
+                if(data && !isEmpty(data) && data.constructor === Object) {
+                    for (let entity in data) {
+                        for(let content of data[entity]) {
+                            if(isNumberPositive(content)) {
+                                await dbLocal.exeDelete(entity, content);
+                            } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
+                                await dbLocal.exeCreate(entity, content);
+                            }
+                        }
+
+                        dbLocal.clear("_cache_db_" + entity);
+                        _checkRealtimeDbUpdate(entity);
+                    }
+                }
+                break;
+
+            case 'get':
+                if(data && !isEmpty(data) && data.constructor === Object) {
+
+                    for(let getUrl in data) {
+                        let c = JSON.parse(data[getUrl]);
+                        if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
+
+                            let cacheName = '_cache_get_' + getUrl;
+                            let splited = getUrl.split("___");
+                            let viewName = replaceAll(splited[0], "[@]", "/");
+                            let request = replaceAll(splited[1], "[@]", "/");
+                            let dados = c.data;
+
+                            /**
+                             * Cache the data
+                             */
+                            await dbLocal.clear(cacheName);
+                            dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
+
+                            /**
+                             * Update DOM data-get realtime
+                             */
+                            if(app.file !== viewName)
+                                continue;
+
+                            while(app.loading)
+                                await sleep(10);
+
+                            setTimeout(function() {
+                                renderDataGet(request, dados);
+                            }, 50);
+                        }
+                    }
+                }
+                break;
+        }
+    },
     start: () => {
         if (sse.isSSESupported()) {
-            let base = null;
-
             if(typeof SharedWorker !== "undefined") {
                 sse.base = new SharedWorker("sseWork.js");
-                base = sse.base.port;
+
+                sse.base.port.addEventListener("message", function(e) {
+                    let d = JSON.parse(e.data);
+                    sse.receiveData(d.data, d.type);
+                }, false);
+
+                sse.base.port.start();
+                sse.base.port.postMessage(USER.token);
+
             } else {
-                sse.base = new Worker("sseWork.js");
-                base = sse.base;
+                sse.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+
+                sse.base.addEventListener('base', async function (e) {
+                    sse.receiveData(JSON.parse(e.data), 'base');
+                }, !1);
+
+                sse.base.addEventListener('db', async function (e) {
+                    sse.receiveData(JSON.parse(e.data), 'db');
+                }, !1);
+
+                sse.base.addEventListener('get', async function (e) {
+                    sse.receiveData(JSON.parse(e.data), 'get');
+                }, !1);
             }
-
-            base.addEventListener("message", async function(e) {
-                let data = JSON.parse(e.data);
-
-                switch (data.type) {
-                    case 'base':
-                        /**
-                         * For each SSE received on view
-                         * If have event function on receive this SSE to trigger
-                         */
-                        if(data.data) {
-                            for (let i in data.data) {
-                                if (data.data[i].response === 1) {
-                                    if(!isEmpty(sse.funcoes[i])) {
-                                        for(let f of sse.funcoes[i]) {
-                                            if(typeof f === "function")
-                                                f(data.data[i].data);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case 'db':
-                        if(data.data && !isEmpty(data.data) && data.data.constructor === Object) {
-                            for (let entity in data.data) {
-                                for(let content of data.data[entity]) {
-                                    if(isNumberPositive(content)) {
-                                        await dbLocal.exeDelete(entity, content);
-                                    } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
-                                        await dbLocal.exeCreate(entity, content);
-                                    }
-                                }
-
-                                dbLocal.clear("_cache_db_" + entity);
-                                _checkRealtimeDbUpdate(entity);
-                            }
-                        }
-                        break;
-
-                    case 'get':
-                        if(data.data && !isEmpty(data.data) && data.data.constructor === Object) {
-
-                            for(let getUrl in data.data) {
-                                let c = JSON.parse(data.data[getUrl]);
-                                if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
-
-                                    let cacheName = '_cache_get_' + getUrl;
-                                    let splited = getUrl.split("___");
-                                    let viewName = replaceAll(splited[0], "[@]", "/");
-                                    let request = replaceAll(splited[1], "[@]", "/");
-                                    let dados = c.data;
-
-                                    /**
-                                     * Cache the data
-                                     */
-                                    await dbLocal.clear(cacheName);
-                                    dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
-
-                                    /**
-                                     * Update DOM data-get realtime
-                                     */
-                                    if(app.file !== viewName)
-                                        continue;
-
-                                    while(app.loading)
-                                        await sleep(10);
-
-                                    setTimeout(function() {
-                                        renderDataGet(request, dados);
-                                    }, 50);
-                                }
-                            }
-                        }
-                        break;
-                }
-            }, false);
-
-            if(typeof SharedWorker !== "undefined")
-                base.start();
-
-            base.postMessage(USER.token);
         } else {
             sse.baseAjaxInterval = setInterval(function () {
                 AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
@@ -3198,8 +3207,8 @@ const sse = {
             if(typeof sse.base !== "undefined") {
                 if (typeof SharedWorker !== "undefined" && typeof sse.base.port !== "undefined")
                     sse.base.port.close();
-                else if (typeof sse.base !== "undefined" && typeof sse.base.terminate === "function")
-                    sse.base.terminate();
+                else if (typeof sse.base !== "undefined" && typeof sse.base.close === "function")
+                    sse.base.close();
             }
         } else {
             clearInterval(sse.baseAjaxInterval);
@@ -3212,7 +3221,7 @@ const sse = {
         }
     },
     isSSESupported: () => {
-        return isOnline() && typeof (EventSource) !== "undefined" && typeof(Worker) !== "undefined";
+        return isOnline() && typeof (EventSource) !== "undefined";
     }
 };
 
