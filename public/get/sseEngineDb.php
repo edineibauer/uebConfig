@@ -22,7 +22,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                 $json->save("historic", $hist);
             }
 
-            $resultDb[$entity] = [];
+            $resultDb[$entity] = !1;
             $resultDbHistory[$entity] = $hist[$entity];
 
             /**
@@ -30,26 +30,8 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
              * if have, send it to front
              */
             $dirPathCacheDB = PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json";
-            if (file_exists($dirPathCacheDB)) {
-                $historyUserDB = file_get_contents($dirPathCacheDB);
-                if ($historyUserDB !== $hist[$entity]) {
-                    foreach (array_reverse(\Helpers\Helper::listFolder(PATH_HOME . "_cdn/update/{$entity}")) as $upId) {
-                        if ($upId === $historyUserDB . ".json")
-                            break;
-
-                        $content = json_decode(file_get_contents(PATH_HOME . "_cdn/update/{$entity}/{$upId}"), !0);
-                        if (!empty($content['id'])) {
-                            if ($content['db_action'] === "delete")
-                                $resultDb[$entity][$content['id']] = $content['id'];
-                            elseif (!isset($resultDb[$entity][$content['id']]))
-                                $resultDb[$entity][$content['id']] = \Entity\Entity::exeRead($entity, $content['id'])[0];
-                        }
-                    }
-
-                    if (!empty($resultDb[$entity]))
-                        $resultDb[$entity] = array_values($resultDb[$entity]);
-                }
-            }
+            if (file_exists($dirPathCacheDB))
+                $resultDb[$entity] = file_get_contents($dirPathCacheDB) !== $hist[$entity];
         }
     }
 }

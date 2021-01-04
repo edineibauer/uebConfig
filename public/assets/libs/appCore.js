@@ -3117,16 +3117,10 @@ const sse = {
             case 'db':
                 if(data && !isEmpty(data) && data.constructor === Object) {
                     for (let entity in data) {
-                        for(let content of data[entity]) {
-                            if(isNumberPositive(content)) {
-                                await dbLocal.exeDelete(entity, content);
-                            } else if (!isEmpty(content) && typeof content === "object" && content !== null && content.constructor === Object) {
-                                await dbLocal.exeCreate(entity, content);
-                            }
+                        if(data[entity]) {
+                            dbLocal.clear("_cache_db_" + entity);
+                            _checkRealtimeDbUpdate(entity);
                         }
-
-                        dbLocal.clear("_cache_db_" + entity);
-                        _checkRealtimeDbUpdate(entity);
                     }
                 }
                 break;
