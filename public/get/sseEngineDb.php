@@ -22,7 +22,7 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
                 $json->save("historic", $hist);
             }
 
-            $resultDb[$entity] = !1;
+            $resultDb[$entity] = "";
             $resultDbHistory[$entity] = $hist[$entity];
 
             /**
@@ -30,8 +30,8 @@ foreach (\Helpers\Helper::listFolder(PATH_HOME . "entity/cache") as $item) {
              * if have, send it to front
              */
             $dirPathCacheDB = PATH_HOME . "_cdn/userSSE/{$_SESSION['userlogin']['id']}/db_{$entity}.json";
-            if (file_exists($dirPathCacheDB))
-                $resultDb[$entity] = file_get_contents($dirPathCacheDB) !== $hist[$entity];
+            if (file_exists($dirPathCacheDB) && file_get_contents($dirPathCacheDB) !== $hist[$entity])
+                $resultDb[$entity] = 1;
         }
     }
 }

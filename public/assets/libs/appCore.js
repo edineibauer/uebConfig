@@ -3117,10 +3117,8 @@ const sse = {
             case 'db':
                 if(data && !isEmpty(data) && data.constructor === Object) {
                     for (let entity in data) {
-                        if(data[entity]) {
-                            dbLocal.clear("_cache_db_" + entity);
-                            _checkRealtimeDbUpdate(entity);
-                        }
+                        dbLocal.clear("_cache_db_" + entity);
+                        _checkRealtimeDbUpdate(entity);
                     }
                 }
                 break;
