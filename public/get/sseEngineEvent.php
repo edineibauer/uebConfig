@@ -56,7 +56,7 @@ function returnMessagesSSE(string $view, array $messages, array $messagesData = 
                 /**
                  * If update perfil, update all get on views too
                  */
-                if($view === "base" && $event === "updatePerfil" && file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get")) {
+                if ($view === "base" && $event === "updatePerfil" && file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get")) {
                     foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get") as $item) {
                         $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/{$item}"), !0);
                         $c['haveUpdate'] = 1;
@@ -83,63 +83,63 @@ if (!empty($_SESSION['userlogin'])) {
      */
     \Config\Config::setUser($_SESSION['userlogin']['token']);
 
+    if (!file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse"))
+        include 'sseMoveToListenner.php';
+
     /**
      * For each SSE on project
      */
-    if (file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse")) {
+    foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
+        $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
+        if ($c['haveUpdate'] == "1" || (!empty($c['rule']) && $c['rule'] === "*")) {
 
-        foreach (Helper::listFolder(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse") as $item) {
-            $c = json_decode(file_get_contents(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/{$item}"), !0);
-            if ($c['haveUpdate'] == "1" || (!empty($c['rule']) && $c['rule'] === "*")) {
+            /**
+             * Update the sse with no update pendent
+             */
+            $c['haveUpdate'] = "0";
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
 
-                /**
-                 * Update the sse with no update pendent
-                 */
-                $c['haveUpdate'] = "0";
-                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
+            $data = ["response" => 1, "error" => "", "data" => ""];
 
-                $data = ["response" => 1, "error" => "", "data" => ""];
+            ob_start();
+            try {
+                $_SESSION['sseRule'] = 'db';
+                $_SESSION['sseAction'] = ['create', 'update', 'delete'];
+                $_SESSION['db'] = [];
 
-                ob_start();
-                try {
-                    $_SESSION['sseRule'] = 'db';
-                    $_SESSION['sseAction'] = ['create', 'update', 'delete'];
-                    $_SESSION['db'] = [];
-
-                    include $c['path'];
-                    if (!empty($data['error'])) {
-                        $data["response"] = 2;
-                        $data["data"] = "";
-                    } elseif (!isset($data['data'])) {
-                        $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
-                    } elseif (!isset($data['response'])) {
-                        $data['response'] = 1;
-                        $data['error'] = "";
-                    }
-
-                } catch (Error $e) {
-                    $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+                include $c['path'];
+                if (!empty($data['error'])) {
+                    $data["response"] = 2;
+                    $data["data"] = "";
+                } elseif (!isset($data['data'])) {
+                    $data = ["response" => 1, "error" => "", "data" => ob_get_contents()];
+                } elseif (!isset($data['response'])) {
+                    $data['response'] = 1;
+                    $data['error'] = "";
                 }
-                ob_end_clean();
 
-                /**
-                 * Update the sse with no update pendent
-                 */
-                $c['action'] = $_SESSION['sseAction'] ?? "";
-                $c['rule'] = $_SESSION['sseRule'] ?? '*';
-                $c['db'] = $_SESSION['db'];
-                unset($_SESSION['sseRule'], $_SESSION['sseAction']);
-
-                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
-
-                $messagesBase[$c['route']] = $data;
+            } catch (Error $e) {
+                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
             }
+            ob_end_clean();
+
+            /**
+             * Update the sse with no update pendent
+             */
+            $c['action'] = $_SESSION['sseAction'] ?? "";
+            $c['rule'] = $_SESSION['sseRule'] ?? '*';
+            $c['db'] = $_SESSION['db'];
+            unset($_SESSION['sseRule'], $_SESSION['sseAction']);
+
+            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/sse/" . $c['route'] . ".json", json_encode($c));
+
+            $messagesBase[$c['route']] = $data;
         }
     }
 
     try {
-        include 'sseEngineDb.php';
         include 'sseEngineGet.php';
+        include 'sseEngineDb.php';
     } catch (Error $e) {
     }
 }
