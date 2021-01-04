@@ -592,57 +592,69 @@ $(function ($) {
             return;
 
         let $templateChild = $tpl.hasAttr("data-template") ? Mustache.render($tpl.data("template"), _htmlTemplateDefaultParam()) : $tpl.html();
-
-        /**
-         * Check cache values to apply before
-         */
-        let cacheName = '_cache_get_' + replaceAll(app.file, "/", "[@]") + "___" + replaceAll($this.data("get"), "/", "[@]");
-        let cache = await dbLocal.exeRead(cacheName);
         let dados = null;
 
         /**
-         * Store the name of _cache_get to clear after on safari
-         * @type {any|*[]}
+         * Check if ignore use of cache attr
          */
-        let cachedGet = localStorage.cachedGet ? JSON.parse(localStorage.cachedGet) : [];
-        cachedGet.push(cacheName);
-        localStorage.cachedGet = JSON.stringify(cachedGet);
-
-        if(isEmpty(cache)) {
+        if($this.hasAttr("data-cache") && !$this.data("cache")) {
 
             /**
              * Apply Skeleton
-             */
-            $this._skeletonDOMApply($tpl, paramSkeleton);
-
-            /**
              * get the data from the server
              */
-            dados = await AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]"));
-
-            /**
-             * Cache the data on indexedDB
-             */
-            await dbLocal.clear(cacheName);
-            dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
+            $this._skeletonDOMApply($tpl, paramSkeleton);
+            dados = await AJAX.get($this.data("get") + "/" + Date.now() + "/maestruView/" + replaceAll(app.file, "/", "[@]"));
 
         } else {
 
-            /**
-             * Update view get cache after use it
-             * Cache the get data on indexedDB and update
-             */
-            setTimeout(function () {
-                AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]")).then(d => {
-                    dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(d)});
-                });
-            }, 100);
+            let cacheName = '_cache_get_' + replaceAll(app.file, "/", "[@]") + "___" + replaceAll($this.data("get"), "/", "[@]");
+            let cache = await dbLocal.exeRead(cacheName);
 
             /**
-             * Retrieve the cache from indexedDB
-             * @type {any}
+             * Store the name of _cache_get to clear after on safari
+             * @type {any|*[]}
              */
-            dados = JSON.parse(cache[0].result);
+            let cachedGet = localStorage.cachedGet ? JSON.parse(localStorage.cachedGet) : [];
+            cachedGet.push(cacheName);
+            localStorage.cachedGet = JSON.stringify(cachedGet);
+
+            if(isEmpty(cache)) {
+
+                /**
+                 * Apply Skeleton
+                 */
+                $this._skeletonDOMApply($tpl, paramSkeleton);
+
+                /**
+                 * get the data from the server
+                 */
+                dados = await AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]"));
+
+                /**
+                 * Cache the data on indexedDB
+                 */
+                await dbLocal.clear(cacheName);
+                dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(dados)});
+
+            } else {
+
+                /**
+                 * Update view get cache after use it
+                 * Cache the get data on indexedDB and update
+                 */
+                setTimeout(function () {
+                    AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]")).then(d => {
+                        dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(d)});
+                    });
+                }, 100);
+
+                /**
+                 * Retrieve the cache from indexedDB
+                 * @type {any}
+                 */
+                dados = JSON.parse(cache[0].result);
+            }
         }
 
         /**
