@@ -538,7 +538,7 @@ $(function ($) {
      * @returns {Promise<void>}
      * @private
      */
-    $.fn._renderDbTemplate = async function($tpl) {
+    $.fn._renderDbTemplate = async function($tpl, indice) {
         let $this = $(this);
         if(!$this.hasAttr("data-db"))
             return;
@@ -549,6 +549,7 @@ $(function ($) {
          * get the data to use on template if need
          */
         let dados = await $this.dbExeRead();
+        localStorage.setItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice, btoa(JSON.stringify(dados)));
 
         if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
             dados = await window[$this.data("db-function")](dados);
@@ -792,7 +793,7 @@ $(function ($) {
                          * Get data and render the template
                          * not await for this
                          */
-                        s($this._renderDbTemplate($(e)));
+                        s($this._renderDbTemplate($(e), i));
                     }
                 });
             });
@@ -2348,40 +2349,45 @@ async function _checkRealtimeDbUpdate(entity) {
                  * get the data to use on template if need
                  */
                 let dados = await $tag.dbExeRead();
+                let dadosBase64 = btoa(JSON.stringify(dados));
+                let dadosActual = localStorage.getItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice);
+                if(!dadosActual || dadosActual !== dadosBase64) {
+                    localStorage.setItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice, dadosBase64);
 
-                if ($(e).hasAttr("data-db-function") && $(e).data("db-function") !== "" && typeof window[$(e).data("db-function")] === "function")
-                    dados = await window[$(e).data("db-function")](dados);
-                else if($(e).hasAttr("data-function") && $(e).data("function") !== "" && typeof window[$(e).data("function")] === "function")
-                    dados = await window[$(e).data("function")](dados);
-                else if($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
-                    dados = await window[$tag.data("realtime-db")](dados);
+                    if ($(e).hasAttr("data-db-function") && $(e).data("db-function") !== "" && typeof window[$(e).data("db-function")] === "function")
+                        dados = await window[$(e).data("db-function")](dados);
+                    else if ($(e).hasAttr("data-function") && $(e).data("function") !== "" && typeof window[$(e).data("function")] === "function")
+                        dados = await window[$(e).data("function")](dados);
+                    else if ($tag.data("realtime-db") !== "" && typeof window[$tag.data("realtime-db")] === "function")
+                        dados = await window[$tag.data("realtime-db")](dados);
 
-                let $templateChild = $(e);
-                let parametros = {};
+                    let $templateChild = $(e);
+                    let parametros = {};
 
-                if(isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
-                    parametros = ($(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
-                    $templateChild = $("<div>" + (await getTemplates())[$(e).data("template-empty")] + "</div>");
-                } else {
-                    parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
-                    if($(e).hasAttr("data-template"))
+                    if (isEmpty(dados) && $(e).hasAttr("data-template-empty")) {
+                        parametros = ($(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
                         $templateChild = $("<div>" + (await getTemplates())[$(e).data("template-empty")] + "</div>");
-                }
+                    } else {
+                        parametros = (isEmpty(dados) && $(e).hasAttr("data-param-empty") ? $(e).data("param-empty") : ($(e).hasAttr("data-param") ? $(e).data("param") : {}));
+                        if ($(e).hasAttr("data-template"))
+                            $templateChild = $("<div>" + (await getTemplates())[$(e).data("template-empty")] + "</div>");
+                    }
 
-                if ($(e).hasAttr("data-param-function") && $(e).data("param-function") !== "" && typeof window[$(e).data("param-function")] === "function")
-                    parametros = await window[$(e).data("param-function")](parametros);
+                    if ($(e).hasAttr("data-param-function") && $(e).data("param-function") !== "" && typeof window[$(e).data("param-function")] === "function")
+                        parametros = await window[$(e).data("param-function")](parametros);
 
-                if (!isEmpty(parametros) && typeof parametros === "object") {
-                    if(!isEmpty(dados))
-                        mergeObject(dados, parametros);
+                    if (!isEmpty(parametros) && typeof parametros === "object") {
+                        if (!isEmpty(dados))
+                            mergeObject(dados, parametros);
+                        else
+                            dados = parametros;
+                    }
+
+                    if ($tag.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
+                        await $tag.htmlTemplate($templateChild.html(), dados);
                     else
-                        dados = parametros;
+                        await _updateTemplateRealTime($tag, $templateChild, dados);
                 }
-
-                if($tag.hasAttr("data-template-empty") || $templateChild.html().indexOf("{{#.}}") !== -1)
-                    await $tag.htmlTemplate($templateChild.html(), dados);
-                else
-                    await _updateTemplateRealTime($tag, $templateChild, dados);
 
                 s(1);
             });
