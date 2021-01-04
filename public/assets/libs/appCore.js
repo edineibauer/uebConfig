@@ -629,6 +629,16 @@ $(function ($) {
         } else {
 
             /**
+             * Update view get cache after use it
+             * Cache the get data on indexedDB and update
+             */
+            setTimeout(function () {
+                AJAX.get($this.data("get") + "/maestruView/" + replaceAll(app.file, "/", "[@]")).then(d => {
+                    dbLocal.exeCreate(cacheName, {id: 1, result: JSON.stringify(d)});
+                });
+            }, 100);
+
+            /**
              * Retrieve the cache from indexedDB
              * @type {any}
              */
