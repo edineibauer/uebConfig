@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Create user database on _cdn
- */
-\Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . '/my_data.json', json_encode($_SESSION['userlogin']));
-
-/**
  * copy all sse to listenner on _cdn
  */
 foreach (\Config\Config::getRoutesFilesTo("sse", "php") as $sse => $path) {
