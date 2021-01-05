@@ -538,7 +538,7 @@ $(function ($) {
      * @returns {Promise<void>}
      * @private
      */
-    $.fn._renderDbTemplate = async function($tpl, indice) {
+    $.fn._renderDbTemplate = async function($tpl) {
         let $this = $(this);
         if(!$this.hasAttr("data-db"))
             return;
@@ -549,7 +549,9 @@ $(function ($) {
          * get the data to use on template if need
          */
         let dados = await $this.dbExeRead();
-        localStorage.setItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice, btoa(JSON.stringify(dados)));
+
+        if($this.hasAttr("data-realtime-db"))
+            localStorage.setItem('lastDataFromDBCache-' + $this.attr("data-db"), btoa(JSON.stringify(dados)));
 
         if($this.hasAttr("data-db-function") && $this.data("db-function") !== "" && typeof window[$this.data("db-function")] === "function")
             dados = await window[$this.data("db-function")](dados);
@@ -793,7 +795,7 @@ $(function ($) {
                          * Get data and render the template
                          * not await for this
                          */
-                        s($this._renderDbTemplate($(e), i));
+                        s($this._renderDbTemplate($(e)));
                     }
                 });
             });
@@ -2350,9 +2352,9 @@ async function _checkRealtimeDbUpdate(entity) {
                  */
                 let dados = await $tag.dbExeRead();
                 let dadosBase64 = btoa(JSON.stringify(dados));
-                let dadosActual = localStorage.getItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice);
+                let dadosActual = localStorage.getItem('lastDataFromDBCache-' + entity);
                 if(!dadosActual || dadosActual !== dadosBase64) {
-                    localStorage.setItem('lastDataFromDBCache-' + $this.attr("data-db") + "-" + indice, dadosBase64);
+                    localStorage.setItem('lastDataFromDBCache-' + entity, dadosBase64);
 
                     if ($(e).hasAttr("data-db-function") && $(e).data("db-function") !== "" && typeof window[$(e).data("db-function")] === "function")
                         dados = await window[$(e).data("db-function")](dados);
