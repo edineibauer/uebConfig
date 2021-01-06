@@ -580,6 +580,7 @@ async function getInputsTemplates(form, parent, col) {
     let promessas = [];
     let position = 0;
     let dic = orderBy(dicionarios[form.entity], "indice").reverse();
+    let info = (await dbLocal.exeRead('__info', 1))[form.entity];
 
     for (let meta of dic) {
 
@@ -590,7 +591,19 @@ async function getInputsTemplates(form, parent, col) {
          */
         let isEditingMyPerfil = USER.setor === form.entity && form.id == USER.setorData.id;
         let myPerfilIsSocial = isEditingMyPerfil && (USER.login_social === "2" || USER.login_social === "1");
-        if (meta.nome === "" || (meta.column === "system_id" && USER.setor !== "admin") || (isEditingMyPerfil && meta.format === "status") || (myPerfilIsSocial && meta.format === "password"))
+
+        /**
+         * System_id field on form aditional verification
+         */
+        if(meta.column === "system_id") {
+            if(USER.setor !== "admin" && (isEmpty(info['system']) || !!USER.system_id))
+                continue;
+
+            if(USER.setor !== "admin")
+                meta.default = false;
+        }
+
+        if (meta.nome === "" || (isEditingMyPerfil && meta.format === "status") || (myPerfilIsSocial && meta.format === "password"))
             continue;
 
         /**
