@@ -3136,7 +3136,7 @@ const sse = {
 
                     for(let getUrl in data) {
                         let c = JSON.parse(data[getUrl]);
-                        if(typeof c === "object" && typeof c.data !== "undefined" && typeof getUrl === "string") {
+                        if(typeof c === "object" && typeof c.data !== "undefined" && !isEmpty(c.data) && typeof getUrl === "string") {
 
                             let cacheName = '_cache_get_' + getUrl;
                             let splited = getUrl.split("___");
