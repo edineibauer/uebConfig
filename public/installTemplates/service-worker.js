@@ -42,17 +42,17 @@ self.addEventListener('notificationclick', function (event) {
 self.addEventListener('fetch', function (e) {
 
     let url = e.request.url.replace(HOME, '');
-    let fonts = new RegExp("assetsPublic\/fonts\/", "i");
-    let images = new RegExp("assetsPublic\/img\/", "i");
-    let viewJs = new RegExp("assetsPublic\/view\/", "i");
-    let core = new RegExp("assetsPublic\/", "i");
-    let view = new RegExp("view\/", "i");
-    let getStatic = new RegExp("get\/static\/", "i");
-    let get = new RegExp("(get|app\/find|app\/search|app\/get)\/", "i");
-    let set = new RegExp("post\/?$", "i");
-    let app = new RegExp("(app|api)\/", "i");
+    let fonts = new RegExp("^assetsPublic\/fonts\/", "i");
+    let images = new RegExp("^assetsPublic\/img\/", "i");
+    let viewJs = new RegExp("^assetsPublic\/view\/", "i");
+    let core = new RegExp("^assetsPublic\/", "i");
+    let view = new RegExp("^view\/", "i");
+    let getStatic = new RegExp("^get\/static\/", "i");
+    let get = new RegExp("^(get|app\/find|app\/search|app\/get)\/", "i");
+    let set = new RegExp("^post\/?$", "i");
+    let app = new RegExp("^(app|api)\/", "i");
     let linkExterno = new RegExp("^https*:\/\/", "i");
-    let imagesEntity = new RegExp("uploads\/form\/", "i");
+    let imagesEntity = new RegExp("^uploads\/form\/", "i");
     let cacheImages = new RegExp(".(png|jpg|jpeg|svg|gif|webp)$", "i");
 
     if (linkExterno.test(url)) {
