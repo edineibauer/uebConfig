@@ -305,7 +305,7 @@ async function searchList($input) {
 
             let content = "";
             for(let i=0;i<3;i++)
-                content += "<div class='mode-text-colorText padding-tiny margin-right left'><small class='padding-tiny'>" + optionValues[i].column + ":</small> " + optionValues[i].content + (i === 2 ? "" : ", ") + "</div>";
+                content += "<div class='mode-text-colorText padding-tiny margin-right col'><small class='padding-tiny'>" + optionValues[i].column + ":</small> " + optionValues[i].content + (i === 2 ? "" : ", ") + "</div>";
 
             results.push({
                 id: datum.id,
