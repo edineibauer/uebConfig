@@ -282,39 +282,43 @@ function createSource(mock, $input, tipo, prepend) {
     }
 }
 
-function searchList($input) {
+async function searchList($input) {
     let search = $input.val();
     let column = $input.data("column");
     if ($input.is(":focus")) {
         let entity = $input.data("entity");
         let parent = $input.data("parent").replace(form.entity + ".", "").replace(form.entity, "");
-        let templates = getTemplates();
-        let dataRead = db.exeRead(entity, search, 10);
-        Promise.all([templates, dataRead]).then(r => {
-            let results = [];
-            templates = r[0];
-            dataRead = r[1];
-            $.each(dataRead, function (i, datum) {
-                $.each(datum, function (col, val) {
-                    if ((typeof dicionarios[entity][col] !== "undefined" && dicionarios[entity][col].format !== "password" && dicionarios[entity][col].key !== "information" && dicionarios[entity][col].column !== "system_id" && dicionarios[entity][col].key !== "identifier" && dicionarios[entity][col].nome !== "")) {
-                        if (results.length > 14) {
-                            return !1
-                        } else {
-                            results.push({
-                                id: datum.id,
-                                text: "<span class='color-gray padding-tiny padding-left padding-right s-hide'>" + col + "</span><span class='padding-left'>" + val + "</span>"
-                            })
-                            return !1
-                        }
-                    }
-                });
-                if (results.length > 14)
-                    return !1
+        let templates = await getTemplates();
+        let relevants = await dbLocal.exeRead("__relevant", 1);
+        let dataRead = await db.exeRead(entity, search, 10);
+        let results = [];
+        $.each(dataRead, function (i, datum) {
+
+            let optionValues = [];
+            $.each(datum, function (col, val) {
+                let dc = dicionarios[entity][col];
+                if (typeof dc !== "undefined" && dc.format !== "password" && dc.key !== "information" && dc.column !== "system_id" && dc.key !== "identifier" && dc.nome !== "" && relevants.indexOf(dc.format) > -1)
+                    optionValues.push({content: val, column: col, peso: relevants.indexOf(dc.format)})
             });
-            $input.siblings("#list-result-" + column).off("mousedown", ".list-option").on("mousedown", ".list-option", function () {
-                addListSetTitle(form, entity, column, parent, $(this).attr("rel"), $input.parent())
-            }).html(Mustache.render(templates.list_result, {data: results}))
+
+            optionValues = orderBy(optionValues, 'peso').reverse();
+
+            let content = "";
+            for(let i=0;i<3;i++)
+                content += "<div class='mode-text-colorText padding-tiny margin-right left'><small class='padding-tiny'>" + optionValues[i].column + ":</small> " + optionValues[i].content + (i === 2 ? "" : ", ") + "</div>";
+
+            results.push({
+                id: datum.id,
+                text: content
+            })
+
+            if (results.length > 14)
+                return !1
         });
+        $input.siblings("#list-result-" + column).off("mousedown", ".list-option").on("mousedown", ".list-option", function () {
+            addListSetTitle(form, entity, column, parent, $(this).attr("rel"), $input.parent())
+        }).html(Mustache.render(templates.list_result, {data: results}))
+
         $input.off("blur").on("blur", function () {
             $input.val("");
             $input.siblings("#list-result-" + column).html("")

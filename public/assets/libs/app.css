@@ -587,6 +587,10 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     padding: 0;
 }
 
+.list-result-itens li:nth-child(odd) {
+    background: #0000001c;
+}
+
 /* SCROLL */
 #core-sidebar-main::-webkit-scrollbar {
     width: 5px;
