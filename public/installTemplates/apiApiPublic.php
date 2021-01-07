@@ -22,12 +22,12 @@ if (!empty($url)) {
             $putdata .= $dataRead;
         fclose($putfp);
 
-        if (getallheaders()['Content-Type'] === "application/json") {
+        if (isset(getallheaders()['Content-Type']) && getallheaders()['Content-Type'] === "application/json") {
             $dados = json_decode($putdata, !0);
         } else {
             if(is_array($putdata))
                 parse_str($putdata, $dados);
-            elseif(is_string($putdata) && Check::isJson($putdata))
+            elseif(is_string($putdata) && \Helpers\Check::isJson($putdata))
                 $dados = json_decode($putdata, !0);
         }
     }
