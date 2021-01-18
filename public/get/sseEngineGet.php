@@ -53,11 +53,13 @@ if(file_exists(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/ge
             $fileJsonGetSSE['action'] = $_SESSION['sseAction'] ?? "";
             $fileJsonGetSSE['rule'] = $_SESSION['sseRule'] ?? '*';
             $fileJsonGetSSE['db'] = $_SESSION['db'];
-            unset($_SESSION['sseRule'], $_SESSION['sseAction']);
 
-            \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode($fileJsonGetSSE));
-
-            $getSSE[$fileJsonGetSSE['route']] = json_encode($data);
+            if(json_encode($fileJsonGetSSE['result']) !== json_encode($data)) {
+                $fileJsonGetSSE['result'] = $data;
+                unset($_SESSION['sseRule'], $_SESSION['sseAction']);
+                \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . "/get/" . $fileJsonGetSSE['route'] . ".json", json_encode($fileJsonGetSSE));
+                $getSSE[$fileJsonGetSSE['route']] = json_encode($data);
+            }
         }
     }
 }
