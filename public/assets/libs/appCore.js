@@ -444,8 +444,8 @@ $(function ($) {
         let entity = Mustache.render($this.data("db"), param);
         let id = ($this.hasAttr("data-id") ? $this.attr("data-id") : {});
         id = isNumberPositive(id) ? parseInt(id) : (isJson(id) ? JSON.parse(id) : (typeof id === "string" ? {"*": "%" + id + "%"} : {}));
-        let limit = ($this.hasAttr("data-limit") ? Mustache.render($this.data("limit"), param) : null);
-        let offset = ($this.hasAttr("data-offset") ? Mustache.render($this.data("offset"), param) : null);
+        let limit = ($this.hasAttr("data-limit") ? parseInt(Mustache.render($this.attr("data-limit"), param)) : null);
+        let offset = ($this.hasAttr("data-offset") ? parseInt(Mustache.render($this.attr("data-offset"), param)) : null);
         let order = ($this.hasAttr("data-order") ? Mustache.render($this.data("order"), param) : null);
         let orderReverse = ($this.hasAttr("order") ? $this.data("order") : null);
         return db.exeRead(entity, id, limit, offset, order, orderReverse);
