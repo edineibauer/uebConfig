@@ -132,7 +132,7 @@ class Config
 
         $conf = "<?php\n";
         foreach ($dados as $dado => $value) {
-            $value = (is_bool($value) ? ($value ? 'true' : 'false') : (is_numeric($value) ? (float) $value : "'{$value}'"));
+            $value = (is_bool($value) ? ($value ? 'true' : 'false') : (is_numeric($value) ? ((((float) $value) == $value) ? (float) $value : (int) $value) : "'{$value}'"));
             $conf .= "define('" . strtoupper(trim($dado)) . "', {$value});\n";
         }
 
