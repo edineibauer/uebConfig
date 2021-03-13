@@ -620,26 +620,17 @@ const db = {
         return this.exeCreate(entity, dados, sync);
 
     }, async exeCreate(entity, dados) {
-
-        let response = 1;
-        let result = "";
         if (navigator.onLine) {
-            result = await AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)});
-            response = (typeof result.id !== "undefined" && isNumberPositive(result.id) ? 1 : 0);
-            if (response)
-                await dbLocal.exeCreate(entity, result);
+            return AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)}).catch(e => {
+                return {data: e, response: 2};
+            });
 
-        } else if (SERVICEWORKER) {
-            /**
-             * Work offline
-             * Put the request on syncDB to send after
-             */
-            dbLocal.exeCreate("syncDB", {entity: entity, dados: dados});
-            result = await dbLocal.exeCreate(entity, dados);
-            response = (typeof result.id !== "undefined" && isNumberPositive(result.id) ? 1 : 0);
+        } else {
+
+            //offline, registra pendência
+            dbLocal.exeCreate("_syncDB", {entity: entity, dados: dados});
+            return {data: Object.assign(dados, {id: Date.now() + parseInt(Math.random()*100000)}), response: 0};
         }
-
-        return {data: result, response: response};
 
     }, async exeDelete(entity, id) {
         let ids = [];

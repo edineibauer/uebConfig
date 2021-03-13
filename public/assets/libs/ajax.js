@@ -253,18 +253,13 @@ async function _postFormData(formData) {
  */
 async function _postReturnData(data) {
     return new Promise((s, f) => {
+        if(!isEmpty(data.error))
+            toast(data.error, 3000, "toast-error");
+
         if (data.response !== 1) {
-            switch (data.response) {
-                case 2:
-                    toast(data.error, 7000, "toast-warning");
-                    break;
-                default:
-                    if (data.data === "no-network")
-                        toast("Sem Conexão", 500, "toast-warning");
-                    else
-                        toast("Caminho não encontrado", "toast-warning");
-                    break
-            }
+            if (data.data === "no-network")
+                toast("Sem Conexão", 500, "toast-warning");
+
             f(data.data);
         } else {
             s(data.data);
@@ -291,10 +286,13 @@ class AJAX {
                     maestruToken: localStorage.token
                 }, postData)),
                 success: function(data) {
-                    s(_postReturnData(data))
+                    _postReturnData(data).then(d => {
+                        s(d);
+                    }).catch(e => {
+                        f(e);
+                    });
                 },
                 fail: function () {
-                    toast("Erro na Conexão", 3000, "toast-warning");
                     f("no-network");
                 },
                 dataType: "json"
