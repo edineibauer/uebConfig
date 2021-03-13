@@ -621,7 +621,9 @@ const db = {
 
     }, async exeCreate(entity, dados) {
         if (navigator.onLine) {
-            return AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)}).catch(e => {
+            return AJAX.post("exeCreate", {entity: entity, dados: convertEmptyArrayToNull(dados)}).then(d => {
+                return {data: d, response: 1};
+            }).catch(e => {
                 return {data: e, response: 2};
             });
 
