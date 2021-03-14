@@ -3211,6 +3211,25 @@ const sse = {
                 AJAX.get("sseEngine").then(sse.baseReceiveListenerAjax);
             }, 2000);
         }
+
+        /**
+         * sync when online
+         * */
+        setInterval(async function () {
+            if(isOnline()) {
+                let sync = await dbLocal.exeRead("_syncDB");
+                if(!isEmpty(sync)) {
+                    for(let s of sync) {
+                        if(typeof s.action === "delete" && typeof s.dados.id === "number")
+                            AJAX.post("exeDelete", {entity: s.entity, id: s.dados.id});
+                        else if(typeof s.entity === "string" && s.entity.length && !isEmpty(s.dados))
+                            AJAX.post("exeCreate", s);
+                    }
+
+                    dbLocal.clear("_syncDB");
+                }
+            }
+        }, 1000);
     },
     close: () => {
         if(sse.isSSESupported()) {
