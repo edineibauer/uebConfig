@@ -1550,6 +1550,14 @@ async function clearCacheAll() {
         await AJAX.post("up/sync", syncData);
 
     /**
+     * Clear all cache for this user
+     */
+    if(localStorage.cachedGet) {
+        for(let n of JSON.parse(localStorage.cachedGet))
+            await dbLocal.clear(n);
+    }
+
+    /**
      * Clear history user on server
      * Clear indexedDB
      */
