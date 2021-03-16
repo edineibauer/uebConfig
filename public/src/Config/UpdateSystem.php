@@ -126,7 +126,7 @@ class UpdateSystem
         $read = new Read();
         $read->exeRead(PRE . "admin");
         if (!$read->getResult())
-            Entity::add("admin", ["nome" => "Admin", "password" => "maestru"]);
+            Entity::add("admin", ["nome" => "Admin", "senha" => "maestru"]);
     }
 
     /**
