@@ -306,6 +306,12 @@ class Config
         if ($setor === "admin" && $options !== ["menu"])
             return !0;
 
+        if(!empty(PRE) && substr($entity, 0, strlen(PRE)) === PRE)
+            $entity = substr($entity, strlen(PRE));
+
+        if(substr($entity, 0, 7) === "wcache_")
+            $entity = substr($entity, 7);
+
         $permissoes = self::getPermission($setor);
         if (empty($options))
             return isset($permissoes[$entity]);
