@@ -36,7 +36,7 @@ class Config
                      * Check to get setor data
                      */
                     $read = new Read();
-                    $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0, !0);
+                    $read->exeRead($user['setor'], "WHERE usuarios_id = :id", "id={$user['id']}", !0, !0, !0);
                     if ($read->getResult()) {
                         $setorInfo = Metadados::getInfo($user['setor']);
                         $setorDic = Metadados::getDicionario($user['setor']);

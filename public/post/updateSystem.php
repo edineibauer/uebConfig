@@ -5,7 +5,7 @@ $data['data'] = $_SESSION['userlogin']['setor'] === "admin";
 if(!$data['data']) {
     $pass = \Helpers\Check::password(filter_input(INPUT_POST, 'pass', FILTER_DEFAULT));
     $read = new \Conn\Read();
-    $read->exeRead("usuarios", "WHERE setor IS NULL && status = 1 && password = '{$pass}'");
+    $read->exeRead("usuarios", "WHERE setor IS NULL && status = 1 && password = '{$pass}'", null, !0, !0, !0);
     $data['data'] = $read->getResult() ? !0 : !1;
 }
 

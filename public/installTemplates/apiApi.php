@@ -56,17 +56,17 @@ if (!empty($url)) {
     } else {
 
         $read = new Read();
-        $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}");
+        $read->exeRead("api_chave", "WHERE chave = :key", "key={$key}", !0, !0, !0);
         if ($read->getResult()) {
             $API = $read->getResult()[0];
             $token = 0;
 
             if(!empty($API['usuario'])) {
-                $read->exeRead("usuarios_token", "WHERE usuario = :ui", "ui={$API['usuario']}");
+                $read->exeRead("usuarios_token", "WHERE usuario = :ui", "ui={$API['usuario']}", !0, !0, !0);
                 if($read->getResult()) {
                     $token = $read->getResult()[0]['token'];
                 } else {
-                    $read->exeRead("usuarios", "WHERE id = :ui", "ui={$API['usuario']}");
+                    $read->exeRead("usuarios", "WHERE id = :ui", "ui={$API['usuario']}", !0, !0, !0);
                     if($read->getResult()) {
                         $token = md5("tokes" . rand(9999, 99999) . md5(base64_encode(date("Y-m-d H:i:s"))) . rand(0, 9999));
                         $create = new \Conn\Create();
