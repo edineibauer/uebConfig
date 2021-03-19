@@ -1902,7 +1902,6 @@ async function getIndexedDbGets() {
                     position: 0,
                     indice: infoDic.identifier,
                     column: "system_id",
-                    default: !1,
                     nome: ucFirst(infoDic.system || ""),
                     relation: infoDic.system
                 });

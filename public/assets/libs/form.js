@@ -599,13 +599,8 @@ async function getInputsTemplates(form, parent, col) {
         /**
          * System_id field on form aditional verification
          */
-        if(meta.column === "system_id") {
-            if(USER.setor !== "admin" && (isEmpty(info['system']) || !!USER.system_id))
-                continue;
-
-            if(USER.setor !== "admin")
-                meta.default = false;
-        }
+        if(meta.column === "system_id" && USER.setor !== "admin" && (isEmpty(info['system']) || !!USER.system_id))
+            continue;
 
         if (meta.nome === "" || (isEditingMyPerfil && meta.format === "status") || (myPerfilIsSocial && meta.format === "password"))
             continue;
