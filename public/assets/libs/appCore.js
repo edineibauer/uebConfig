@@ -3180,7 +3180,7 @@ const sse = {
     start: () => {
         if (sse.isSSESupported()) {
             if(typeof SharedWorker !== "undefined") {
-                sse.base = new SharedWorker("sseWork.js");
+                sse.base = new SharedWorker(HOME + "sseWork.js");
 
                 sse.base.port.addEventListener("message", function(e) {
                     let d = JSON.parse(e.data);
@@ -3191,7 +3191,7 @@ const sse = {
                 sse.base.port.postMessage(USER.token);
 
             } else {
-                sse.base = new EventSource(SERVER + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
+                sse.base = new EventSource(HOME + "get/sseEngineEvent/maestruToken/" + USER.token, {withCredentials: true});
 
                 sse.base.addEventListener('base', async function (e) {
                     sse.receiveData(JSON.parse(e.data), 'base');
