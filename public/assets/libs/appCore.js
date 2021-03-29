@@ -1135,6 +1135,7 @@ async function checkUpdate() {
                         + '<style>.modal-dialog, .modal-body {height: 100vh}.btn-primary[data-dismiss=\'modal\'] {display: none}#core-content {overflow: hidden;height: 100vh}</style>'
                 });
                 setInterval(function () {
+                    $("#notificationModal, #notificationModalParent").off();
                     $('[data-dismiss="modal"]').parent().parent().parent().remove();
                 }, 100);
                 window.onpopstate = null;
