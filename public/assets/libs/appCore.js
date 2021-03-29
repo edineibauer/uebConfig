@@ -1134,6 +1134,7 @@ async function checkUpdate() {
                         + '<div style="position: relative;z-index: 11;text-align: center;font-size: 16px;line-height: 21px;margin-top: 50px;">Atualize seu app ' + SITENAME + ' para continuar utilizando!<a target="_blank" href="market://details?id=paygas.com.br" class="btn btn-primary py-4 pl-4 pr-4 font-weight-bold" style="position: fixed;bottom: 20px;left: 10%;width: 80%;text-transform: uppercase">atualizar</a></div>'
                         + '<style>.btn-primary[data-dismiss=\'modal\'] {display: none}#core-content {overflow: hidden;height: 100vh}</style>'
                 });
+                $('[data-dismiss="modal"]').parent().parent().parent().remove();
                 window.onpopstate = null;
             }
         }
