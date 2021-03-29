@@ -1112,11 +1112,31 @@ function isEmpty(valor) {
 
 async function checkUpdate() {
     if (isOnline() && SERVICEWORKER) {
-        let latestVersion = await AJAX.post("update");
+        let latestVersion = await AJAX.post("checkUpdate");
+
+        /**
+         * Check version server to update app info
+         * */
         if (!localStorage.update)
-            localStorage.update = latestVersion;
-        else if (parseFloat(latestVersion) > parseFloat(localStorage.update))
+            localStorage.update = latestVersion.version_server;
+        else if (parseFloat(latestVersion.version_server) > parseFloat(localStorage.update))
             toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;box-shadow: 0px 2px 5px -4px black' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+
+        /**
+         * Check version app to require update
+         * */
+        if(window.hasOwnProperty("cordova")) {
+            if(latestVersion.version_app !== "" && latestVersion.version_app !== VERSION && typeof showPopUpModal === "function") {
+                showPopUpModal({
+                    titulo: "Nova versão",
+                    descricao: '<img src="' + HOME + 'public/assets/img/lights.png" style="height:auto;position: absolute;z-index:3;width: 160%;left: -30%;top: -55px;transform:rotate(90deg)">'
+                        + '<lottie-player src="' + HOME + 'public/assets/lottie/update.json" style="margin-top: -25px" background="transparent" speed="1" loop autoplay></lottie-player>'
+                        + '<div style="position: relative;z-index: 11;text-align: center;font-size: 16px;line-height: 21px;margin-top: 50px;">Atualize seu app ' + SITENAME + ' para continuar utilizando!<a target="_blank" href="market://details?id=paygas.com.br" onclick="closeUpdateApp()" class="btn btn-primary py-4 pl-4 pr-4 font-weight-bold" style="position: fixed;bottom: 20px;left: 10%;width: 80%;text-transform: uppercase">atualizar</a></div>'
+                        + '<style>.btn-primary[data-dismiss=\'modal\'] {display: none}#core-content {overflow: hidden;height: 100vh}</style>'
+                });
+                window.onpopstate = null;
+            }
+        }
     }
 }
 
@@ -3404,7 +3424,7 @@ async function startApplication() {
 
     setTimeout(function () {
         checkUpdate();
-    }, 1000);
+    }, 500);
 
     if (localStorage.accesscount === "1") {
 
