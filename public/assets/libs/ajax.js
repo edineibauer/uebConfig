@@ -400,7 +400,7 @@ class AJAX {
     static async view(view) {
         let isViewBundle = HOME === "" && SERVER !== "";
         let originalView = (/\/$/.test(view) ? view.slice(0, -1) : view);
-        let url = isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : HOME + "view/" + originalView;
+        let url = isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : SERVER + "view/" + originalView;
         let home = new RegExp("^" + preg_quote(SERVER), "i");
         if(!isViewBundle && (!/^http/.test(url) || home.test(url)))
             url += "/maestruToken/" + localStorage.token;
