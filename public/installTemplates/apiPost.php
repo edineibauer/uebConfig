@@ -1,11 +1,27 @@
 <?php
 
-header('Access-Control-Allow-Origin: http://localhost');
-header('Access-Control-Allow-Origin: http://localhost:8000');
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Methods: POST');
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    $origin = $_SERVER['HTTP_ORIGIN'];
+    $allowed_domains = [
+        'http://localhost',
+        'http://localhost:8000'
+    ];
+
+    if (in_array($origin, $allowed_domains))
+        header('Access-Control-Allow-Origin: ' . $origin);
+
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');
+}
+
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+}
 
 require_once './_config/config.php';
 
