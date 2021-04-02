@@ -1678,22 +1678,16 @@ function setCookieAnonimo() {
 }
 
 function setCookieUser(user) {
-    if (isOnline()) {
+    /**
+     * Limpa dados de usuário
+     * */
+    return clearCacheUser().then(() => {
 
         /**
-         * Limpa dados de usuário
+         * Seta usuário
          * */
-        return clearCacheUser().then(() => {
-
-            /**
-             * Seta usuário
-             * */
-            return setUserInNavigator(user);
-        });
-
-    } else {
-        toast("Sem Conexão", 1200);
-    }
+        return setUserInNavigator(user);
+    });
 }
 
 async function checkSessao() {
@@ -1809,15 +1803,9 @@ function loadCacheUser() {
     /**
      * Load User Data content
      * */
-    if (isOnline()) {
-        return getIndexedDbGets().catch(e => {
-            errorLoadingApp("loadCacheUser", e);
-        });
-
-    } else {
-        toast("Sem Conexão!", 3000, "toast-warning");
-        return Promise.all([])
-    }
+    return getIndexedDbGets().catch(e => {
+        errorLoadingApp("loadCacheUser", e);
+    });
 }
 
 function updateGraficos() {
@@ -1849,12 +1837,8 @@ function isOnline() {
 }
 
 function errorLoadingApp(id, e) {
-    if(isOnline()) {
-        console.log(e);
-        toast("Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
-    } else {
-        toast("Conexão perdida", 1400, "toast-warning");
-    }
+    console.log(e);
+    toast((isOnline()? "" : "[offline] " ) + "Erro ao carregar Aplicativo [" + id + "]", 3000, "toast-warning");
 }
 
 async function firstAccess() {
@@ -2652,6 +2636,7 @@ var PARAM, app = {
         return pageTransition(route, 'route', (typeof route === "undefined" ? 'fade' : 'forward'), $div, "", undefined, nav);
     }
 };
+var awaitingTransition = false;
 
 /**
  *
@@ -2666,6 +2651,17 @@ var PARAM, app = {
  * @returns {Promise<unknown[]>}
  */
 async function pageTransition(route, type, animation, target, param, scroll, setHistory, replaceHistory) {
+
+    if(awaitingTransition)
+        return;
+
+    awaitingTransition = app.loading || aniTransitionPage;
+
+    while(app.loading || aniTransitionPage)
+        await sleep(10);
+
+    awaitingTransition = false;
+
     localStorage.navigationCount ++;
     let reload = typeof route === "undefined";
     let isGridView = typeof history.state !== "undefined" && history.state !== null && typeof history.state.type === "string" && history.state.type === "grid";
@@ -2701,18 +2697,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     app.route = route;
     app.file = file;
 
-    if (!app.loading && !aniTransitionPage) {
-        return _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload);
-    } else {
-        return new Promise(s => {
-            let a = setInterval(function () {
-                if (!app.loading && !aniTransitionPage) {
-                    s(_pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload));
-                    clearInterval(a);
-                }
-            }, 10);
-        });
-    }
+    return _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload);
 }
 
 /**

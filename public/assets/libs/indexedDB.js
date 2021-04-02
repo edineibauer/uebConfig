@@ -1297,7 +1297,5 @@ function _syncDataBtn(entity) {
                 }
             }
         });
-    } else {
-        toast("Sem Conexão", 2000);
     }
 }
