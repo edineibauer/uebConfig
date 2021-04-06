@@ -224,64 +224,21 @@ class Config
     }
 
     /**
-     * Obtém lista de todos os dicionários de um setor
-     * convert string "true" e "false" para boolean
-     * Se o setor não tiver nenhuma permissão de acesso a entidade, então exclui
-     * Retorna permissoes revisadas
-     *
-     * @param array $setorPermissions
-     * @return array
-     */
-    private static function checkPermissionValues(array $setorPermissions): array
-    {
-        $file = [];
-        if (!empty($setorPermissions)) {
-            foreach ($setorPermissions as $entity => $permissoes) {
-                $entityAllowSee = !1;
-                if (!empty($permissoes)) {
-                    foreach ($permissoes as $action => $allow) {
-                        $file[$entity][$action] = $allow === "true";
-                        if ($file[$entity][$action])
-                            $entityAllowSee = !0;
-                    }
-                }
-                if (!$entityAllowSee)
-                    unset($file[$entity]);
-            }
-        }
-
-        return $file;
-    }
-
-    /**
      * Obtém lista de permissões de um setor
      * @param string|null $setor
      * @return array
      */
     public static function getPermission(string $setor = null): array
     {
-        $file = [];
-        if (file_exists(PATH_HOME . "_config/permissoes.json")) {
-            $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), !0);
+        if (!file_exists(PATH_HOME . "_config/permissoes.json"))
+            return [];
 
-            //convert true string para true boolean
-            if (is_array($file)) {
-                if (!empty($setor) || $setor === 0 || $setor === "0") {
-                    $file = self::checkPermissionValues(!empty($file[$setor]) && is_array($file[$setor]) ? $file[$setor] : []);
-                } else {
-                    if (is_array($file)) {
-                        foreach ($file as $setor => $datum) {
-                            if (is_array($datum))
-                                $file[$setor] = self::checkPermissionValues($datum);
-                        }
-                    }
-                }
-            } else {
-                $file = [];
-            }
-        }
+        $file = json_decode(file_get_contents(PATH_HOME . "_config/permissoes.json"), !0);
 
-        return $file;
+        if (!is_array($file) || empty($file))
+            return [];
+
+        return ($setor !== null ? (!empty($file[$setor]) && is_array($file[$setor]) ? $file[$setor] : []) : $file);
     }
 
     /**
