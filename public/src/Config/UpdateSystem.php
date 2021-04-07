@@ -67,8 +67,16 @@ class UpdateSystem
             $config = [];
             foreach (explode("define('", $conf) as $i => $item) {
                 if ($i > 0) {
-                    $d = explode("'", $item);
-                    $config[strtolower(trim($d[0]))] = $d[2];
+                    $e = trim(explode(")", explode("',", $item)[1])[0]);
+
+                    if(substr($e,0, 1) === "'")
+                        $e = substr($e, 1, strlen($e) - 2);
+                    elseif($e === "false" || $e === "true")
+                        $e = $e === "true";
+                    else
+                        $e = (float) $e;
+
+                    $config[strtolower(trim(explode("'", $item)[0]))] = $e;
                 }
             }
 
@@ -285,9 +293,7 @@ class UpdateSystem
                 }
             }
 
-            $f = fopen(PATH_HOME . "assetsPublic/appCore.min.js", "w+");
-            fwrite($f, $m);
-            fclose($f);
+            Config::createFile(PATH_HOME . "assetsPublic/appCore.min.js", $m);
 
             /**
              * AppCore Form JS Generator
@@ -297,9 +303,7 @@ class UpdateSystem
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/formValidate.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/form.js");
 
-            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreForm.js", "w+");
-            fwrite($f, $m);
-            fclose($f);
+            Config::createFile(PATH_HOME . VENDOR . "config/public/assets/coreForm.js", $m);
 
             /**
              * AppCore Report JS Generator
@@ -307,9 +311,7 @@ class UpdateSystem
             $m = file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/apexcharts.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grafico.js");
 
-            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreReport.js", "w+");
-            fwrite($f, $m);
-            fclose($f);
+            Config::createFile(PATH_HOME . VENDOR . "config/public/assets/coreReport.js", $m);
 
             /**
              * AppCore Grid JS Generator
@@ -318,9 +320,7 @@ class UpdateSystem
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js");
             $m .= ";" . file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js");
 
-            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
-            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m)));
-            fclose($f);
+            Config::createFile(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m)));
 
         } else {
             $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/jquery.min.js"));
@@ -375,9 +375,8 @@ class UpdateSystem
             $m = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/table.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/grid.js"));
             $m->add(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/pagination.js"));
-            $f = fopen(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", "w");
-            fwrite($f, trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
-            fclose($f);
+
+            Config::createFile(PATH_HOME . VENDOR . "config/public/assets/coreGrid.js", trim(preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $m->minify())));
         }
 
         /**
@@ -415,9 +414,7 @@ class UpdateSystem
                 }
             }
 
-            $f = fopen(PATH_HOME . "assetsPublic/appCore.min.css", "w+");
-            fwrite($f, $m);
-            fclose($f);
+            Config::createFile(PATH_HOME . "assetsPublic/appCore.min.css", $m);
 
         } else {
             $m = new \MatthiasMullie\Minify\CSS(file_get_contents(PATH_HOME . VENDOR . "config/public/assets/libs/normalize.css"));
@@ -572,9 +569,7 @@ class UpdateSystem
                     $fonts .= $this->getFontIcon($item, "icon");
             }
 
-            $f = fopen(PATH_HOME . "assetsPublic/{$name}.min.css", "w");
-            fwrite($f, $fonts);
-            fclose($f);
+            Config::createFile(PATH_HOME . "assetsPublic/{$name}.min.css", $fonts);
         }
     }
 
@@ -650,13 +645,18 @@ class UpdateSystem
                         }
                     }
                 }
-                $f = fopen(PATH_HOME . "public/_config/config.json", "w+");
-                fwrite($f, json_encode($conf));
-                fclose($f);
+
+                Config::createFile(PATH_HOME . "public/_config/config.json", json_encode($conf));
             }
+
+            if (file_exists(PATH_HOME . "_config/corsAllow.json"))
+                copy(PATH_HOME . "_config/corsAllow.json", PATH_HOME . "public/_config/corsAllow.json");
 
             if (file_exists(PATH_HOME . "_config/permissoes.json"))
                 copy(PATH_HOME . "_config/permissoes.json", PATH_HOME . "public/_config/permissoes.json");
+
+            if (file_exists(PATH_HOME . "_config/firebase.json"))
+                copy(PATH_HOME . "_config/firebase.json", PATH_HOME . "public/_config/firebase.json");
 
             if (!empty(FAVICON) && file_exists(PATH_HOME . FAVICON))
                 copy(PATH_HOME . FAVICON, PATH_HOME . "public/_config/favicon." . pathinfo(FAVICON, PATHINFO_EXTENSION));
@@ -667,8 +667,15 @@ class UpdateSystem
             if (file_exists(PATH_HOME . "entity/general/general_info.json"))
                 copy(PATH_HOME . "entity/general/general_info.json", PATH_HOME . "public/_config/general_info.json");
         } else {
+
             if (file_exists(PATH_HOME . "public/_config/permissoes.json"))
                 copy(PATH_HOME . "public/_config/permissoes.json", PATH_HOME . "_config/permissoes.json");
+
+            if (file_exists(PATH_HOME . "public/_config/corsAllow.json"))
+                copy(PATH_HOME . "public/_config/corsAllow.json", PATH_HOME . "_config/corsAllow.json");
+
+            if (file_exists(PATH_HOME . "public/_config/firebase.json"))
+                copy(PATH_HOME . "public/_config/firebase.json", PATH_HOME . "_config/firebase.json");
         }
 
         /**
@@ -734,9 +741,7 @@ class UpdateSystem
         $themeBackd = explode("!important", explode("background-color:", $themed)[1])[0];
         $content = str_replace(['{$sitename}', '{$theme}', '{$themed}', '{$version}'], [$dados['sitename'], $themeBack, $themeBackd, $dados['version']], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/manifest.txt"));
 
-        $fp = fopen(PATH_HOME . "manifest.json", "w");
-        fwrite($fp, $content);
-        fclose($fp);
+        Config::createFile(PATH_HOME . "manifest.json", $content);
     }
 
     /**
@@ -769,17 +774,15 @@ class UpdateSystem
         //copia service worker
         if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js")) {
             $service = str_replace(["var VERSION = '';", "const HOME = '';"], ["var VERSION = '" . number_format($dados['version'], 2) . "';", "const HOME = '" . HOME . "';"], file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/service-worker.js"));
-            $f = fopen(PATH_HOME . "service-worker.js", "w");
-            fwrite($f, $service);
-            fclose($f);
+
+            Config::createFile(PATH_HOME . "service-worker.js", $service);
         }
 
         //copia sse worker
         if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js")) {
             $service = str_replace("var SERVER = ''", "var SERVER = '" . SERVER . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js"));
-            $f = fopen(PATH_HOME . "sseWork.js", "w");
-            fwrite($f, $service);
-            fclose($f);
+
+            Config::createFile(PATH_HOME . "sseWork.js", $service);
         }
     }
 
@@ -801,9 +804,7 @@ class UpdateSystem
                     $urlData = @file_get_contents($url);
                     if (!file_exists(PATH_HOME . "assetsPublic/fonts/" . explode("?", pathinfo($url, PATHINFO_BASENAME))[0])) {
                         if ($urlData) {
-                            $f = fopen(PATH_HOME . "assetsPublic/fonts/" . explode("?", pathinfo($url, PATHINFO_BASENAME))[0], "w+");
-                            fwrite($f, $urlData);
-                            fclose($f);
+                            Config::createFile(PATH_HOME . "assetsPublic/fonts/" . explode("?", pathinfo($url, PATHINFO_BASENAME))[0], $urlData);
                             $data = str_replace($url, "fonts/" . pathinfo($url, PATHINFO_BASENAME) . "?v=" . $config['version'], $data);
                         } else {
                             $before = "@font-face" . explode("@font-face", $u[$i - 1])[1] . "url(";
