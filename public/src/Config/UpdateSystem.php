@@ -494,7 +494,7 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "_config/corsAllow.json"))
             Config::writeFile("_config/corsAllow.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/corsAllow.json"));
 
-        $listCors = json_decode(file_get_contents(PATH_HOME . "_config/corsAllow.json"), !0);
+        $listCors = file_get_contents(PATH_HOME . "_config/corsAllow.json");
 
         Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.php"));
         Config::writeFile("apiView.php", str_replace('$var_cors_replace', $listCors, file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/apiView.php")));
