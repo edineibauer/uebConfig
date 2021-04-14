@@ -343,20 +343,6 @@ class Config
     }
 
     /**
-     * Cria arquivo de atualização do site
-     */
-    public static function updateSite()
-    {
-        $update = "0";
-        if (file_exists(PATH_HOME . "_config/updates/update.txt"))
-            $update = file_get_contents(PATH_HOME . "_config/updates/update.txt");
-        $update += 1;
-
-        Helper::createFolderIfNoExist(PATH_HOME . "_config/updates");
-        self::createFile(PATH_HOME . "_config/updates/update.txt", $update);
-    }
-
-    /**
      * Cria/Atualiza os caches de Vendor
      * Caso seja informado uma biblioteca em específico para ser atualizada apenas
      */

@@ -148,8 +148,6 @@ class UpdateSystem
         $this->checkDirBase();
 
         $dados = $this->updateVersionNumber();
-        //cria/atualiza update log file
-        Config::updateSite();
         Config::createLibsDirectory();
 
         if (empty($custom)) {
