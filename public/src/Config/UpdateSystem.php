@@ -220,8 +220,11 @@ class UpdateSystem
         if(!isset($config['server']))
             $config['server'] = $config['home'];
 
-        if(!isset($config['serverproduction']))
-            $config['serverproduction'] = $config['home'];
+        if(!isset($config['home_production']))
+            $config['home_production'] = $config['home'];
+
+        if(!isset($config['server_production']))
+            $config['server_production'] = $config['server'];
 
         Config::createConfig($config);
     }

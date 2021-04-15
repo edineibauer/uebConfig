@@ -1,5 +1,7 @@
 <?php
 
+use Config\Config;
+
 if (session_status() == PHP_SESSION_NONE)
     session_start();
 
@@ -14,9 +16,9 @@ if(!file_exists($www))
 $config = file_get_contents("_config/config.php");
 $home = explode("'", explode("define('HOME', '", $config)[1])[0];
 $server = explode("'", explode("define('SERVER', '", $config)[1])[0];
-$serverTarget = explode("'", explode("define('SERVERPRODUCTION', '", $config)[1])[0];
+$serverProduction = explode("'", explode("define('SERVER_PRODUCTION', '", $config)[1])[0];
 $f = fopen("{$www}/config.php", "w+");
-fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');", "define('SERVER', '{$server}');"], ["define('HOME', '');", "define('DEV', '0');", "define('SERVER', '{$serverTarget}');"], $config));
+fwrite($f, str_replace(["define('HOME', '{$home}');", "define('DEV', '1');", "define('SERVER', '{$server}');"], ["define('HOME', '');", "define('DEV', '0');", "define('SERVER', '{$serverProduction}');"], $config));
 fclose($f);
 
 $f = fopen("{$www}/index.php", "w+");
@@ -35,6 +37,18 @@ if (file_exists(PATH_HOME . "{$www}/view"))
 
 if (file_exists(PATH_HOME . "{$www}/assetsPublic"))
     \Helpers\Helper::recurseDelete(PATH_HOME . "{$www}/assetsPublic");
+
+if (file_exists(PATH_HOME . "{$www}/get"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "{$www}/get");
+
+if (file_exists(PATH_HOME . "{$www}/public"))
+    \Helpers\Helper::recurseDelete(PATH_HOME . "{$www}/public");
+
+if(file_exists(PATH_HOME . "{$www}/index.html"))
+    unlink(PATH_HOME . "{$www}/index.html");
+
+if(file_exists(PATH_HOME . "{$www}/sseWork.js"))
+    unlink(PATH_HOME . "{$www}/sseWork.js");
 
 /**
  * ------------- start Create views
@@ -75,6 +89,9 @@ unlink( PATH_HOME . "{$www}/index.php");
  */
 \Config\Config::setUser(0);
 foreach (\Config\Config::getSetores() as $setor) {
+    if($setor != '0' && $setor !== 'clientes')
+        continue;
+
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/view/{$setor}");
     \Helpers\Helper::createFolderIfNoExist(PATH_HOME . "{$www}/get/{$setor}");
     $_SESSION['userlogin']['setor'] = $setor;
@@ -120,7 +137,6 @@ foreach (\Config\Config::getSetores() as $setor) {
         if ($link->getRoute()) {
 
             try {
-
                 if(pathinfo($link->getRoute(), PATHINFO_EXTENSION) === "php") {
                     ob_start();
                     include $link->getRoute();
@@ -178,7 +194,9 @@ foreach (\Config\Config::getSetores() as $setor) {
  */
 \Helpers\Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
 \Helpers\Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
-copy(PATH_HOME . "sseWork.js", PATH_HOME . "{$www}/sseWork.js");
+
+if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js"))
+    Config::createFile(PATH_HOME . "{$www}/sseWork.js", str_replace("var SERVER = ''", "var SERVER = '" . $serverProduction . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js")));
 
 if(file_exists(PATH_HOME . "{$www}/config.php"))
     unlink(PATH_HOME . "{$www}/config.php");
