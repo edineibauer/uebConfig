@@ -2776,6 +2776,8 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
         if (typeof destruct === "function")
             destruct();
 
+        window.destruct = function() {};
+
         if (historyReqPosition)
             animation = "none";
 
