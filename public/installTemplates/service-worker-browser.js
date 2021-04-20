@@ -23,7 +23,7 @@ self.addEventListener('message', function(event){
 
 self.addEventListener('fetch', function (e) {
 
-    let url = e.request.url.replace(HOME, '');
+    let url = e.request.url.replace(HOME, '').replace("http://localhost:8000/", "");
     let linkExterno = new RegExp("^https*:\/\/", "i");
     let viewIndex = new RegExp("^index\.html", "i");
     let core = new RegExp("^assetsPublic\/", "i");
@@ -36,9 +36,9 @@ self.addEventListener('fetch', function (e) {
         e.respondWith(
             caches.open('core-v' + VERSION).then(cache => {
                 return cache.match("index").then(response => {
-                    return response || fetch(url).then(networkResponse => {
+                    return response || fetch("index.html?url=index").then(networkResponse => {
                         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(url, networkResponse.clone());
+                            cache.put("index", networkResponse.clone());
                             return networkResponse;
                         }
                         return returnNoNetwork()

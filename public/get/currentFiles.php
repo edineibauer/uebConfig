@@ -8,7 +8,7 @@ use \Helpers\Helper;
 
 // return values
 $data['data'] = [
-    "core" => [HOME . "index"],
+    "core" => [],
     "fonts" => [],
     "images" => [],
     "misc" => [HOME . "manifest.json?v=" . VERSION]

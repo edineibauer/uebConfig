@@ -1851,6 +1851,13 @@ async function cacheCoreApp() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
+    await caches.open('core-v' + VERSION).then(cache => {
+        fetch("index.html").then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                cache.put("index", networkResponse.clone());
+        });
+    });
+
     return AJAX.get("currentFiles").then(g => {
         return caches.open('core-v' + VERSION).then(cache => {
             return cache.addAll(g.core).catch(e => {
