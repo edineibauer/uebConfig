@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www.(.*) [NC]
+RewriteRule ^(.*) http://%1/$1 [L,R=301]
+
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteRule ^(.*)$ index.html?url=$1
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresDefault "access 1 year"
+</IfModule>
