@@ -1,0 +1,38 @@
+<universal-links>
+    <host name="{$url}" scheme="https" />
+</universal-links>
+<allow-intent href="whatsapp:*" />
+<allow-intent href="facebook:*" />
+
+<preference name="ShowSplashScreenSpinner" value="false" />
+<preference name="SplashMaintainAspectRatio" value="true" />
+<preference name="StatusBarBackgroundColor" value="{$theme}" />
+<preference name="Orientation" value="portrait" />
+
+<platform name="android">
+    <allow-intent href="market:*" />
+    <icon density="ldpi" src="res/android/icon/drawable-ldpi-icon.png" />
+    <icon density="mdpi" src="res/android/icon/drawable-mdpi-icon.png" />
+    <icon density="hdpi" src="res/android/icon/drawable-hdpi-icon.png" />
+    <icon density="xhdpi" src="res/android/icon/drawable-xhdpi-icon.png" />
+    <icon density="xxhdpi" src="res/android/icon/drawable-xxhdpi-icon.png" />
+    <icon density="xxxhdpi" src="res/android/icon/drawable-xxxhdpi-icon.png" />
+    <splash density="land-hdpi" src="res/android/splash/splash-land-hdpi.png" />
+    <splash density="land-ldpi" src="res/android/splash/splash-land-ldpi.png" />
+    <splash density="land-mdpi" src="res/android/splash/splash-land-mdpi.png" />
+    <splash density="land-xhdpi" src="res/android/splash/splash-land-xhdpi.png" />
+    <splash density="land-xxhdpi" src="res/android/splash/splash-land-xxhdpi.png" />
+    <splash density="port-hdpi" src="res/android/splash/splash-port-hdpi.png" />
+    <splash density="port-ldpi" src="res/android/splash/splash-port-ldpi.png" />
+    <splash density="port-mdpi" src="res/android/splash/splash-port-mdpi.png" />
+    <splash density="port-xhdpi" src="res/android/splash/splash-port-xhdpi.png" />
+    <splash density="port-xxhdpi" src="res/android/splash/splash-port-xxhdpi.png" />
+    <preference name="SplashScreenDelay" value="2000" />
+    <preference name="SplashShowOnlyFirstTime" value="true" />
+    <preference name="FadeSplashScreenDuration" value="50" />
+</platform>
+<platform name="browser">
+    <preference name="SplashScreen" value="assetsPublic/img/logo.png" />
+    <preference name="SplashScreenDelay" value="0" />
+    <preference name="FadeSplashScreenDuration" value="0" />
+</platform>

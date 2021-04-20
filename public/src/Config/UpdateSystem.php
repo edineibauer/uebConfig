@@ -495,6 +495,15 @@ class UpdateSystem
         if(!file_exists(PATH_HOME . "_config/corsAllow.json"))
             Config::writeFile("_config/corsAllow.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/corsAllow.json"));
 
+        if(!file_exists(PATH_HOME . "_config/appConfig.xml"))
+            Config::writeFile("_config/appConfig.xml", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/appConfig.xml"));
+
+        if(!file_exists(PATH_HOME . "_config/appPlugins.json"))
+            Config::writeFile("_config/appPlugins.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/appPlugins.json"));
+
+        if(!file_exists(PATH_HOME . "_config/appSetorAllow.json"))
+            Config::writeFile("_config/appSetorAllow.json", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/appSetorAllow.json"));
+
         $listCors = file_get_contents(PATH_HOME . "_config/corsAllow.json");
 
         Config::writeFile("index.php", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/index.php"));

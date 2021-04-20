@@ -1193,7 +1193,7 @@ async function logoutDashboard() {
     if (isOnline()) {
         if(confirm("Sair da sua conta?")) {
             toast("Saindo...", 42000);
-            await AJAX.get("logout");
+            await AJAX.post("logout");
             await setCookieAnonimo();
             location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
         }
@@ -1539,7 +1539,7 @@ async function clearCacheUser() {
      * Clear history user on server
      * Clear all indexedDB
      */
-    await AJAX.get("clearUserHistory");
+    await AJAX.post("clearUserHistory");
     if(!isEmpty(dicionarios)) {
         for (let entity of Object.keys(dicionarios))
             dbLocal.clear(entity);
@@ -1585,7 +1585,7 @@ async function clearCacheAll() {
      * Clear history user on server
      * Clear indexedDB
      */
-    await AJAX.get("clearUserHistory");
+    await AJAX.post("clearUserHistory");
     if(!isEmpty(dicionarios)) {
         for (let entity of Object.keys(dicionarios))
             dbLocal.clear(entity);

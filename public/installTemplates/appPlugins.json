@@ -1,0 +1,14 @@
+[
+  "cordova-plugin-androidx",
+  "cordova-plugin-deeplinks",
+  "cordova-plugin-fcm-with-dependecy-updated",
+  "cordova-plugin-firebase",
+  "cordova-plugin-inappbrowser",
+  "cordova-plugin-network-information",
+  "cordova-plugin-splashscreen",
+  "cordova-plugin-statusbar",
+  "cordova-plugin-whitelist",
+  "cordova-support-android-plugin",
+  "cordova-support-google-services",
+  "phonegap-plugin-barcodescanner"
+]
