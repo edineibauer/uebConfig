@@ -74,7 +74,7 @@ if (!empty($_SESSION['userlogin'])) {
     /**
      * Refresh login info in session
      */
-    \Config\Config::setUser($_SESSION['userlogin']['token']);;
+    \Config\Config::setUser($_SESSION['userlogin']['token']);
     Helper::createFolderIfNoExist(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id']);
     \Config\Config::createFile(PATH_HOME . "_cdn/userSSE/" . $_SESSION['userlogin']['id'] . '/my_data.json', json_encode($_SESSION['userlogin']));
 
