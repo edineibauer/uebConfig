@@ -4,7 +4,7 @@ var TOKEN = "0";
 
 function returnErros(cacheControl) {
     if(cacheControl === "images") {
-        return caches.open('images-v' + VERSION).then(cache => {
+        return caches.open('assetsPublic-v' + VERSION).then(cache => {
             return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
         })
     }
@@ -81,8 +81,6 @@ self.addEventListener('fetch', function (e) {
         } else if(view.test(url)) {
             cacheControl = "user-view";
         }
-
-        console.log(url, cacheControl);
 
         e.respondWith(
             caches.open(cacheControl + '-v' + VERSION).then(cache => {

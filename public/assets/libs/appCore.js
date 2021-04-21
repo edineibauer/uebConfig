@@ -1666,9 +1666,6 @@ async function setUserInNavigator(user, isUserToStore) {
             await loadCacheUser();
         else
             dicionarios = await dbLocal.exeRead("__dicionario", 1);
-
-        if(isEmpty(dicionarios))
-            await loadCacheUser();
     }
 }
 
@@ -2446,165 +2443,111 @@ var PARAM, app = {
                 dbLocal.exeCreate("_cache_get_" + cacheName, {id: 1, result: JSON.stringify(resultSSEget[cacheName].data)});
         }
 
-        if ($div.html() !== "") {
-            let pageHeader = $div.data('header');
-            let pageNavbar = $div.data('navbar');
-            let headerAssets = $div.data('head');
-
-            TITLE = $div.data('title');
-            headerShow(pageHeader);
-            checkMenuActive();
-            $("#core-title").text(TITLE);
-
-            /**
-             * add tags to the head of the page
-             * if allready exist, so not do anything
-             */
-            if (!isEmpty(headerAssets)) {
-                /**
-                 * Remove link from head not used
-                 */
-
-                let idsLinks = Object.keys(headerAssets);
-                $(".coreLinkHeader").each(function (i, e) {
-                    if (idsLinks.indexOf($(e).attr("id")) === -1)
-                        $(e).remove();
-                });
+        let g = await AJAX.view(file);
+        if (g) {
+            if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
+                TITLE = app.title = g.title;
+                headerShow(g.header);
+                checkMenuActive();
+                $("#core-title").text(g.title);
 
                 /**
-                 * Add link to head
+                 * add tags to the head of the page
+                 * if allready exist, so not do anything
                  */
-                for (let hid in headerAssets) {
-                    if (!$("head > #" + hid).length)
-                        $(headerAssets[hid]).appendTo("head");
+                let $html = $("html");
+                let isDark = $html.hasClass("darkmode");
+                $html.removeClass();
+                if(isDark)
+                    $html.addClass("darkmode");
+
+                if (!isEmpty(g.head)) {
+                    /**
+                     * Add link to head
+                     */
+                    for (let hid in g.head) {
+                        if (/^core-/.test(hid))
+                            $html.addClass(hid);
+                        else
+                            $div.addClass(hid);
+
+                        if (!$("head > #" + hid).length)
+                            $(g.head[hid]).appendTo("head");
+                    }
                 }
-            } else {
+
+                let templates = await getTemplates();
+                PARAM = history.state.param.url;
 
                 /**
-                 * Remove all link from head
+                 * Include templates used in this view
                  */
-                $(".coreLinkHeader").remove();
-            }
+                if (!isEmpty(g.templates)) {
+                    templates = Object.assign(templates, g.templates);
+                    dbLocal.exeCreate("__template", templates);
+                }
 
-            if (pageNavbar)
-                $("#core-header-nav-bottom").addClass("core-show-navbar");
-            else
-                $("#core-header-nav-bottom").removeClass("core-show-navbar");
+                /**
+                 * Pre scripts
+                 */
+                if (!isEmpty(g.jsPre)) {
+                    for (let js of g.jsPre) {
+                        if(window.hasOwnProperty("cordova"))
+                            js = js.replace(HOME, "").replace("?v=" + VERSION, "");
 
-            $div.css("min-height", getPageContentHeight());
-            if ($div.attr("id") === "core-content")
-                $div.css("padding-top", getPaddingTopContent() + "px");
-
-            return Promise.all([]);
-
-        } else {
-
-            let g = await AJAX.view(file);
-            if (g) {
-                if (file === "403" || app.haveAccessPermission(g.setor, g["!setor"])) {
-                    TITLE = app.title = g.title;
-                    headerShow(g.header);
-                    checkMenuActive();
-                    $("#core-title").text(g.title);
-
-                    /**
-                     * add tags to the head of the page
-                     * if allready exist, so not do anything
-                     */
-                    let $html = $("html");
-                    let isDark = $html.hasClass("darkmode");
-                    $html.removeClass();
-                    if(isDark)
-                        $html.addClass("darkmode");
-
-                    if (!isEmpty(g.head)) {
-                        /**
-                         * Add link to head
-                         */
-                        for (let hid in g.head) {
-                            if (/^core-/.test(hid))
-                                $html.addClass(hid);
-                            else
-                                $div.addClass(hid);
-
-                            if (!$("head > #" + hid).length)
-                                $(g.head[hid]).appendTo("head");
-                        }
+                        await $.cachedScript(js);
                     }
+                }
 
-                    let templates = await getTemplates();
-                    PARAM = history.state.param.url;
+                let htmlTemplate = "<style class='core-style'>" + g.css + "#core-content {margin-top:" + (g.header ? $("#core-header").children().first()[0].clientHeight : 0) + "px;padding-top:" + getPaddingTopContent() + "px}" + "</style>" + g.content;
+                await $div.htmlTemplate(htmlTemplate);
 
-                    /**
-                     * Include templates used in this view
-                     */
-                    if (!isEmpty(g.templates)) {
-                        templates = Object.assign(templates, g.templates);
-                        dbLocal.exeCreate("__template", templates);
-                    }
+                if (g.cache)
+                    $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
 
-                    /**
-                     * Pre scripts
-                     */
-                    if (!isEmpty(g.jsPre)) {
-                        for (let js of g.jsPre) {
+                if (g.navbar)
+                    $("#core-header-nav-bottom").addClass("core-show-navbar");
+                else
+                    $("#core-header-nav-bottom").removeClass("core-show-navbar");
+
+                $div.css("min-height", getPageContentHeight());
+                if ($div.attr("id") === "core-content")
+                    $div.css("padding-top", getPaddingTopContent());
+
+                /**
+                 * add script to page
+                 */
+                if (!isEmpty(g.js)) {
+                    app.loadingScripts = !0;
+                    setTimeout(async function () {
+                        for (let js of g.js) {
                             if(window.hasOwnProperty("cordova"))
                                 js = js.replace(HOME, "").replace("?v=" + VERSION, "");
 
                             await $.cachedScript(js);
                         }
-                    }
 
-                    let htmlTemplate = "<style class='core-style'>" + g.css + "#core-content {margin-top:" + (g.header ? $("#core-header").children().first()[0].clientHeight : 0) + "px;padding-top:" + getPaddingTopContent() + "px}" + "</style>" + g.content;
-                    await $div.htmlTemplate(htmlTemplate);
-
-                    if (g.cache)
-                        $div.addClass("cache-content").attr("rel", file).attr("data-title", g.title).attr("data-header", g.header).attr("data-navbar", g.navbar).attr("data-js", g.js).attr("data-head", JSON.stringify(g.head));
-
-                    if (g.navbar)
-                        $("#core-header-nav-bottom").addClass("core-show-navbar");
-                    else
-                        $("#core-header-nav-bottom").removeClass("core-show-navbar");
-
-                    $div.css("min-height", getPageContentHeight());
-                    if ($div.attr("id") === "core-content")
-                        $div.css("padding-top", getPaddingTopContent());
-
-                    /**
-                     * add script to page
-                     */
-                    if (!isEmpty(g.js)) {
-                        app.loadingScripts = !0;
-                        setTimeout(async function () {
-                            for (let js of g.js) {
-                                if(window.hasOwnProperty("cordova"))
-                                    js = js.replace(HOME, "").replace("?v=" + VERSION, "");
-
-                                await $.cachedScript(js);
-                            }
-
-                            app.loadingScripts = !1;
-                        },1);
-                    }
-
-                    /**
-                     * Register SSE
-                     */
-                    if (isOnline() && typeof (EventSource) !== "undefined")
-                        sse.baseViewData[file] = {"dom": $div, "template": htmlTemplate};
-
-                    return Promise.all([]);
-
-                } else {
-                    if (USER.setor === 0 && !localStorage.redirectOnLogin)
-                        localStorage.redirectOnLogin = file;
-
-                    location.href = HOME + (HOME !== SERVER ? "index.html?url=" : "") + g.redirect
+                        app.loadingScripts = !1;
+                    },1);
                 }
-            } else {
-                $div.html("");
+
+                /**
+                 * Register SSE
+                 */
+                if (isOnline() && typeof (EventSource) !== "undefined")
+                    sse.baseViewData[file] = {"dom": $div, "template": htmlTemplate};
+
                 return Promise.all([]);
+
+            } else {
+                if (USER.setor === 0 && !localStorage.redirectOnLogin)
+                    localStorage.redirectOnLogin = file;
+
+                location.href = HOME + (HOME !== SERVER ? "index.html?url=" : "") + g.redirect
             }
+        } else {
+            $div.html("");
+            return Promise.all([]);
         }
     }, haveAccessPermission: function (setor, notSetor) {
         let allow = !0;
