@@ -4,7 +4,7 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     $origin = $_SERVER['HTTP_ORIGIN'];
     $allowed_domains = $var_cors_replace;
 
-    if (in_array($origin, $allowed_domains) || in_array("*", $allowed_domains))
+    if (in_array($origin, $allowed_domains))
         header('Access-Control-Allow-Origin: ' . $origin);
 
     header('Access-Control-Allow-Credentials: true');
@@ -25,7 +25,12 @@ require_once './_config/config.php';
 $_SESSION = [];
 $data = ['error' => "", "data" => "", "response" => 1];
 
-\Config\Config::setUser(filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT));
+$user = filter_input(INPUT_POST, 'maestruToken', FILTER_DEFAULT);
+
+if(empty($user))
+    $user = "T!1233213123";
+
+\Config\Config::setUser($user);
 $fileInSetFolder = filter_input(INPUT_POST, 'fileInSetFolder', FILTER_DEFAULT) . ".php";
 
 if(isset($_POST['fileInSetFolder']))

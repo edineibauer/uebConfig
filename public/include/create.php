@@ -17,6 +17,8 @@ function getServerConstants(array $dados)
         ($localhost ? "localhost/" : "") .
         ($localhost ? (in_array($porta, ["80", "8080"]) ? explode('/', $_SERVER['REQUEST_URI'])[1] : ":" . $porta) : $_SERVER['SERVER_NAME']) . "/";
     $dados['server'] = $dados['home'];
+    $dados['home_production'] = $dados['home'];
+    $dados['server_production'] = $dados['home'];
     $dados['path_home'] = $_SERVER['DOCUMENT_ROOT'] . "/" . (!empty($dados['dominio']) && $localhost ? $dados['dominio'] . "/" : "");
     $dados['logo'] = (!empty($_FILES['logo']['name']) ? 'uploads/site/' . $_FILES['logo']['name'] : "");
     $dados['favicon'] = 'uploads/site/' . $_FILES['favicon']['name'];

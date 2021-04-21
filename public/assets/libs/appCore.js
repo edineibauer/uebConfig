@@ -1554,7 +1554,7 @@ async function clearCacheUser() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-v");
-                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
+                    if (corte[1] !== VERSION || ["user-view", "user-view-css", "user-view-js"].indexOf(corte[0]) > -1)
                         caches.delete(cacheName);
                 }))
             })
@@ -1736,7 +1736,7 @@ async function loadViews() {
         return Promise.all([]);
 
     return AJAX.get("appFilesView").then(g => {
-        return caches.open('viewUser-v' + VERSION).then(cache => {
+        return caches.open('user-view-v' + VERSION).then(cache => {
 
             /**
              * Cache views
@@ -1759,7 +1759,7 @@ async function loadViews() {
             /**
              * Cache view Assets
              */
-            return caches.open('viewUserJs-v' + VERSION).then(cache => {
+            return caches.open('user-view-js-v' + VERSION).then(cache => {
                 return cache.addAll(viewsAssets);
             });
         }).catch(e => {
@@ -1775,7 +1775,7 @@ function loadUserViews() {
         return Promise.all([]);
 
     return AJAX.get("appFilesViewUser").then(g => {
-        return caches.open('viewUser-v' + VERSION).then(cache => {
+        return caches.open('user-view-v' + VERSION).then(cache => {
 
             /**
              * Cache views and then Js
@@ -1791,7 +1791,7 @@ function loadUserViews() {
                         viewsAssets.push("assetsPublic/view/" + USER.setor + "/" + g.view[i] + ".min.js?v=" + VERSION);
                 }
 
-                return caches.open('viewUserJs-v' + VERSION).then(c => {
+                return caches.open('user-view-js-v' + VERSION).then(c => {
                     return c.addAll(viewsAssets);
                 });
             });
@@ -1851,37 +1851,30 @@ async function cacheCoreApp() {
     if (!SERVICEWORKER)
         return Promise.all([]);
 
-    await caches.open('core-v' + VERSION).then(cache => {
+    /**
+     * Load and store index app cache first time only
+     * */
+    await caches.open('index-v' + VERSION).then(cache => {
         fetch("index.html").then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                 cache.put("index", networkResponse.clone());
+            } else {
+                fetch("index").then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
+                        cache.put("index", networkResponse.clone());
+                });
+            }
         });
     });
 
-    return AJAX.get("currentFiles").then(g => {
-        return caches.open('core-v' + VERSION).then(cache => {
-            return cache.addAll(g.core).catch(e => {
-                errorLoadingApp("cacheCoreApp: cache core", e)
-            })
-        }).then(() => {
-            return caches.open('fonts-v' + VERSION).then(cache => {
-                return cache.addAll(g.fonts).catch(e => {
-                    errorLoadingApp("cacheCoreApp: cache fonts", e)
+    return AJAX.get("currentFiles").then(async g => {
+        for(let cacheControl in g) {
+            await caches.open(cacheControl + '-v' + VERSION).then(cache => {
+                return cache.addAll(g[cacheControl]).catch(e => {
+                    errorLoadingApp("Cache Storage Initial: " + cacheControl, e);
                 })
             })
-        }).then(() => {
-            return caches.open('images-v' + VERSION).then(cache => {
-                return cache.addAll(g.images).catch(e => {
-                    errorLoadingApp("cacheCoreApp: cache images", e)
-                })
-            })
-        }).then(() => {
-            return caches.open('misc-v' + VERSION).then(cache => {
-                return cache.addAll(g.misc).catch(e => {
-                    errorLoadingApp("cacheCoreApp: cache misc", e)
-                })
-            })
-        })
+        }
     })
 }
 
@@ -1956,7 +1949,7 @@ function updateAppOnDev() {
             return caches.keys().then(cacheNames => {
                 return Promise.all(cacheNames.map(cacheName => {
                     let corte = cacheName.split("-");
-                    if (corte[1] !== VERSION || ["viewUser", "viewUserCss", "viewUserJs", "viewUserGet"].indexOf(corte[0]) > -1)
+                    if (corte[1] !== VERSION || ["user-view", "user-view-css", "user-view-js"].indexOf(corte[0]) > -1)
                         return caches.delete(cacheName);
                 }))
             })

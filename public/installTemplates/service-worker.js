@@ -1,22 +1,16 @@
-const HOME = '';
-var VERSION = '';
+const HOME = 'http://localhost/teste/';
+var VERSION = '1.01';
 var TOKEN = "0";
 
-function returnNoNetwork() {
-    return caches.open('core-v' + VERSION).then(cache => {
-        return cache.match(HOME + "post");
-    });
-}
+function returnErros(cacheControl) {
+    if(cacheControl === "images") {
+        return caches.open('images-v' + VERSION).then(cache => {
+            return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
+        })
+    }
 
-function returnViewNoNetwork() {
-    return caches.open('viewUser-v' + VERSION).then(cache => {
-        return cache.match(HOME + "view/network/maestruToken/" + TOKEN);
-    })
-}
-
-function returnImgNoNetwork() {
-    return caches.open('images-v' + VERSION).then(cache => {
-        return cache.match(HOME + "assetsPublic/img/nonetwork.svg?v=" + VERSION);
+    return caches.open('core-view-v' + VERSION).then(cache => {
+        return cache.match("network");
     })
 }
 
@@ -24,10 +18,6 @@ self.addEventListener('message', function(event){
     let c = JSON.parse(event.data);
     TOKEN = c.token;
     VERSION = c.version;
-});
-
-self.addEventListener('appinstalled', (evt) => {
-    localStorage.installAppAction = 1;
 });
 
 self.addEventListener('notificationclick', function (event) {
@@ -42,172 +32,72 @@ self.addEventListener('notificationclick', function (event) {
 self.addEventListener('fetch', function (e) {
 
     let url = e.request.url.replace(HOME, '');
-    let fonts = new RegExp("^assetsPublic\/fonts\/", "i");
-    let images = new RegExp("^assetsPublic\/img\/", "i");
-    let viewJs = new RegExp("^assetsPublic\/view\/", "i");
-    let core = new RegExp("^assetsPublic\/", "i");
+
+    let assetsPublic = new RegExp("^assetsPublic\/", "i");
     let view = new RegExp("^view\/", "i");
-    let getStatic = new RegExp("^get\/static\/", "i");
-    let get = new RegExp("^(get|app\/find|app\/search|app\/get)\/", "i");
-    let set = new RegExp("^post\/?$", "i");
-    let app = new RegExp("^(app|api)\/", "i");
-    let linkExterno = new RegExp("^https*:\/\/", "i");
-    let imagesEntity = new RegExp("^uploads\/form\/", "i");
-    let cacheImages = new RegExp(".(png|jpg|jpeg|svg|gif|webp)$", "i");
+    let onlyOnline = new RegExp("^(https*:\/\/|get\/|post|app\/|api\/)", "i");
+    let isFileAccess = new RegExp("^((.+)\\.([a-zA-Z]{2,4})(\\?v=([0-9.])+)*)$", "igm");
 
-    if (linkExterno.test(url)) {
-        e.respondWith(fetch(e.request));
+    if (onlyOnline.test(url)) {
 
-    } else if (core.test(url)) {
-        let cacheName = (viewJs.test(url) ? 'viewUserJs' : (fonts.test(url) ? 'fonts' : (images.test(url) ? 'images' : 'core')));
-        e.respondWith(
-            caches.open(cacheName + '-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(url, networkResponse.clone());
-                            return networkResponse;
-                        }
-                        return returnNoNetwork()
-                    }).catch(() => {
-                        return returnNoNetwork();
-                    });
-                });
-            })
-        );
-
-    } else if (imagesEntity.test(url)) {
-        e.respondWith(
-            caches.open('viewUserImages-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(url, networkResponse.clone());
-                            return networkResponse;
-                        }
-
-                        return returnImgNoNetwork();
-                    }).catch(() => {
-                        return returnImgNoNetwork();
-                    })
-                })
-            })
-        );
-
-    } else if (cacheImages.test(url)) {
-        e.respondWith(
-            caches.open('cacheImage-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(url, networkResponse.clone());
-                            return networkResponse;
-                        }
-
-                        return returnNoNetwork();
-
-                    }).catch(() => {
-                        return returnNoNetwork();
-                    });
-                });
-            })
-        );
-
-    } else if (view.test(url)) {
-        e.respondWith(
-            caches.open('viewUser-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    return response || fetch(e.request).then(networkResponse => {
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                            cache.put(url, networkResponse.clone());
-                            return networkResponse;
-                        }
-
-                        return returnViewNoNetwork();
-                    }).catch(() => {
-                        return returnViewNoNetwork();
-                    });
-                });
-            })
-        );
-
-    } else if (getStatic.test(url)) {
-        e.respondWith(
-            caches.open('viewUserGet-v' + VERSION).then(cache => {
-                return cache.match(url).then(response => {
-                    if(response) {
-                        if(navigator.onLine) {
-                            return fetch(e.request).then(networkResponse => {
-                                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic')
-                                    cache.put(url, networkResponse.clone());
-
-                                return networkResponse;
-                            }).catch(() => {
-                                return returnNoNetwork();
-                            })
-                        }
-
-                        return response;
-                    } else {
-                        return fetch(e.request).then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                                    cache.put(url, networkResponse.clone());
-
-                                return networkResponse;
-                            }
-
-                            return returnNoNetwork();
-                        }).catch(() => {
-                            return returnNoNetwork();
-                        })
-                    }
-                })
-            })
-        );
-
-    } else if (get.test(url) || set.test(url) || app.test(url)) {
-
+        /**
+         * Sem cache, online apenas,
+         * caso não tenha conexão retorna network error
+         * */
         e.respondWith(
             fetch(e.request).then(networkResponse => {
-                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnNoNetwork());
+                return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnErros("view"));
             }).catch(() => {
-                return returnNoNetwork();
+                return returnErros("view");
+            })
+        );
+
+    } else if(!assetsPublic.test(url) && !view.test(url) && !isFileAccess.test(url)) {
+
+        /**
+         * Index app
+         * retorna apenas cacheou network error
+         * */
+        e.respondWith(
+            caches.open('index-v' + VERSION).then(cache => {
+                return cache.match("index").then(response => {
+                    return response || returnErros("view");
+                }).catch(() => {
+                    return returnErros("view");
+                });
             })
         );
 
     } else {
 
-        if (url === HOME || url === "" || url === "/" || url === "index" || url.split('.').length === 1) {
+        /**
+         * Primeiro cache, depois online, depois cache
+         * */
 
-            //PÁGINAS, DIRECT CORE INDEX CACHE OR ONLINE OR NETWORK
-            e.respondWith(
-                caches.open('core-v' + VERSION).then(cache => {
-                    return cache.match(HOME + "index").then(response => {
+        let cacheControl = "core-assets";
 
-                        return response || fetch("index").then(networkResponse => {
-                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                        }).catch(() => {
-                            return returnViewNoNetwork();
-                        });
-                    });
-                })
-            );
-
-        } else {
-
-            e.respondWith(
-                caches.open("misc-v" + VERSION).then(cache => {
-                    return cache.match(url).then(response => {
-
-                        return response || fetch(e.request).then(networkResponse => {
-                            return (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' ? networkResponse : returnViewNoNetwork());
-                        }).catch(() => {
-                            return returnViewNoNetwork();
-                        });
-                    });
-                })
-            );
+        if(assetsPublic.test(url)) {
+            cacheControl = 'assetsPublic';
+        } else if(view.test(url)) {
+            cacheControl = "user-view";
         }
+
+        console.log(url, cacheControl);
+
+        e.respondWith(
+            caches.open(cacheControl + '-v' + VERSION).then(cache => {
+                return cache.match(url).then(response => {
+                    return response || fetch(e.request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                            cache.put(url, networkResponse.clone());
+                            return networkResponse;
+                        }
+                        return returnErros(cacheControl = "core-assets" ? "images" : "view");
+                    }).catch(() => {
+                        return returnErros(cacheControl = "core-assets" ? "images" : "view");
+                    });
+                });
+            })
+        );
     }
 });

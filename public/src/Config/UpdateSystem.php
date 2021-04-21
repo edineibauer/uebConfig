@@ -126,6 +126,7 @@ class UpdateSystem
     {
         $dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
         $dados['version'] = number_format($dados['version'] + 0.01, 2);
+        Config::createFile(PATH_HOME . "_config/config.json", json_encode($dados));
         return $dados;
     }
 
@@ -246,7 +247,6 @@ class UpdateSystem
 
         Config::createDir("assetsPublic");
         Config::createDir("assetsPublic/img");
-        Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
         Config::createDir("assetsPublic/fonts");
 
@@ -482,7 +482,6 @@ class UpdateSystem
         Config::createDir("public/entity/cache/info");
         Config::createDir("assetsPublic");
         Config::createDir("assetsPublic/img");
-        Config::createDir("assetsPublic/img/splashscreens");
         Config::createDir("assetsPublic/language");
         Config::createDir("assetsPublic/fonts");
     }
