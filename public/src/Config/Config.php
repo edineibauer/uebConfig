@@ -844,10 +844,16 @@ Allow from env=let_me_in';
 
                 $subParts = explode(',', $partDetails[0]);
                 foreach ($subParts as &$subPart) {
-                    if (trim($subPart) === "@font-face")
+                    if (trim($subPart) === "@font-face") {
                         continue;
-                    else
-                        $subPart = (preg_match("/^@/i", trim($subPart)) ? substr(trim($subPart), 1) : $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . trim($subPart)));
+                    } else {
+                        if(preg_match("/^@/i", trim($subPart))) {
+                            $subPart = substr(trim($subPart), 1);
+                        } else {
+                            $selector = trim($subPart);
+                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . str_replace("{{selector}}", $selector, ":not({$prefix} .r-network {{selector}})");
+                        }
+                    }
                 }
 
                 if (substr_count($part, "{") == 2) {

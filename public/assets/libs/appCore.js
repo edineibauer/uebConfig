@@ -2633,7 +2633,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     target = typeof target === "string" ? target : "#core-content";
     let scrollNext = isNumberPositive(scroll) ? parseInt(scroll) : 0;
     scroll = document.documentElement.scrollTop;
-    setHistory = typeof setHistory === "undefined" || ["false", "0", 0, !1].indexOf(setHistory) === -1;
+    setHistory = (typeof setHistory === "undefined" && target === "#core-content") || (typeof setHistory !== "undefined" && ["false", "0", 0, !1].indexOf(setHistory) === -1);
     replaceHistory = typeof replaceHistory !== "undefined" && ["true", "1", 1, !0].indexOf(replaceHistory) > -1;
     let file = route === "" ? "index" : route;
     let novaRota = type !== "route" || route !== app.route;
@@ -2661,6 +2661,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
 async function _pageTransition(type, animation, target, param, scroll, scrollNext, setHistory, replaceHistory, novaRota, isGridView, reload) {
     clearPage();
     app.setLoading();
+    PARAM = param.url;
 
     if (!$(target).length) {
         historyReqPosition++;
@@ -2969,7 +2970,7 @@ function goLinkPageTransition(url, $this, e) {
             history.back();
     } else {
         let animation = $this.data("animation") || "forward";
-        let target = $this.data("target") || "#core-content";
+        let target = $this.data("target") || $this.closest(".r-network").attr("id");
         let route = $this.data("route") || "route";
         let p = new RegExp(/^#/i);
         let pjs = new RegExp(/^javascript/i);
