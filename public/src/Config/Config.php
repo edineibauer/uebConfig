@@ -851,7 +851,8 @@ Allow from env=let_me_in';
                             $subPart = substr(trim($subPart), 1);
                         } else {
                             $selector = trim($subPart);
-                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . str_replace("{{selector}}", $selector, ":not({$prefix} .r-network {{selector}})");
+                            $splitSelector = explode(":", $selector);
+                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $splitSelector[0]) . str_replace("{{selector}}", $splitSelector[0], ":not({$prefix} .r-network {{selector}})") . (!empty($splitSelector[1]) ? ":" . $splitSelector[1] : "");
                         }
                     }
                 }
