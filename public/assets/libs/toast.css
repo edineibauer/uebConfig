@@ -1,7 +1,6 @@
 .toast {
     max-width: 100%!important;
     margin: 0;
-    background-color: #323232;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
     clear: both;
     color: #fff;
@@ -9,7 +8,7 @@
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
-    font-size: 16px;
+    font-size: 16px!important;
     font-weight: 600;
     line-height: 1.5;
     min-height: 48px;
@@ -19,6 +18,8 @@
     top: 0;
     right: 0;
     width: 100%;
+    background-color: transparent!important;
+    backdrop-filter: blur(10px)!important;
     border-radius: 0;
     height: 70px;
     z-index: 10002;
