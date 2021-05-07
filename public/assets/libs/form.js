@@ -165,7 +165,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
 }).off("click", ".btn-form-list").on("click", ".btn-form-list", function () {
     form.setReloadAfterSave(!1);
     form.save(0).then(() => {
-        animateBack(".form-control").grid(form.entity)
+        animateBack(".maestru-form-control").grid(form.entity)
     })
 }).off("click", ".btn-form-save").on("click", ".btn-form-save", function () {
     form.save()
@@ -477,7 +477,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
 
             $this.inputs = await getInputsTemplates($this, $this.entity);
             if (this.$element !== "") {
-                this.$element.find(".form-control").remove();
+                this.$element.find(".maestru-form-control").remove();
                 this.$element.prepend(await $this.getShow());
                 loadMask(this);
                 this.loading = !1;
@@ -902,7 +902,7 @@ async function addRegisterAssociation(entity, column) {
     if (isNumber(form.data[column])) {
         let data = await db.exeRead(entity, parseInt(form.data[column]));
         if (!isEmpty(data))
-            pageTransition(entity, "form", "forward", ".form-control", {
+            pageTransition(entity, "form", "forward", ".maestru-form-control", {
                 data: data[0],
                 parent: entity,
                 column: column,
@@ -912,7 +912,7 @@ async function addRegisterAssociation(entity, column) {
         else
             toast("Registro não encontrado", 2500, "toast-warning")
     } else {
-        pageTransition(entity, "form", "forward", ".form-control", {
+        pageTransition(entity, "form", "forward", ".maestru-form-control", {
             parent: entity,
             column: column,
             store: !0,
@@ -953,7 +953,7 @@ function addRegisterRelation(entity, column) {
         history.state.param.dataRelation = Object.assign({}, form.dataRelation);
         history.state.param.modified = form.modified;
         history.replaceState(history.state, null, HOME + app.route);
-        pageTransition(entity, "form", "forward", ".form-control", {
+        pageTransition(entity, "form", "forward", ".maestru-form-control", {
             parent: entity,
             column: column,
             store: !1,
@@ -981,7 +981,7 @@ function editRegisterRelation(entity, column, id) {
             return !1;
         }
     })
-    pageTransition(entity, "form", "forward", ".form-control", {
+    pageTransition(entity, "form", "forward", ".maestru-form-control", {
         data: data,
         parent: entity,
         column: column,
@@ -1002,7 +1002,7 @@ function editFormRelation(entity, column) {
     history.replaceState(history.state, null, HOME + app.route);
 
     if (typeof form.data[column] === "object" && form.data[column] !== null && form.data[column].constructor === Array && form.data[column].length && typeof form.data[column][0] === "object")
-        pageTransition(entity, "form", "forward", ".form-control", {
+        pageTransition(entity, "form", "forward", ".maestru-form-control", {
             data: form.data[column][0],
             parent: entity,
             column: column,
@@ -1010,7 +1010,7 @@ function editFormRelation(entity, column) {
             identificador: identificadorExtend
         });
     else
-        pageTransition(entity, "form", "forward", ".form-control", {
+        pageTransition(entity, "form", "forward", ".maestru-form-control", {
             parent: entity,
             column: column,
             store: !1,
