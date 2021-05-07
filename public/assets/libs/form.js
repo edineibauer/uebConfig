@@ -157,7 +157,7 @@ $("#app").off("keyup change", ".formCrudInput").on("keyup change", ".formCrudInp
     }
     history.state.param.data = form.data;
     history.state.param.dataRelation = form.dataRelation;
-    history.replaceState(history.state, null, HOME + app.route);
+    // history.replaceState(history.state, null, HOME + app.route);
 
 }).off("click", ".remove-file-gallery").on("click", ".remove-file-gallery", function () {
     if (confirm("Remover arquivo?"))
@@ -897,7 +897,7 @@ async function addRegisterAssociation(entity, column) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.state.param.dataRelation = Object.assign({}, form.dataRelation);
-    history.replaceState(history.state, null, HOME + app.route);
+    // history.replaceState(history.state, null, HOME + app.route);
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
     if (isNumber(form.data[column])) {
         let data = await db.exeRead(entity, parseInt(form.data[column]));
@@ -952,7 +952,7 @@ function addRegisterRelation(entity, column) {
         history.state.param.data = Object.assign({id: form.id}, form.data);
         history.state.param.dataRelation = Object.assign({}, form.dataRelation);
         history.state.param.modified = form.modified;
-        history.replaceState(history.state, null, HOME + app.route);
+        // history.replaceState(history.state, null, HOME + app.route);
         pageTransition(entity, "form", "forward", ".maestru-form-control", {
             parent: entity,
             column: column,
@@ -973,7 +973,7 @@ function editRegisterRelation(entity, column, id) {
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.state.param.dataRelation = Object.assign({}, form.dataRelation);
     history.state.param.modified = form.modified;
-    history.replaceState(history.state, null, HOME + app.route);
+    // history.replaceState(history.state, null, HOME + app.route);
     let data = {};
     $.each(form.data[column], function (i, e) {
         if (e.id == id) {
@@ -999,7 +999,7 @@ function editFormRelation(entity, column) {
     history.state.param.modified = form.modified;
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.state.param.dataRelation = Object.assign({}, form.dataRelation);
-    history.replaceState(history.state, null, HOME + app.route);
+    // history.replaceState(history.state, null, HOME + app.route);
 
     if (typeof form.data[column] === "object" && form.data[column] !== null && form.data[column].constructor === Array && form.data[column].length && typeof form.data[column][0] === "object")
         pageTransition(entity, "form", "forward", ".maestru-form-control", {
