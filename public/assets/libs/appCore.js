@@ -2714,6 +2714,12 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
         }
     }
 
+    if(!setHistory && target !== "#core-content") {
+        let n = localStorage.maestruNavigation ? JSON.parse(localStorage.maestruNavigation) : [];
+        n.push({route: app.route, type: type, animation: animation, target: target, param: param, scroll: scroll, scrollNext: scrollNext});
+        localStorage.maestruNavigation = JSON.stringify(n);
+    }
+
     return Promise.all([]).then(async () => {
 
         if (typeof destruct === "function")
@@ -2960,16 +2966,27 @@ function readRouteState() {
 }
 
 function goLinkPageTransition(url, $this, e) {
+    let idParent = $this.closest(".r-network").attr("id");
     if (url === "#back") {
         e.preventDefault();
 
-        if(localStorage.navigationCount === "0")
-            location.href = HOME;
-        else
-            history.back();
+        if(idParent === "core-content" || !localStorage.maestruNavigation) {
+            if(localStorage.navigationCount === "0")
+                location.href = HOME;
+            else
+                history.back();
+        } else {
+            let n = JSON.parse(localStorage.maestruNavigation);
+            n.pop();
+            let routeBack = n.pop();
+            localStorage.maestruNavigation = JSON.stringify(n);
+
+            pageTransition(routeBack.route, routeBack.type, "back", routeBack.target, routeBack.param, routeBack.scroll, routeBack.setHistory, routeBack.replaceHistory);
+        }
+
     } else {
         let animation = $this.data("animation") || "forward";
-        let target = $this.data("target") || $this.closest(".r-network").attr("id");
+        let target = $this.data("target") || "#" + idParent;
         let route = $this.data("route") || "route";
         let p = new RegExp(/^#/i);
         let pjs = new RegExp(/^javascript/i);
@@ -3353,6 +3370,7 @@ async function startApplication() {
     await readRouteState();
     await onLoadDocument();
     localStorage.navigationCount = 0;
+    localStorage.removeItem('maestruNavigation');
 
     await (!localStorage.accesscount ? firstAccess() : thenAccess());
 
