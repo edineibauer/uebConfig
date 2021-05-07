@@ -22,9 +22,9 @@ html {
 }
 
 body, #app, #core-content {
-    background-color: transparent!important;
-    color: transparent!important;
-    border-color: transparent!important;
+    background-color: var(--colorBackground);
+    color: var(--colorText);
+    border-color: var(--colorLine);
 }
 
 .card {
