@@ -3150,7 +3150,7 @@ const sse = {
     },
     start: () => {
         if (sse.isSSESupported()) {
-            if(typeof SharedWorker !== "undefined") {
+            if(1===0 && typeof SharedWorker !== "undefined") {
                 sse.base = new SharedWorker(HOME + "sseWork.js");
 
                 sse.base.port.addEventListener("message", function(e) {
@@ -3204,7 +3204,7 @@ const sse = {
     close: () => {
         if(sse.isSSESupported()) {
             if(typeof sse.base !== "undefined") {
-                if (typeof SharedWorker !== "undefined" && typeof sse.base.port !== "undefined")
+                if (1===0 && typeof SharedWorker !== "undefined" && typeof sse.base.port !== "undefined")
                     sse.base.port.close();
                 else if (typeof sse.base !== "undefined" && typeof sse.base.close === "function")
                     sse.base.close();
