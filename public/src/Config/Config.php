@@ -852,9 +852,9 @@ Allow from env=let_me_in';
                         } else {
                             $selector = trim($subPart);
                             $splitSelector = explode(":", $selector);
-                            $selectorPseudo = (isset($splitSelector[1]) ? str_replace($splitSelector[0], "", $selector) : "");
-                            $selector = $splitSelector[0];
-                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . str_replace("{{selector}}", $selector, ":not({$prefix} .r-network {{selector}})") . $selectorPseudo;
+                            $selectorPseudo = trim(isset($splitSelector[1]) ? str_replace($splitSelector[0], "", $selector) : "");
+                            $selector = trim($splitSelector[0]);
+                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . trim(str_replace("{{selector}}", $selector, ":not({$prefix} .r-network:not({$prefix}) {{selector}})")) . $selectorPseudo;
                         }
                     }
                 }
