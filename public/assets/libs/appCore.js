@@ -2477,7 +2477,6 @@ var PARAM, app = {
                 }
 
                 let templates = await getTemplates();
-                PARAM = history.state.param.url;
 
                 /**
                  * Include templates used in this view
