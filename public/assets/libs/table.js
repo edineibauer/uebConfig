@@ -355,7 +355,7 @@ $(function () {
         let grid = grids[identificador];
 
         getTemplates().then(tpl => {
-            $this.parent().append(Mustache.render(tpl.grid_content_card_header, {
+            $this.closest(".table-all").before(Mustache.render(tpl.grid_content_card_header, {
                 identificador: $this.data("rel"),
                 entity: $this.data("entity"),
                 columns: grid.fields
