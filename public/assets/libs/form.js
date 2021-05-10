@@ -540,7 +540,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                              * Recarrega formulário ou volta
                              */
                             if(!form.reloadAfterSave)
-                                history.back();
+                                goBackMaestruNavigation();
                         }
 
                     } else {
@@ -559,7 +559,7 @@ function formCrud(entity, $this, parent, parentColumn, store, id) {
                         if (typeof form.funcao === "function")
                             await form.funcao();
 
-                        history.back();
+                        goBackMaestruNavigation();
                     }
 
                 } else {
@@ -897,6 +897,7 @@ async function addRegisterAssociation(entity, column) {
     let identificadorExtend = Math.floor((Math.random() * 1000)) + "" + Date.now();
     history.state.param.data = Object.assign({id: form.id}, form.data);
     history.state.param.dataRelation = Object.assign({}, form.dataRelation);
+
     // history.replaceState(history.state, null, HOME + app.route);
     history.state.param.openForm = {entity: entity, column: column, identificador: identificadorExtend, tipo: 1};
     if (isNumber(form.data[column])) {

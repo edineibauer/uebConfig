@@ -2965,6 +2965,15 @@ function readRouteState() {
     }
 }
 
+function goBackMaestruNavigation() {
+    let n = JSON.parse(localStorage.maestruNavigation);
+    n.pop();
+    let routeBack = n.pop();
+    localStorage.maestruNavigation = JSON.stringify(n);
+
+    pageTransition(routeBack.route, routeBack.type, "back", routeBack.target, routeBack.param, routeBack.scroll, routeBack.setHistory, routeBack.replaceHistory);
+}
+
 function goLinkPageTransition(url, $this, e) {
     let idParent = $this.closest(".r-network").attr("id");
     if (url === "#back") {
@@ -2976,12 +2985,7 @@ function goLinkPageTransition(url, $this, e) {
             else
                 history.back();
         } else {
-            let n = JSON.parse(localStorage.maestruNavigation);
-            n.pop();
-            let routeBack = n.pop();
-            localStorage.maestruNavigation = JSON.stringify(n);
-
-            pageTransition(routeBack.route, routeBack.type, "back", routeBack.target, routeBack.param, routeBack.scroll, routeBack.setHistory, routeBack.replaceHistory);
+            goBackMaestruNavigation();
         }
 
     } else {
