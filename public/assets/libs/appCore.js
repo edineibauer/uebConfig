@@ -1738,6 +1738,11 @@ async function loadViews() {
             /**
              * Cache views
              */
+
+            //check if have json file in bundle mode
+            if(window.hasOwnProperty("cordova") && HOME !== SERVER)
+                return cache.addAll(g.view.map(s => "view/" + USER.setor + "/" + s + ".json"));
+
             return cache.addAll(g.view.map(s => "view/" + s + "/maestruToken/" + USER.token));
 
         }).then(() => {
