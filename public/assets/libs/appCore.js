@@ -2975,7 +2975,8 @@ function goBackMaestruNavigation() {
 }
 
 function goLinkPageTransition(url, $this, e) {
-    let idParent = $this.closest(".r-network").attr("id");
+    let $rNetwork = $this.closest(".r-network");
+    let idParent = $rNetwork.length && $rNetwork.attr("id") !== "undefined" ? $rNetwork.attr("id") : "core-content";
     if (url === "#back") {
         e.preventDefault();
 
