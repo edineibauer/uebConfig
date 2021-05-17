@@ -133,7 +133,7 @@ class UpdateSystem
     private function checkAdminExist()
     {
         $read = new Read();
-        $read->exeRead(PRE . "admin");
+        $read->exeRead(PRE . "admin", "WHERE nome = 'Admin'", null, !0, !0, !0);
         if (!$read->getResult())
             Entity::add("admin", ["nome" => "Admin", "senha" => "maestru"]);
     }
