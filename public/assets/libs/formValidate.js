@@ -138,15 +138,11 @@ async function havePermission(entity, data, action) {
     if (USER.setor === "admin")
         return true;
 
-    if(!(await permissionToChange(entity, data))) {
-        toast("Opss! Permissão Negada", 3000, "toast-error");
+    if(!(await permissionToChange(entity, data)))
         return false;
-    }
 
-    if(!permissionToAction(entity, action)) {
-        toast("Opss! Erro: '" + entity + "' não esta pode " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")), 3000, "toast-error");
+    if(!permissionToAction(entity, action))
         return false;
-    }
 
     return true;
 }
