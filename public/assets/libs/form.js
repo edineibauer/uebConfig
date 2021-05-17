@@ -304,9 +304,10 @@ async function searchList($input) {
             optionValues = orderBy(optionValues, 'peso').reverse();
 
             let content = "";
-            for(let i=0;i<3;i++)
-                content += "<div class='mode-text-colorText padding-tiny margin-right col'><small class='padding-tiny'>" + optionValues[i].column + ":</small> " + optionValues[i].content + (i === 2 ? "" : ", ") + "</div>";
-
+            for (let i = 0; i < 3; i++) {
+                if(typeof optionValues[i] === "object" && optionValues[i] !== null)
+                    content += "<div class='mode-text-colorText padding-tiny margin-right col'><small class='padding-tiny'>" + optionValues[i].column + ":</small> " + optionValues[i].content + (i === 2 || typeof optionValues[i+1] === "undefined" ? "" : ", ") + "</div>";
+            }
             results.push({
                 id: datum.id,
                 text: content
