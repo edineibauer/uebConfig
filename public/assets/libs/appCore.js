@@ -3116,6 +3116,14 @@ const sse = {
                     for (let entity in data) {
                         dbLocal.clear("_cache_db_" + entity);
                         _checkRealtimeDbUpdate(entity);
+
+                        /**
+                         * Reload all grids
+                         * */
+                        if(typeof grids === "object" && grids !== null) {
+                            for(let a in grids)
+                                grids[a].reload();
+                        }
                     }
                 }
                 break;

@@ -11,7 +11,7 @@ $sql = new \Conn\SqlCommand();
 
 //read all dicionarios
 foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
-    if ($entity !== "info" && substr($entity, -4, 4) === "json") {
+    if (!in_array($entity, ["info", "api_chave.json", "login_attempt.json", "usuarios_token.json"]) && substr($entity, -4, 4) === "json") {
 
         $entidade = substr($entity, 0, -5);
 
