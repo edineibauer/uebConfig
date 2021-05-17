@@ -7,6 +7,7 @@ $list = [];
 $data['data'] = [];
 $setor = Config::getSetor();
 $permissoes = Config::getPermission($setor);
+$sql = new \Conn\SqlCommand();
 
 //read all dicionarios
 foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
@@ -17,17 +18,11 @@ foreach (Helper::listFolder(PATH_HOME . "entity/cache") as $entity) {
         /**
          * If is admin, or if not have permissions information, or if have read permission to my setor
          */
-        if ($setor === "admin" || empty($permissoes[$entidade]) || (isset($permissoes[$entidade]['read']) && $permissoes[$entidade]['read']))
-            $list[] = PRE . $entidade;
+        if ($setor === "admin" || empty($permissoes[$entidade]) || (isset($permissoes[$entidade]['read']) && $permissoes[$entidade]['read'])) {
+            $sql->exeCommand("SELECT COUNT(*) as total FROM " . PRE . $entidade);
+            $data['data'][$entidade] = (int) ($sql->getResult() ? $sql->getResult()[0]['total'] : 0);
+        }
     }
-}
-
-$sql = new \Conn\SqlCommand();
-$sql->exeCommand("SELECT TABLE_NAME, TABLE_ROWS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" . DATABASE . "' AND TABLE_NAME IN ('" . implode("', '", $list) . "')");
-if($sql->getResult()) {
-    $tt = strlen(PRE);
-    foreach ($sql->getResult() as $item)
-        $data['data'][substr($item['TABLE_NAME'], $tt)] = (int) $item['TABLE_ROWS'];
 }
 
 $_SESSION['db'] = array_keys($data['data']);

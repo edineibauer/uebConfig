@@ -12,12 +12,8 @@ $content = [
     "react" => [],
     "relevant" => [],
     "general" => [],
-    "graficos" => [],
-    "totalRegisters" => []
+    "graficos" => []
 ];
-
-include 'userTotalRegisterDB.php';
-$content['totalRegisters'] = $data['data'];
 
 include 'templates.php';
 $content['template'] = $data['data'];

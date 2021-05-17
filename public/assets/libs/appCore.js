@@ -1929,7 +1929,6 @@ async function getIndexedDbGets() {
     await dbLocal.exeCreate('__relevant', r['relevant']);
     await dbLocal.exeCreate('__general', r['general']);
     await dbLocal.exeCreate('__graficos', r['graficos']);
-    return dbLocal.exeCreate('__totalRegisters', r['totalRegisters']);
 }
 
 /**
