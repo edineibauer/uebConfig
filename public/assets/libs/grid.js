@@ -10,8 +10,8 @@ async function gridTr(identificador, entity, data, fields, info, actions, select
         fields: [],
         permission: await permissionToChange(entity, data),
         button: {
-            delete: (actions['delete'] ? await permissionToAction(entity, 'delete') : !1),
-            update: (actions.update ? await permissionToAction(entity, 'update') : !1),
+            delete: (actions['delete'] ? await havePermission(entity, data, 'delete') : !1),
+            update: (actions.update ? await havePermission(entity, data, 'update') : !1),
             status: {have: !1, status: !1}
         }
     };

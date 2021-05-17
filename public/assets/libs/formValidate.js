@@ -70,7 +70,7 @@ function validateRules(entity, meta, value, error, data, dataOld, action) {
 function validateForm(id) {
     let action = isNumberPositive(form.id) ? 'update' : 'create';
     clearFormError(form);
-    return havePermission(form, action).then(permission => {
+    return havePermission(form.entity, form.data, action).then(permission => {
         if (permission) {
             return validateDicionario(form.entity, dicionarios[form.entity], form, action).then(d => {
                 return formNotHaveError(form.error)
@@ -80,49 +80,75 @@ function validateForm(id) {
     })
 }
 
-function permissionToChange(entity, data) {
-    return dbLocal.exeRead('__info', 1).then(info => {
-        if (USER.setor === "admin")
-            return !0;
+async function permissionToChange(entity, data) {
+    if (USER.setor === "admin")
+        return true;
 
-        let id = parseInt(USER.id);
+    let info = await dbLocal.exeRead('__info', 1);
+
+    if(typeof info[entity] === "object" && info[entity] !== null) {
+
+        /**
+         * Sistema diferente do usuário
+         * */
+        if(typeof data.system_id !== "undefined" && isNumberPositive(data.system_id) && parseInt(data.system_id) !== USER.system_id)
+            return false;
+
+        /**
+         * Sistema administrativo, usuário não tem permissão para editar
+         * */
+        if((typeof data.system_id === "undefined" || isEmpty(data.system_id)) && typeof info[entity].system === "string" && !isEmpty(info[entity].system))
+            return false;
+
+        /**
+         * Autorpub check permission
+         * */
         if (typeof info[entity].autor === "number" && info[entity].autor === 1 && isNumberPositive(data.id)) {
-            return db.exeRead(entity, data.id).then(dados => {
-                return !isEmpty(dados) && typeof dados[0].autorpub === "number" && dados[0].autorpub === id;
-            })
-        } else {
-            return !0;
+            let dados = await db.exeRead(entity, data.id);
+            if(!isEmpty(dados) && typeof dados[0].autorpub === "number" && parseInt(dados[0].autorpub) !== parseInt(USER.id))
+                return false;
         }
-    })
-}
 
-function permissionToAction(entity, action) {
-    if (USER.setor === "admin") {
-        return new Promise(function (s, f) {
-            return s(!0)
-        })
+        /**
+         * Ownerpub check permission
+         * */
+        if (typeof info[entity].autor === "number" && info[entity].autor === 2 && isNumberPositive(data.id)) {
+            let dados = await db.exeRead(entity, data.id);
+            if(!isEmpty(dados) && typeof dados[0].ownerpub === "number" && parseInt(dados[0].ownerpub) !== parseInt(USER.id))
+                return false;
+        }
     }
-    return dbLocal.exeRead("__allow", 1).then(p => {
-        if (typeof p !== "undefined" && typeof p[entity] !== "undefined")
-            return p[entity][action]
-        else return !1
-    })
+
+    return true;
 }
 
-function havePermission(form, action) {
-    return permissionToChange(form.entity, form.data).then(permission => {
-        if(!permission)
-            return 1;
+async function permissionToAction(entity, action) {
+    if (USER.setor === "admin")
+        return true;
 
-        return permissionToAction(form.entity, action) ? 0 : 2
-    }).then(d => {
-        if (d === 0)
-            return !0;
+    let p = await dbLocal.exeRead("__allow", 1);
 
-        let mensagem = (d === 1 ? "Permissão Negada" : "Erro: '" + entity + "' não esta pode " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")));
-        toast("Opss! " + mensagem, 3000, "toast-error");
-        return !1;
-    })
+    if (typeof p !== "undefined" && typeof p[entity] !== "undefined")
+        return p[entity][action];
+
+    return false
+}
+
+async function havePermission(entity, data, action) {
+    if (USER.setor === "admin")
+        return true;
+
+    if(!(await permissionToChange(entity, data))) {
+        toast("Opss! Permissão Negada", 3000, "toast-error");
+        return false;
+    }
+
+    if(!permissionToAction(entity, action)) {
+        toast("Opss! Erro: '" + entity + "' não esta pode " + (action === "update" ? "atualizar" : (action === "create" ? "criar" : "excluir")), 3000, "toast-error");
+        return false;
+    }
+
+    return true;
 }
 
 function formNotHaveError(errors) {
