@@ -1,8 +1,15 @@
 <?php
-if(filter_input(INPUT_POST, 'update', FILTER_VALIDATE_BOOLEAN))
-    \Config\Config::updateSite();
 
-$data['data'] = (float) json_decode(file_get_contents(PATH_HOME . '_config/config.json'), !0)['version'];
+use Config\Config;
+
+$dados = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
+
+if(filter_input(INPUT_POST, 'update', FILTER_VALIDATE_BOOLEAN)) {
+    $dados['version'] = number_format(number_format($dados['version'], 2) + 0.01, 2);
+    Config::createFile(PATH_HOME . "_config/config.json", json_encode($dados));
+}
+
+$data['data'] = (float) $dados['version'];
 
 if(file_exists(PATH_HOME . "_cdn/version_required.json")) {
     $content = '<img data-id="' . strtotime('now') . '" src="' . HOME . 'public/assets/img/lights.png" style="height:auto;position: absolute;z-index:3;width: 160%;left: -30%;top: -55px;transform:rotate(90deg)">'
