@@ -1,5 +1,5 @@
-const HOME = 'http://localhost/teste/';
-var VERSION = '1.01';
+const HOME = '';
+var VERSION = '';
 var TOKEN = "0";
 
 function returnErros(cacheControl) {
