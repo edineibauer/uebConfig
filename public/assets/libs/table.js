@@ -322,10 +322,6 @@ $(function () {
             grid.$element.find(".table-select, .table-select-all").prop("checked", !1);
             db.exeDelete(grid.entity, ids).then(() => {
                 toast("Registros excluídos", 1500, "toast-success");
-                dbLocal.keys(grid.entity).then(registros => {
-                    grid.total = registros.length;
-                    grid.readDataConfigAltered(grid.limit)
-                })
             })
         }
 

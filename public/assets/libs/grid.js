@@ -253,7 +253,8 @@ function gridCrud(entity, fields, actions) {
         },
         updateTotalTable: async function() {
             let $this = this;
-            let total = (await dbLocal.exeRead("__totalRegisters", 1))[$this.entity].toString();
+            let totalReg = await dbLocal.exeRead("__totalRegisters", 1);
+            let total = (typeof totalReg[$this.entity] !== "undefined" ? totalReg[$this.entity].toString() : 0);
             let totalFormated = "";
             let le = total.length;
             for (let i = 0; i < le; i++)
