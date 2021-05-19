@@ -97,7 +97,7 @@ async function permissionToChange(entity, data) {
         /**
          * Sistema administrativo, usuário não tem permissão para editar
          * */
-        if((typeof data.system_id === "undefined" || isEmpty(data.system_id)) && typeof info[entity].system === "string" && !isEmpty(info[entity].system))
+        if((typeof data.system_id === "undefined" || isEmpty(data.system_id)) && typeof info[entity].system === "string" && !isEmpty(info[entity].system) && !isEmpty(data.id))
             return false;
 
         /**
