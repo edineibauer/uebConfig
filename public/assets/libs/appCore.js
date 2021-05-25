@@ -2612,7 +2612,7 @@ async function pageTransition(route, type, animation, target, param, scroll, set
     let reload = typeof route === "undefined";
     let isGridView = typeof history.state !== "undefined" && history.state !== null && typeof history.state.type === "string" && history.state.type === "grid";
     param = (typeof param === "object" && param !== null && param.constructor === Object ? param : {});
-    param.url = [];
+    param.url = (typeof param.url === "undefined" ? [] : param.url);
 
     if (reload && HOME === "" && HOME !== SERVER) {
         route = "index";
