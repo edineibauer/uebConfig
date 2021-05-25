@@ -2,6 +2,7 @@
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT');
 header('Content-Type: text/html; charset=UTF-8');
+header('Cross-Origin-Opener-Policy: same-origin');
 
 include_once '_config/config.php';
 

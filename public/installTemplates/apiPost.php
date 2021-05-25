@@ -11,6 +11,7 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     header('Access-Control-Max-Age: 86400');
 }
 
+header('Cross-Origin-Opener-Policy: same-origin');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
