@@ -1,5 +1,7 @@
 <?php
 
+set_time_limit(360);
+
 use Config\Config;
 use \Helpers\Helper;
 
@@ -55,15 +57,18 @@ if(!file_exists($folderCordova)) {
 /**
  * Update config.xml version if in prod
  */
-if($prod) {
+if($prod && (isset($_GET['v']) && $_GET['v'] == 1) && file_exists("{$folderCordova}/config.xml")) {
     $c = file_get_contents("{$folderCordova}/config.xml");
     $v = explode('" ', explode(' version="', $c)[1])[0];
     $vv = explode(".", $v);
 
     $first = $vv[2] === "99" && $vv[1] === "99" ? (((int)$vv[0]) + 1) : $vv[0];
     $last = $vv[2] === "99" ? 0 : (((int)$vv[2]) + 1);
-    $middle = $vv[2] === "99" ? (((int)$vv[1]) + 1) : $vv[2];
-    Config::createFile("{$folderCordova}/config.xml", str_replace(' version="' . $v . '" ', ' version="' . $first . '.' . $middle . '.' . $last . '.' . '" ', $c));
+    $middle = $vv[2] === "99" ? (((int)$vv[1]) + 1) : $vv[1];
+
+    $f = fopen("{$folderCordova}/config.xml", "w+");
+    fwrite($f, str_replace(' version="' . $v . '" ', ' version="' . $first . '.' . $middle . '.' . $last . '" ', $c));
+    fclose($f);
 }
 
 if (session_status() == PHP_SESSION_NONE)
@@ -339,10 +344,21 @@ if(file_exists(PATH_HOME . "{$www}/config.php"))
 //falta copiar/criar o arquivo google-services.json na pasta do projeto cordova (plugin FCM)
 //falta criar o arquivo build.json (chave do app android release)
 
-if($prod)
-    exec("cd {$folderCordova} && cordova build android --release && cordova build ios --release && cordova build browser --prod && cd platforms/android && ./gradlew bundle 2>&1", $feedbacks[]);
-else
-    exec("cd {$folderCordova} && cordova build android && cordova build browser2>&1", $feedbacks[]);
+if($prod) {
+    exec("cd {$folderCordova} && cordova build browser --prod 2>&1", $feedbacks["browser build prod"]);
+
+    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+
+    exec("cd {$folderCordova} && cordova build android --release 2>&1", $feedbacks["android build prod"]);
+//    exec("cd {$folderCordova}/platforms/android && ./gradlew bundle 2>&1", $feedbacks["android bundle"]);
+
+} else {
+    exec("cd {$folderCordova} && cordova build browser 2>&1", $feedbacks["browser build dev"]);
+
+    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+
+    exec("cd {$folderCordova} && cordova build android 2>&1", $feedbacks["android build dev"]);
+}
 
 echo "<pre>";
 var_dump($feedbacks);
