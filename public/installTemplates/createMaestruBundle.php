@@ -168,12 +168,6 @@ createSplash(PATH_HOME . "assetsPublic/img/favicon-192.png", PATH_HOME . "{$fold
 createSplash(PATH_HOME . "assetsPublic/img/favicon-256.png", PATH_HOME . "{$folderCordova}/res/android/splash/splash-land-xxxhdpi.png", 1920, 1280);
 
 /**
- * Copy assetsPublic to www
- */
-Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
-Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
-
-/**
  * Escreve plugins variáveis ao config.xml
  */
 if(file_exists(PATH_HOME . "_config/appConfig.xml")) {
@@ -316,6 +310,12 @@ foreach (\Config\Config::getSetores() as $setor) {
         Config::createFile(PATH_HOME . "{$www}/get/{$setor}/{$get}.json", json_encode($data));
     }
 }
+
+/**
+ * Copy assetsPublic to www
+ */
+Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
+Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
 
 if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js"))
     Config::createFile(PATH_HOME . "{$www}/sseWork.js", str_replace("var SERVER = ''", "var SERVER = '" . $serverProduction . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js")));
