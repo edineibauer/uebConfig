@@ -624,6 +624,11 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     z-index: 999999;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
+    background: #222222f0;
+    padding: 0;
+    border-radius: 80px;
+    height: 32px;
+    width: 32px;
 }
 
 #core-loader-container > .core-loader {

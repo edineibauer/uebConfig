@@ -142,9 +142,7 @@ if(!file_exists(PATH_HOME . "assetsPublic/appCore.min.js")) {
     <!--loading between pages-->
     <div id="core-loader" class="core-loader">
         <svg viewBox="0 0 32 32" width="32" height="32">
-            <circle id="core-spinner"
-                    style="stroke: <?= (in_array(THEME, ["#fff", "#FFF", "#ffffff", "#FFFFFF"]) ? "#555" : THEME) ?>"
-                    cx="16" cy="16" r="14" fill="none"></circle>
+            <circle id="core-spinner" style="stroke: #fff" cx="16" cy="16" r="14" fill="none"></circle>
         </svg>
     </div>
 
