@@ -2049,7 +2049,7 @@ function defaultPageTransitionPosition(direction, $element, route, scroll) {
     if ($(".cache-content[rel='" + route + "']").length) {
         $aux = $(".cache-content[rel='" + route + "']").removeClass("hide").css({"top": topHeader + "px"});
     } else {
-        $aux = $("<section />").css(style).addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
+        $aux = $("<section />").css(style).css("top", "env(safe-area-inset-top)").addClass("core-class-container r-network r-403 r-" + file).data("file", file).insertBefore($element);
     }
 
     if (direction === 'fade') {
