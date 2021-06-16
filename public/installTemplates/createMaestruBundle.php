@@ -347,7 +347,7 @@ if(file_exists(PATH_HOME . "{$www}/config.php"))
 if($prod) {
     exec("cd {$folderCordova} && cordova build browser --prod 2>&1", $feedbacks["browser build prod"]);
 
-    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+//    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
 
     exec("cd {$folderCordova} && cordova build android --release 2>&1", $feedbacks["android build prod"]);
 //    exec("cd {$folderCordova}/platforms/android && ./gradlew bundle 2>&1", $feedbacks["android bundle"]);
@@ -355,7 +355,7 @@ if($prod) {
 } else {
     exec("cd {$folderCordova} && cordova build browser 2>&1", $feedbacks["browser build dev"]);
 
-    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+//    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
 
     exec("cd {$folderCordova} && cordova build android 2>&1", $feedbacks["android build dev"]);
 }

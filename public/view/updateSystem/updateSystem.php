@@ -14,7 +14,7 @@
                 } else {
                     toast("Senha inválida", 2000, "toast-warning");
                 }
-            });
+            }).catch(() => {toast("sem conexão")});
         }
     }
 </script>

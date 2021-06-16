@@ -973,7 +973,7 @@ function lightBoxTouch($images) {
 function setUpdateVersion() {
     return AJAX.post("update", {update: !0}).then(data => {
         localStorage.update = data;
-    });
+    }).catch(() => {});
 }
 
 function checkUserOptions() {
@@ -1112,33 +1112,36 @@ function isEmpty(valor) {
 
 async function checkUpdate() {
     if (isOnline() && SERVICEWORKER) {
-        let latestVersion = await AJAX.post("checkUpdate");
+        let latestVersion = await AJAX.post("checkUpdate").catch(() => {});
 
-        /**
-         * Check version server to update app info
-         * */
-        if (!localStorage.update)
-            localStorage.update = latestVersion.version_server;
-        else if (parseFloat(latestVersion.version_server) > parseFloat(localStorage.update))
-            toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;box-shadow: 0px 2px 5px -4px black' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+        if(typeof latestVersion === "object" && latestVersion !== null) {
 
-        /**
-         * Check version app to require update
-         * */
-        if(window.hasOwnProperty("cordova")) {
-            if(latestVersion.version_app !== "" && latestVersion.version_app !== VERSION && typeof showPopUpModal === "function") {
-                showPopUpModal({
-                    titulo: "Nova versão",
-                    descricao: '<img src="' + HOME + 'public/assets/img/lights.png" style="height:auto;position: absolute;z-index:3;width: 160%;left: -30%;top: -55px;transform:rotate(90deg)">'
-                        + '<lottie-player src="' + HOME + 'public/assets/lottie/update.json" style="margin-top: -25px" background="transparent" speed="1" loop autoplay></lottie-player>'
-                        + '<div style="position: relative;z-index: 11;text-align: center;font-size: 16px;line-height: 21px;margin-top: 50px;">Atualize seu app ' + SITENAME + ' para continuar utilizando!<a target="_blank" href="market://details?id=paygas.com.br" class="btn btn-primary py-4 pl-4 pr-4 font-weight-bold" style="position: fixed;bottom: 20px;left: 10%;width: 80%;text-transform: uppercase">atualizar</a></div>'
-                        + '<style>.modal-dialog, .modal-body {height: 100vh}.btn-primary[data-dismiss=\'modal\'] {display: none}#core-content {overflow: hidden;height: 100vh}</style>'
-                });
-                setInterval(function () {
-                    $("#notificationModal, #notificationModalParent").off();
-                    $('[data-dismiss="modal"]').parent().parent().parent().remove();
-                }, 100);
-                window.onpopstate = null;
+            /**
+             * Check version server to update app info
+             * */
+            if (!localStorage.update)
+                localStorage.update = latestVersion.version_server;
+            else if (parseFloat(latestVersion.version_server) > parseFloat(localStorage.update))
+                toast("<div class='left'>Nova versão</div><button style='float: right;border: none;outline: none;padding: 10px 20px;border-radius: 5px;margin: -5px -11px -5px 20px;background: #fff;color: #555;cursor: pointer;box-shadow: 0px 2px 5px -4px black' onclick='updateCache()'>atualizar</button>", 15000, "toast-success");
+
+            /**
+             * Check version app to require update
+             * */
+            if(window.hasOwnProperty("cordova")) {
+                if(latestVersion.version_app !== "" && latestVersion.version_app !== VERSION && typeof showPopUpModal === "function") {
+                    showPopUpModal({
+                        titulo: "Nova versão",
+                        descricao: '<img src="' + HOME + 'public/assets/img/lights.png" style="height:auto;position: absolute;z-index:3;width: 160%;left: -30%;top: -55px;transform:rotate(90deg)">'
+                            + '<lottie-player src="' + HOME + 'public/assets/lottie/update.json" style="margin-top: -25px" background="transparent" speed="1" loop autoplay></lottie-player>'
+                            + '<div style="position: relative;z-index: 11;text-align: center;font-size: 16px;line-height: 21px;margin-top: 50px;">Atualize seu app ' + SITENAME + ' para continuar utilizando!<a target="_blank" href="market://details?id=paygas.com.br" class="btn btn-primary py-4 pl-4 pr-4 font-weight-bold" style="position: fixed;bottom: 20px;left: 10%;width: 80%;text-transform: uppercase">atualizar</a></div>'
+                            + '<style>.modal-dialog, .modal-body {height: 100vh}.btn-primary[data-dismiss=\'modal\'] {display: none}#core-content {overflow: hidden;height: 100vh}</style>'
+                    });
+                    setInterval(function () {
+                        $("#notificationModal, #notificationModalParent").off();
+                        $('[data-dismiss="modal"]').parent().parent().parent().remove();
+                    }, 100);
+                    window.onpopstate = null;
+                }
             }
         }
     }
@@ -1192,10 +1195,13 @@ function toggleSidebar(action = 'toggle') {
 async function logoutDashboard() {
     if (isOnline()) {
         if(confirm("Sair da sua conta?")) {
-            toast("Saindo...", 42000);
-            await AJAX.post("logout");
-            await setCookieAnonimo();
-            location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
+            AJAX.post("logout").then(async () => {
+                toast("Saindo...", 42000);
+                await setCookieAnonimo();
+                location.href = HOME + (HOME !== SERVER ? "index.html?url=index" : "");
+            }).catch(() => {
+                toast("Servidor offline! Tente mais tarde...", 42000);
+            })
         }
     } else {
         toast("Sem Conexão", 1200)
@@ -1533,13 +1539,13 @@ async function clearCacheUser() {
      */
     let syncData = await dbLocal.exeRead("_syncDB");
     if (!isEmpty(syncData))
-        await AJAX.post("up/sync", syncData);
+        await AJAX.post("up/sync", syncData).catch(() => {});
 
     /**
      * Clear history user on server
      * Clear all indexedDB
      */
-    await AJAX.post("clearUserHistory");
+    await AJAX.post("clearUserHistory").catch(() => {});
     if(!isEmpty(dicionarios)) {
         for (let entity of Object.keys(dicionarios))
             dbLocal.clear(entity);
@@ -1571,7 +1577,7 @@ async function clearCacheAll() {
      */
     let syncData = await dbLocal.exeRead("_syncDB");
     if (!isEmpty(syncData))
-        await AJAX.post("up/sync", syncData);
+        await AJAX.post("up/sync", syncData).catch(() => {});
 
     /**
      * Clear all cache for this user
@@ -1585,7 +1591,7 @@ async function clearCacheAll() {
      * Clear history user on server
      * Clear indexedDB
      */
-    await AJAX.post("clearUserHistory");
+    await AJAX.post("clearUserHistory").catch(() => {});
     if(!isEmpty(dicionarios)) {
         for (let entity of Object.keys(dicionarios))
             dbLocal.clear(entity);
@@ -2160,9 +2166,9 @@ function acceptInstallApp() {
         deferredPrompt.userChoice.then(choiceResult => {
             localStorage.installAppAction = choiceResult.outcome === 'accepted';
             if (localStorage.installAppAction)
-                AJAX.post("appInstaled", {success: !0, ios: isIos()});
+                AJAX.post("appInstaled", {success: !0, ios: isIos()}).catch(() => {});
             else
-                AJAX.post("appInstaled", {success: !1, ios: isIos()});
+                AJAX.post("appInstaled", {success: !1, ios: isIos()}).catch(() => {});
         });
     }
 }
@@ -2171,7 +2177,7 @@ function closeInstallAppPrompt(onInstall) {
     let $installCard = $("#installAppCard").addClass("transformDown");
     $("#core-overlay").removeClass("active activeBold");
     localStorage.installAppAction = 0;
-    AJAX.post("appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()});
+    AJAX.post("appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()}).catch(() => {});
 
     setTimeout(function () {
         $installCard.remove();
@@ -2437,7 +2443,7 @@ var PARAM, app = {
         }, 1900);
     }, applyView: async function (file, $div) {
         $div = typeof $div === "undefined" ? $("#core-content") : $div;
-        let resultSSEget = await AJAX.post('setUserLastView', {"v": app.file});
+        let resultSSEget = await AJAX.post('setUserLastView', {"v": app.file}).catch(() => {})
 
         /**
          * Update the cache get if have before load view
@@ -3059,7 +3065,7 @@ async function setUserData(field, value) {
      * Update user in server base
      */
     if (isOnline())
-        return AJAX.post("setUserData", updates);
+        return AJAX.post("setUserData", updates).catch(() => {});
 }
 
 /**
@@ -3208,9 +3214,9 @@ const sse = {
                 if(!isEmpty(sync)) {
                     for(let s of sync) {
                         if(typeof s.action === "delete" && typeof s.dados.id === "number")
-                            AJAX.post("exeDelete", {entity: s.entity, id: s.dados.id});
+                            AJAX.post("exeDelete", {entity: s.entity, id: s.dados.id}).catch(() => {});
                         else if(typeof s.entity === "string" && s.entity.length && !isEmpty(s.dados))
-                            AJAX.post("exeCreate", s);
+                            AJAX.post("exeCreate", s).catch(() => {});
                     }
 
                     dbLocal.clear("_syncDB");

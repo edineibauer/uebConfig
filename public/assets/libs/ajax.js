@@ -278,25 +278,29 @@ class AJAX {
 
     static async post(fileInSetFolder, postData) {
         return new Promise((s, f) => {
-            $.ajax({
-                type: "POST",
-                url: SERVER + 'post',
-                data: convertEmptyArrayToNull(Object.assign({
-                    fileInSetFolder: fileInSetFolder,
-                    maestruToken: localStorage.token
-                }, postData)),
-                success: function(data) {
-                    _postReturnData(data).then(d => {
-                        s(d);
-                    }).catch(e => {
-                        f(e);
-                    });
-                },
-                fail: function () {
-                    f("no-network");
-                },
-                dataType: "json"
-            });
+            if(navigator.onLine) {
+                $.ajax({
+                    type: "POST",
+                    url: SERVER + 'post',
+                    data: convertEmptyArrayToNull(Object.assign({
+                        fileInSetFolder: fileInSetFolder,
+                        maestruToken: localStorage.token
+                    }, postData)),
+                    success: function (data) {
+                        _postReturnData(data).then(d => {
+                            s(d);
+                        }).catch(e => {
+                            f(e);
+                        });
+                    },
+                    error: function () {
+                        f("no-network");
+                    },
+                    dataType: "json"
+                });
+            } else {
+                f("no-network");
+            }
         })
     }
 

@@ -5,6 +5,7 @@
 }
 
 html {
+    overscroll-behavior-y: none;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;

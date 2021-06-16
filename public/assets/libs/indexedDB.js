@@ -720,7 +720,7 @@ const _dbRemote = {
             return new Promise(function (resolve) {
                 AJAX.post("load/entity", {entity: entity, historic: (hist[entity] || null)}).then(data => {
                     resolve(data);
-                });
+                }).catch(() => {});
             }).then(response => {
                 if (response === 0)
                     return 0;

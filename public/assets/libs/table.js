@@ -335,7 +335,7 @@ $(function () {
         let td = grid.$element.find("tbody").find("td[rel='" + val + "']");
 
         grid.fields.find(s => s.column === val).show = checked;
-        AJAX.post("saveFieldsGrid", {type: "grid", entity: grid.entity, fields: grid.fields});
+        AJAX.post("saveFieldsGrid", {type: "grid", entity: grid.entity, fields: grid.fields}).catch(() => {});
 
         if(checked) {
             th.removeClass("hide");
