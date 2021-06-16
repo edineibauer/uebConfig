@@ -57,7 +57,7 @@ if(!file_exists($folderCordova)) {
 /**
  * Update config.xml version if in prod
  */
-if($prod && (isset($_GET['v']) && $_GET['v'] == 1) && file_exists("{$folderCordova}/config.xml")) {
+if($prod && file_exists("{$folderCordova}/config.xml")) {
     $c = file_get_contents("{$folderCordova}/config.xml");
     $v = explode('" ', explode(' version="', $c)[1])[0];
     $vv = explode(".", $v);
@@ -204,6 +204,7 @@ unlink( PATH_HOME . "{$www}/index.php");
  * and set setor at one of each time to create assets to this setor
  */
 \Config\Config::setUser("T!123");
+$listaViewIgnore = [];
 $setorApp = (file_exists(PATH_HOME . "_config/appSetorAllow.json") ? json_decode(file_get_contents(PATH_HOME . "_config/appSetorAllow.json"), true) : []);
 foreach (\Config\Config::getSetores() as $setor) {
     /**
@@ -268,6 +269,23 @@ foreach (\Config\Config::getSetores() as $setor) {
         if ($link->getRoute()) {
 
             try {
+
+                /**
+                 * Permissão para acesso a esta view
+                 * Verifica se tem acesso para então criar o render
+                 */
+                $ignoraView = false;
+                if(!empty($link->getParam()['setor']))
+                    $ignoraView = ((is_string($link->getParam()['setor']) && $link->getParam()['setor'] !== $setor) || (is_array($link->getParam()['setor']) && !in_array($setor, array_filter($link->getParam()['setor']))));
+
+                if(!empty($link->getParam()['!setor']))
+                    $ignoraView = ((is_string($link->getParam()['!setor']) && $link->getParam()['!setor'] === $setor) || (is_array($link->getParam()['!setor']) && in_array($setor, array_filter($link->getParam()['!setor']))));
+
+                if($ignoraView) {
+                    $listaViewIgnore[$setor][] = $view;
+                    continue;
+                }
+
                 if(pathinfo($link->getRoute(), PATHINFO_EXTENSION) === "php") {
                     ob_start();
                     include $link->getRoute();
@@ -321,6 +339,22 @@ foreach (\Config\Config::getSetores() as $setor) {
  */
 Helper::recurseCopy(PATH_HOME . "assetsPublic", PATH_HOME . "{$www}/assetsPublic");
 Helper::recurseCopy(PATH_HOME . "public/assets", PATH_HOME . "{$www}/public/assets");
+
+if(!empty($listaViewIgnore)){
+    foreach ($listaViewIgnore as $setor => $views) {
+        foreach ($views as $view) {
+
+            /**
+             * Exclui o assets css e js dessa view para esse setor
+             */
+            if(file_exists(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.js"))
+                unlink(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.js");
+
+            if(file_exists(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.css"))
+                unlink(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.css");
+        }
+    }
+}
 
 if(file_exists(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js"))
     Config::createFile(PATH_HOME . "{$www}/sseWork.js", str_replace("var SERVER = ''", "var SERVER = '" . $serverProduction . "'", file_get_contents(PATH_HOME . VENDOR . "config/public/installTemplates/sseWork.js")));
