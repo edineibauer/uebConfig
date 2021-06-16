@@ -465,6 +465,8 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
 }
 
 .core-sidebar-bottom {
