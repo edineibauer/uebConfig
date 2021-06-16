@@ -112,9 +112,7 @@
 
 @media only screen and (max-width: 993px) {
     .toast {
-        padding-top: calc(16px + constant(safe-area-inset-top));
         padding-top: calc(16px + env(safe-area-inset-top));
-        height: calc(70px + constant(safe-area-inset-top));
         height: calc(70px + env(safe-area-inset-top));
     }
 }

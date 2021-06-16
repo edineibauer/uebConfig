@@ -465,7 +465,6 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    padding-top: constant(safe-area-inset-top);
     padding-top: env(safe-area-inset-top);
 }
 
@@ -903,32 +902,24 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     }
 
     #core-header > :first-child {
-        padding-top: constant(safe-area-inset-top);
         padding-top: env(safe-area-inset-top);
     }
 
     .r-network {
-        padding-top: constant(safe-area-inset-top);
         padding-top: env(safe-area-inset-top);
     }
 
     #core-sidebar {
-        padding-top: constant(safe-area-inset-top);
-        padding-bottom: constant(safe-area-inset-bottom);
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
     }
 
     .core-sidebar-bottom {
-        padding-bottom: constant(safe-area-inset-bottom);
         padding-bottom: env(safe-area-inset-bottom);
-        height: calc(51px + constant(safe-area-inset-bottom));
         height: calc(51px + env(safe-area-inset-bottom));
     }
 
     #core-header-nav-bottom {
-        padding-bottom: constant(safe-area-inset-bottom, 0);
-        height: calc(50px + constant(safe-area-inset-bottom, 0));
         padding-bottom: env(safe-area-inset-bottom, 0);
         height: calc(50px + env(safe-area-inset-bottom, 0));
     }
