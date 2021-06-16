@@ -1886,22 +1886,18 @@ async function cacheCoreApp() {
     })
 }
 
-function clearIndexedDbGets() {
-    let clear = [];
-    clear.push(dbLocal.clear('__historic'));
-    clear.push(dbLocal.clear('__allow'));
-    clear.push(dbLocal.clear('__dicionario'));
-    clear.push(dbLocal.clear('__info'));
-    clear.push(dbLocal.clear('__menu'));
-    clear.push(dbLocal.clear('__template'));
-    clear.push(dbLocal.clear('__graficos'));
-    clear.push(dbLocal.clear('__navbar'));
-    clear.push(dbLocal.clear('__react'));
-    clear.push(dbLocal.clear('__relevant'));
-    clear.push(dbLocal.clear('__general'));
-    clear.push(dbLocal.clear('__totalRegisters'));
-
-    return Promise.all(clear);
+async function clearIndexedDbGets() {
+    await dbLocal.clear('__historic');
+    await dbLocal.clear('__allow');
+    await dbLocal.clear('__dicionario');
+    await dbLocal.clear('__info');
+    await dbLocal.clear('__menu');
+    await dbLocal.clear('__template');
+    await dbLocal.clear('__navbar');
+    await dbLocal.clear('__react');
+    await dbLocal.clear('__relevant');
+    await dbLocal.clear('__general');
+    return dbLocal.clear('__totalRegisters');
 }
 
 async function getIndexedDbGets() {
