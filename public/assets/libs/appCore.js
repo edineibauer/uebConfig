@@ -2020,7 +2020,7 @@ function getPaddingTopContent() {
     return 0;
 }
 
-function defaultPageTransitionPosition(direction, $element, route, scroll) {
+function defaultPageTransitionPosition(direction, $element, route) {
     aniTransitionPage = $element;
     let topHeader = $("#core-header").css("opacity") !== "0" && typeof $("#core-header").children().first()[0] !== "undefined" ? $("#core-header").children().first()[0].clientHeight : 0;
     let left = $element[0].getBoundingClientRect().left;
@@ -2058,7 +2058,7 @@ function defaultPageTransitionPosition(direction, $element, route, scroll) {
     return $aux
 }
 
-function animateTimeout($element, $aux, scroll, backup) {
+async function animateTimeout($element, $aux, scroll, backup) {
     $aux.removeClass("pageAnimateFoward pageAnimateBack").attr("id", $element.attr('id')).css({
         "position": "relative",
         "top": "initial",
@@ -2093,6 +2093,19 @@ function animateTimeout($element, $aux, scroll, backup) {
 
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
+
+    if(window.scrollY !== scroll) {
+        let tryScroll = true;
+        setTimeout(function () {
+            tryScroll = false;
+        }, 3000);
+        while (tryScroll && window.scrollY !== scroll) {
+            await sleep(20);
+            window.scrollTo(0, window.scrollY - 1);
+            await sleep(1);
+            window.scrollTo(0, scroll);
+        }
+    }
 }
 
 async function animateForward($element, $aux, style, backup, scroll) {
@@ -2738,7 +2751,7 @@ async function _pageTransition(type, animation, target, param, scroll, scrollNex
 
         let $element = (typeof target === "undefined" ? $("#core-content") : (typeof target === "string" ? $(target) : target));
         let topDistanceAux = (scrollNext > 0 ? -scrollNext : 0) + $element[0].getBoundingClientRect().top + scroll;
-        let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file, scroll));
+        let $page = (aniTransitionPage ? aniTransitionPage : defaultPageTransitionPosition(animation, $element, app.file));
 
         exeFunction(() => {
             let backup = [$page.css("margin-top"), $page.css("padding-top")];
