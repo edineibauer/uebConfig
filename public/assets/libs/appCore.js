@@ -2104,6 +2104,8 @@ async function animateTimeout($element, $aux, scroll, backup) {
             window.scrollTo(0, window.scrollY - 1);
             await sleep(1);
             window.scrollTo(0, scroll);
+
+            tryScroll = !(window.scrollY === scroll);
         }
     }
 }
