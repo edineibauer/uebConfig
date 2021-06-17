@@ -20,6 +20,7 @@
     width: 100%;
     background-color: transparent!important;
     backdrop-filter: blur(10px)!important;
+    -webkit-backdrop-filter: blur(10px)!important;
     border-radius: 0;
     height: 70px;
     z-index: 10002;
