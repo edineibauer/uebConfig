@@ -844,7 +844,7 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 }
 
 .pb-navbar {
-    padding-bottom: 50px !important
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important
 }
 
 .hide {
