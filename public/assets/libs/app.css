@@ -347,17 +347,17 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
 
 /* MENU BOTTOM */
 #core-header-nav-bottom {
-    transform: translateY(50px);
+    transform: translateY(calc(50px + env(safe-area-inset-bottom, 0)));
     transition: all ease .3s;
     position: fixed;
     z-index: 3;
     bottom: 0;
-    height: 50px;
+    height: calc(50px + env(safe-area-inset-bottom, 0));
     left: 0;
     width: 100%;
     background: var(--colorBox);
     box-shadow: 0 -3px 6px -6px var(--colorShadow);
-    padding: 0;
+    padding: 0 0 env(safe-area-inset-bottom, 0) 0;
 }
 
 #core-menu-custom-bottom {
@@ -917,11 +917,6 @@ h1.skeleton:after, h2.skeleton:after, h3.skeleton:after, h4.skeleton:after, h5.s
     .core-sidebar-bottom {
         padding-bottom: env(safe-area-inset-bottom);
         height: calc(51px + env(safe-area-inset-bottom));
-    }
-
-    #core-header-nav-bottom {
-        padding-bottom: env(safe-area-inset-bottom, 0);
-        height: calc(50px + env(safe-area-inset-bottom, 0));
     }
 
     .s-show {
