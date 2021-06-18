@@ -129,6 +129,8 @@ if(file_exists(PATH_HOME . "{$www}/service-worker.js"))
  */
 Helper::createFolderIfNoExist(PATH_HOME . "{$www}/view");
 Helper::createFolderIfNoExist(PATH_HOME . "{$www}/assetsPublic");
+Helper::createFolderIfNoExist(PATH_HOME . "{$www}/assetsPublic/img");
+Helper::createFolderIfNoExist(PATH_HOME . "{$www}/assetsPublic/img/splashscreens");
 Helper::createFolderIfNoExist(PATH_HOME . "{$www}/get");
 Helper::createFolderIfNoExist(PATH_HOME . "{$www}/public");
 Helper::createFolderIfNoExist(PATH_HOME . "{$www}/public/assets");
@@ -171,6 +173,18 @@ createSplash(PATH_HOME . "assetsPublic/img/favicon-96.png", PATH_HOME . "{$folde
 createSplash(PATH_HOME . "assetsPublic/img/favicon-144.png", PATH_HOME . "{$folderCordova}/res/android/splash/splash-land-xhdpi.png", 1280, 720);
 createSplash(PATH_HOME . "assetsPublic/img/favicon-192.png", PATH_HOME . "{$folderCordova}/res/android/splash/splash-land-xxhdpi.png", 1600, 960);
 createSplash(PATH_HOME . "assetsPublic/img/favicon-256.png", PATH_HOME . "{$folderCordova}/res/android/splash/splash-land-xxxhdpi.png", 1920, 1280);
+
+createSplash(PATH_HOME . "assetsPublic/img/favicon-48.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone1.png", 200, 320);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-72.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone2.png", 320, 480);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-96.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone3.png", 480, 800);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-144.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone4.png", 720, 1280);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-192.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone5.png", 960, 1600);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-256.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/iphone6.png", 1280, 1920);
+
+createSplash(PATH_HOME . "assetsPublic/img/favicon-96.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/ipad1.png", 800, 480);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-144.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/ipad2.png", 1280, 720);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-192.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/ipad3.png", 1600, 960);
+createSplash(PATH_HOME . "assetsPublic/img/favicon-256.png", PATH_HOME . "{$www}/assetsPublic/img/splashscreens/ipad4.png", 1920, 1280);
 
 /**
  * Escreve plugins variáveis ao config.xml
@@ -381,7 +395,7 @@ if(file_exists(PATH_HOME . "{$www}/config.php"))
 if($prod) {
     exec("cd {$folderCordova} && cordova build browser --prod 2>&1", $feedbacks["browser build prod"]);
 
-//    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
 
     exec("cd {$folderCordova} && cordova build android --release 2>&1", $feedbacks["android build prod"]);
 //    exec("cd {$folderCordova}/platforms/android && ./gradlew bundle 2>&1", $feedbacks["android bundle"]);
@@ -389,7 +403,7 @@ if($prod) {
 } else {
     exec("cd {$folderCordova} && cordova build browser 2>&1", $feedbacks["browser build dev"]);
 
-//    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
+    Config::createFile("{$www}/index.html", str_replace("const SERVICEWORKER = !0;", "const SERVICEWORKER = !1;", file_get_contents("{$www}/index.html")));
 
     exec("cd {$folderCordova} && cordova build android 2>&1", $feedbacks["android build dev"]);
 }
