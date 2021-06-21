@@ -83,21 +83,23 @@ function get_browser() {
 
 let versionBrowser = get_browser();
 var haveSupportCssNotPseudo = false;
-switch (versionBrowser.name) {
-    case "Chrome":
-    case "WebView":
-    case "WebView Android":
-    case "Edge":
-        haveSupportCssNotPseudo = versionBrowser.version > 87;
-        break;
-    case "Safari":
-        haveSupportCssNotPseudo = versionBrowser.version > 8;
-        break;
-    case "Firefox":
-        haveSupportCssNotPseudo = versionBrowser.version > 83;
-        break;
-    case "Opera":
-        haveSupportCssNotPseudo = versionBrowser.version > 73;
+if(typeof versionBrowser.name === "string" && typeof versionBrowser.version === "number") {
+    switch (versionBrowser.name) {
+        case "Chrome":
+        case "WebView":
+        case "WebView Android":
+        case "Edge":
+            haveSupportCssNotPseudo = versionBrowser.version > 87;
+            break;
+        case "Safari":
+            haveSupportCssNotPseudo = versionBrowser.version > 8;
+            break;
+        case "Firefox":
+            haveSupportCssNotPseudo = versionBrowser.version > 83;
+            break;
+        case "Opera":
+            haveSupportCssNotPseudo = versionBrowser.version > 73;
+    }
 }
 
 /**
