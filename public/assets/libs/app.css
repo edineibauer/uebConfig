@@ -13,8 +13,16 @@ html {
     transition: background ease .1s;
 }
 
+head:not(html head.classNotExist) {
+    font-size: 0;
+}
+
 body {
     margin: 0;
+}
+
+head:not(.cssNotSupport) {
+    font-size: 0;
 }
 
 ul {
