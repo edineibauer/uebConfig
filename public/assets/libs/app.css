@@ -21,10 +21,6 @@ body {
     margin: 0;
 }
 
-head:not(.cssNotSupport) {
-    font-size: 0;
-}
-
 ul {
     margin: 0;
 }
