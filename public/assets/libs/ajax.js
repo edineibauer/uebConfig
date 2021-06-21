@@ -405,7 +405,7 @@ class AJAX {
         let isViewBundle = HOME === "" && SERVER !== "";
         let originalView = (/\/$/.test(view) ? view.slice(0, -1) : view);
 
-        let url = (isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : SERVER + "view/" + originalView) + ($("head").css("font-size") === "0px" ? "" : "/oldCss");
+        let url = (isViewBundle ? "view/" + USER.setor + "/" + originalView + ($("head").css("font-size") === "0px" ? "" : ".old") + ".json" : SERVER + "view/" + originalView + ($("head").css("font-size") === "0px" ? "" : "/oldCss"));
         let home = new RegExp("^" + preg_quote(SERVER), "i");
         if(!isViewBundle && (!/^http/.test(url) || home.test(url)))
             url += "/maestruToken/" + localStorage.token;
