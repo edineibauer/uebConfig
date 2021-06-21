@@ -2158,56 +2158,7 @@ var dicionarios,
     historyReqPosition = 0,
     loadingEffect = null,
     deferredPrompt,
-    timeWaitClick = 0,
-    timerWriting;
-
-const isIos = () => {
-    let userAgent = window.navigator.userAgent;
-    return (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i));
-};
-
-const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-
-function acceptInstallApp() {
-    if (!localStorage.installAppAction) {
-        closeInstallAppPrompt(1);
-        deferredPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then(choiceResult => {
-            localStorage.installAppAction = choiceResult.outcome === 'accepted';
-            if (localStorage.installAppAction)
-                AJAX.post("appInstaled", {success: !0, ios: isIos()}).catch(() => {});
-            else
-                AJAX.post("appInstaled", {success: !1, ios: isIos()}).catch(() => {});
-        });
-    }
-}
-
-function closeInstallAppPrompt(onInstall) {
-    let $installCard = $("#installAppCard").addClass("transformDown");
-    $("#core-overlay").removeClass("active activeBold");
-    localStorage.installAppAction = 0;
-    AJAX.post("appInstaledPrompt", {success: typeof onInstall !== "undefined", ios: isIos()}).catch(() => {});
-
-    setTimeout(function () {
-        $installCard.remove();
-    }, 200);
-}
-
-function openInstallAppPrompt(force) {
-    if (!isInStandaloneMode() && typeof deferredPrompt !== "undefined" && typeof force === "boolean" && ((typeof force === "boolean" && force) || !localStorage.installAppAction)) {
-        getTemplates().then(tpl => {
-            $("#core-overlay").addClass("active activeBold");
-            $("#app").append(Mustache.render(tpl.installAppCard, {
-                home: HOME,
-                favicon: FAVICON,
-                sitename: SITENAME,
-                nome: USER.nome
-            }));
-        });
-    }
-}
+    timeWaitClick = 0;
 
 /**
  * Update data-get with the dados
@@ -3350,7 +3301,6 @@ async function onLoadDocument() {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        //openInstallAppPrompt();
     });
 
     window.onpopstate = maestruHistoryBack;
