@@ -32,7 +32,14 @@ if (!empty($url)) {
     $urlSplit = explode("/maestruToken/", $url);
     \Config\Config::setUser(!empty($urlSplit[1]) ? $urlSplit[1] : 0);
     $url = $urlSplit[0];
-    $link = new Link($urlSplit[0]);
+    $oldVersionCss = false;
+
+    if(preg_match("/\/oldCss$/i", $url)) {
+        $oldVersionCss = true;
+        $url = substr($url, 0, -7);
+    }
+
+    $link = new Link($url, null, $oldVersionCss);
 
     if ($link->getRoute()) {
 

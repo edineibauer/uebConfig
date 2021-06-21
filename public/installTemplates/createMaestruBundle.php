@@ -366,6 +366,9 @@ if(!empty($listaViewIgnore)){
 
             if(file_exists(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.css"))
                 unlink(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.css");
+
+            if(file_exists(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.old.css"))
+                unlink(PATH_HOME . "{$www}/assetsPublic/view/{$setor}/{$view}.min.old.css");
         }
     }
 }

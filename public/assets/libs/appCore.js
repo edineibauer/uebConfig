@@ -15,6 +15,11 @@ try {
     window.removeEventListener("testPassive", null, opts);
 } catch (e) {}
 
+function getChromeVersion () {
+    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+    return raw ? parseInt(raw[2], 10) : false;
+}
+
 /**
  * Load a url content into a javascript variable
  * return the content and a second time return the variable

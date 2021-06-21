@@ -766,41 +766,51 @@ Allow from env=let_me_in';
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
         Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view/{$setor}");
         $f = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.css", "w");
+        $fo = fopen(PATH_HOME . "assetsPublic/view/{$setor}/{$view}.min.old.css", "w");
 
         if (DEV) {
 
             $file = "";
+            $fileo = "";
 
             /**
              * If find CSS assets on view, so add all to the cache
              */
             if (!empty($viewCss)) {
                 foreach ($viewCss as $css) {
-                    if (file_exists($css))
+                    if (file_exists($css)) {
                         $file .= "\n" . (preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
+                        $fileo .= "\n" . (preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view, true));
+                    }
                 }
             }
 
             //Save CSS
             fwrite($f, $file);
+            fwrite($fo, $fileo);
 
         } else {
             $minifier = new \MatthiasMullie\Minify\CSS("");
+            $minifiero = new \MatthiasMullie\Minify\CSS("");
 
             /**
              * If find CSS assets on view, so add all to the cache
              */
             if (!empty($viewCss)) {
                 foreach ($viewCss as $css) {
-                    if (file_exists($css))
+                    if (file_exists($css)) {
                         $minifier->add(preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view));
+                        $minifiero->add(preg_match("/\/assets\/core\//i", $css) ? self::replaceVariablesConfig(file_get_contents($css)) : self::setPrefixToCssDefinition(self::replaceVariablesConfig(file_get_contents($css)), ".r-" . $view, true));
+                    }
                 }
             }
 
             //save CSS
             fwrite($f, $minifier->minify());
+            fwrite($fo, $minifiero->minify());
         }
         fclose($f);
+        fclose($fo);
     }
 
     /**
@@ -808,9 +818,10 @@ Allow from env=let_me_in';
      *
      * @param string $css
      * @param string $prefix
-     * @return string|string[]|null
+     * @param bool $notUserNotCssPseudo
+     * @return array|string|string[]|null
      */
-    public static function setPrefixToCssDefinition(string $css, string $prefix)
+    public static function setPrefixToCssDefinition(string $css, string $prefix, bool $notUserNotCssPseudo = false)
     {
         # Wipe all block comments
         $css = preg_replace('!/\*.*?\*/!s', '', $css);
@@ -854,7 +865,7 @@ Allow from env=let_me_in';
                             $splitSelector = explode(":", $selector);
                             $selectorPseudo = trim(isset($splitSelector[1]) ? str_replace($splitSelector[0], "", $selector) : "");
                             $selector = trim($splitSelector[0]);
-                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . trim(str_replace("{{selector}}", $selector, ":not({$prefix} .r-network:not({$prefix}) {{selector}})")) . $selectorPseudo;
+                            $subPart = $prefix . (preg_match('/^(html|body)/i', $subPart) ? str_replace(['html ', 'body ', 'html', 'body'], [" ", " ", "", ""], $subPart) : ' ' . $selector) . (!$notUserNotCssPseudo ? trim(str_replace("{{selector}}", $selector, ":not({$prefix} .r-network:not({$prefix}) {{selector}})")) : "") . $selectorPseudo;
                         }
                     }
                 }
