@@ -404,8 +404,23 @@ class AJAX {
     static async view(view) {
         let isViewBundle = HOME === "" && SERVER !== "";
         let originalView = (/\/$/.test(view) ? view.slice(0, -1) : view);
-        let versionChrome = getChromeVersion();
-        let url = (isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : SERVER + "view/" + originalView) + (versionChrome !== false && isNumberPositive(versionChrome) && versionChrome < 88 ? "/oldCss" : "");
+        let versionBrowser = get_browser();
+        let haveSupportCssNotPseudo = false;
+        switch (versionBrowser.name) {
+            case "Chrome":
+            case "Edge":
+                haveSupportCssNotPseudo = versionBrowser.version > 87;
+                break;
+            case "Safari":
+                haveSupportCssNotPseudo = versionBrowser.version > 8;
+                break;
+            case "Firefox":
+                haveSupportCssNotPseudo = versionBrowser.version > 83;
+                break;
+            case "Opera":
+                haveSupportCssNotPseudo = versionBrowser.version > 73;
+        }
+        let url = (isViewBundle ? "view/" + USER.setor + "/" + originalView + ".json" : SERVER + "view/" + originalView) + (haveSupportCssNotPseudo ? "" : "/oldCss");
         let home = new RegExp("^" + preg_quote(SERVER), "i");
         if(!isViewBundle && (!/^http/.test(url) || home.test(url)))
             url += "/maestruToken/" + localStorage.token;
