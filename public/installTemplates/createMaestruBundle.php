@@ -277,8 +277,69 @@ foreach (\Config\Config::getSetores() as $setor) {
      * for each view to this user, create assets
      */
     foreach ($views as $view => $dir) {
-        $link = new \Route\Link($view);
 
+        $link = new \Route\Link($view);
+        $data = ["response" => 1, "error" => "", "data" => ""];
+        if ($link->getRoute()) {
+
+            try {
+
+                /**
+                 * Permissão para acesso a esta view
+                 * Verifica se tem acesso para então criar o render
+                 */
+                $ignoraView = false;
+                if(!empty($link->getParam()['setor']))
+                    $ignoraView = ((is_string($link->getParam()['setor']) && $link->getParam()['setor'] !== $setor) || (is_array($link->getParam()['setor']) && !in_array($setor, array_filter($link->getParam()['setor']))));
+
+                if(!empty($link->getParam()['!setor']))
+                    $ignoraView = ((is_string($link->getParam()['!setor']) && $link->getParam()['!setor'] === $setor) || (is_array($link->getParam()['!setor']) && in_array($setor, array_filter($link->getParam()['!setor']))));
+
+                if($ignoraView) {
+                    $listaViewIgnore[$setor][] = $view;
+                    continue;
+                }
+
+                if(pathinfo($link->getRoute(), PATHINFO_EXTENSION) === "php") {
+                    ob_start();
+                    include $link->getRoute();
+                    $content = ob_get_contents();
+                    ob_end_clean();
+                } else {
+                    $content = file_get_contents($link->getRoute());
+                }
+
+                $data = ["response" => 1, "error" => "", "data" => [
+                    "title" => $link->getParam()['title'],
+                    "descricao" => $link->getParam()['descricao'],
+                    "front" => array_merge($link->getParam()['front'], ["variaveis" => $link->getParam()['variaveis'] ?? []]),
+                    "css" => $link->getParam()['css'],
+                    "js" => $link->getParam()['js'],
+                    "jsPre" => $link->getParam()['jsPre'],
+                    "head" => $link->getParam()['head'] ?? [],
+                    "header" => $link->getParam()['header'],
+                    "navbar" => $link->getParam()['navbar'],
+                    "templates" => $link->getParam()['templates'],
+                    "setor" => $link->getParam()['setor'],
+                    "!setor" => $link->getParam()['!setor'],
+                    "redirect" => $link->getParam()['redirect'] ?? "403",
+                    "cache" => $link->getParam()['cache'] ?? !1,
+                    "content" => $content
+                ]];
+
+            } catch (Exception $e) {
+                $data = ["response" => 2, "error" => "Erro na resposta do Servidor", "data" => ""];
+            }
+
+        } else {
+            $data["response"] = 4;
+        }
+        Config::createFile(PATH_HOME . "{$www}/view/{$setor}/{$view}.json", json_encode($data));
+
+        /**
+         * Versão old css
+         */
+        $link = new \Route\Link($view, null, true);
         $data = ["response" => 1, "error" => "", "data" => ""];
         if ($link->getRoute()) {
 
@@ -335,7 +396,7 @@ foreach (\Config\Config::getSetores() as $setor) {
             $data["response"] = 4;
         }
 
-        Config::createFile(PATH_HOME . "{$www}/view/{$setor}/{$view}.json", json_encode($data));
+        Config::createFile(PATH_HOME . "{$www}/view/{$setor}/{$view}.old.json", json_encode($data));
     }
 
     /**
@@ -394,6 +455,9 @@ if(file_exists(PATH_HOME . "{$www}/config.php"))
 
 //falta copiar/criar o arquivo google-services.json na pasta do projeto cordova (plugin FCM)
 //falta criar o arquivo build.json (chave do app android release)
+
+if(file_exists("{$folderCordova}/google-services.json") && file_exists("{$folderCordova}/platforms/android/app"))
+    copy("{$folderCordova}/google-services.json", "{$folderCordova}/platforms/android/app/google-services.json");
 
 if($prod) {
     exec("cd {$folderCordova} && cordova build browser --prod 2>&1", $feedbacks["browser build prod"]);
