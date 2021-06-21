@@ -408,6 +408,8 @@ class AJAX {
         let haveSupportCssNotPseudo = false;
         switch (versionBrowser.name) {
             case "Chrome":
+            case "WebView":
+            case "WebView Android":
             case "Edge":
                 haveSupportCssNotPseudo = versionBrowser.version > 87;
                 break;
