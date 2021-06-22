@@ -2093,21 +2093,6 @@ async function animateTimeout($element, $aux, scroll, backup) {
 
     aniTransitionPage = null;
     window.scrollTo(0, scroll);
-
-    if(window.scrollY !== scroll) {
-        let tryScroll = true;
-        setTimeout(function () {
-            tryScroll = false;
-        }, 3000);
-        while (tryScroll && window.scrollY !== scroll) {
-            await sleep(20);
-            window.scrollTo(0, window.scrollY - 1);
-            await sleep(1);
-            window.scrollTo(0, scroll);
-
-            tryScroll = !(window.scrollY === scroll);
-        }
-    }
 }
 
 async function animateForward($element, $aux, style, backup, scroll) {
