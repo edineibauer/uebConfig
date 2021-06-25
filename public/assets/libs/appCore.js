@@ -1128,7 +1128,7 @@ async function checkUpdate() {
              * Check version app to require update
              * */
             if(window.hasOwnProperty("cordova")) {
-                if(latestVersion.version_app !== "" && latestVersion.version_app !== VERSION && typeof showPopUpModal === "function") {
+                if(latestVersion.version_app !== "" && latestVersion.version_app > VERSION && typeof showPopUpModal === "function") {
                     showPopUpModal({
                         titulo: "Nova versão",
                         descricao: '<img src="' + HOME + 'public/assets/img/lights.png" style="height:auto;position: absolute;z-index:3;width: 160%;left: -30%;top: -55px;transform:rotate(90deg)">'
